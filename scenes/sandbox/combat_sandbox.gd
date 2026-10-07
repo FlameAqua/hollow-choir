@@ -418,7 +418,7 @@ func _build_form() -> void:
 	_execution = _option_row("Execution", execution_entries, "Who performs action commands and reactions.")
 	_autoplay = _check_row("Autopilot picks actions", "The party AI chooses actions (watch or test execution only).")
 	_reasons = _check_row("Show AI reasoning", "Enemy intent tooltips and the log explain why each move was chosen.")
-	_record = _check_row("Record progress", "Bestiary research and weapon mastery are written to the current save.")
+	_record = _check_row("Record progress", "Bestiary research and weapon mastery from this battle are saved to your progress (slot 1).")
 	_seed = SpinBox.new()
 	_seed.min_value = 1
 	_seed.max_value = 99999

@@ -8,6 +8,7 @@ evidence for playtests, not verdicts.
 
 Execution profiles: **MISS** = never lands a command or reaction, **GOOD** = reliable, **PERFECT** =
 expert, **MIXED** = realistic spread. Round targets (GDD): normal 3–5, elite 4–7, boss 7–13.
+Full tables: [`docs/reports/M1_SIMULATION.md`](reports/M1_SIMULATION.md).
 
 ---
 
@@ -63,7 +64,8 @@ poor:
 | Hammer, MIXED — win % / damage taken | 100 / 104 | 100 / 111 | 100 / 94 |
 
 Story is a strong accessibility lever (it extends channels and avoids stacking lethal attacks);
-Adventurer → Tactician changes little once execution is decent.
+Tactician does punish weak play harder (Rot Grove, Sword, MISS: 126 → 145 → 169 damage taken across
+the tiers) but changes little once execution is decent.
 
 Cause: enemy kits are small (2–4 moves), so better choices have little room to matter, and one good
 reaction cancels most of any single plan.
@@ -114,7 +116,15 @@ into a lost turn, so M1 ignores crossed-out keys (the first *allowed* key still 
 M1 defaults: confirm A, back B, command A or X, Brace LB, Evade X, Parry RB, details Y, log Back,
 pause Start. Evade and command share X because they never overlap in time.
 
-## Q10 — Smaller calls made during implementation (veto if needed)
+## Q10 — Measuring the Bestiary test
+Research gates information (numbers, weaknesses, move names, AI reasons), never stats. The simulation
+autopilot reads exact numbers regardless of research, so `--research=MASTERED` reproduces the
+baseline exactly and the "research gives a tactical advantage" test cannot be measured by sims today.
+**Proposal (tooling, needs approval as scope):** a knowledge-limited autopilot policy that only uses
+what the HUD shows at a given research level (unknown weaknesses treated as neutral, intents as threat
+bands). Until then, the Bestiary test is a human playtest (sandbox *Bestiary knowledge* selector).
+
+## Q11 — Smaller calls made during implementation (veto if needed)
 - Party Focus starts at 2, enemies gain +1 per activation and pay for big moves with it.
 - A party ambush lets the party act first in round 1 and removes 25 % of every enemy's Stagger; an
   enemy ambush lets the enemies act first in round 1.

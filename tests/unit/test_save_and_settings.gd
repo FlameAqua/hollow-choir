@@ -136,3 +136,28 @@ func test_game_state_builds_loadout_from_ids() -> void:
 	GameState.progress.loadout_weapon = &"does_not_exist"
 	assert_eq(GameState.build_loadout().weapon.id, &"pilgrims_edge", "unknown ids fall back safely")
 	GameState.progress = previous
+
+
+func test_recorded_battles_are_saved_and_resumed_next_session() -> void:
+	var previous_progress := GameState.progress
+	var previous_slot := GameState.active_slot
+	var previous_resumed: bool = GameState._session_resumed
+	GameState.active_slot = 99 # Throwaway slot: never touches a player's save.
+	GameState.new_game()
+	var result := BattleResult.new()
+	result.outcome = Enums.BattleOutcome.VICTORY
+	result.research[&"thornhound"] = PackedInt32Array([Enums.ResearchSource.INSPECT])
+	result.weapon_uses[&"pilgrims_edge"] = 3
+	GameState.record_battle(result)
+	assert_true(SaveManager.has_slot(99), "recording a battle saves the active slot")
+	GameState.new_game()
+	GameState._session_resumed = false
+	assert_true(GameState.resume_session(), "the next session loads it")
+	assert_gt(GameState.progress.bestiary.points.get(&"thornhound", 0), 0, "research survived the round trip")
+	assert_eq(GameState.progress.weapon_mastery.get(&"pilgrims_edge", 0), 3, "mastery survived the round trip")
+	assert_eq(GameState.progress.battles_won, 1)
+	assert_false(GameState.resume_session(), "resumes only once per run")
+	SaveManager.delete_slot(99)
+	GameState.active_slot = previous_slot
+	GameState.progress = previous_progress
+	GameState._session_resumed = previous_resumed

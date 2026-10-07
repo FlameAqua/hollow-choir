@@ -7,7 +7,7 @@ roadmap's **Foundation**, **Combat toy** and **Combat ecosystem** phases. Everyt
 non-goal there (overworld, hub, quests, puzzles, Pressure, crafting UIs, loot, narrative, music, final
 art) is still out of scope.
 
-**Status:** complete and playable. 119 automated tests pass (unit, content and headless UI suites);
+**Status:** complete and playable. 120 automated tests pass (unit, content and headless UI suites);
 all 153 scripts compile; batch simulations run for every encounter × loadout × execution profile.
 
 ## How to try it (five minutes)
@@ -113,7 +113,9 @@ Highlights for the Director:
   sources, weapon mastery, and empty sections for inventory, companions, familiars, quests, regions,
   world choices, home upgrades and stats — present now so later milestones need no migration.
 - `GameState.record_battle()` folds a `BattleResult` into bestiary research and weapon mastery
-  (uses + Perfects). The sandbox records only when *Record progress* is ticked.
+  (uses + Perfects) and saves the active slot; the main menu resumes that slot once per run
+  (`GameState.resume_session()`). The sandbox records only when *Record progress* is ticked, which
+  makes "Bestiary knowledge: From save" grow across sessions.
 - Settings are global in `user://settings.cfg` (D-009); the sandbox remembers its form in
   `user://sandbox.cfg`. Neither affects save slots.
 
@@ -124,7 +126,7 @@ See [`docs/TESTING.md`](../TESTING.md). In short:
 ```sh
 godot --headless --path . --import
 godot --headless --path . --script res://tools/check_scripts.gd     # 153 scripts, 0 failed
-godot --headless --path . --script res://tests/run_tests.gd         # 119 passed, 0 failed
+godot --headless --path . --script res://tests/run_tests.gd         # 120 passed, 0 failed
 godot --headless --path . --script res://tools/simulate.gd -- --encounter=all --exec=MISS,GOOD,PERFECT,MIXED --runs=50
 ```
 
@@ -143,7 +145,7 @@ plus the manual acceptance checklist in TESTING §5 (one row per GDD acceptance 
 | Build | Partly met | dominance tables show no loadout dominating every matchup; the autopilot under-uses techniques (Q6) |
 | Loot | Met for the slice | `test_rarity_is_not_raw_power`; Merciful Iron (Rare) has lower base power than Pilgrim's Edge |
 | Environment | Met by design; confirm by playtest | Flooded Ground changes Evade (soaks you), Shock (chains), Burn (shorter) |
-| Bestiary | Met | numbers, weaknesses, move names and "why" are research-gated; Inspect reveals at UNDERSTOOD |
+| Bestiary | Met by construction; needs a playtest | numbers, weaknesses, move names and "why" are research-gated; Inspect reveals at UNDERSTOOD; sims cannot measure it yet (Q10) |
 | Corruption, Return loop | Not in M1 | later milestones |
 
 ## KNOWN LIMITATIONS
@@ -164,6 +166,8 @@ plus the manual acceptance checklist in TESTING §5 (one row per GDD acceptance 
   is no per-player timing offset setting yet.
 - **Text scale** updates theme-driven text immediately; a few explicitly sized labels update on the
   next screen.
+- **One implicit save slot.** Slots, migration and atomic writes exist and are tested, but there is
+  no slot picker, new-game or delete UI yet (the vertical slice's "complete save/load flow").
 - **Localization** is not wired: player-facing strings live in data and code, not in translation
   tables.
 - **Untested on target hardware.** Visual checks ran under Xvfb/OpenGL; gamepad and Windows window
@@ -183,10 +187,32 @@ plus the manual acceptance checklist in TESTING §5 (one row per GDD acceptance 
 - **Art:** swap `UnitView`'s silhouette for `sprite_frames`; widgets read colours/shapes from data.
 - **AI:** add `ConsiderationType`s; role defaults are data; difficulty gates are per consideration.
 - **Tools:** the CLI emits JSON (`--out=…json`) for external balance analysis; more autopilot policies
-  can be added beside SMART / BASIC_ONLY / RANDOM.
+  can be added beside SMART / BASIC_ONLY / RANDOM — notably a knowledge-limited policy that only uses
+  what the HUD shows at a given research level, which would make the Bestiary test measurable.
 - **Accessibility:** input timing offset, colour-blind palettes (icons are already shape-coded),
   per-cue volume.
 
 ## SIMULATION FINDINGS
 
-(filled in below from the M1 matrices)
+Full tables: [`docs/reports/M1_SIMULATION.md`](M1_SIMULATION.md) (≈ 8,000 simulated battles; commands
+included so anyone can reproduce them). Headlines, all at Adventurer / Standard unless stated:
+
+1. **Starter viability holds.** Every starter loadout beats the boss in 100 % of GOOD, PERFECT and
+   MIXED runs (Sword: 12.0 rounds at GOOD) and loses with MISS execution (Sword 0 %, Hammer 40 %,
+   Bow 2 %). The boss sits inside its 7–13 round target for all loadouts.
+2. **Execution decides cost, not outcome, in normal fights.** MISS still wins ~100 % of normal
+   encounters but takes 3–5× the damage of MIXED; elites and the boss do require execution
+   (Design Questions Q3).
+3. **Weapons win different fights.** Hammer clears the flooded fights fastest (3.7–3.9 rounds vs
+   5.2–5.4) but is slowest in Rot Grove (5.5 vs Sword 4.4) and suffers most against Bleed (Thornhound
+   Pack at MISS: 74 % vs Sword 98 %) — the designed strenuous/Bleed interaction. No loadout dominates.
+4. **Tactician is smarter but rarely harder.** Identical stats; Tactician lowers MISS win rates on the
+   elite (Bow 67 → 38 %) and inflicts more damage on weak players (Rot Grove Sword MISS: 126 → 169), but
+   with MIXED execution all tiers win 100 % (Q4).
+5. **Assisted keeps the tactics.** Damage taken roughly halves; the number of Stagger breaks a fight
+   needs does not change (boss 2.0 → 2.0) — evidence for the Timing test.
+6. **Perfect play nearly negates damage** (2–24 per fight) because successful Evade/Parry negate 100 %
+   (Q5).
+7. **Dead content.** Arc Storm, Cleansing Mire and Needle Hum are never chosen; causes and data-only
+   fixes are in Q6. Research levels do not change simulated outcomes because the autopilot is
+   omniscient — the Bestiary test needs playtests or a knowledge-limited autopilot (Q10).

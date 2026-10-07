@@ -7,6 +7,7 @@ var _first_button: Button
 
 
 func _ready() -> void:
+	GameState.resume_session()
 	var backdrop := Battlefield.new()
 	backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(backdrop)

@@ -37,7 +37,7 @@ allowed key locks your choice; crossed-out reactions are unavailable for that mo
 
 ```sh
 godot --headless --path . --import                                     # once per fresh checkout
-godot --headless --path . --script res://tests/run_tests.gd            # 119 tests, ~15 s
+godot --headless --path . --script res://tests/run_tests.gd            # 120 tests, ~15 s
 godot --headless --path . --script res://tools/check_scripts.gd        # compile every script
 godot --headless --path . --script res://tools/simulate.gd -- --encounter=all --exec=MISS,GOOD,PERFECT,MIXED --runs=100
 ```

@@ -66,8 +66,8 @@ func _initialize() -> void:
 						if research_level >= 0:
 							for enemy in encounter.enemies:
 								config.research_levels[enemy.id] = research_level
-						config.label = "%s | %s | %s | %s" % [encounter_id, loadout_id,
-							EnumText.simulated_execution(exec), EnumText.difficulty(tier)]
+						config.label = "%s | %s | %s | %s | %s" % [encounter_id, loadout_id,
+							EnumText.simulated_execution(exec), EnumText.difficulty(tier), EnumText.assist(assist_kind)]
 						var report := SimulationRunner.run_batch(config)
 						if _options.has("detail"):
 							print(report.to_markdown())
@@ -77,7 +77,8 @@ func _initialize() -> void:
 								print("    ! %s" % smell)
 						markdown.append(report.to_markdown())
 						json_rows.append(report.to_dict())
-						var key := "%s|%s|%s" % [encounter_id, EnumText.simulated_execution(exec), EnumText.difficulty(tier)]
+						var key := "%s|%s|%s|%s" % [encounter_id, EnumText.simulated_execution(exec), EnumText.difficulty(tier),
+							EnumText.assist(assist_kind)]
 						if not matrix.has(key):
 							matrix[key] = {}
 						matrix[key][loadout_id] = report.win_rate()

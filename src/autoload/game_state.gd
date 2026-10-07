@@ -4,10 +4,22 @@ extends Node
 
 var progress := ProgressState.new()
 var active_slot: int = 0
+var _session_resumed := false
 
 
 func new_game() -> void:
 	progress = ProgressState.new()
+
+
+## Loads the active slot once per run (called by the main menu). M1 has a single implicit slot:
+## progress recorded from battles is saved there and comes back next session.
+func resume_session() -> bool:
+	if _session_resumed:
+		return false
+	_session_resumed = true
+	if not SaveManager.has_slot(active_slot):
+		return false
+	return SaveManager.load_slot(active_slot) == OK
 
 
 ## Bestiary knowledge to hand to a BattleSetup.
@@ -52,7 +64,7 @@ func store_loadout(loadout: PartyLoadout) -> void:
 		progress.loadout_potions.append(potion.id)
 
 
-## Folds a finished battle into progression and announces new bestiary levels.
+## Folds a finished battle into progression, announces new bestiary levels and saves the slot.
 func record_battle(result: BattleResult) -> void:
 	var research := Database.registry.research
 	var before: Dictionary[StringName, int] = {}
@@ -64,3 +76,4 @@ func record_battle(result: BattleResult) -> void:
 		if level > before[enemy_id]:
 			EventBus.research_level_gained.emit(enemy_id, level)
 	EventBus.battle_finished.emit(result)
+	SaveManager.save_slot(active_slot)
