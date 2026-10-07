@@ -5,6 +5,17 @@ extends RefCounted
 
 var _failures: PackedStringArray = PackedStringArray()
 var _assertions: int = 0
+var _expected_engine_errors: int = 0
+
+
+## Declares that the test deliberately triggers [param count] engine errors (push_error etc.).
+## Any other engine or script error fails the test.
+func expect_engine_errors(count: int) -> void:
+	_expected_engine_errors += count
+
+
+func get_expected_engine_errors() -> int:
+	return _expected_engine_errors
 
 
 func before_each() -> void:
@@ -26,6 +37,7 @@ func get_assertion_count() -> int:
 func reset_results() -> void:
 	_failures = PackedStringArray()
 	_assertions = 0
+	_expected_engine_errors = 0
 
 
 func fail(message: String) -> void:

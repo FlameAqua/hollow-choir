@@ -4,13 +4,24 @@ extends SceneTree
 ##   godot --headless --path . --import            # once per fresh checkout (class cache)
 ##   godot --headless --path . --script res://tests/run_tests.gd [-- --filter=substring]
 ##
-## Discovers res://tests/**/test_*.gd scripts extending TestCase, runs every test_* method and
-## exits with code 1 if anything failed.
+## Discovers res://tests/**/test_*.gd scripts extending TestCase and runs every test_* method.
+## A test fails on a failed assertion or on any engine/script error it did not declare with
+## expect_engine_errors(). Exits with code 1 if anything failed.
 
 const TEST_ROOT := "res://tests"
 
+var _logger := TestErrorLogger.new()
+
 
 func _initialize() -> void:
+	OS.add_logger(_logger)
+	_run.call_deferred()
+
+
+func _run() -> void:
+	# Autoloads finish _ready() during the first frame; tests may rely on them.
+	await process_frame
+	_logger.take_errors()
 	var filter := ""
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--filter="):
@@ -21,11 +32,13 @@ func _initialize() -> void:
 	var passed := 0
 	var failed := 0
 	var assertions := 0
-	var failure_report := PackedStringArray()
+	var report := PackedStringArray()
 	for path in files:
 		var script: Script = load(path)
 		if script == null or not script.can_instantiate():
-			failure_report.append("%s: could not load" % path)
+			report.append("FAIL %s: could not load (parse error?)" % path)
+			for error in _logger.take_errors():
+				report.append("    " + error)
 			failed += 1
 			continue
 		var instance: Object = script.new()
@@ -37,23 +50,30 @@ func _initialize() -> void:
 			if not filter.is_empty() and not full_name.contains(filter):
 				continue
 			test_case.reset_results()
+			_logger.take_errors()
 			test_case.before_each()
 			test_case.call(method)
 			test_case.after_each()
 			assertions += test_case.get_assertion_count()
 			var failures := test_case.get_failures()
+			var errors := _logger.take_errors()
+			if errors.size() != test_case.get_expected_engine_errors():
+				failures.append("engine/script errors: expected %d, got %d" % [test_case.get_expected_engine_errors(), errors.size()])
+				for error in errors:
+					failures.append("  error: " + error)
 			if failures.is_empty():
 				passed += 1
 			else:
 				failed += 1
-				failure_report.append("FAIL %s" % full_name)
+				report.append("FAIL %s" % full_name)
 				for failure in failures:
-					failure_report.append("    " + failure)
+					report.append("    " + failure)
 	var elapsed := (Time.get_ticks_msec() - started) / 1000.0
-	for line in failure_report:
+	for line in report:
 		print(line)
 	print("")
 	print("Tests: %d passed, %d failed, %d assertions (%.2fs)" % [passed, failed, assertions, elapsed])
+	OS.remove_logger(_logger)
 	quit(1 if failed > 0 or passed == 0 else 0)
 
 
