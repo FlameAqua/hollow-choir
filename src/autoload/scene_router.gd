@@ -18,7 +18,7 @@ func _ready() -> void:
 	_fade = ColorRect.new()
 	_fade.color = Color(0.03, 0.03, 0.05, 0.0)
 	_fade.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_fade.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_fade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(_fade)
 
 

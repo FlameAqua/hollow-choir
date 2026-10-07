@@ -52,7 +52,10 @@ func _run() -> void:
 			test_case.reset_results()
 			_logger.take_errors()
 			test_case.before_each()
-			test_case.call(method)
+			# Awaiting a plain method returns at once; coroutine tests (UI) run to completion. The
+			# extra frame unwinds the stack when a coroutine test resumed from a signal emission.
+			await test_case.call(method)
+			await process_frame
 			test_case.after_each()
 			assertions += test_case.get_assertion_count()
 			var failures := test_case.get_failures()

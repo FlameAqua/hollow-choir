@@ -43,8 +43,18 @@ const DISPLAY_NAMES := {
 }
 
 
+## Godot's built-in UI actions (focus navigation, pressing buttons) also follow these bindings, so
+## menus obey rebinding and the JRPG keys (Z confirm, X back) work everywhere.
+const UI_MIRRORS := {
+	CONFIRM: &"ui_accept", CANCEL: &"ui_cancel", UP: &"ui_up", DOWN: &"ui_down", LEFT: &"ui_left",
+	RIGHT: &"ui_right",
+}
+
+
 ## Registers every action with its defaults, then applies [param overrides] (action -> codes).
+## Starts from the project's input map, so re-installing after a rebind leaves no stale mirrors.
 static func install(overrides: Dictionary = {}) -> void:
+	InputMap.load_from_project_settings()
 	for action: StringName in DEFAULTS:
 		if InputMap.has_action(action):
 			InputMap.action_erase_events(action)
@@ -55,6 +65,11 @@ static func install(overrides: Dictionary = {}) -> void:
 			var event := event_from_code(String(code))
 			if event != null:
 				InputMap.action_add_event(action, event)
+	for action: StringName in UI_MIRRORS:
+		var ui_action: StringName = UI_MIRRORS[action]
+		if InputMap.has_action(ui_action):
+			for event in InputMap.action_get_events(action):
+				InputMap.action_add_event(ui_action, event)
 
 
 static func codes_for(action: StringName) -> PackedStringArray:
@@ -103,6 +118,25 @@ static func code_from_event(event: InputEvent) -> String:
 	return ""
 
 
+## Gamepad button names (SDL / Xbox layout) for JoyButton indices 0..14.
+const PAD_NAMES := ["A", "B", "X", "Y", "Back", "Guide", "Start", "L-Stick", "R-Stick", "LB", "RB",
+	"D-Up", "D-Down", "D-Left", "D-Right"]
+
+
+## Readable name for one binding code ("key:Space" -> "Space", "joy:9" -> "Pad LB").
+static func code_label(code: String) -> String:
+	var parts := code.split(":", true, 1)
+	if parts.size() != 2:
+		return code
+	match parts[0]:
+		"joy":
+			var index := int(parts[1])
+			return "Pad %s" % (PAD_NAMES[index] if index >= 0 and index < PAD_NAMES.size() else parts[1])
+		"mouse":
+			return "Mouse %s" % parts[1]
+	return parts[1]
+
+
 ## Human label for the first keyboard binding of [param action] on the player's own layout.
 static func key_label(action: StringName) -> String:
 	if not InputMap.has_action(action):
@@ -111,9 +145,11 @@ static func key_label(action: StringName) -> String:
 		if event is InputEventKey:
 			var key := event as InputEventKey
 			if key.physical_keycode != KEY_NONE:
-				var label := DisplayServer.keyboard_get_label_from_physical(key.physical_keycode)
-				if label != KEY_NONE:
-					return OS.get_keycode_string(label)
+				# Layout-aware label where the display server knows the layout (not headless).
+				if DisplayServer.get_name() != "headless":
+					var label := DisplayServer.keyboard_get_label_from_physical(key.physical_keycode)
+					if label != KEY_NONE:
+						return OS.get_keycode_string(label)
 				return OS.get_keycode_string(key.physical_keycode)
 			return OS.get_keycode_string(key.keycode)
 	return "?"
