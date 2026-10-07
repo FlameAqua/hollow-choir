@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="PotionDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/rules/effect_definition.gd" id="1_w28gv"]
+[ext_resource type="Script" path="res://src/data/rules/condition_definition.gd" id="2_j3d41"]
+[ext_resource type="Script" path="res://src/data/combat/action_definition.gd" id="3_whld7"]
+[ext_resource type="Script" path="res://src/data/items/potion_definition.gd" id="4_xkifb"]
+
+[sub_resource type="Resource" id="Resource_24dyi"]
+script = ExtResource("1_w28gv")
+type = 13
+
+[sub_resource type="Resource" id="Resource_h4wjo"]
+script = ExtResource("1_w28gv")
+type = 1
+amount = 15.0
+
+[sub_resource type="Resource" id="Resource_y85c6"]
+script = ExtResource("3_whld7")
+id = &"use_clotting_salve"
+display_name = "Clotting Salve"
+description = "Cleanses an ally's statuses and restores 15 HP."
+category = 4
+target_rule = 4
+effects = Array[ExtResource("1_w28gv")]([SubResource("Resource_24dyi"), SubResource("Resource_h4wjo")])
+
+[resource]
+script = ExtResource("4_xkifb")
+id = &"clotting_salve"
+display_name = "Clotting Salve"
+description = "Cleanses an ally's statuses and restores 15 HP."
+action = SubResource("Resource_y85c6")

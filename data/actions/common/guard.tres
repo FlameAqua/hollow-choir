@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="ActionDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/rules/effect_definition.gd" id="1_trfgq"]
+[ext_resource type="Resource" path="res://data/buffs/guarding.tres" id="2_6v363"]
+[ext_resource type="Script" path="res://src/data/rules/condition_definition.gd" id="3_5k8kt"]
+[ext_resource type="Script" path="res://src/data/combat/action_definition.gd" id="4_qdmbl"]
+
+[sub_resource type="Resource" id="Resource_1pxea"]
+script = ExtResource("1_trfgq")
+type = 8
+target = 0
+buff = ExtResource("2_6v363")
+
+[sub_resource type="Resource" id="Resource_k77tm"]
+script = ExtResource("1_trfgq")
+type = 2
+target = 0
+amount = 1.0
+
+[resource]
+script = ExtResource("4_qdmbl")
+id = &"guard"
+display_name = "Guard"
+description = "Take 40% less damage until your next turn. +1 Focus."
+category = 3
+target_rule = 1
+effects = Array[ExtResource("1_trfgq")]([SubResource("Resource_1pxea"), SubResource("Resource_k77tm")])

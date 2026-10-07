@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="EncounterDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/combat/battlefield_condition_definition.gd" id="1_mfu7u"]
+[ext_resource type="Resource" path="res://data/conditions/flooded_ground.tres" id="2_jr7p6"]
+[ext_resource type="Script" path="res://src/data/combatants/enemy_definition.gd" id="3_ba30n"]
+[ext_resource type="Resource" path="res://data/enemies/bogshell.tres" id="4_xr5kd"]
+[ext_resource type="Resource" path="res://data/enemies/bogwife.tres" id="5_2msvq"]
+[ext_resource type="Resource" path="res://data/enemies/fen_wisp.tres" id="6_7c8n1"]
+[ext_resource type="Script" path="res://src/data/encounters/encounter_definition.gd" id="7_p218d"]
+
+[resource]
+script = ExtResource("7_p218d")
+id = &"mire_shrine"
+display_name = "Mire Shrine"
+description = "A Bogwife tends a Bogshell and a Fen Wisp at a flooded shrine."
+group = "Briarfen"
+enemies = Array[ExtResource("3_ba30n")]([ExtResource("4_xr5kd"), ExtResource("5_2msvq"), ExtResource("6_7c8n1")])
+conditions = Array[ExtResource("1_mfu7u")]([ExtResource("2_jr7p6")])

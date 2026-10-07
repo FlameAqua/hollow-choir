@@ -1,0 +1,42 @@
+[gd_resource type="Resource" script_class="ArmorDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/combat/action_definition.gd" id="1_xwyoq"]
+[ext_resource type="Script" path="res://src/data/items/armor_definition.gd" id="2_k6377"]
+[ext_resource type="Script" path="res://src/data/rules/trait_definition.gd" id="3_q4sln"]
+[ext_resource type="Script" path="res://src/data/rules/modifier_definition.gd" id="4_4fupw"]
+[ext_resource type="Script" path="res://src/data/rules/triggered_effect_definition.gd" id="5_1jvye"]
+[ext_resource type="Script" path="res://src/data/rules/condition_definition.gd" id="6_i31it"]
+[ext_resource type="Script" path="res://src/data/rules/effect_definition.gd" id="7_fyf1j"]
+
+[sub_resource type="Resource" id="Resource_j1oko"]
+script = ExtResource("6_i31it")
+type = 3
+reaction = 1
+
+[sub_resource type="Resource" id="Resource_vh60d"]
+script = ExtResource("7_fyf1j")
+type = 2
+target = 0
+amount = 1.0
+
+[sub_resource type="Resource" id="Resource_dxex1"]
+script = ExtResource("5_1jvye")
+trigger = 8
+watch = 1
+conditions = Array[ExtResource("6_i31it")]([SubResource("Resource_j1oko")])
+effects = Array[ExtResource("7_fyf1j")]([SubResource("Resource_vh60d")])
+
+[sub_resource type="Resource" id="Resource_rhsid"]
+script = ExtResource("3_q4sln")
+id = &"steadfast"
+display_name = "Steadfast"
+description = "Successful Braces grant 1 Focus."
+triggers = Array[ExtResource("5_1jvye")]([SubResource("Resource_dxex1")])
+
+[resource]
+script = ExtResource("2_k6377")
+id = &"pilgrims_coat"
+display_name = "Pilgrim's Coat"
+description = "Layered wool stitched with Choir verses."
+traits = Array[ExtResource("3_q4sln")]([SubResource("Resource_rhsid")])
+resonance_tags = Array[int]([3])

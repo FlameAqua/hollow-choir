@@ -1,0 +1,51 @@
+[gd_resource type="Resource" script_class="EnemyRoleDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/combat/ai_consideration_definition.gd" id="1_qd3qh"]
+[ext_resource type="Script" path="res://src/data/combatants/enemy_role_definition.gd" id="2_c00c1"]
+
+[sub_resource type="Resource" id="Resource_cpj0x"]
+script = ExtResource("1_qd3qh")
+weight = 1.8
+applies_to = Array[int]([0, 1])
+reason = "Wounded prey"
+
+[sub_resource type="Resource" id="Resource_wqdh3"]
+script = ExtResource("1_qd3qh")
+type = 3
+min_difficulty = 1
+weight = 1.4
+status = 5
+applies_to = Array[int]([0, 1])
+reason = "Smells blood"
+
+[sub_resource type="Resource" id="Resource_wtdv5"]
+script = ExtResource("1_qd3qh")
+type = 12
+min_difficulty = 2
+weight = 1.7
+applies_to = Array[int]([0, 1])
+reason = "Focus fire"
+
+[sub_resource type="Resource" id="Resource_bhqau"]
+script = ExtResource("1_qd3qh")
+type = 6
+min_difficulty = 1
+weight = 0.6
+applies_to = Array[int]([0, 1])
+reason = "Target is guarding"
+
+[sub_resource type="Resource" id="Resource_wm5g3"]
+script = ExtResource("1_qd3qh")
+type = 21
+min_difficulty = 2
+weight = 0.55
+threshold = 2.0
+applies_to = Array[int]([0, 1, 2])
+reason = "They keep countering this"
+
+[resource]
+script = ExtResource("2_c00c1")
+role = 4
+display_name = "Stalker"
+description = "Exploits weakened targets."
+default_considerations = Array[ExtResource("1_qd3qh")]([SubResource("Resource_cpj0x"), SubResource("Resource_wqdh3"), SubResource("Resource_wtdv5"), SubResource("Resource_bhqau"), SubResource("Resource_wm5g3")])

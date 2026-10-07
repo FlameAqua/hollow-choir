@@ -1,0 +1,49 @@
+[gd_resource type="Resource" script_class="EnemyRoleDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/combat/ai_consideration_definition.gd" id="1_4217o"]
+[ext_resource type="Script" path="res://src/data/combatants/enemy_role_definition.gd" id="2_r77v4"]
+
+[sub_resource type="Resource" id="Resource_y4wrq"]
+script = ExtResource("1_4217o")
+type = 13
+min_difficulty = 1
+weight = 2.0
+applies_to = Array[int]([0, 1])
+reason = "Can finish them"
+
+[sub_resource type="Resource" id="Resource_8m1m5"]
+script = ExtResource("1_4217o")
+weight = 1.3
+applies_to = Array[int]([0, 1])
+reason = "Target is hurt"
+
+[sub_resource type="Resource" id="Resource_ghm2c"]
+script = ExtResource("1_4217o")
+type = 6
+min_difficulty = 1
+weight = 0.5
+applies_to = Array[int]([1])
+reason = "Target is guarding"
+
+[sub_resource type="Resource" id="Resource_a4fxf"]
+script = ExtResource("1_4217o")
+type = 12
+min_difficulty = 2
+weight = 1.7
+applies_to = Array[int]([0, 1])
+reason = "Focus fire"
+
+[sub_resource type="Resource" id="Resource_du6bq"]
+script = ExtResource("1_4217o")
+type = 21
+min_difficulty = 2
+weight = 0.55
+threshold = 2.0
+applies_to = Array[int]([0, 1, 2])
+reason = "They keep countering this"
+
+[resource]
+script = ExtResource("2_r77v4")
+display_name = "Ravager"
+description = "High immediate damage."
+default_considerations = Array[ExtResource("1_4217o")]([SubResource("Resource_y4wrq"), SubResource("Resource_8m1m5"), SubResource("Resource_ghm2c"), SubResource("Resource_a4fxf"), SubResource("Resource_du6bq")])

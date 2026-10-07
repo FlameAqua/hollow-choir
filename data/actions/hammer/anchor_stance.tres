@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="ActionDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/rules/effect_definition.gd" id="1_2nq4k"]
+[ext_resource type="Resource" path="res://data/buffs/anchored.tres" id="2_rmeqa"]
+[ext_resource type="Script" path="res://src/data/rules/condition_definition.gd" id="3_m3bh4"]
+[ext_resource type="Script" path="res://src/data/combat/action_definition.gd" id="4_2tia3"]
+
+[sub_resource type="Resource" id="Resource_g7o08"]
+script = ExtResource("1_2nq4k")
+type = 8
+target = 0
+buff = ExtResource("2_rmeqa")
+
+[sub_resource type="Resource" id="Resource_m0m1x"]
+script = ExtResource("1_2nq4k")
+type = 2
+target = 0
+amount = 1.0
+
+[resource]
+script = ExtResource("4_2tia3")
+id = &"anchor_stance"
+display_name = "Anchor Stance"
+description = "Plant the hammer. Take 35% less damage and Brace harder until your next turn. +1 Focus."
+category = 3
+target_rule = 1
+effects = Array[ExtResource("1_2nq4k")]([SubResource("Resource_g7o08"), SubResource("Resource_m0m1x")])

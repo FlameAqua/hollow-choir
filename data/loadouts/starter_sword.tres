@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="PartyLoadout" format=3]
+
+[ext_resource type="Resource" path="res://data/characters/mara.tres" id="1_qf6tx"]
+[ext_resource type="Resource" path="res://data/familiars/bell_crow.tres" id="2_f1aox"]
+[ext_resource type="Resource" path="res://data/armor/pilgrims_coat.tres" id="3_l83fi"]
+[ext_resource type="Script" path="res://src/data/items/potion_definition.gd" id="4_8gnn7"]
+[ext_resource type="Resource" path="res://data/potions/mending_draught.tres" id="5_64o1n"]
+[ext_resource type="Resource" path="res://data/potions/fen_water_flask.tres" id="6_dexcy"]
+[ext_resource type="Resource" path="res://data/characters/hollow.tres" id="7_rhy3x"]
+[ext_resource type="Script" path="res://src/data/encounters/party_loadout.gd" id="8_vgeq4"]
+[ext_resource type="Resource" path="res://data/weapons/pilgrims_edge.tres" id="9_kgnn2"]
+
+[resource]
+script = ExtResource("8_vgeq4")
+id = &"starter_sword"
+display_name = "Starter: Sword"
+protagonist = ExtResource("7_rhy3x")
+weapon = ExtResource("9_kgnn2")
+garb = ExtResource("3_l83fi")
+companion = ExtResource("1_qf6tx")
+familiar = ExtResource("2_f1aox")
+potions = Array[ExtResource("4_8gnn7")]([ExtResource("5_64o1n"), ExtResource("6_dexcy")])

@@ -59,6 +59,7 @@ enum ActionTag {
 	RANGED = 2,      ## Fired from range.
 	PRECISION = 3,   ## Weak-point specialist: extra weak-point multiplier applies.
 	INTERRUPT = 4,   ## Bonus Stagger against channeling targets.
+	OPENING = 5,     ## A risky move: parrying it opens a large window (traits key off this).
 }
 
 enum ConditionSeverity { MAJOR = 0, MINOR = 1 }
@@ -250,6 +251,8 @@ enum ConsiderationType {
 	ROUND_AT_LEAST = 18,
 	TARGET_WAS_DAMAGED = 19,      ## Target took damage since its last activation.
 	SELF_IS_PROTECTED = 20,       ## Someone is intercepting for me.
+	PARTY_COUNTERS_THIS = 21,     ## The party already succeeded >= threshold times this battle with a
+	                              ## reaction this action allows (observed, never predicted).
 }
 
 enum SynergyTag { NONE = 0, WET = 1, BURN = 2, SHOCK = 3, BLEED = 4, GUARD_BREAK = 5, EMPOWER = 6 }

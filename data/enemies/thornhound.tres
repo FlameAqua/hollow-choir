@@ -1,0 +1,90 @@
+[gd_resource type="Resource" script_class="EnemyDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/combat/enemy_action_definition.gd" id="1_h3y73"]
+[ext_resource type="Script" path="res://src/data/combat/ai_consideration_definition.gd" id="2_u2l65"]
+[ext_resource type="Script" path="res://src/data/rules/effect_definition.gd" id="3_vm2g2"]
+[ext_resource type="Script" path="res://src/data/rules/condition_definition.gd" id="4_4tx34"]
+[ext_resource type="Script" path="res://src/data/combatants/boss_phase_definition.gd" id="5_obb6k"]
+[ext_resource type="Script" path="res://src/data/combatants/enemy_definition.gd" id="6_xlhl6"]
+[ext_resource type="Script" path="res://src/data/rules/trait_definition.gd" id="7_1kjuf"]
+[ext_resource type="Script" path="res://src/data/rules/modifier_definition.gd" id="8_u7co6"]
+[ext_resource type="Script" path="res://src/data/rules/triggered_effect_definition.gd" id="9_a7xyp"]
+
+[sub_resource type="Resource" id="Resource_8401b"]
+script = ExtResource("2_u2l65")
+type = 4
+min_difficulty = 1
+weight = 1.3
+status = 5
+reason = "Opening a wound"
+
+[sub_resource type="Resource" id="Resource_g031b"]
+script = ExtResource("3_vm2g2")
+type = 5
+amount = 1.0
+status = 5
+duration = 2
+
+[sub_resource type="Resource" id="Resource_22noy"]
+script = ExtResource("1_h3y73")
+synergy_setup = Array[int]([4])
+considerations = Array[ExtResource("2_u2l65")]([SubResource("Resource_8401b")])
+telegraph_text = "Lunges to bite. Causes Bleed."
+windup_ms = 750.0
+id = &"rending_bite"
+display_name = "Rending Bite"
+damage_type = 1
+power = 15.0
+effects = Array[ExtResource("3_vm2g2")]([SubResource("Resource_g031b")])
+
+[sub_resource type="Resource" id="Resource_8f6hy"]
+script = ExtResource("1_h3y73")
+base_priority = 0.9
+synergy_payoff = Array[int]([4])
+telegraph_text = "Circles, then darts at the weakest. Fast."
+windup_ms = 600.0
+reaction_window_scale = 0.85
+id = &"harrying_lunge"
+display_name = "Harrying Lunge"
+focus_cost = 1
+damage_type = 3
+power = 22.0
+
+[sub_resource type="Resource" id="Resource_mjgnx"]
+script = ExtResource("4_4tx34")
+type = 6
+status = 5
+
+[sub_resource type="Resource" id="Resource_d4y46"]
+script = ExtResource("8_u7co6")
+value = 1.2
+conditions = Array[ExtResource("4_4tx34")]([SubResource("Resource_mjgnx")])
+
+[sub_resource type="Resource" id="Resource_sb4nf"]
+script = ExtResource("7_1kjuf")
+id = &"blood_scent"
+display_name = "Blood Scent"
+description = "Deals 20% more damage to Bleeding targets."
+modifiers = Array[ExtResource("8_u7co6")]([SubResource("Resource_d4y46")])
+
+[resource]
+script = ExtResource("6_xlhl6")
+role = 4
+species = "Briar wolf"
+habitat = "Briarfen thickets."
+lore = "Their thorns are not armour. They grow inward, too."
+max_stagger = 22.0
+weaknesses = Array[int]([4])
+actions = Array[ExtResource("1_h3y73")]([SubResource("Resource_22noy"), SubResource("Resource_8f6hy")])
+ai_tendencies = "Hunts the most wounded target and anyone already Bleeding."
+rare_interactions = "Fire makes them flee... in theory. In practice it makes them burn."
+id = &"thornhound"
+display_name = "Thornhound"
+description = "Lean briar-wolves that follow the scent of blood."
+max_hp = 40
+force = 12
+guard = 6
+tempo = 15
+traits = Array[ExtResource("7_1kjuf")]([SubResource("Resource_sb4nf")])
+shape = 1
+color = Color(0.42, 0.5, 0.3, 1)

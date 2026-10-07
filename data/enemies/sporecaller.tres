@@ -1,0 +1,81 @@
+[gd_resource type="Resource" script_class="EnemyDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/combat/enemy_action_definition.gd" id="1_tusqq"]
+[ext_resource type="Script" path="res://src/data/combat/ai_consideration_definition.gd" id="2_nr2yt"]
+[ext_resource type="Script" path="res://src/data/rules/effect_definition.gd" id="3_b3iun"]
+[ext_resource type="Resource" path="res://data/buffs/chorus_driven.tres" id="4_geb75"]
+[ext_resource type="Script" path="res://src/data/rules/condition_definition.gd" id="5_l3yy7"]
+[ext_resource type="Resource" path="res://data/conditions/spore_fog.tres" id="6_0ikyv"]
+[ext_resource type="Script" path="res://src/data/combatants/boss_phase_definition.gd" id="7_lqml8"]
+[ext_resource type="Script" path="res://src/data/combatants/enemy_definition.gd" id="8_eka1p"]
+[ext_resource type="Script" path="res://src/data/rules/trait_definition.gd" id="9_3l8vi"]
+
+[sub_resource type="Resource" id="Resource_vlso0"]
+script = ExtResource("3_b3iun")
+type = 8
+buff = ExtResource("4_geb75")
+
+[sub_resource type="Resource" id="Resource_xjr2g"]
+script = ExtResource("1_tusqq")
+intent_category = 6
+telegraph_text = "Hums to an ally: its next action deals 35% more damage."
+id = &"spore_chorus"
+display_name = "Spore Chorus"
+category = 2
+target_rule = 6
+focus_cost = 1
+effects = Array[ExtResource("3_b3iun")]([SubResource("Resource_vlso0")])
+
+[sub_resource type="Resource" id="Resource_0vlm6"]
+script = ExtResource("3_b3iun")
+type = 15
+target = 8
+battlefield_condition = ExtResource("6_0ikyv")
+
+[sub_resource type="Resource" id="Resource_oualw"]
+script = ExtResource("5_l3yy7")
+type = 18
+negate = true
+battlefield_condition = ExtResource("6_0ikyv")
+
+[sub_resource type="Resource" id="Resource_a8a56"]
+script = ExtResource("1_tusqq")
+base_priority = 1.1
+use_conditions = Array[ExtResource("5_l3yy7")]([SubResource("Resource_oualw")])
+intent_category = 8
+telegraph_text = "Exhales a cloud of spores over the field (Spore Fog)."
+telegraph_detail = "Spore Fog makes Burn explode across a side — including yours."
+id = &"sporeburst"
+display_name = "Sporeburst"
+category = 2
+target_rule = 0
+cooldown = 3
+effects = Array[ExtResource("3_b3iun")]([SubResource("Resource_0vlm6")])
+
+[sub_resource type="Resource" id="Resource_n2nmi"]
+script = ExtResource("1_tusqq")
+base_priority = 0.7
+telegraph_text = "Fires a spray of spore needles."
+id = &"needle_hum"
+display_name = "Needle Hum"
+damage_type = 3
+power = 13.0
+
+[resource]
+script = ExtResource("8_eka1p")
+role = 5
+species = "Singing fungus"
+habitat = "Damp clearings deep in Briarfen."
+lore = "Each cap hums one note. Together they sound almost like the Choir."
+max_stagger = 28.0
+weaknesses = Array[int]([4, 1])
+actions = Array[ExtResource("1_tusqq")]([SubResource("Resource_xjr2g"), SubResource("Resource_a8a56"), SubResource("Resource_n2nmi")])
+ai_tendencies = "Empowers the heaviest hitter, especially one that is channeling. Fills the air with spores when none are drifting."
+id = &"sporecaller"
+display_name = "Sporecaller"
+description = "A choir of mushrooms that hums in eerie unison."
+max_hp = 48
+force = 8
+tempo = 8
+shape = 2
+color = Color(0.7, 0.6, 0.85, 1)

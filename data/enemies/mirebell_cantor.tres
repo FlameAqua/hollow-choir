@@ -1,0 +1,249 @@
+[gd_resource type="Resource" script_class="EnemyDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/combat/enemy_action_definition.gd" id="1_o28tj"]
+[ext_resource type="Script" path="res://src/data/combat/ai_consideration_definition.gd" id="2_x8l2x"]
+[ext_resource type="Script" path="res://src/data/rules/effect_definition.gd" id="3_fq8e3"]
+[ext_resource type="Script" path="res://src/data/rules/condition_definition.gd" id="4_dtlt2"]
+[ext_resource type="Script" path="res://src/data/combatants/boss_phase_definition.gd" id="5_sb3po"]
+[ext_resource type="Script" path="res://src/data/combat/battlefield_condition_definition.gd" id="6_vfek7"]
+[ext_resource type="Resource" path="res://data/conditions/flooded_ground.tres" id="7_rsyun"]
+[ext_resource type="Script" path="res://src/data/combatants/enemy_definition.gd" id="8_di2bd"]
+[ext_resource type="Script" path="res://src/data/rules/trait_definition.gd" id="9_f8dxq"]
+[ext_resource type="Script" path="res://src/data/rules/modifier_definition.gd" id="10_k3fwr"]
+[ext_resource type="Script" path="res://src/data/rules/triggered_effect_definition.gd" id="11_1fexd"]
+
+[sub_resource type="Resource" id="Resource_xcl1g"]
+script = ExtResource("1_o28tj")
+telegraph_text = "Swings its great bell. Parryable."
+telegraph_detail = "The bell's swing is slow and readable. Parry on the downbeat."
+signature = true
+windup_ms = 1000.0
+id = &"toll"
+display_name = "Toll"
+damage_type = 2
+power = 22.0
+
+[sub_resource type="Resource" id="Resource_pxo75"]
+script = ExtResource("1_o28tj")
+intent_category = 2
+telegraph_text = "Roots erupt beneath everyone. Cannot be Parried or Evaded — Brace!"
+can_evade = false
+can_parry = false
+id = &"root_lash"
+display_name = "Root Lash"
+target_rule = 3
+focus_cost = 1
+damage_type = 1
+power = 17.0
+
+[sub_resource type="Resource" id="Resource_m3q0b"]
+script = ExtResource("2_x8l2x")
+type = 4
+weight = 1.4
+else_weight = 0.3
+status = 2
+reason = "Party is dry"
+
+[sub_resource type="Resource" id="Resource_61m8o"]
+script = ExtResource("3_fq8e3")
+type = 5
+amount = 1.0
+status = 2
+duration = 3
+
+[sub_resource type="Resource" id="Resource_kwf3r"]
+script = ExtResource("1_o28tj")
+base_priority = 0.8
+synergy_setup = Array[int]([1])
+considerations = Array[ExtResource("2_x8l2x")]([SubResource("Resource_m3q0b")])
+intent_category = 3
+telegraph_text = "Showers the party in bog water (Wet). Can only be Evaded."
+can_brace = false
+can_parry = false
+id = &"mire_spray"
+display_name = "Mire Spray"
+category = 2
+target_rule = 3
+effects = Array[ExtResource("3_fq8e3")]([SubResource("Resource_61m8o")])
+
+[sub_resource type="Resource" id="Resource_t0o5y"]
+script = ExtResource("2_x8l2x")
+type = 3
+min_difficulty = 1
+weight = 1.6
+status = 2
+reason = "Party is soaked"
+
+[sub_resource type="Resource" id="Resource_fp5fa"]
+script = ExtResource("3_fq8e3")
+type = 5
+amount = 1.0
+status = 3
+
+[sub_resource type="Resource" id="Resource_hrh4y"]
+script = ExtResource("1_o28tj")
+base_priority = 1.2
+synergy_payoff = Array[int]([1])
+considerations = Array[ExtResource("2_x8l2x")]([SubResource("Resource_t0o5y")])
+intent_category = 2
+telegraph_text = "The bell rings with lightning: Shock on everyone. Cannot be Parried."
+can_parry = false
+windup_ms = 1100.0
+id = &"storm_peal"
+display_name = "Storm Peal"
+target_rule = 3
+focus_cost = 2
+damage_type = 5
+power = 18.0
+effects = Array[ExtResource("3_fq8e3")]([SubResource("Resource_fp5fa")])
+
+[sub_resource type="Resource" id="Resource_jwh2e"]
+script = ExtResource("5_sb3po")
+display_name = "The Fen Floods"
+hp_threshold = 0.7
+announce_text = "The bell's toll cracks the dam. Water floods the hollow — Evading will soak you, and Shock leaps between the Wet."
+actions = Array[ExtResource("1_o28tj")]([SubResource("Resource_xcl1g"), SubResource("Resource_pxo75"), SubResource("Resource_hrh4y"), SubResource("Resource_kwf3r")])
+add_conditions = Array[ExtResource("6_vfek7")]([ExtResource("7_rsyun")])
+
+[sub_resource type="Resource" id="Resource_2wbst"]
+script = ExtResource("3_fq8e3")
+type = 5
+amount = 1.0
+status = 3
+
+[sub_resource type="Resource" id="Resource_qju4x"]
+script = ExtResource("1_o28tj")
+max_uses = 2
+intent_category = 2
+channel_turns = 2
+telegraph_text = "Begins the Requiem. The bell glows — strike it before the final toll. Cannot be Parried."
+telegraph_detail = "Survivable if Braced, but breaking it leaves the Cantor Broken with its bell exposed."
+rare = true
+can_parry = false
+windup_ms = 1500.0
+id = &"requiem"
+display_name = "Requiem"
+target_rule = 3
+cooldown = 4
+damage_type = 5
+power = 44.0
+effects = Array[ExtResource("3_fq8e3")]([SubResource("Resource_2wbst")])
+
+[sub_resource type="Resource" id="Resource_w4rc1"]
+script = ExtResource("3_fq8e3")
+type = 9
+target = 0
+duration = 3
+
+[sub_resource type="Resource" id="Resource_b87sq"]
+script = ExtResource("5_sb3po")
+display_name = "Requiem"
+hp_threshold = 0.45
+announce_text = "The Cantor begins its Requiem. The cracked bell glows — its weak point is exposed while it sings."
+actions = Array[ExtResource("1_o28tj")]([SubResource("Resource_xcl1g"), SubResource("Resource_hrh4y"), SubResource("Resource_pxo75"), SubResource("Resource_qju4x")])
+on_enter_effects = Array[ExtResource("3_fq8e3")]([SubResource("Resource_w4rc1")])
+opening_action = SubResource("Resource_qju4x")
+
+[sub_resource type="Resource" id="Resource_mgqen"]
+script = ExtResource("3_fq8e3")
+type = 5
+amount = 1.0
+status = 2
+duration = 2
+
+[sub_resource type="Resource" id="Resource_bh2jr"]
+script = ExtResource("3_fq8e3")
+type = 5
+amount = 1.0
+status = 3
+
+[sub_resource type="Resource" id="Resource_nngec"]
+script = ExtResource("1_o28tj")
+base_priority = 1.3
+telegraph_text = "Toll and Storm Peal at once: a soaking, shocking blow. Parryable."
+telegraph_detail = "The combined blow. Brace and you will be Wet and Shocked; Parry it clean."
+signature = true
+windup_ms = 1300.0
+id = &"drowning_toll"
+display_name = "Drowning Toll"
+damage_type = 5
+power = 28.0
+effects = Array[ExtResource("3_fq8e3")]([SubResource("Resource_mgqen"), SubResource("Resource_bh2jr")])
+
+[sub_resource type="Resource" id="Resource_2mr83"]
+script = ExtResource("1_o28tj")
+base_priority = 1.5
+max_uses = 1
+intent_category = 1
+telegraph_text = "Raises the bell for one last, enormous toll. Parry it to crack the bell wide open."
+telegraph_detail = "Parrying it Breaks the Cantor outright. Bracing is safe but costly."
+can_evade = false
+windup_ms = 1500.0
+id = &"final_knell"
+display_name = "Final Knell"
+focus_cost = 3
+damage_type = 2
+power = 40.0
+tags = Array[int]([5])
+
+[sub_resource type="Resource" id="Resource_1l71i"]
+script = ExtResource("5_sb3po")
+display_name = "Broken Voice"
+hp_threshold = 0.2
+announce_text = "The Cantor's voice breaks. It rings with everything it has left."
+actions = Array[ExtResource("1_o28tj")]([SubResource("Resource_nngec"), SubResource("Resource_hrh4y"), SubResource("Resource_pxo75"), SubResource("Resource_2mr83")])
+
+[sub_resource type="Resource" id="Resource_431dr"]
+script = ExtResource("4_dtlt2")
+type = 3
+
+[sub_resource type="Resource" id="Resource_cb33q"]
+script = ExtResource("4_dtlt2")
+type = 9
+tag = 5
+
+[sub_resource type="Resource" id="Resource_d6k2o"]
+script = ExtResource("3_fq8e3")
+type = 4
+target = 0
+amount = 200.0
+
+[sub_resource type="Resource" id="Resource_6c6ln"]
+script = ExtResource("11_1fexd")
+trigger = 8
+conditions = Array[ExtResource("4_dtlt2")]([SubResource("Resource_431dr"), SubResource("Resource_cb33q")])
+effects = Array[ExtResource("3_fq8e3")]([SubResource("Resource_d6k2o")])
+
+[sub_resource type="Resource" id="Resource_8il6o"]
+script = ExtResource("9_f8dxq")
+id = &"cracked_resonance"
+display_name = "Cracked Resonance"
+description = "Parrying an Opening move (Final Knell) breaks the Cantor outright."
+triggers = Array[ExtResource("11_1fexd")]([SubResource("Resource_6c6ln")])
+
+[resource]
+script = ExtResource("8_di2bd")
+role = 5
+tier = 2
+species = "Bloom-grown bell-ward"
+habitat = "The drowned chapel at the heart of Briarfen."
+lore = "The bell was cast to keep the Bloom out. The Bloom grew around it anyway, and learned to sing."
+max_stagger = 90.0
+stagger_growth_on_break = 1.2
+has_weak_point = true
+weak_point_name = "Cracked Bell"
+actions = Array[ExtResource("1_o28tj")]([SubResource("Resource_xcl1g"), SubResource("Resource_pxo75"), SubResource("Resource_kwf3r")])
+phases = Array[ExtResource("5_sb3po")]([SubResource("Resource_jwh2e"), SubResource("Resource_b87sq"), SubResource("Resource_1l71i")])
+ai_tendencies = "Floods the hollow at 70%, sings a Requiem at 45% (break it!), and gambles everything on a parryable Final Knell near the end."
+rare_interactions = "Parrying the Final Knell breaks it outright. The bell is exposed while it sings the Requiem."
+id = &"mirebell_cantor"
+display_name = "The Mirebell Cantor"
+description = "Once a Choir bell-ward. Now a mountain of fungus grown around its fallen bell. It still rings the hours."
+max_hp = 480
+force = 14
+guard = 16
+tempo = 9
+traits = Array[ExtResource("9_f8dxq")]([SubResource("Resource_8il6o")])
+shape = 6
+color = Color(0.55, 0.5, 0.62, 1)
+visual_scale = 1.8

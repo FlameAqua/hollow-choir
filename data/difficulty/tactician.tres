@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="TacticalDifficultyProfile" format=3]
+
+[ext_resource type="Script" path="res://src/data/config/tactical_difficulty_profile.gd" id="1_sbxcv"]
+
+[resource]
+script = ExtResource("1_sbxcv")
+difficulty = 2
+display_name = "Tactician"
+description = "Adventurer plus one-action lookahead: focus fire, protecting healers, combo setups, avoiding channels you can interrupt, and denying your build-ups. Never reads your inputs or hidden rolls; never gains extra health."
+score_variance = 0.06

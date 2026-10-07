@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="ActionDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/combat/action_command_definition.gd" id="1_xn4ol"]
+[ext_resource type="Script" path="res://src/data/rules/effect_definition.gd" id="2_sb0h2"]
+[ext_resource type="Script" path="res://src/data/combat/action_definition.gd" id="3_fttps"]
+
+[sub_resource type="Resource" id="Resource_tyntg"]
+script = ExtResource("1_xn4ol")
+type = 2
+duration_ms = 850.0
+target_position = 0.62
+good_window_ms = 260.0
+perfect_window_ms = 85.0
+lead_in_ms = 300.0
+
+[resource]
+script = ExtResource("3_fttps")
+id = &"loosed_arrow"
+display_name = "Loosed Arrow"
+description = "Draw and release at the peak. Precision: extra damage against exposed weak points."
+uses_weapon_power = true
+uses_weapon_stagger = true
+generates_focus = true
+tags = Array[int]([2, 3])
+command = SubResource("Resource_tyntg")

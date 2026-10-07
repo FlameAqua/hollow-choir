@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="ActionDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/combat/action_command_definition.gd" id="1_tu74x"]
+[ext_resource type="Script" path="res://src/data/rules/effect_definition.gd" id="2_gp347"]
+[ext_resource type="Script" path="res://src/data/combat/action_definition.gd" id="3_gkiq8"]
+
+[sub_resource type="Resource" id="Resource_gshiw"]
+script = ExtResource("1_tu74x")
+type = 4
+duration_ms = 900.0
+target_position = 0.5
+good_window_ms = 220.0
+perfect_window_ms = 75.0
+lead_in_ms = 400.0
+
+[resource]
+script = ExtResource("3_gkiq8")
+id = &"heartseeker"
+display_name = "Heartseeker"
+description = "A slow, perfect shot. Devastating against an exposed weak point; extra Stagger against channeling enemies."
+category = 1
+focus_cost = 4
+uses_weapon_power = true
+weapon_power_multiplier = 1.7
+uses_weapon_stagger = true
+weapon_stagger_multiplier = 2.2
+tags = Array[int]([2, 3, 4])
+command = SubResource("Resource_gshiw")

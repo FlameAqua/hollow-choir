@@ -1,0 +1,60 @@
+[gd_resource type="Resource" script_class="StatusDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/combat/status_definition.gd" id="1_eglfa"]
+[ext_resource type="Script" path="res://src/data/rules/trait_definition.gd" id="2_w7oyo"]
+[ext_resource type="Script" path="res://src/data/rules/modifier_definition.gd" id="3_fn1t5"]
+[ext_resource type="Script" path="res://src/data/rules/condition_definition.gd" id="4_stns8"]
+[ext_resource type="Script" path="res://src/data/rules/triggered_effect_definition.gd" id="5_rmsqb"]
+[ext_resource type="Script" path="res://src/data/rules/effect_definition.gd" id="6_qb6p3"]
+
+[sub_resource type="Resource" id="Resource_jxk47"]
+script = ExtResource("3_fn1t5")
+stat = 8
+value = 1.4
+
+[sub_resource type="Resource" id="Resource_pllcr"]
+script = ExtResource("4_stns8")
+type = 7
+status = 3
+
+[sub_resource type="Resource" id="Resource_5v7jj"]
+script = ExtResource("4_stns8")
+type = 6
+status = 2
+
+[sub_resource type="Resource" id="Resource_e8hcp"]
+script = ExtResource("6_qb6p3")
+type = 4
+amount = 12.0
+
+[sub_resource type="Resource" id="Resource_4gtby"]
+script = ExtResource("6_qb6p3")
+amount = 6.0
+
+[sub_resource type="Resource" id="Resource_6r8cm"]
+script = ExtResource("5_rmsqb")
+trigger = 9
+watch = 1
+conditions = Array[ExtResource("4_stns8")]([SubResource("Resource_pllcr"), SubResource("Resource_5v7jj")])
+effects = Array[ExtResource("6_qb6p3")]([SubResource("Resource_e8hcp"), SubResource("Resource_4gtby")])
+
+[sub_resource type="Resource" id="Resource_b855c"]
+script = ExtResource("2_w7oyo")
+id = &"shock_rules"
+display_name = "Shock"
+description = "Takes 40% more Stagger. Shocking a Wet target conducts: +12 Stagger and 6 damage."
+modifiers = Array[ExtResource("3_fn1t5")]([SubResource("Resource_jxk47")])
+triggers = Array[ExtResource("5_rmsqb")]([SubResource("Resource_6r8cm")])
+
+[resource]
+script = ExtResource("1_eglfa")
+status = 3
+display_name = "Shock"
+description = "Takes 40% more Stagger. Shocking a Wet target conducts: +12 Stagger and 6 damage."
+details = "Stagger taken x1.4 while Shocked. The conduct burst happens when Shock lands on a target that is already Wet."
+glyph = "SHK"
+color = Color(1, 0.9, 0.25, 1)
+default_duration = 2
+max_duration = 4
+max_stacks = 2
+traits = Array[ExtResource("2_w7oyo")]([SubResource("Resource_b855c")])

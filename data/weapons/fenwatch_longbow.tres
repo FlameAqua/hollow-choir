@@ -1,0 +1,50 @@
+[gd_resource type="Resource" script_class="WeaponDefinition" format=3]
+
+[ext_resource type="Resource" path="res://data/actions/bow/loosed_arrow.tres" id="1_naso3"]
+[ext_resource type="Resource" path="res://data/actions/bow/steady_aim.tres" id="2_qqcfy"]
+[ext_resource type="Script" path="res://src/data/items/weapon_definition.gd" id="3_nqa1b"]
+[ext_resource type="Script" path="res://src/data/combat/action_definition.gd" id="4_y3tsn"]
+[ext_resource type="Resource" path="res://data/actions/bow/spotters_mark.tres" id="5_82qn4"]
+[ext_resource type="Resource" path="res://data/actions/bow/heartseeker.tres" id="6_0tcim"]
+[ext_resource type="Script" path="res://src/data/rules/trait_definition.gd" id="7_r3ys8"]
+[ext_resource type="Script" path="res://src/data/rules/modifier_definition.gd" id="8_aovoh"]
+[ext_resource type="Script" path="res://src/data/rules/triggered_effect_definition.gd" id="9_yfnsx"]
+[ext_resource type="Script" path="res://src/data/rules/condition_definition.gd" id="10_o5uht"]
+[ext_resource type="Script" path="res://src/data/rules/effect_definition.gd" id="11_4qb2e"]
+
+[sub_resource type="Resource" id="Resource_y3w8y"]
+script = ExtResource("10_o5uht")
+type = 2
+
+[sub_resource type="Resource" id="Resource_c4uia"]
+script = ExtResource("11_4qb2e")
+type = 10
+
+[sub_resource type="Resource" id="Resource_tiqog"]
+script = ExtResource("9_yfnsx")
+conditions = Array[ExtResource("10_o5uht")]([SubResource("Resource_y3w8y")])
+effects = Array[ExtResource("11_4qb2e")]([SubResource("Resource_c4uia")])
+max_per_round = 1
+
+[sub_resource type="Resource" id="Resource_4dtwu"]
+script = ExtResource("7_r3ys8")
+id = &"pinning_shot"
+display_name = "Pinning Shot"
+description = "Perfect shots pin the target: its next activation moves to the end of the round."
+triggers = Array[ExtResource("9_yfnsx")]([SubResource("Resource_tiqog")])
+
+[resource]
+script = ExtResource("3_nqa1b")
+id = &"fenwatch_longbow"
+display_name = "Fenwatch Longbow"
+description = "Carried by the watch that once kept the Bloom out of Gloamstead."
+family = 3
+rarity = 1
+damage_type = 3
+tempo_modifier = 1
+basic_attack = ExtResource("1_naso3")
+techniques = Array[ExtResource("4_y3tsn")]([ExtResource("5_82qn4"), ExtResource("6_0tcim")])
+guard_action = ExtResource("2_qqcfy")
+traits = Array[ExtResource("7_r3ys8")]([SubResource("Resource_4dtwu")])
+resonance_tags = Array[int]([4])
+socket_count = 1

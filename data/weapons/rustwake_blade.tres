@@ -1,0 +1,113 @@
+[gd_resource type="Resource" script_class="WeaponDefinition" format=3]
+
+[ext_resource type="Resource" path="res://data/actions/sword/strike.tres" id="1_8pfq6"]
+[ext_resource type="Resource" path="res://data/actions/sword/riposte_stance.tres" id="2_3ix5n"]
+[ext_resource type="Script" path="res://src/data/items/weapon_definition.gd" id="3_4ebpi"]
+[ext_resource type="Script" path="res://src/data/combat/action_definition.gd" id="4_doj0b"]
+[ext_resource type="Resource" path="res://data/actions/sword/lunge.tres" id="5_4wwxl"]
+[ext_resource type="Resource" path="res://data/actions/sword/arc_cleave.tres" id="6_phowg"]
+[ext_resource type="Script" path="res://src/data/rules/trait_definition.gd" id="7_ufvse"]
+[ext_resource type="Script" path="res://src/data/rules/modifier_definition.gd" id="8_3pifw"]
+[ext_resource type="Script" path="res://src/data/rules/triggered_effect_definition.gd" id="9_50ff3"]
+[ext_resource type="Script" path="res://src/data/rules/condition_definition.gd" id="10_1b8ag"]
+[ext_resource type="Script" path="res://src/data/rules/effect_definition.gd" id="11_3ikeq"]
+
+[sub_resource type="Resource" id="Resource_wbmh1"]
+script = ExtResource("10_1b8ag")
+type = 2
+
+[sub_resource type="Resource" id="Resource_hvbio"]
+script = ExtResource("10_1b8ag")
+type = 6
+status = 5
+
+[sub_resource type="Resource" id="Resource_th5d5"]
+script = ExtResource("10_1b8ag")
+type = 8
+
+[sub_resource type="Resource" id="Resource_mwip2"]
+script = ExtResource("11_3ikeq")
+type = 7
+amount = 2.0
+status = 5
+
+[sub_resource type="Resource" id="Resource_tlpni"]
+script = ExtResource("9_50ff3")
+conditions = Array[ExtResource("10_1b8ag")]([SubResource("Resource_wbmh1"), SubResource("Resource_hvbio"), SubResource("Resource_th5d5")])
+effects = Array[ExtResource("11_3ikeq")]([SubResource("Resource_mwip2")])
+announce = false
+
+[sub_resource type="Resource" id="Resource_qm32v"]
+script = ExtResource("10_1b8ag")
+type = 2
+grade = 1
+
+[sub_resource type="Resource" id="Resource_p7gbn"]
+script = ExtResource("10_1b8ag")
+type = 6
+status = 5
+
+[sub_resource type="Resource" id="Resource_kvqew"]
+script = ExtResource("10_1b8ag")
+type = 8
+
+[sub_resource type="Resource" id="Resource_rovcq"]
+script = ExtResource("11_3ikeq")
+type = 5
+amount = 1.0
+status = 5
+duration = 2
+
+[sub_resource type="Resource" id="Resource_4h6qq"]
+script = ExtResource("9_50ff3")
+conditions = Array[ExtResource("10_1b8ag")]([SubResource("Resource_qm32v"), SubResource("Resource_p7gbn"), SubResource("Resource_kvqew")])
+effects = Array[ExtResource("11_3ikeq")]([SubResource("Resource_rovcq")])
+announce = false
+
+[sub_resource type="Resource" id="Resource_lwusb"]
+script = ExtResource("10_1b8ag")
+type = 1
+grade = 1
+
+[sub_resource type="Resource" id="Resource_syjab"]
+script = ExtResource("10_1b8ag")
+type = 6
+negate = true
+status = 5
+
+[sub_resource type="Resource" id="Resource_vujku"]
+script = ExtResource("10_1b8ag")
+type = 8
+
+[sub_resource type="Resource" id="Resource_daolp"]
+script = ExtResource("11_3ikeq")
+type = 5
+amount = 1.0
+status = 5
+duration = 2
+
+[sub_resource type="Resource" id="Resource_ffao6"]
+script = ExtResource("9_50ff3")
+conditions = Array[ExtResource("10_1b8ag")]([SubResource("Resource_lwusb"), SubResource("Resource_syjab"), SubResource("Resource_vujku")])
+effects = Array[ExtResource("11_3ikeq")]([SubResource("Resource_daolp")])
+announce = false
+
+[sub_resource type="Resource" id="Resource_tgcnv"]
+script = ExtResource("7_ufvse")
+id = &"rustwake_bite"
+display_name = "Rustwake Bite"
+description = "Good hits apply Bleed. Perfect hits on a Bleeding target extend its Bleed by 2 instead."
+triggers = Array[ExtResource("9_50ff3")]([SubResource("Resource_tlpni"), SubResource("Resource_4h6qq"), SubResource("Resource_ffao6")])
+
+[resource]
+script = ExtResource("3_4ebpi")
+id = &"rustwake_blade"
+display_name = "Rustwake Blade"
+description = "Its edge never quite stops weeping rust."
+rarity = 1
+basic_attack = ExtResource("1_8pfq6")
+techniques = Array[ExtResource("4_doj0b")]([ExtResource("5_4wwxl"), ExtResource("6_phowg")])
+guard_action = ExtResource("2_3ix5n")
+traits = Array[ExtResource("7_ufvse")]([SubResource("Resource_tgcnv")])
+resonance_tags = Array[int]([4])
+socket_count = 1

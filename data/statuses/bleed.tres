@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="StatusDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/combat/status_definition.gd" id="1_utjla"]
+[ext_resource type="Script" path="res://src/data/rules/trait_definition.gd" id="2_fm6d4"]
+
+[resource]
+script = ExtResource("1_utjla")
+status = 5
+display_name = "Bleed"
+description = "Strenuous actions reopen the wound: 5 damage per stack each time."
+details = "Counts charges, not turns: each strenuous action (heavy attacks, techniques marked Strenuous) spends one. Fades after 4 of the bearer's turns regardless. Up to 3 stacks."
+glyph = "BLD"
+color = Color(0.85, 0.1, 0.2, 1)
+duration_mode = 1
+default_duration = 2
+expiry_turns = 4
+strenuous_damage_per_stack = 5.0

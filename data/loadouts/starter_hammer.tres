@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="PartyLoadout" format=3]
+
+[ext_resource type="Resource" path="res://data/characters/mara.tres" id="1_g7rbi"]
+[ext_resource type="Resource" path="res://data/familiars/bell_crow.tres" id="2_ulpdt"]
+[ext_resource type="Resource" path="res://data/armor/pilgrims_coat.tres" id="3_5y3dg"]
+[ext_resource type="Script" path="res://src/data/items/potion_definition.gd" id="4_we0dv"]
+[ext_resource type="Resource" path="res://data/potions/mending_draught.tres" id="5_icmbf"]
+[ext_resource type="Resource" path="res://data/potions/clotting_salve.tres" id="6_6u37g"]
+[ext_resource type="Resource" path="res://data/characters/hollow.tres" id="7_ss23b"]
+[ext_resource type="Script" path="res://src/data/encounters/party_loadout.gd" id="8_an5ix"]
+[ext_resource type="Resource" path="res://data/weapons/mire_maul.tres" id="9_n2k2v"]
+
+[resource]
+script = ExtResource("8_an5ix")
+id = &"starter_hammer"
+display_name = "Starter: Hammer"
+protagonist = ExtResource("7_ss23b")
+weapon = ExtResource("9_n2k2v")
+garb = ExtResource("3_5y3dg")
+companion = ExtResource("1_g7rbi")
+familiar = ExtResource("2_ulpdt")
+potions = Array[ExtResource("4_we0dv")]([ExtResource("5_icmbf"), ExtResource("6_6u37g")])

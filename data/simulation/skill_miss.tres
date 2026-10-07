@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ExecutionSkillProfile" format=3]
+
+[ext_resource type="Script" path="res://src/data/config/execution_skill_profile.gd" id="1_ciyop"]
+
+[resource]
+script = ExtResource("1_ciyop")
+mode = 0
+display_name = "Miss"
+miss_weight = 1.0
+good_weight = 0.0
+reacts = false
+brace_success = 0.0
+evade_success = 0.0
+parry_success = 0.0

@@ -1,0 +1,54 @@
+[gd_resource type="Resource" script_class="CompanionDefinition" format=3]
+
+[ext_resource type="Resource" path="res://data/actions/companion/spear_flurry.tres" id="1_35fef"]
+[ext_resource type="Script" path="res://src/data/rules/modifier_definition.gd" id="2_sxl6y"]
+[ext_resource type="Script" path="res://src/data/rules/trait_definition.gd" id="3_qdrhm"]
+[ext_resource type="Script" path="res://src/data/rules/triggered_effect_definition.gd" id="4_7d483"]
+[ext_resource type="Script" path="res://src/data/rules/condition_definition.gd" id="5_f1xpm"]
+[ext_resource type="Script" path="res://src/data/rules/effect_definition.gd" id="6_qoh1w"]
+[ext_resource type="Script" path="res://src/data/combatants/companion_definition.gd" id="7_ajwft"]
+[ext_resource type="Script" path="res://src/data/combat/action_definition.gd" id="8_k2xx1"]
+[ext_resource type="Resource" path="res://data/actions/companion/intercept.tres" id="9_qxxih"]
+[ext_resource type="Resource" path="res://data/actions/companion/condemn.tres" id="10_042ry"]
+
+[sub_resource type="Resource" id="Resource_nxbfk"]
+script = ExtResource("5_f1xpm")
+type = 3
+
+[sub_resource type="Resource" id="Resource_563co"]
+script = ExtResource("6_qoh1w")
+type = 2
+target = 0
+amount = 2.0
+
+[sub_resource type="Resource" id="Resource_ufe3r"]
+script = ExtResource("4_7d483")
+trigger = 8
+watch = 1
+relation = 2
+conditions = Array[ExtResource("5_f1xpm")]([SubResource("Resource_nxbfk")])
+effects = Array[ExtResource("6_qoh1w")]([SubResource("Resource_563co")])
+
+[sub_resource type="Resource" id="Resource_gxixs"]
+script = ExtResource("3_qdrhm")
+id = &"inquisitors_eye"
+display_name = "Inquisitor's Eye"
+description = "When the Hollow Parries, Mara gains 2 Focus."
+triggers = Array[ExtResource("4_7d483")]([SubResource("Resource_ufe3r")])
+
+[resource]
+script = ExtResource("7_ajwft")
+basic_action = ExtResource("1_35fef")
+techniques = Array[ExtResource("8_k2xx1")]([ExtResource("9_qxxih"), ExtResource("10_042ry")])
+weapon_stagger = 7.0
+passive = SubResource("Resource_gxixs")
+theme_statement = "Questions whether morality exists when obedience has been engineered into an entire civilization."
+id = &"mara"
+display_name = "Mara"
+description = "A former Choir Inquisitor. She still stands like she is waiting for an order."
+max_hp = 105
+force = 8
+guard = 16
+tempo = 12
+shape = 3
+color = Color(0.85, 0.82, 0.95, 1)

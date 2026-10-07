@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ExecutionAssistProfile" format=3]
+
+[ext_resource type="Script" path="res://src/data/config/execution_assist_profile.gd" id="1_cyppn"]
+
+[resource]
+script = ExtResource("1_cyppn")
+assist = 2
+display_name = "Precise"
+description = "Narrower windows (x0.75) for players who want a sharper execution test. No extra rewards."
+window_scale = 0.75

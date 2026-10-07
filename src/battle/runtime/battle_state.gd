@@ -13,6 +13,9 @@ var conditions: Array[ActiveCondition] = []
 var potion_slots: Array[PotionSlotState] = []
 var familiar: FamiliarDefinition
 var advantage: Enums.Advantage = Enums.Advantage.NONE
+## Successful party reactions observed this battle (ReactionType -> count). Enemies may learn
+## from what they have seen; they never read inputs before they happen.
+var party_reaction_successes: Dictionary[int, int] = {}
 
 
 func unit(uid: int) -> BattleUnit:

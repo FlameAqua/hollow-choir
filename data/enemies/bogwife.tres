@@ -1,0 +1,98 @@
+[gd_resource type="Resource" script_class="EnemyDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/combat/enemy_action_definition.gd" id="1_4h1cv"]
+[ext_resource type="Script" path="res://src/data/combat/ai_consideration_definition.gd" id="2_0otlf"]
+[ext_resource type="Script" path="res://src/data/rules/effect_definition.gd" id="3_q0bfe"]
+[ext_resource type="Script" path="res://src/data/rules/condition_definition.gd" id="4_ms76e"]
+[ext_resource type="Script" path="res://src/data/combatants/boss_phase_definition.gd" id="5_7mhay"]
+[ext_resource type="Script" path="res://src/data/combatants/enemy_definition.gd" id="6_56r0w"]
+[ext_resource type="Script" path="res://src/data/rules/trait_definition.gd" id="7_apgvr"]
+
+[sub_resource type="Resource" id="Resource_yjmtk"]
+script = ExtResource("3_q0bfe")
+type = 1
+amount = 26.0
+scaling = 5
+
+[sub_resource type="Resource" id="Resource_ppjyq"]
+script = ExtResource("1_4h1cv")
+intent_category = 5
+telegraph_text = "Packs living moss into an ally's wounds."
+telegraph_detail = "Heals about 28 HP. Only bothers when an ally is badly hurt."
+id = &"moss_mend"
+display_name = "Moss Mend"
+category = 2
+target_rule = 6
+cooldown = 1
+effects = Array[ExtResource("3_q0bfe")]([SubResource("Resource_yjmtk")])
+
+[sub_resource type="Resource" id="Resource_x2wqr"]
+script = ExtResource("2_0otlf")
+type = 3
+weight = 3.5
+else_weight = 0.15
+status = 1
+reason = "Kin are burning"
+
+[sub_resource type="Resource" id="Resource_k1a8b"]
+script = ExtResource("3_q0bfe")
+type = 13
+
+[sub_resource type="Resource" id="Resource_k2k25"]
+script = ExtResource("3_q0bfe")
+type = 5
+amount = 1.0
+status = 2
+duration = 2
+
+[sub_resource type="Resource" id="Resource_83mr6"]
+script = ExtResource("1_4h1cv")
+base_priority = 0.6
+considerations = Array[ExtResource("2_0otlf")]([SubResource("Resource_x2wqr")])
+intent_category = 5
+telegraph_text = "Douses her kin in bog water, washing away statuses."
+id = &"cleansing_mire"
+display_name = "Cleansing Mire"
+category = 2
+target_rule = 5
+cooldown = 2
+effects = Array[ExtResource("3_q0bfe")]([SubResource("Resource_k1a8b"), SubResource("Resource_k2k25")])
+
+[sub_resource type="Resource" id="Resource_x1jc3"]
+script = ExtResource("3_q0bfe")
+type = 5
+amount = 1.0
+status = 2
+duration = 2
+
+[sub_resource type="Resource" id="Resource_cc4lm"]
+script = ExtResource("1_4h1cv")
+base_priority = 0.8
+synergy_setup = Array[int]([1])
+telegraph_text = "Spits bog water. Soaks the target. Cannot be Parried."
+can_parry = false
+id = &"bog_spit"
+display_name = "Bog Spit"
+damage_type = 3
+power = 13.0
+effects = Array[ExtResource("3_q0bfe")]([SubResource("Resource_x1jc3")])
+
+[resource]
+script = ExtResource("6_56r0w")
+role = 2
+species = "Mire witch"
+habitat = "Briarfen hummocks."
+lore = "She hums Choir hymns with the words changed."
+max_stagger = 26.0
+weaknesses = Array[int]([3])
+actions = Array[ExtResource("1_4h1cv")]([SubResource("Resource_ppjyq"), SubResource("Resource_83mr6"), SubResource("Resource_cc4lm")])
+ai_tendencies = "Heals only allies below half health. Washes away Burns the moment kin start burning."
+id = &"bogwife"
+display_name = "Bogwife"
+description = "A hunched mire-witch who stitches her kin back together with moss."
+max_hp = 44
+force = 8
+guard = 8
+tempo = 9
+shape = 3
+color = Color(0.4, 0.5, 0.45, 1)

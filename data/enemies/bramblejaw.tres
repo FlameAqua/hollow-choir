@@ -1,0 +1,145 @@
+[gd_resource type="Resource" script_class="EnemyDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/combat/enemy_action_definition.gd" id="1_8lptr"]
+[ext_resource type="Script" path="res://src/data/combat/ai_consideration_definition.gd" id="2_sstws"]
+[ext_resource type="Script" path="res://src/data/rules/effect_definition.gd" id="3_5hl6t"]
+[ext_resource type="Script" path="res://src/data/rules/condition_definition.gd" id="4_bn6ky"]
+[ext_resource type="Resource" path="res://data/buffs/frenzy.tres" id="5_csfoh"]
+[ext_resource type="Script" path="res://src/data/combatants/boss_phase_definition.gd" id="6_umydx"]
+[ext_resource type="Script" path="res://src/data/combatants/enemy_definition.gd" id="7_0nu5f"]
+[ext_resource type="Script" path="res://src/data/rules/trait_definition.gd" id="8_s1tia"]
+[ext_resource type="Script" path="res://src/data/rules/modifier_definition.gd" id="9_pkxyh"]
+[ext_resource type="Script" path="res://src/data/rules/triggered_effect_definition.gd" id="10_6yjq3"]
+
+[sub_resource type="Resource" id="Resource_8780g"]
+script = ExtResource("3_5hl6t")
+type = 5
+amount = 1.0
+status = 5
+duration = 2
+
+[sub_resource type="Resource" id="Resource_ldxk0"]
+script = ExtResource("1_8lptr")
+telegraph_text = "Snaps forward, thorns bristling. Causes Bleed."
+telegraph_detail = "Its signature bite. Parry it to learn how it fights."
+signature = true
+windup_ms = 700.0
+reaction_window_scale = 0.9
+id = &"thornrend"
+display_name = "Thornrend"
+damage_type = 1
+power = 21.0
+effects = Array[ExtResource("3_5hl6t")]([SubResource("Resource_8780g")])
+
+[sub_resource type="Resource" id="Resource_7nwn6"]
+script = ExtResource("3_5hl6t")
+type = 5
+amount = 1.0
+status = 5
+duration = 2
+
+[sub_resource type="Resource" id="Resource_ehk8c"]
+script = ExtResource("1_8lptr")
+intent_category = 2
+telegraph_text = "Whips its thorned tail across everyone. Cannot be Parried."
+can_parry = false
+id = &"briar_lash"
+display_name = "Briar Lash"
+target_rule = 3
+focus_cost = 2
+damage_type = 1
+power = 15.0
+effects = Array[ExtResource("3_5hl6t")]([SubResource("Resource_7nwn6")])
+
+[sub_resource type="Resource" id="Resource_muoup"]
+script = ExtResource("2_sstws")
+weight = 2.0
+else_weight = 0.4
+reason = "Wounded prey"
+
+[sub_resource type="Resource" id="Resource_bus6a"]
+script = ExtResource("1_8lptr")
+considerations = Array[ExtResource("2_sstws")]([SubResource("Resource_muoup")])
+intent_category = 1
+telegraph_text = "Lowers its head toward the weakest. A killing charge."
+windup_ms = 1100.0
+id = &"hunts_end"
+display_name = "Hunt's End"
+focus_cost = 2
+damage_type = 3
+power = 36.0
+tags = Array[int]([0])
+
+[sub_resource type="Resource" id="Resource_ogjql"]
+script = ExtResource("2_sstws")
+type = 0
+weight = 1.8
+reason = "Cornered"
+
+[sub_resource type="Resource" id="Resource_auhg3"]
+script = ExtResource("3_5hl6t")
+type = 8
+target = 0
+buff = ExtResource("5_csfoh")
+
+[sub_resource type="Resource" id="Resource_3bhar"]
+script = ExtResource("3_5hl6t")
+type = 14
+target = 0
+amount = 20.0
+
+[sub_resource type="Resource" id="Resource_oyjuu"]
+script = ExtResource("1_8lptr")
+base_priority = 0.7
+considerations = Array[ExtResource("2_sstws")]([SubResource("Resource_ogjql")])
+intent_category = 6
+telegraph_text = "Howls: Frenzy for 2 rounds and shakes off some Stagger."
+id = &"pack_howl"
+display_name = "Pack Howl"
+category = 1
+target_rule = 1
+cooldown = 3
+effects = Array[ExtResource("3_5hl6t")]([SubResource("Resource_auhg3"), SubResource("Resource_3bhar")])
+
+[sub_resource type="Resource" id="Resource_awtrb"]
+script = ExtResource("4_bn6ky")
+type = 6
+status = 5
+
+[sub_resource type="Resource" id="Resource_38wfi"]
+script = ExtResource("9_pkxyh")
+value = 1.2
+conditions = Array[ExtResource("4_bn6ky")]([SubResource("Resource_awtrb")])
+
+[sub_resource type="Resource" id="Resource_c5fs6"]
+script = ExtResource("8_s1tia")
+id = &"blood_scent"
+display_name = "Blood Scent"
+description = "Deals 20% more damage to Bleeding targets."
+modifiers = Array[ExtResource("9_pkxyh")]([SubResource("Resource_38wfi")])
+
+[resource]
+script = ExtResource("7_0nu5f")
+role = 4
+tier = 1
+species = "Briar wolf matriarch"
+habitat = "The thorn dens of Briarfen."
+lore = "She remembers when the fen was larger."
+max_stagger = 60.0
+stagger_growth_on_break = 1.25
+has_weak_point = true
+weak_point_name = "Heart-knot"
+weaknesses = Array[int]([4])
+actions = Array[ExtResource("1_8lptr")]([SubResource("Resource_ldxk0"), SubResource("Resource_ehk8c"), SubResource("Resource_bus6a"), SubResource("Resource_oyjuu")])
+ai_tendencies = "Finishes the wounded with Hunt's End; howls when cornered."
+id = &"bramblejaw"
+display_name = "Bramblejaw"
+description = "The pack's matriarch, armoured in living briar."
+max_hp = 180
+force = 14
+guard = 15
+tempo = 14
+traits = Array[ExtResource("8_s1tia")]([SubResource("Resource_c5fs6")])
+shape = 1
+color = Color(0.35, 0.45, 0.22, 1)
+visual_scale = 1.4

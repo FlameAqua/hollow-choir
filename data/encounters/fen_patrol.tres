@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="EncounterDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/combat/battlefield_condition_definition.gd" id="1_kb7he"]
+[ext_resource type="Resource" path="res://data/conditions/flooded_ground.tres" id="2_o38vx"]
+[ext_resource type="Script" path="res://src/data/combatants/enemy_definition.gd" id="3_8dqg6"]
+[ext_resource type="Resource" path="res://data/enemies/bogshell.tres" id="4_7bxws"]
+[ext_resource type="Resource" path="res://data/enemies/thornhound.tres" id="5_ww7id"]
+[ext_resource type="Resource" path="res://data/enemies/fen_wisp.tres" id="6_2j0i0"]
+[ext_resource type="Script" path="res://src/data/encounters/encounter_definition.gd" id="7_jfjfi"]
+
+[resource]
+script = ExtResource("7_jfjfi")
+id = &"fen_patrol"
+display_name = "Fen Patrol"
+description = "A Bogshell escort, a Thornhound and a Fen Wisp in flooded ground."
+group = "Briarfen"
+enemies = Array[ExtResource("3_8dqg6")]([ExtResource("4_7bxws"), ExtResource("5_ww7id"), ExtResource("6_2j0i0")])
+conditions = Array[ExtResource("1_kb7he")]([ExtResource("2_o38vx")])

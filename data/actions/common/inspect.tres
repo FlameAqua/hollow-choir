@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="ActionDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/rules/effect_definition.gd" id="1_63s4t"]
+[ext_resource type="Script" path="res://src/data/rules/condition_definition.gd" id="2_rp6qr"]
+[ext_resource type="Script" path="res://src/data/combat/action_definition.gd" id="3_dx53m"]
+
+[sub_resource type="Resource" id="Resource_afqdp"]
+script = ExtResource("1_63s4t")
+type = 2
+target = 0
+amount = 1.0
+
+[resource]
+script = ExtResource("3_dx53m")
+id = &"inspect"
+display_name = "Inspect"
+description = "Study an enemy: reveals its weaknesses, exact intent and move details for this battle. Earns bestiary research. +1 Focus."
+category = 5
+effects = Array[ExtResource("1_63s4t")]([SubResource("Resource_afqdp")])

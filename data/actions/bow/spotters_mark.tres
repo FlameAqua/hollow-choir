@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="ActionDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/combat/action_command_definition.gd" id="1_8vai6"]
+[ext_resource type="Script" path="res://src/data/rules/effect_definition.gd" id="2_xw46r"]
+[ext_resource type="Script" path="res://src/data/rules/condition_definition.gd" id="3_t6x3u"]
+[ext_resource type="Script" path="res://src/data/combat/action_definition.gd" id="4_5n5j1"]
+
+[sub_resource type="Resource" id="Resource_tnk4k"]
+script = ExtResource("1_8vai6")
+type = 4
+duration_ms = 1100.0
+target_position = 0.5
+perfect_window_ms = 110.0
+lead_in_ms = 400.0
+
+[sub_resource type="Resource" id="Resource_inq47"]
+script = ExtResource("2_xw46r")
+type = 9
+duration = 2
+
+[resource]
+script = ExtResource("4_5n5j1")
+id = &"spotters_mark"
+display_name = "Spotter's Mark"
+description = "Aim for a gap in the target's defences: exposes its weak point for 2 turns."
+category = 1
+focus_cost = 2
+uses_weapon_power = true
+weapon_power_multiplier = 0.5
+uses_weapon_stagger = true
+weapon_stagger_multiplier = 0.5
+tags = Array[int]([2, 3])
+effects = Array[ExtResource("2_xw46r")]([SubResource("Resource_inq47")])
+command = SubResource("Resource_tnk4k")

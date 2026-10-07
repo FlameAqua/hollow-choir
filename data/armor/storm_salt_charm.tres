@@ -1,0 +1,47 @@
+[gd_resource type="Resource" script_class="ArmorDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/combat/action_definition.gd" id="1_80r8l"]
+[ext_resource type="Script" path="res://src/data/items/armor_definition.gd" id="2_subj0"]
+[ext_resource type="Script" path="res://src/data/rules/trait_definition.gd" id="3_lv2ib"]
+[ext_resource type="Script" path="res://src/data/rules/modifier_definition.gd" id="4_vsva6"]
+[ext_resource type="Script" path="res://src/data/rules/triggered_effect_definition.gd" id="5_iy810"]
+[ext_resource type="Script" path="res://src/data/rules/condition_definition.gd" id="6_7syul"]
+[ext_resource type="Script" path="res://src/data/rules/effect_definition.gd" id="7_eliei"]
+
+[sub_resource type="Resource" id="Resource_x34mm"]
+script = ExtResource("6_7syul")
+type = 7
+status = 3
+
+[sub_resource type="Resource" id="Resource_oaaoh"]
+script = ExtResource("6_7syul")
+type = 6
+status = 2
+
+[sub_resource type="Resource" id="Resource_3omqi"]
+script = ExtResource("7_eliei")
+type = 4
+amount = 12.0
+
+[sub_resource type="Resource" id="Resource_nuudx"]
+script = ExtResource("5_iy810")
+trigger = 9
+conditions = Array[ExtResource("6_7syul")]([SubResource("Resource_x34mm"), SubResource("Resource_oaaoh")])
+effects = Array[ExtResource("7_eliei")]([SubResource("Resource_3omqi")])
+
+[sub_resource type="Resource" id="Resource_48ffq"]
+script = ExtResource("3_lv2ib")
+id = &"grounding"
+display_name = "Grounding"
+description = "Shock you apply to a Wet target also deals 12 Stagger."
+triggers = Array[ExtResource("5_iy810")]([SubResource("Resource_nuudx")])
+
+[resource]
+script = ExtResource("2_subj0")
+id = &"storm_salt_charm"
+display_name = "Storm Salt Charm"
+description = "A twist of cloth around salt harvested after a lightning storm."
+slot = 2
+rarity = 1
+traits = Array[ExtResource("3_lv2ib")]([SubResource("Resource_48ffq")])
+resonance_tags = Array[int]([1])

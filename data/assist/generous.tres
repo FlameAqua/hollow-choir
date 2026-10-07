@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ExecutionAssistProfile" format=3]
+
+[ext_resource type="Script" path="res://src/data/config/execution_assist_profile.gd" id="1_qw5ug"]
+
+[resource]
+script = ExtResource("1_qw5ug")
+assist = 0
+display_name = "Generous"
+description = "Wider timing windows (x1.5) and slightly slower indicators."
+window_scale = 1.5
+time_scale = 1.15

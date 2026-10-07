@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ExecutionSkillProfile" format=3]
+
+[ext_resource type="Script" path="res://src/data/config/execution_skill_profile.gd" id="1_ic60w"]
+
+[resource]
+script = ExtResource("1_ic60w")
+mode = 3
+display_name = "Mixed"
+miss_weight = 0.25
+good_weight = 0.55
+perfect_weight = 0.2
+brace_success = 0.88
+evade_success = 0.6
+parry_success = 0.25

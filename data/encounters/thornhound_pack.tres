@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="EncounterDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/combat/battlefield_condition_definition.gd" id="1_q6bao"]
+[ext_resource type="Script" path="res://src/data/combatants/enemy_definition.gd" id="2_b78i2"]
+[ext_resource type="Resource" path="res://data/enemies/thornhound.tres" id="3_itqgk"]
+[ext_resource type="Script" path="res://src/data/encounters/encounter_definition.gd" id="4_opj8m"]
+
+[resource]
+script = ExtResource("4_opj8m")
+id = &"thornhound_pack"
+display_name = "Thornhound Pack"
+description = "Three Thornhounds. They will go for whoever bleeds first."
+group = "Briarfen"
+enemies = Array[ExtResource("2_b78i2")]([ExtResource("3_itqgk"), ExtResource("3_itqgk"), ExtResource("3_itqgk")])

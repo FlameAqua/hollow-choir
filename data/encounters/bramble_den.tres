@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="EncounterDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/combat/battlefield_condition_definition.gd" id="1_a6lhw"]
+[ext_resource type="Script" path="res://src/data/combatants/enemy_definition.gd" id="2_m35oy"]
+[ext_resource type="Resource" path="res://data/enemies/bramblejaw.tres" id="3_18o3r"]
+[ext_resource type="Resource" path="res://data/enemies/thornhound.tres" id="4_1jgcp"]
+[ext_resource type="Script" path="res://src/data/encounters/encounter_definition.gd" id="5_aqlou"]
+
+[resource]
+script = ExtResource("5_aqlou")
+id = &"bramble_den"
+display_name = "Bramble Den"
+description = "The matriarch Bramblejaw and one of her hounds."
+group = "Elite"
+enemies = Array[ExtResource("2_m35oy")]([ExtResource("3_18o3r"), ExtResource("4_1jgcp")])

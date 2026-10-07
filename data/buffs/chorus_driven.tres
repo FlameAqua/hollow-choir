@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="BuffDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/rules/condition_definition.gd" id="1_rshly"]
+[ext_resource type="Script" path="res://src/data/rules/buff_definition.gd" id="2_l1uss"]
+[ext_resource type="Script" path="res://src/data/rules/modifier_definition.gd" id="3_8cgc6"]
+[ext_resource type="Script" path="res://src/data/rules/trait_definition.gd" id="4_c3h1s"]
+[ext_resource type="Script" path="res://src/data/rules/triggered_effect_definition.gd" id="5_pe5ho"]
+
+[sub_resource type="Resource" id="Resource_st86n"]
+script = ExtResource("3_8cgc6")
+value = 1.35
+
+[sub_resource type="Resource" id="Resource_47v2a"]
+script = ExtResource("4_c3h1s")
+id = &"chorus_rules"
+display_name = "Chorus-Driven"
+modifiers = Array[ExtResource("3_8cgc6")]([SubResource("Resource_st86n")])
+
+[resource]
+script = ExtResource("2_l1uss")
+id = &"chorus_driven"
+display_name = "Chorus-Driven"
+description = "Its next action deals 35% more damage."
+glyph = "CHR"
+expiry = 3
+trait_def = SubResource("Resource_47v2a")

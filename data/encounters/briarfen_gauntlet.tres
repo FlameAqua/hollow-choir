@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="EncounterDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/combat/battlefield_condition_definition.gd" id="1_s572f"]
+[ext_resource type="Resource" path="res://data/conditions/spore_fog.tres" id="2_t3xxp"]
+[ext_resource type="Script" path="res://src/data/combatants/enemy_definition.gd" id="3_d5k04"]
+[ext_resource type="Resource" path="res://data/enemies/bogshell.tres" id="4_bkx43"]
+[ext_resource type="Resource" path="res://data/enemies/rotcap_brute.tres" id="5_h1kor"]
+[ext_resource type="Resource" path="res://data/enemies/bogwife.tres" id="6_bmgyy"]
+[ext_resource type="Resource" path="res://data/enemies/fen_wisp.tres" id="7_i6377"]
+[ext_resource type="Script" path="res://src/data/encounters/encounter_definition.gd" id="8_o1dp4"]
+
+[resource]
+script = ExtResource("8_o1dp4")
+id = &"briarfen_gauntlet"
+display_name = "Briarfen Gauntlet"
+description = "Four roles at once in spore-thick air. A stress test, not a designed fight."
+group = "Stress"
+enemies = Array[ExtResource("3_d5k04")]([ExtResource("4_bkx43"), ExtResource("5_h1kor"), ExtResource("6_bmgyy"), ExtResource("7_i6377")])
+conditions = Array[ExtResource("1_s572f")]([ExtResource("2_t3xxp")])

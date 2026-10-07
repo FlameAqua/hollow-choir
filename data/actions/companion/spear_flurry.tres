@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="ActionDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/combat/action_command_definition.gd" id="1_6s3ss"]
+[ext_resource type="Script" path="res://src/data/rules/effect_definition.gd" id="2_ia7b3"]
+[ext_resource type="Script" path="res://src/data/combat/action_definition.gd" id="3_bgp7r"]
+
+[sub_resource type="Resource" id="Resource_pr3q1"]
+script = ExtResource("1_6s3ss")
+type = 3
+good_window_ms = 200.0
+perfect_window_ms = 70.0
+beat_interval_ms = 380.0
+lead_in_ms = 600.0
+
+[resource]
+script = ExtResource("3_bgp7r")
+id = &"spear_flurry"
+display_name = "Spear Flurry"
+description = "Three quick thrusts in rhythm. Good timing builds Focus."
+uses_weapon_power = true
+uses_weapon_stagger = true
+generates_focus = true
+command = SubResource("Resource_pr3q1")

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ExecutionSkillProfile" format=3]
+
+[ext_resource type="Script" path="res://src/data/config/execution_skill_profile.gd" id="1_2jx0s"]
+
+[resource]
+script = ExtResource("1_2jx0s")
+mode = 2
+display_name = "Perfect"
+good_weight = 0.15
+perfect_weight = 0.85
+brace_success = 1.0
+evade_success = 0.97
+parry_success = 0.85

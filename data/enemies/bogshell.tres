@@ -1,0 +1,80 @@
+[gd_resource type="Resource" script_class="EnemyDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/combat/enemy_action_definition.gd" id="1_08dab"]
+[ext_resource type="Script" path="res://src/data/combat/ai_consideration_definition.gd" id="2_qkimy"]
+[ext_resource type="Script" path="res://src/data/rules/effect_definition.gd" id="3_narep"]
+[ext_resource type="Script" path="res://src/data/rules/condition_definition.gd" id="4_q31k6"]
+[ext_resource type="Resource" path="res://data/buffs/shelled.tres" id="5_vq0fq"]
+[ext_resource type="Script" path="res://src/data/combatants/boss_phase_definition.gd" id="6_y527g"]
+[ext_resource type="Script" path="res://src/data/combatants/enemy_definition.gd" id="7_s2sp2"]
+[ext_resource type="Script" path="res://src/data/rules/trait_definition.gd" id="8_u0n16"]
+
+[sub_resource type="Resource" id="Resource_vsw0c"]
+script = ExtResource("1_08dab")
+telegraph_text = "Snaps a claw."
+windup_ms = 800.0
+id = &"clamp"
+display_name = "Clamp"
+damage_type = 1
+power = 16.0
+
+[sub_resource type="Resource" id="Resource_c3jq5"]
+script = ExtResource("3_narep")
+type = 11
+
+[sub_resource type="Resource" id="Resource_um4a7"]
+script = ExtResource("3_narep")
+type = 8
+target = 0
+buff = ExtResource("5_vq0fq")
+
+[sub_resource type="Resource" id="Resource_1e6yd"]
+script = ExtResource("1_08dab")
+base_priority = 0.9
+intent_category = 7
+telegraph_text = "Drags its shell in front of an ally: attacks on that ally hit the shell."
+telegraph_detail = "While warding, it takes 25% less damage. Hammers still crack it."
+id = &"shell_ward"
+display_name = "Shell Ward"
+category = 1
+target_rule = 6
+cooldown = 2
+effects = Array[ExtResource("3_narep")]([SubResource("Resource_c3jq5"), SubResource("Resource_um4a7")])
+
+[sub_resource type="Resource" id="Resource_30wsh"]
+script = ExtResource("1_08dab")
+base_priority = 1.2
+synergy_setup = Array[int]([1])
+intent_category = 1
+telegraph_text = "Rears up for a crushing slam. Cannot be Parried."
+telegraph_detail = "In flooded ground the splash soaks its target."
+can_parry = false
+windup_ms = 1150.0
+id = &"shell_slam"
+display_name = "Shell Slam"
+focus_cost = 1
+damage_type = 2
+power = 28.0
+tags = Array[int]([1, 0])
+
+[resource]
+script = ExtResource("7_s2sp2")
+role = 0
+species = "Mire crab"
+habitat = "Briarfen shallows and flooded roots."
+lore = "Fen folk say a Bogshell will die for any creature that shares its pool. The Choir calls this instinct. Fen folk call it something else."
+max_stagger = 34.0
+weaknesses = Array[int]([2])
+resistances = Array[int]([1, 3])
+actions = Array[ExtResource("1_08dab")]([SubResource("Resource_vsw0c"), SubResource("Resource_1e6yd"), SubResource("Resource_30wsh")])
+ai_tendencies = "Wards whichever ally is hurt or channeling. Rarely slams a guarding target."
+rare_interactions = "Blunt damage ignores its shell's resistance."
+id = &"bogshell"
+display_name = "Bogshell"
+description = "Mud-armoured crabs that drag themselves in front of their kin."
+max_hp = 60
+force = 6
+guard = 30
+tempo = 6
+shape = 5
+color = Color(0.45, 0.38, 0.28, 1)

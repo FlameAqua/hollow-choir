@@ -31,6 +31,7 @@ const FIELDS_BY_TYPE := {
 	K.ROUND_AT_LEAST: ["threshold"],
 	K.TARGET_WAS_DAMAGED: [],
 	K.SELF_IS_PROTECTED: [],
+	K.PARTY_COUNTERS_THIS: ["threshold"],
 }
 
 @export var type: Enums.ConsiderationType = Enums.ConsiderationType.TARGET_HP_BELOW:

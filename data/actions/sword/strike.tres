@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="ActionDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/combat/action_command_definition.gd" id="1_sv2lx"]
+[ext_resource type="Script" path="res://src/data/rules/effect_definition.gd" id="2_rjj4p"]
+[ext_resource type="Script" path="res://src/data/combat/action_definition.gd" id="3_pnhba"]
+
+[sub_resource type="Resource" id="Resource_mvp52"]
+script = ExtResource("1_sv2lx")
+duration_ms = 900.0
+target_position = 0.72
+good_window_ms = 300.0
+perfect_window_ms = 95.0
+
+[resource]
+script = ExtResource("3_pnhba")
+id = &"sword_strike"
+display_name = "Strike"
+description = "A clean cut. Good timing builds Focus."
+uses_weapon_power = true
+uses_weapon_stagger = true
+generates_focus = true
+command = SubResource("Resource_mvp52")

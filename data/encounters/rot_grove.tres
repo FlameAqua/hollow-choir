@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="EncounterDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/combat/battlefield_condition_definition.gd" id="1_hvthv"]
+[ext_resource type="Script" path="res://src/data/combatants/enemy_definition.gd" id="2_kp4mo"]
+[ext_resource type="Resource" path="res://data/enemies/rotcap_brute.tres" id="3_j4dey"]
+[ext_resource type="Resource" path="res://data/enemies/sporecaller.tres" id="4_r7f30"]
+[ext_resource type="Resource" path="res://data/enemies/thornhound.tres" id="5_m4ql7"]
+[ext_resource type="Script" path="res://src/data/encounters/encounter_definition.gd" id="6_7gp27"]
+
+[resource]
+script = ExtResource("6_7gp27")
+id = &"rot_grove"
+display_name = "Rot Grove"
+description = "A Rotcap Brute, its Sporecaller and a hungry Thornhound. Dry ground — for now."
+group = "Briarfen"
+enemies = Array[ExtResource("2_kp4mo")]([ExtResource("3_j4dey"), ExtResource("4_r7f30"), ExtResource("5_m4ql7")])

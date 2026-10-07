@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="PotionDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/rules/effect_definition.gd" id="1_5smqu"]
+[ext_resource type="Script" path="res://src/data/rules/condition_definition.gd" id="2_2f6pm"]
+[ext_resource type="Script" path="res://src/data/combat/action_definition.gd" id="3_icdkf"]
+[ext_resource type="Script" path="res://src/data/items/potion_definition.gd" id="4_rwrff"]
+
+[sub_resource type="Resource" id="Resource_6efcr"]
+script = ExtResource("1_5smqu")
+type = 5
+amount = 1.0
+status = 2
+duration = 3
+
+[sub_resource type="Resource" id="Resource_hd5hj"]
+script = ExtResource("3_icdkf")
+id = &"use_fen_water_flask"
+display_name = "Fen Water Flask"
+description = "Thrown: soaks one enemy (Wet, 3 turns). Puts out Burns; sets up Shock."
+category = 4
+effects = Array[ExtResource("1_5smqu")]([SubResource("Resource_6efcr")])
+
+[resource]
+script = ExtResource("4_rwrff")
+id = &"fen_water_flask"
+display_name = "Fen Water Flask"
+description = "Thrown: soaks one enemy (Wet, 3 turns). Puts out Burns; sets up Shock."
+action = SubResource("Resource_hd5hj")
+charges = 2

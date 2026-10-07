@@ -147,6 +147,9 @@ static func _process_reaction(ctx: BattleContext, attacker: BattleUnit, defender
 	var rc := RuleContext.make(Enums.TriggerType.REACTION, attacker, defender, action)
 	rc.reaction = reaction.type
 	rc.reaction_success = reaction.success
+	if reaction.success and defender.side == Enums.Side.PLAYER and not reaction.automatic:
+		var seen := ctx.state.party_reaction_successes
+		seen[reaction.type] = seen.get(reaction.type, 0) + 1
 	if reaction.type == Enums.ReactionType.PARRY and reaction.success and not parry_rewarded:
 		parry_rewarded = true
 		var stagger := ModifierQuery.apply(ctx, Enums.ModifierStat.PARRY_STAGGER, ctx.balance.parry_stagger, defender, rc)

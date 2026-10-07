@@ -1,0 +1,49 @@
+[gd_resource type="Resource" script_class="WeaponDefinition" format=3]
+
+[ext_resource type="Resource" path="res://data/actions/bow/loosed_arrow.tres" id="1_smq1s"]
+[ext_resource type="Resource" path="res://data/actions/bow/steady_aim.tres" id="2_45rp2"]
+[ext_resource type="Script" path="res://src/data/items/weapon_definition.gd" id="3_8kl1g"]
+[ext_resource type="Script" path="res://src/data/combat/action_definition.gd" id="4_3goef"]
+[ext_resource type="Resource" path="res://data/actions/bow/spotters_mark.tres" id="5_pe2ig"]
+[ext_resource type="Resource" path="res://data/actions/bow/heartseeker.tres" id="6_atrmm"]
+[ext_resource type="Script" path="res://src/data/rules/trait_definition.gd" id="7_ouqqp"]
+[ext_resource type="Script" path="res://src/data/rules/modifier_definition.gd" id="8_41j01"]
+[ext_resource type="Script" path="res://src/data/rules/triggered_effect_definition.gd" id="9_b1uw1"]
+[ext_resource type="Script" path="res://src/data/rules/condition_definition.gd" id="10_mwkys"]
+[ext_resource type="Script" path="res://src/data/rules/effect_definition.gd" id="11_q8xo3"]
+
+[sub_resource type="Resource" id="Resource_lljnk"]
+script = ExtResource("10_mwkys")
+type = 16
+
+[sub_resource type="Resource" id="Resource_fjteu"]
+script = ExtResource("11_q8xo3")
+type = 2
+target = 0
+amount = 1.0
+
+[sub_resource type="Resource" id="Resource_12ji6"]
+script = ExtResource("9_b1uw1")
+conditions = Array[ExtResource("10_mwkys")]([SubResource("Resource_lljnk")])
+effects = Array[ExtResource("11_q8xo3")]([SubResource("Resource_fjteu")])
+
+[sub_resource type="Resource" id="Resource_mnhkv"]
+script = ExtResource("7_ouqqp")
+id = &"hunters_eye"
+display_name = "Hunter's Eye"
+description = "Hits against an exposed weak point grant +1 Focus."
+triggers = Array[ExtResource("9_b1uw1")]([SubResource("Resource_12ji6")])
+
+[resource]
+script = ExtResource("3_8kl1g")
+id = &"reedbow"
+display_name = "Reedbow"
+description = "A fen-hunter's bow of bound reeds. Light, quiet, patient."
+family = 3
+damage_type = 3
+base_stagger = 7.0
+tempo_modifier = 1
+basic_attack = ExtResource("1_smq1s")
+techniques = Array[ExtResource("4_3goef")]([ExtResource("5_pe2ig"), ExtResource("6_atrmm")])
+guard_action = ExtResource("2_45rp2")
+traits = Array[ExtResource("7_ouqqp")]([SubResource("Resource_mnhkv")])

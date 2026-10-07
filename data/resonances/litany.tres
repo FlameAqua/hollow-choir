@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="ResonanceDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/items/resonance_definition.gd" id="1_e2ook"]
+[ext_resource type="Script" path="res://src/data/rules/modifier_definition.gd" id="2_dl26w"]
+[ext_resource type="Script" path="res://src/data/rules/trait_definition.gd" id="3_wuobc"]
+[ext_resource type="Script" path="res://src/data/rules/triggered_effect_definition.gd" id="4_1a1sr"]
+[ext_resource type="Script" path="res://src/data/rules/condition_definition.gd" id="5_o0kk5"]
+[ext_resource type="Script" path="res://src/data/rules/effect_definition.gd" id="6_r0u1f"]
+
+[sub_resource type="Resource" id="Resource_biuhf"]
+script = ExtResource("5_o0kk5")
+type = 8
+category = 3
+
+[sub_resource type="Resource" id="Resource_085fq"]
+script = ExtResource("6_r0u1f")
+type = 2
+target = 0
+amount = 1.0
+
+[sub_resource type="Resource" id="Resource_2u36m"]
+script = ExtResource("4_1a1sr")
+trigger = 5
+conditions = Array[ExtResource("5_o0kk5")]([SubResource("Resource_biuhf")])
+effects = Array[ExtResource("6_r0u1f")]([SubResource("Resource_085fq")])
+
+[sub_resource type="Resource" id="Resource_ix1x2"]
+script = ExtResource("3_wuobc")
+id = &"litany"
+display_name = "Litany"
+description = "Guard actions grant 1 extra Focus."
+triggers = Array[ExtResource("4_1a1sr")]([SubResource("Resource_2u36m")])
+
+[resource]
+script = ExtResource("1_e2ook")
+tag = 3
+display_name = "Litany"
+description = "Guard actions grant 1 extra Focus."
+trait_def = SubResource("Resource_ix1x2")

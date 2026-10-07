@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TacticalDifficultyProfile" format=3]
+
+[ext_resource type="Script" path="res://src/data/config/tactical_difficulty_profile.gd" id="1_gf4t2"]
+
+[resource]
+script = ExtResource("1_gf4t2")
+display_name = "Adventurer"
+description = "Enemies weigh their health, their allies, your weaknesses, the battlefield, cooldowns and common combos."
+score_variance = 0.18

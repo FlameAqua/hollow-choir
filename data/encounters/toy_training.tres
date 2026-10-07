@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="EncounterDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/combat/battlefield_condition_definition.gd" id="1_7p8lr"]
+[ext_resource type="Script" path="res://src/data/combatants/enemy_definition.gd" id="2_epd2d"]
+[ext_resource type="Resource" path="res://data/enemies/straw_penitent.tres" id="3_ijha6"]
+[ext_resource type="Script" path="res://src/data/encounters/encounter_definition.gd" id="4_4e5kj"]
+
+[resource]
+script = ExtResource("4_4e5kj")
+id = &"toy_training"
+display_name = "Training Yard"
+description = "The combat toy: one patient dummy that telegraphs every reaction type."
+group = "Toy"
+enemies = Array[ExtResource("2_epd2d")]([ExtResource("3_ijha6")])

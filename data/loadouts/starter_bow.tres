@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="PartyLoadout" format=3]
+
+[ext_resource type="Resource" path="res://data/characters/mara.tres" id="1_fnh65"]
+[ext_resource type="Resource" path="res://data/familiars/cinder_pup.tres" id="2_roiic"]
+[ext_resource type="Resource" path="res://data/armor/fenrunner_leathers.tres" id="3_22jdc"]
+[ext_resource type="Script" path="res://src/data/items/potion_definition.gd" id="4_x81ff"]
+[ext_resource type="Resource" path="res://data/potions/mending_draught.tres" id="5_h1tfd"]
+[ext_resource type="Resource" path="res://data/potions/focus_tincture.tres" id="6_ihx32"]
+[ext_resource type="Resource" path="res://data/characters/hollow.tres" id="7_3eknr"]
+[ext_resource type="Script" path="res://src/data/encounters/party_loadout.gd" id="8_arrqp"]
+[ext_resource type="Resource" path="res://data/weapons/reedbow.tres" id="9_v8272"]
+
+[resource]
+script = ExtResource("8_arrqp")
+id = &"starter_bow"
+display_name = "Starter: Bow"
+protagonist = ExtResource("7_3eknr")
+weapon = ExtResource("9_v8272")
+garb = ExtResource("3_22jdc")
+companion = ExtResource("1_fnh65")
+familiar = ExtResource("2_roiic")
+potions = Array[ExtResource("4_x81ff")]([ExtResource("5_h1tfd"), ExtResource("6_ihx32")])

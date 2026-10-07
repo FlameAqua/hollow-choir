@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="ActionDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/rules/effect_definition.gd" id="1_cqeun"]
+[ext_resource type="Resource" path="res://data/buffs/taking_cover.tres" id="2_1u0jn"]
+[ext_resource type="Script" path="res://src/data/rules/condition_definition.gd" id="3_vsa0w"]
+[ext_resource type="Resource" path="res://data/buffs/steady_aim.tres" id="4_s882o"]
+[ext_resource type="Script" path="res://src/data/combat/action_definition.gd" id="5_7p4kg"]
+
+[sub_resource type="Resource" id="Resource_w72p1"]
+script = ExtResource("1_cqeun")
+type = 8
+target = 0
+buff = ExtResource("2_1u0jn")
+
+[sub_resource type="Resource" id="Resource_gcmm7"]
+script = ExtResource("1_cqeun")
+type = 8
+target = 0
+buff = ExtResource("4_s882o")
+
+[sub_resource type="Resource" id="Resource_2ya31"]
+script = ExtResource("1_cqeun")
+type = 2
+target = 0
+amount = 1.0
+
+[resource]
+script = ExtResource("5_7p4kg")
+id = &"steady_aim"
+display_name = "Steady Aim"
+description = "Take cover and settle your breathing: 20% less damage until your next turn, and your next shot is easier to time. +1 Focus."
+category = 3
+target_rule = 1
+effects = Array[ExtResource("1_cqeun")]([SubResource("Resource_w72p1"), SubResource("Resource_gcmm7"), SubResource("Resource_2ya31")])

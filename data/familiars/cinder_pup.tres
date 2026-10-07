@@ -1,0 +1,45 @@
+[gd_resource type="Resource" script_class="FamiliarDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/combatants/familiar_definition.gd" id="1_nmpoi"]
+[ext_resource type="Script" path="res://src/data/rules/modifier_definition.gd" id="2_sfhwj"]
+[ext_resource type="Script" path="res://src/data/rules/trait_definition.gd" id="3_x28hn"]
+[ext_resource type="Script" path="res://src/data/rules/triggered_effect_definition.gd" id="4_w87v4"]
+[ext_resource type="Script" path="res://src/data/rules/condition_definition.gd" id="5_py34e"]
+[ext_resource type="Script" path="res://src/data/rules/effect_definition.gd" id="6_nh4jt"]
+
+[sub_resource type="Resource" id="Resource_a3jxn"]
+script = ExtResource("5_py34e")
+type = 7
+status = 1
+
+[sub_resource type="Resource" id="Resource_x40xy"]
+script = ExtResource("6_nh4jt")
+type = 7
+amount = 1.0
+status = 1
+
+[sub_resource type="Resource" id="Resource_5ckhg"]
+script = ExtResource("4_w87v4")
+trigger = 9
+watch = 1
+relation = 3
+conditions = Array[ExtResource("5_py34e")]([SubResource("Resource_a3jxn")])
+effects = Array[ExtResource("6_nh4jt")]([SubResource("Resource_x40xy")])
+max_per_round = 1
+
+[sub_resource type="Resource" id="Resource_h5roh"]
+script = ExtResource("3_x28hn")
+id = &"cinder_pup"
+display_name = "Cinder Pup"
+description = "When an enemy is set Burning, the Pup fans the flames: +1 turn of Burn. Once per round."
+triggers = Array[ExtResource("4_w87v4")]([SubResource("Resource_5ckhg")])
+
+[resource]
+script = ExtResource("1_nmpoi")
+id = &"cinder_pup"
+display_name = "Cinder Pup"
+description = "When an enemy is set Burning, the Pup fans the flames: +1 turn of Burn. Once per round."
+playstyle = "Rewards fire. Strong where things burn and fungus grows; wasted where the ground is flooded."
+trait_def = SubResource("Resource_h5roh")
+shape = 1
+color = Color(0.85, 0.4, 0.15, 1)

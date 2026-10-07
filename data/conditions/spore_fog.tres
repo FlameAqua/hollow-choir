@@ -1,0 +1,46 @@
+[gd_resource type="Resource" script_class="BattlefieldConditionDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/combat/battlefield_condition_definition.gd" id="1_vc6oq"]
+[ext_resource type="Script" path="res://src/data/rules/trait_definition.gd" id="2_p5hnw"]
+[ext_resource type="Script" path="res://src/data/rules/modifier_definition.gd" id="3_r7mty"]
+[ext_resource type="Script" path="res://src/data/rules/triggered_effect_definition.gd" id="4_8up48"]
+[ext_resource type="Script" path="res://src/data/rules/condition_definition.gd" id="5_l5qhq"]
+[ext_resource type="Script" path="res://src/data/rules/effect_definition.gd" id="6_cxwea"]
+
+[sub_resource type="Resource" id="Resource_jto3x"]
+script = ExtResource("5_l5qhq")
+type = 7
+status = 1
+
+[sub_resource type="Resource" id="Resource_g0yak"]
+script = ExtResource("6_cxwea")
+target = 6
+amount = 8.0
+damage_type = 4
+
+[sub_resource type="Resource" id="Resource_1lkcd"]
+script = ExtResource("4_8up48")
+trigger = 9
+watch = 1
+relation = 4
+conditions = Array[ExtResource("5_l5qhq")]([SubResource("Resource_jto3x")])
+effects = Array[ExtResource("6_cxwea")]([SubResource("Resource_g0yak")])
+max_per_round = 1
+
+[sub_resource type="Resource" id="Resource_qhp57"]
+script = ExtResource("2_p5hnw")
+id = &"spore_fog_rules"
+display_name = "Spore Fog"
+description = "Drifting Bloom spores. The first Burn applied each round ignites them: 8 Fire damage to every other unit on the burning target's side."
+triggers = Array[ExtResource("4_8up48")]([SubResource("Resource_1lkcd")])
+
+[resource]
+script = ExtResource("1_vc6oq")
+id = &"spore_fog"
+display_name = "Spore Fog"
+severity = 1
+description = "Drifting Bloom spores. The first Burn applied each round ignites them: 8 Fire damage to every other unit on the burning target's side."
+details = "PROVISIONAL (see docs/DESIGN_QUESTIONS.md): the GDD's Spore Fog accumulates Blight, which is outside the vertical-slice status set."
+glyph = "FOG"
+tint = Color(0.55, 0.75, 0.35, 0.18)
+traits = Array[ExtResource("2_p5hnw")]([SubResource("Resource_qhp57")])

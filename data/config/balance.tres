@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="BalanceConfig" format=3]
+
+[ext_resource type="Resource" path="res://data/actions/common/guard.tres" id="1_exs16"]
+[ext_resource type="Resource" path="res://data/actions/common/inspect.tres" id="2_vxpks"]
+[ext_resource type="Script" path="res://src/data/config/balance_config.gd" id="3_75rxe"]
+
+[resource]
+script = ExtResource("3_75rxe")
+damage_variance = 0.04
+parry_stagger = 16.0
+enemy_starting_focus = 1
+default_guard_action = ExtResource("1_exs16")
+default_inspect_action = ExtResource("2_vxpks")

@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="ActionDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/rules/effect_definition.gd" id="1_8doln"]
+[ext_resource type="Resource" path="res://data/buffs/riposte_stance.tres" id="2_85tdh"]
+[ext_resource type="Script" path="res://src/data/rules/condition_definition.gd" id="3_a07ek"]
+[ext_resource type="Script" path="res://src/data/combat/action_definition.gd" id="4_ymyoe"]
+
+[sub_resource type="Resource" id="Resource_g03gv"]
+script = ExtResource("1_8doln")
+type = 8
+target = 0
+buff = ExtResource("2_85tdh")
+
+[sub_resource type="Resource" id="Resource_6ldwx"]
+script = ExtResource("1_8doln")
+type = 2
+target = 0
+amount = 1.0
+
+[resource]
+script = ExtResource("4_ymyoe")
+id = &"riposte_stance"
+display_name = "Riposte Stance"
+description = "Guard with the blade. Parry window x1.5 until your next turn; parries hit back with Stagger and Focus. +1 Focus."
+category = 3
+target_rule = 1
+effects = Array[ExtResource("1_8doln")]([SubResource("Resource_g03gv"), SubResource("Resource_6ldwx")])

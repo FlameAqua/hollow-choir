@@ -1,0 +1,70 @@
+[gd_resource type="Resource" script_class="WeaponDefinition" format=3]
+
+[ext_resource type="Resource" path="res://data/actions/sword/strike.tres" id="1_mkpv4"]
+[ext_resource type="Resource" path="res://data/actions/sword/riposte_stance.tres" id="2_7ct1m"]
+[ext_resource type="Script" path="res://src/data/items/weapon_definition.gd" id="3_32kkl"]
+[ext_resource type="Script" path="res://src/data/combat/action_definition.gd" id="4_arhl6"]
+[ext_resource type="Resource" path="res://data/actions/sword/lunge.tres" id="5_sd3dc"]
+[ext_resource type="Resource" path="res://data/actions/sword/arc_cleave.tres" id="6_vr4qp"]
+[ext_resource type="Script" path="res://src/data/rules/trait_definition.gd" id="7_74b6d"]
+[ext_resource type="Script" path="res://src/data/rules/modifier_definition.gd" id="8_8101u"]
+[ext_resource type="Script" path="res://src/data/rules/condition_definition.gd" id="9_nj4cf"]
+[ext_resource type="Script" path="res://src/data/rules/triggered_effect_definition.gd" id="10_osfo6"]
+[ext_resource type="Script" path="res://src/data/rules/effect_definition.gd" id="11_ir1a3"]
+
+[sub_resource type="Resource" id="Resource_bgh7s"]
+script = ExtResource("8_8101u")
+stat = 12
+value = 1.6
+
+[sub_resource type="Resource" id="Resource_8yf01"]
+script = ExtResource("8_8101u")
+stat = 13
+value = 1.5
+
+[sub_resource type="Resource" id="Resource_cxnjr"]
+script = ExtResource("8_8101u")
+stat = 15
+operation = 0
+value = -0.08
+
+[sub_resource type="Resource" id="Resource_x8sag"]
+script = ExtResource("9_nj4cf")
+type = 3
+
+[sub_resource type="Resource" id="Resource_luvuo"]
+script = ExtResource("11_ir1a3")
+type = 1
+target = 0
+amount = 8.0
+
+[sub_resource type="Resource" id="Resource_to2ft"]
+script = ExtResource("10_osfo6")
+trigger = 8
+watch = 1
+conditions = Array[ExtResource("9_nj4cf")]([SubResource("Resource_x8sag")])
+effects = Array[ExtResource("11_ir1a3")]([SubResource("Resource_luvuo")])
+
+[sub_resource type="Resource" id="Resource_y1ubd"]
+script = ExtResource("7_74b6d")
+id = &"merciful_grip"
+display_name = "Merciful Grip"
+description = "Much wider timing windows, smaller Perfect bonus. Successful Parries restore 8 HP."
+details = "Good window x1.6, Perfect window x1.5, Perfect multiplier 1.07 instead of 1.15."
+modifiers = Array[ExtResource("8_8101u")]([SubResource("Resource_bgh7s"), SubResource("Resource_8yf01"), SubResource("Resource_cxnjr")])
+triggers = Array[ExtResource("10_osfo6")]([SubResource("Resource_to2ft")])
+
+[resource]
+script = ExtResource("3_32kkl")
+id = &"merciful_iron"
+display_name = "Merciful Iron"
+description = "A blunted Choir blade, made to subdue rather than kill."
+rarity = 2
+base_power = 18.0
+base_stagger = 10.0
+basic_attack = ExtResource("1_mkpv4")
+techniques = Array[ExtResource("4_arhl6")]([ExtResource("5_sd3dc"), ExtResource("6_vr4qp")])
+guard_action = ExtResource("2_7ct1m")
+traits = Array[ExtResource("7_74b6d")]([SubResource("Resource_y1ubd")])
+resonance_tags = Array[int]([3])
+socket_count = 2

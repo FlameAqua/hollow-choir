@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="ExecutionSkillProfile" format=3]
+
+[ext_resource type="Script" path="res://src/data/config/execution_skill_profile.gd" id="1_pv4yo"]
+
+[resource]
+script = ExtResource("1_pv4yo")
+display_name = "Good"
+miss_weight = 0.1
+good_weight = 0.8
+perfect_weight = 0.1
+evade_success = 0.7
+parry_success = 0.35

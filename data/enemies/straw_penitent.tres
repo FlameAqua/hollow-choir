@@ -1,0 +1,60 @@
+[gd_resource type="Resource" script_class="EnemyDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/combat/enemy_action_definition.gd" id="1_6tqfh"]
+[ext_resource type="Script" path="res://src/data/combat/ai_consideration_definition.gd" id="2_ll6m1"]
+[ext_resource type="Script" path="res://src/data/rules/effect_definition.gd" id="3_moiy8"]
+[ext_resource type="Script" path="res://src/data/rules/condition_definition.gd" id="4_623wd"]
+[ext_resource type="Script" path="res://src/data/combatants/boss_phase_definition.gd" id="5_miw8r"]
+[ext_resource type="Script" path="res://src/data/combatants/enemy_definition.gd" id="6_jnw6g"]
+[ext_resource type="Script" path="res://src/data/rules/trait_definition.gd" id="7_amrum"]
+
+[sub_resource type="Resource" id="Resource_jh147"]
+script = ExtResource("1_6tqfh")
+telegraph_text = "Swings its stick arm. Any reaction works."
+telegraph_detail = "Slow and honest. Good for practising Parries."
+id = &"practice_swing"
+display_name = "Practice Swing"
+damage_type = 2
+power = 8.0
+
+[sub_resource type="Resource" id="Resource_e6gjn"]
+script = ExtResource("1_6tqfh")
+intent_category = 2
+telegraph_text = "Sweeps low at everyone. Cannot be Parried."
+can_parry = false
+windup_ms = 1000.0
+id = &"wide_sweep"
+display_name = "Wide Sweep"
+target_rule = 3
+damage_type = 2
+power = 7.0
+
+[sub_resource type="Resource" id="Resource_4ut8y"]
+script = ExtResource("1_6tqfh")
+base_priority = 1.3
+intent_category = 1
+channel_turns = 1
+telegraph_text = "Raises its arm high. Lands next turn — Stagger it first."
+windup_ms = 1200.0
+id = &"slow_overhead"
+display_name = "Slow Overhead"
+focus_cost = 2
+damage_type = 2
+power = 14.0
+
+[resource]
+script = ExtResource("6_jnw6g")
+species = "Training effigy"
+habitat = "Gloamstead training yard."
+lore = "Every Choir town keeps one. Nobody remembers why they are always dressed as penitents."
+max_stagger = 60.0
+actions = Array[ExtResource("1_6tqfh")]([SubResource("Resource_jh147"), SubResource("Resource_e6gjn"), SubResource("Resource_4ut8y")])
+id = &"straw_penitent"
+display_name = "Straw Penitent"
+description = "A straw effigy dressed in penitent's rags. Gloamstead's guards practise on it."
+max_hp = 260
+force = 0
+guard = 0
+tempo = 8
+shape = 7
+color = Color(0.75, 0.65, 0.35, 1)

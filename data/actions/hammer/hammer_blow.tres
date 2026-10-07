@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="ActionDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/combat/action_command_definition.gd" id="1_72164"]
+[ext_resource type="Script" path="res://src/data/rules/effect_definition.gd" id="2_hv3sp"]
+[ext_resource type="Script" path="res://src/data/combat/action_definition.gd" id="3_7wufv"]
+
+[sub_resource type="Resource" id="Resource_vkuoy"]
+script = ExtResource("1_72164")
+type = 2
+duration_ms = 1200.0
+target_position = 0.82
+good_window_ms = 280.0
+perfect_window_ms = 90.0
+lead_in_ms = 300.0
+
+[resource]
+script = ExtResource("3_7wufv")
+id = &"hammer_blow"
+display_name = "Hammer Blow"
+description = "Hold to wind up, release at the peak. Heavy Stagger. Strenuous."
+uses_weapon_power = true
+uses_weapon_stagger = true
+generates_focus = true
+tags = Array[int]([1, 0])
+command = SubResource("Resource_vkuoy")

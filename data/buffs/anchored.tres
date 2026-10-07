@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="BuffDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/rules/condition_definition.gd" id="1_tnx38"]
+[ext_resource type="Script" path="res://src/data/rules/buff_definition.gd" id="2_llkxs"]
+[ext_resource type="Script" path="res://src/data/rules/modifier_definition.gd" id="3_5uqsg"]
+[ext_resource type="Script" path="res://src/data/rules/trait_definition.gd" id="4_7ad8k"]
+[ext_resource type="Script" path="res://src/data/rules/triggered_effect_definition.gd" id="5_soaxc"]
+
+[sub_resource type="Resource" id="Resource_pi81m"]
+script = ExtResource("3_5uqsg")
+stat = 6
+value = 0.65
+
+[sub_resource type="Resource" id="Resource_wsm2p"]
+script = ExtResource("3_5uqsg")
+stat = 20
+operation = 0
+value = 0.15
+
+[sub_resource type="Resource" id="Resource_546cr"]
+script = ExtResource("4_7ad8k")
+id = &"anchored_rules"
+display_name = "Anchored"
+modifiers = Array[ExtResource("3_5uqsg")]([SubResource("Resource_pi81m"), SubResource("Resource_wsm2p")])
+
+[resource]
+script = ExtResource("2_llkxs")
+id = &"anchored"
+display_name = "Anchored"
+description = "Takes 35% less damage and Braces block an extra 15%."
+glyph = "ANC"
+is_guard_stance = true
+trait_def = SubResource("Resource_546cr")

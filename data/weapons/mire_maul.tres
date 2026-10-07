@@ -1,0 +1,54 @@
+[gd_resource type="Resource" script_class="WeaponDefinition" format=3]
+
+[ext_resource type="Resource" path="res://data/actions/hammer/hammer_blow.tres" id="1_2qjhe"]
+[ext_resource type="Resource" path="res://data/actions/hammer/anchor_stance.tres" id="2_x2gvx"]
+[ext_resource type="Script" path="res://src/data/items/weapon_definition.gd" id="3_ibm0y"]
+[ext_resource type="Script" path="res://src/data/combat/action_definition.gd" id="4_kjhq5"]
+[ext_resource type="Resource" path="res://data/actions/hammer/earthsplitter.tres" id="5_f4utg"]
+[ext_resource type="Resource" path="res://data/actions/hammer/shockwave.tres" id="6_hk1uo"]
+[ext_resource type="Script" path="res://src/data/rules/trait_definition.gd" id="7_2kxd4"]
+[ext_resource type="Script" path="res://src/data/rules/modifier_definition.gd" id="8_tr013"]
+[ext_resource type="Script" path="res://src/data/rules/triggered_effect_definition.gd" id="9_ufk7r"]
+[ext_resource type="Script" path="res://src/data/rules/condition_definition.gd" id="10_0qdfk"]
+[ext_resource type="Script" path="res://src/data/rules/effect_definition.gd" id="11_fc2ta"]
+[ext_resource type="Resource" path="res://data/buffs/coiled.tres" id="12_wqr3u"]
+
+[sub_resource type="Resource" id="Resource_lue26"]
+script = ExtResource("10_0qdfk")
+type = 3
+reaction = 1
+
+[sub_resource type="Resource" id="Resource_uun1u"]
+script = ExtResource("11_fc2ta")
+type = 8
+target = 0
+buff = ExtResource("12_wqr3u")
+
+[sub_resource type="Resource" id="Resource_susuf"]
+script = ExtResource("9_ufk7r")
+trigger = 8
+watch = 1
+conditions = Array[ExtResource("10_0qdfk")]([SubResource("Resource_lue26")])
+effects = Array[ExtResource("11_fc2ta")]([SubResource("Resource_uun1u")])
+
+[sub_resource type="Resource" id="Resource_ydl1e"]
+script = ExtResource("7_2kxd4")
+id = &"brace_momentum"
+display_name = "Brace Momentum"
+description = "A successful Brace coils your next hammer attack: +35% damage and Stagger."
+triggers = Array[ExtResource("9_ufk7r")]([SubResource("Resource_susuf")])
+
+[resource]
+script = ExtResource("3_ibm0y")
+id = &"mire_maul"
+display_name = "Mire Maul"
+description = "A fen-oak maul, heavy enough to stop a charging boar."
+family = 2
+damage_type = 2
+base_power = 25.0
+base_stagger = 18.0
+tempo_modifier = -3
+basic_attack = ExtResource("1_2qjhe")
+techniques = Array[ExtResource("4_kjhq5")]([ExtResource("5_f4utg"), ExtResource("6_hk1uo")])
+guard_action = ExtResource("2_x2gvx")
+traits = Array[ExtResource("7_2kxd4")]([SubResource("Resource_ydl1e")])

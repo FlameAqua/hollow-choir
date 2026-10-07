@@ -1,0 +1,47 @@
+[gd_resource type="Resource" script_class="ArmorDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/combat/action_definition.gd" id="1_rjjre"]
+[ext_resource type="Script" path="res://src/data/items/armor_definition.gd" id="2_f0ene"]
+[ext_resource type="Script" path="res://src/data/rules/trait_definition.gd" id="3_rvqf3"]
+[ext_resource type="Script" path="res://src/data/rules/modifier_definition.gd" id="4_jqp87"]
+[ext_resource type="Script" path="res://src/data/rules/condition_definition.gd" id="5_pyg76"]
+[ext_resource type="Script" path="res://src/data/rules/triggered_effect_definition.gd" id="6_485yu"]
+
+[sub_resource type="Resource" id="Resource_nn5nd"]
+script = ExtResource("5_pyg76")
+type = 7
+status = 1
+
+[sub_resource type="Resource" id="Resource_n6my3"]
+script = ExtResource("4_jqp87")
+stat = 21
+operation = 0
+conditions = Array[ExtResource("5_pyg76")]([SubResource("Resource_nn5nd")])
+
+[sub_resource type="Resource" id="Resource_tgiey"]
+script = ExtResource("5_pyg76")
+type = 7
+status = 1
+
+[sub_resource type="Resource" id="Resource_fh7hr"]
+script = ExtResource("4_jqp87")
+stat = 23
+operation = 0
+conditions = Array[ExtResource("5_pyg76")]([SubResource("Resource_tgiey")])
+
+[sub_resource type="Resource" id="Resource_fvey0"]
+script = ExtResource("3_rvqf3")
+id = &"kindled_heart"
+display_name = "Kindled Heart"
+description = "Burn you apply has +1 stack and lasts 1 turn longer."
+modifiers = Array[ExtResource("4_jqp87")]([SubResource("Resource_n6my3"), SubResource("Resource_fh7hr")])
+
+[resource]
+script = ExtResource("2_f0ene")
+id = &"ember_locket"
+display_name = "Ember Locket"
+description = "Holds a coal that never quite goes out."
+slot = 2
+rarity = 1
+traits = Array[ExtResource("3_rvqf3")]([SubResource("Resource_fvey0")])
+resonance_tags = Array[int]([6])

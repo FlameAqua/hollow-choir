@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="StatusDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/combat/status_definition.gd" id="1_rtvgk"]
+[ext_resource type="Script" path="res://src/data/rules/trait_definition.gd" id="2_8a3tv"]
+
+[resource]
+script = ExtResource("1_rtvgk")
+status = 1
+display_name = "Burn"
+description = "Takes 4 damage per stack whenever it acts. Wet douses it."
+details = "Ticks at the start of the bearer's turn (Pure damage, ignores Guard). Up to 3 stacks. Applying Burn to a Wet target fails and consumes the Wet."
+glyph = "BRN"
+color = Color(1, 0.45, 0.15, 1)
+max_duration = 5
+tick_timing = 1
+tick_damage_per_stack = 4.0
+blocked_by = Array[int]([2])

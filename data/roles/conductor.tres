@@ -1,0 +1,45 @@
+[gd_resource type="Resource" script_class="EnemyRoleDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/combat/ai_consideration_definition.gd" id="1_3w2cc"]
+[ext_resource type="Script" path="res://src/data/combatants/enemy_role_definition.gd" id="2_5dvpf"]
+
+[sub_resource type="Resource" id="Resource_fj60n"]
+script = ExtResource("1_3w2cc")
+type = 16
+min_difficulty = 2
+weight = 1.8
+applies_to = Array[int]([6])
+reason = "Empowering a channel"
+
+[sub_resource type="Resource" id="Resource_jih4c"]
+script = ExtResource("1_3w2cc")
+type = 10
+min_difficulty = 1
+weight = 1.6
+role = 1
+applies_to = Array[int]([6])
+reason = "Empowering the heavy hitter"
+
+[sub_resource type="Resource" id="Resource_gmrhj"]
+script = ExtResource("1_3w2cc")
+type = 11
+min_difficulty = 2
+weight = 1.8
+applies_to = Array[int]([3, 8])
+reason = "Setting up an ally"
+
+[sub_resource type="Resource" id="Resource_vrwu6"]
+script = ExtResource("1_3w2cc")
+type = 21
+min_difficulty = 2
+weight = 0.55
+threshold = 2.0
+applies_to = Array[int]([0, 1, 2])
+reason = "They keep countering this"
+
+[resource]
+script = ExtResource("2_5dvpf")
+role = 5
+display_name = "Conductor"
+description = "Improves enemy combinations and enables special interactions."
+default_considerations = Array[ExtResource("1_3w2cc")]([SubResource("Resource_fj60n"), SubResource("Resource_jih4c"), SubResource("Resource_gmrhj"), SubResource("Resource_vrwu6")])

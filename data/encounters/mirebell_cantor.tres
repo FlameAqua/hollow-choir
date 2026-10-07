@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="EncounterDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/combat/battlefield_condition_definition.gd" id="1_vb7qm"]
+[ext_resource type="Script" path="res://src/data/combatants/enemy_definition.gd" id="2_dfmbm"]
+[ext_resource type="Resource" path="res://data/enemies/mirebell_cantor.tres" id="3_uoe4b"]
+[ext_resource type="Script" path="res://src/data/encounters/encounter_definition.gd" id="4_hox07"]
+
+[resource]
+script = ExtResource("4_hox07")
+id = &"mirebell_cantor"
+display_name = "The Mirebell Cantor"
+description = "The vertical-slice boss in its drowned chapel."
+group = "Boss"
+enemies = Array[ExtResource("2_dfmbm")]([ExtResource("3_uoe4b")])

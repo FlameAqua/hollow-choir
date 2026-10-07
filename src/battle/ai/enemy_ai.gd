@@ -88,6 +88,10 @@ static func score(ctx: BattleContext, enemy: BattleUnit, action: EnemyActionDefi
 		value *= multiplier
 		if holds:
 			candidate.add_factor(consideration.reason, multiplier)
+	if tier >= int(Enums.TacticalDifficulty.ADVENTURER) and primary != null and action.deals_damage() \
+			and action.needs_target_choice() and primary.side != enemy.side:
+		var softness := _softness(ctx, enemy, action, primary)
+		value *= pow(softness, 1.0 if tier >= int(Enums.TacticalDifficulty.TACTICIAN) else 0.5)
 	if ctx.difficulty.avoid_lethal_combinations and primary != null and action.deals_damage() \
 			and primary.side != enemy.side:
 		var planned := planned_damage_on(ctx, primary, enemy)
@@ -177,7 +181,25 @@ static func _holds(ctx: BattleContext, enemy: BattleUnit, action: EnemyActionDef
 			return primary != null and primary.damaged_since_turn
 		K.SELF_IS_PROTECTED:
 			return enemy.intercepted_by >= 0
+		K.PARTY_COUNTERS_THIS:
+			var seen := ctx.state.party_reaction_successes
+			for reaction in [Enums.ReactionType.EVADE, Enums.ReactionType.PARRY]:
+				if action.allows_reaction(reaction) and seen.get(reaction, 0) >= roundi(consideration.threshold):
+					return true
+			return false
 	return false
+
+
+## Expected damage on [param target] relative to the softest valid target (1.0 = softest).
+## Adventurer+ enemies prefer targets that are unguarded, low-Guard or vulnerable to the hit.
+static func _softness(ctx: BattleContext, enemy: BattleUnit, action: EnemyActionDefinition,
+		target: BattleUnit) -> float:
+	var best := 0.0
+	for candidate in ActionRules.valid_targets(ctx, enemy, action):
+		best = maxf(best, expected_damage(ctx, enemy, action, candidate))
+	if best <= 0.0:
+		return 1.0
+	return clampf(expected_damage(ctx, enemy, action, target) / best, 0.05, 1.0)
 
 
 ## Expected (mean, unreacted, GOOD) damage — never peeks at RNG rolls.
@@ -223,11 +245,18 @@ static func _ally_can_follow_up(ctx: BattleContext, enemy: BattleUnit, action: E
 
 
 ## One-action lookahead: can the party probably break my Stagger before this channel releases?
-## Uses each party unit's best legal Stagger at GOOD timing, once per activation before release.
+## Uses each party unit's best legal Stagger at GOOD timing, once per activation it gets before
+## release: one per channel turn, plus one if it acts before me this round.
 static func party_can_break(ctx: BattleContext, enemy: BattleUnit, action: EnemyActionDefinition) -> bool:
-	var activations := action.channel_turns + ctx.difficulty.channel_extra_turns
+	var channel_total := action.channel_turns + ctx.difficulty.channel_extra_turns
+	var order := ctx.state.turn_order
+	var enemy_position := order.find(enemy.uid)
 	var total := 0.0
 	for member in ctx.state.party():
+		var member_position := order.find(member.uid)
+		var activations := channel_total
+		if member_position != -1 and enemy_position != -1 and member_position < enemy_position:
+			activations += 1
 		var best := 0.0
 		for party_action in member.actions:
 			if party_action == null or not party_action.deals_damage():

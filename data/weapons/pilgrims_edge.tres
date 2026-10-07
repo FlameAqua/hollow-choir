@@ -1,0 +1,49 @@
+[gd_resource type="Resource" script_class="WeaponDefinition" format=3]
+
+[ext_resource type="Resource" path="res://data/actions/sword/strike.tres" id="1_yv2w4"]
+[ext_resource type="Resource" path="res://data/actions/sword/riposte_stance.tres" id="2_neops"]
+[ext_resource type="Script" path="res://src/data/items/weapon_definition.gd" id="3_k6pa5"]
+[ext_resource type="Script" path="res://src/data/combat/action_definition.gd" id="4_c3ior"]
+[ext_resource type="Resource" path="res://data/actions/sword/lunge.tres" id="5_johlq"]
+[ext_resource type="Resource" path="res://data/actions/sword/arc_cleave.tres" id="6_nbe7o"]
+[ext_resource type="Script" path="res://src/data/rules/trait_definition.gd" id="7_orfph"]
+[ext_resource type="Script" path="res://src/data/rules/modifier_definition.gd" id="8_tvnv2"]
+[ext_resource type="Script" path="res://src/data/rules/triggered_effect_definition.gd" id="9_jlpul"]
+[ext_resource type="Script" path="res://src/data/rules/condition_definition.gd" id="10_ctug5"]
+[ext_resource type="Script" path="res://src/data/rules/effect_definition.gd" id="11_yn1ar"]
+
+[sub_resource type="Resource" id="Resource_w1cag"]
+script = ExtResource("10_ctug5")
+type = 2
+
+[sub_resource type="Resource" id="Resource_3x8vh"]
+script = ExtResource("11_yn1ar")
+type = 2
+target = 0
+amount = 0.2
+scaling = 2
+
+[sub_resource type="Resource" id="Resource_porql"]
+script = ExtResource("9_jlpul")
+conditions = Array[ExtResource("10_ctug5")]([SubResource("Resource_w1cag")])
+effects = Array[ExtResource("11_yn1ar")]([SubResource("Resource_3x8vh")])
+
+[sub_resource type="Resource" id="Resource_v7lh1"]
+script = ExtResource("7_orfph")
+id = &"pilgrims_patience"
+display_name = "Pilgrim's Patience"
+description = "Perfect hits turn 20% of the Stagger they deal into Focus."
+triggers = Array[ExtResource("9_jlpul")]([SubResource("Resource_porql")])
+
+[resource]
+script = ExtResource("3_k6pa5")
+id = &"pilgrims_edge"
+display_name = "Pilgrim's Edge"
+description = "A plain pilgrim's sword, worn smooth by prayer and practice."
+base_power = 21.0
+base_stagger = 9.0
+basic_attack = ExtResource("1_yv2w4")
+techniques = Array[ExtResource("4_c3ior")]([ExtResource("5_johlq"), ExtResource("6_nbe7o")])
+guard_action = ExtResource("2_neops")
+traits = Array[ExtResource("7_orfph")]([SubResource("Resource_v7lh1")])
+resonance_tags = Array[int]([3])

@@ -1,0 +1,107 @@
+[gd_resource type="Resource" script_class="BattlefieldConditionDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/combat/battlefield_condition_definition.gd" id="1_y1ijn"]
+[ext_resource type="Script" path="res://src/data/rules/trait_definition.gd" id="2_2vud6"]
+[ext_resource type="Script" path="res://src/data/rules/modifier_definition.gd" id="3_grd5y"]
+[ext_resource type="Script" path="res://src/data/rules/condition_definition.gd" id="4_erevd"]
+[ext_resource type="Script" path="res://src/data/rules/triggered_effect_definition.gd" id="5_nauu0"]
+[ext_resource type="Script" path="res://src/data/rules/effect_definition.gd" id="6_mrbhw"]
+
+[sub_resource type="Resource" id="Resource_fvd3o"]
+script = ExtResource("4_erevd")
+type = 7
+status = 1
+
+[sub_resource type="Resource" id="Resource_u2bbh"]
+script = ExtResource("3_grd5y")
+stat = 22
+operation = 0
+value = -1.0
+conditions = Array[ExtResource("4_erevd")]([SubResource("Resource_fvd3o")])
+
+[sub_resource type="Resource" id="Resource_50w5m"]
+script = ExtResource("4_erevd")
+type = 4
+reaction = 2
+
+[sub_resource type="Resource" id="Resource_hbb4j"]
+script = ExtResource("6_mrbhw")
+type = 5
+amount = 1.0
+status = 2
+duration = 2
+
+[sub_resource type="Resource" id="Resource_yo0ge"]
+script = ExtResource("5_nauu0")
+trigger = 8
+watch = 1
+relation = 4
+conditions = Array[ExtResource("4_erevd")]([SubResource("Resource_50w5m")])
+effects = Array[ExtResource("6_mrbhw")]([SubResource("Resource_hbb4j")])
+
+[sub_resource type="Resource" id="Resource_j0epn"]
+script = ExtResource("4_erevd")
+type = 9
+tag = 1
+
+[sub_resource type="Resource" id="Resource_tc7uf"]
+script = ExtResource("6_mrbhw")
+type = 5
+amount = 1.0
+status = 2
+duration = 2
+
+[sub_resource type="Resource" id="Resource_jf7ah"]
+script = ExtResource("5_nauu0")
+relation = 4
+conditions = Array[ExtResource("4_erevd")]([SubResource("Resource_j0epn")])
+effects = Array[ExtResource("6_mrbhw")]([SubResource("Resource_tc7uf")])
+
+[sub_resource type="Resource" id="Resource_xf753"]
+script = ExtResource("4_erevd")
+type = 7
+status = 3
+
+[sub_resource type="Resource" id="Resource_xo2p3"]
+script = ExtResource("4_erevd")
+type = 6
+status = 2
+
+[sub_resource type="Resource" id="Resource_cski3"]
+script = ExtResource("4_erevd")
+type = 19
+negate = true
+
+[sub_resource type="Resource" id="Resource_qys02"]
+script = ExtResource("6_mrbhw")
+type = 12
+target = 6
+amount = 1.0
+status = 3
+filter_status = 2
+
+[sub_resource type="Resource" id="Resource_oabsr"]
+script = ExtResource("5_nauu0")
+trigger = 9
+watch = 1
+relation = 4
+conditions = Array[ExtResource("4_erevd")]([SubResource("Resource_xf753"), SubResource("Resource_xo2p3"), SubResource("Resource_cski3")])
+effects = Array[ExtResource("6_mrbhw")]([SubResource("Resource_qys02")])
+
+[sub_resource type="Resource" id="Resource_s620p"]
+script = ExtResource("2_2vud6")
+id = &"flooded_ground_rules"
+display_name = "Flooded Ground"
+description = "Ankle-deep water. Evading soaks you (Wet). IMPACT blows splash Wet onto their target. Shock leaps between Wet units on the same side. Burn lasts 1 turn less."
+modifiers = Array[ExtResource("3_grd5y")]([SubResource("Resource_u2bbh")])
+triggers = Array[ExtResource("5_nauu0")]([SubResource("Resource_yo0ge"), SubResource("Resource_jf7ah"), SubResource("Resource_oabsr")])
+
+[resource]
+script = ExtResource("1_y1ijn")
+id = &"flooded_ground"
+display_name = "Flooded Ground"
+description = "Ankle-deep water. Evading soaks you (Wet). IMPACT blows splash Wet onto their target. Shock leaps between Wet units on the same side. Burn lasts 1 turn less."
+details = "Wet from Evading lasts 2 turns, even when the Evade succeeds. Chained Shock does not chain again."
+glyph = "FLD"
+tint = Color(0.25, 0.5, 0.85, 0.22)
+traits = Array[ExtResource("2_2vud6")]([SubResource("Resource_s620p")])

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="StatusDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/combat/status_definition.gd" id="1_awuqc"]
+[ext_resource type="Script" path="res://src/data/rules/trait_definition.gd" id="2_581db"]
+
+[resource]
+script = ExtResource("1_awuqc")
+status = 2
+display_name = "Wet"
+description = "Soaked. Shock conducts through Wet targets; Burn cannot take hold."
+details = "Applying Wet washes away Burn. Burn applied to a Wet target fails and consumes the Wet. Shocking a Wet target conducts for extra Stagger and damage."
+glyph = "WET"
+color = Color(0.3, 0.6, 1, 1)
+max_duration = 5
+max_stacks = 1
+removes_on_apply = Array[int]([1])

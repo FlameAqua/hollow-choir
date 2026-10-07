@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="BuffDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/rules/condition_definition.gd" id="1_ylc44"]
+[ext_resource type="Script" path="res://src/data/rules/buff_definition.gd" id="2_rlc2o"]
+[ext_resource type="Script" path="res://src/data/rules/modifier_definition.gd" id="3_r3swo"]
+[ext_resource type="Script" path="res://src/data/rules/trait_definition.gd" id="4_htgsb"]
+[ext_resource type="Script" path="res://src/data/rules/triggered_effect_definition.gd" id="5_aqsdu"]
+
+[sub_resource type="Resource" id="Resource_imp4d"]
+script = ExtResource("3_r3swo")
+value = 1.2
+
+[sub_resource type="Resource" id="Resource_do2bf"]
+script = ExtResource("4_htgsb")
+id = &"frenzy_rules"
+display_name = "Frenzy"
+modifiers = Array[ExtResource("3_r3swo")]([SubResource("Resource_imp4d")])
+
+[resource]
+script = ExtResource("2_rlc2o")
+id = &"frenzy"
+display_name = "Frenzy"
+description = "Deals 20% more damage for 2 rounds."
+glyph = "FRZ"
+expiry = 2
+duration = 2
+trait_def = SubResource("Resource_do2bf")

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="PartyLoadout" format=3]
+
+[ext_resource type="Script" path="res://src/data/items/potion_definition.gd" id="1_2y6ss"]
+[ext_resource type="Resource" path="res://data/potions/mending_draught.tres" id="2_e7w1u"]
+[ext_resource type="Resource" path="res://data/characters/hollow.tres" id="3_n644e"]
+[ext_resource type="Script" path="res://src/data/encounters/party_loadout.gd" id="4_ceunm"]
+[ext_resource type="Resource" path="res://data/weapons/pilgrims_edge.tres" id="5_35oxq"]
+
+[resource]
+script = ExtResource("4_ceunm")
+id = &"toy_solo"
+display_name = "Combat toy (solo sword)"
+protagonist = ExtResource("3_n644e")
+weapon = ExtResource("5_35oxq")
+potions = Array[ExtResource("1_2y6ss")]([ExtResource("2_e7w1u")])
