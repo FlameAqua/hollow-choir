@@ -78,7 +78,10 @@ weakness +1, parry +2, break +2, Guard +1, Inspect +1, plus traits. Enemies have
 **Owner:** Claude (technical). **Status:** Locked unless Director objects.
 
 **WHY:** Prevents "press every button" exploits and keeps AoE reactions to one decision. Unavailable
-reaction types are shown crossed out; choosing one anyway counts as no reaction (rules are never hidden).
+reaction types are shown crossed out (rules are never hidden). *Amended in M1 UI work:* in the reaction
+widget a crossed-out key is inert — it neither locks nor fails the window, so a mis-press on a rule the
+player can see does not cost the turn. The engine still normalises a submitted disallowed reaction to
+"no reaction" (replays, tools), so the rule holds outside the UI too.
 **CONSEQUENCES:** Successful Evade/Parry also prevent the attack's statuses; Brace does not. This makes
 "Brace or Evade?" a real decision against status attacks.
 
@@ -110,3 +113,49 @@ versions step by step; writes are atomic (temp file + rename).
 **WHY:** Designers add content by dropping a `.tres` into `data/…`; no manifest to forget. The registry
 validates ids and references on load and the test suite fails on any invalid definition.
 **CONSEQUENCES:** Export builds must handle `.remap` entries (handled in `DefinitionRegistry`).
+
+## D-013 — The presenter plays events after the fact; bars follow a per-event ledger
+**Owner:** Claude (technical). **Status:** Locked.
+
+**WHY:** The engine resolves a whole step synchronously (D-002), so by the time the presenter sees a
+batch of events the unit state is already final. Reading state while animating would show HP drop
+before the hit lands and the timeline jump ahead of the animation.
+**REJECTED:** Snapshots of the whole state per event (memory and complexity); having the engine yield
+between events (couples logic to presentation timing).
+**CONSEQUENCES:** `BattleEventPlayer` keeps small ledgers (HP, Stagger) updated by DAMAGE / HEAL /
+STAGGER_DAMAGE events and reconciles with the real state after each batch; the timeline follows
+ROUND_STARTED / TURN_ORDER / TURN_STARTED / TURN_ENDED. An intent consumed later in the same batch is
+rebuilt from its INTENT_DECLARED event, so every telegraph is visible before its attack.
+
+## D-014 — Presentation waits are tweens bound to their node; real-time widgets use wall time
+**Owner:** Claude (technical). **Status:** Locked.
+
+**WHY:** The sandbox restarts a battle by freeing the scene mid-animation. A coroutine awaiting a
+SceneTree timer would resume on a freed instance (engine error); a node-bound Tween is killed with its
+node and the coroutine is simply dropped. Action commands and reactions must be judged against real
+elapsed time, independent of frame rate, Combat Speed and `Engine.time_scale`.
+**CONSEQUENCES:** Combat Speed scales every non-interactive wait but never a timing window. Widgets
+read `Time.get_ticks_usec()`; tests inject input by back-dating a widget's start time.
+
+## D-015 — Godot's `ui_*` actions mirror the game bindings
+**Owner:** Claude (technical). **Status:** Locked. Extends D-010.
+
+**WHY:** Menus use Godot focus navigation (`ui_accept`, `ui_cancel`, `ui_up`…). Without mirroring,
+rebinding Confirm or Back would not affect menus, and the JRPG defaults (Z confirm, X back) would only
+work in battle.
+**CONSEQUENCES:** `InputBindings.install()` reloads the project input map, registers `hc_*` actions,
+then appends their events to the matching `ui_*` actions. The battle log key is handled before GUI
+focus navigation so Tab never moves menu focus.
+
+## D-016 — UI layout is built in code; scenes are thin roots
+**Owner:** Claude (technical). **Status:** Provisional — revisit when final art and a UI artist arrive.
+
+**WHY:** M1 UI is procedural placeholder art (pixel silhouettes, drawn icons) whose sizes depend on the
+text-scale accessibility setting and the theme built in `UITheme`. Building it in code keeps one
+source of truth, keeps diffs reviewable without the editor, and lets tests instantiate the real
+scenes headless.
+**REJECTED:** Hand-authored `.tscn` layouts for every widget (hard to review as text, duplicated
+styling, easy to desynchronise from the theme).
+**CONSEQUENCES:** `scenes/**.tscn` contain a single root with a script. Replacing placeholder visuals
+with sprites happens inside the widgets (`UnitView`, `IconPainter`), not in the presenter.
+

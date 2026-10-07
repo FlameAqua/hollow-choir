@@ -136,7 +136,6 @@ func _intro() -> void:
 
 
 func _answer_select(request: ActionSelectRequest) -> void:
-	var unit := engine.get_unit(request.unit_uid)
 	_menu_placeholder.text = ""
 	var choice: ActionChoice
 	if launch.autoplay:
@@ -381,6 +380,9 @@ func _on_result_primary() -> void:
 	var retry := BattleLaunch.make(launch.setup, launch.return_scene)
 	retry.setup.seed += 1
 	retry.record_progress = launch.record_progress
+	retry.autoplay = launch.autoplay
+	retry.simulated_execution = launch.simulated_execution
+	retry.show_ai_reasoning = launch.show_ai_reasoning
 	SceneRouter.goto(SceneRouter.BATTLE, retry)
 
 
@@ -586,6 +588,10 @@ func _build_party_cards() -> void:
 		card.unit = unit
 		card.mouse_entered.connect(func() -> void: _on_unit_hovered(unit.uid))
 		card.mouse_exited.connect(func() -> void: _on_unit_hovered(-1))
+		card.gui_input.connect(func(event: InputEvent) -> void:
+			var click := event as InputEventMouseButton
+			if click != null and click.pressed and click.button_index == MOUSE_BUTTON_LEFT:
+				_picker.click(unit.uid))
 		_party_box.add_child(card)
 		_party_cards[unit.uid] = card
 

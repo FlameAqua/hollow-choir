@@ -57,7 +57,9 @@ func _ready() -> void:
 	_show_drawer(true)
 
 
-func _unhandled_input(event: InputEvent) -> void:
+## Runs before the embedded battle sees the key, so Escape closes the report or the drawer instead
+## of opening the battle's pause menu. Back keys other than Escape stay free for text fields.
+func _input(event: InputEvent) -> void:
 	if _report.visible and (event.is_action_pressed(InputBindings.CANCEL) or event.is_action_pressed(InputBindings.MENU)):
 		get_viewport().set_input_as_handled()
 		_report.visible = false

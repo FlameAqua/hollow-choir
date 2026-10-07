@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    name: Compile, test and simulate (Godot 4.7.2, headless)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GODOT_VERSION: "4.7.2"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache Godot
+        id: cache-godot
+        uses: actions/cache@v4
+        with:
+          path: ~/godot
+          key: godot-${{ env.GODOT_VERSION }}-linux-x86_64
+
+      - name: Download Godot
+        if: steps.cache-godot.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ~/godot
+          curl -fsSL -o /tmp/godot.zip \
+            "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          unzip -q /tmp/godot.zip -d ~/godot
+          mv ~/godot/Godot_v${GODOT_VERSION}-stable_linux.x86_64 ~/godot/godot
+          chmod +x ~/godot/godot
+
+      - name: Put Godot on PATH
+        run: echo "$HOME/godot" >> "$GITHUB_PATH"
+
+      # A fresh checkout has no class cache; --script runs need it.
+      - name: Import project
+        run: godot --headless --path . --import
+
+      - name: Compile every script
+        run: godot --headless --path . --script res://tools/check_scripts.gd
+
+      - name: Run test suite
+        run: godot --headless --path . --script res://tests/run_tests.gd
+
+      # Smoke run: every encounter with every default loadout must simulate without errors.
+      - name: Simulation smoke run
+        run: godot --headless --path . --script res://tools/simulate.gd -- --encounter=all --exec=MIXED --runs=10 --seed=1
