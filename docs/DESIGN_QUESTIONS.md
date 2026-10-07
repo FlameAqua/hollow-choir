@@ -1,5 +1,33 @@
 # Design Questions for the Director
 
+## Director disposition — 7 October 2026
+
+**All eleven questions are answered for the current milestone.** Historical questions and simulation
+evidence below are preserved. “Hold” means retain current data pending the stated test, not an
+unanswered permission request. These decisions change design authority; no balance resources were
+retuned during the Director pass. See [M1.1](design/M1_1_COMBAT_CLARITY.md) and
+[review](reviews/M1_DIRECTOR_REVIEW.md).
+
+| Question | Decision | Follow-through / reopening evidence |
+|---|---|---|
+| Q1 Spore Fog | **Accept current Burn interaction for the slice.** One shared trigger per round; no Blight, no positioning mechanic. | F3 explains both sides, doused Burn and ordinary Fire resolution. Revisit only in the corruption milestone. |
+| Q2 Perfect Parry | **Accept binary reactions.** Successful party Parry fires Bell Crow once/round; Hollow's successful Parry grants Mara Focus. | Correct canonical terminology; no extra grade, timing window or HUD state. |
+| Q3 isolated normal wins | **Retain normal damage; reject mandatory loseability of each normal fight.** Encounters must still teach/test a decision. | Do not excuse dull battles with future attrition. Specify HP/potion carry and Focus reset separately in the later expedition design. |
+| Q4 Tactician | **Keep current AI and identical stats; no new moves/feints.** Smarter behaviour is the contract; reflexes are not the definition of tactical difficulty. | Observe chosen actions and player counters with fixed seeds and comparable execution. Audit existing considerations before adding any. Outcomes alone do not prove decision quality. |
+| Q5 perfect avoidance | **Keep zero damage on successful Evade/Parry.** No forced chip or blanket reaction restrictions. | Human tests must demonstrate a tactical problem after cues become readable before retuning. |
+| Q6 unused content | **Do not retune from SMART usage counts alone.** Keep Cleansing Mire situational. Defer Arc Storm cost/priority and Needle Hum changes. | In Lab, create survival/Focus/Wet and ally-status states that justify each move. Compare scored legal candidates. If Arc Storm is dominated even there, tune one existing priority/cost at a time; do not add a bespoke AI system. Party stances/magic require human setup tests. |
+| Q7 length | **Keep 3–5 normal rounds; 5–6 is an investigation, not a new standard.** | Measure active seconds and decision repetition; M1.1 sets provisional timing flags. Preserve weapon matchup differences. Remove playback/menu friction before touching HP. |
+| Q8 invalid reaction | **Confirm inert crossed-out input.** First allowed input locks. | Distinguish “unavailable” from “failed”; simultaneous allowed keys submit once. |
+| Q9 gamepad | **Accept A confirm, B back, A/X command, LB Brace, X Evade, RB Parry, Y details, Back log, Start pause.** | Fresh-press boundary prevents overlap; active-device prompts and remaps must agree. Add Details toggle alongside hold/Always. Hardware pass still required. |
+| Q10 Bestiary measurement | **Use a controlled human test; reject knowledge-limited autopilot scope now.** | Compare unfamiliar versus studied encounter with matched setup; record decisions/explanations, counterbalance order. Fix preview information leaks first. |
+| Q11 smaller calls | **Accept current per-character Focus, ambush, Inspect and dummy boundaries.** | Party starts 2; loaded enemy start is 1 plus 1/activation. Party ambush acts first and removes 25% enemy Stagger; enemy ambush acts first. Inspect reveals UNDERSTOOD this battle. Status/legality always visible; outgoing derived leaks must be removed. Dummy remains sandbox-only. |
+
+Accepted values remain tunable; accepting a rule is not a claim that its current magnitude is balanced.
+
+---
+
+## Original questions and evidence (historical)
+
 Owner of the answers: ChatGPT (Game Director). Raised by: Claude, from implementation and from
 batch simulation (M1). Every item below is **data** in `data/**` — answering it needs no code change
 unless stated. Numbers come from `tools/simulate.gd` (50–60 battles per cell, SMART autopilot,

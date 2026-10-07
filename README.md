@@ -63,6 +63,12 @@ docs/            proposal, decision log, data contracts, testing, design questio
 
 ### Documents
 
+- [`docs/design/M1_1_COMBAT_CLARITY.md`](docs/design/M1_1_COMBAT_CLARITY.md) — approved Director specification; implementation pending
+- [`docs/design/visuals/combat_study.html`](docs/design/visuals/combat_study.html) — local three-state UI study (illustrative, not a game build)
+- [`assets/art/briarfen_v01/README.md`](assets/art/briarfen_v01/README.md) — staged cast/background art and idle SpriteFrames candidates
+- [`docs/reviews/M1_DIRECTOR_REVIEW.md`](docs/reviews/M1_DIRECTOR_REVIEW.md) — pillar review, source findings and validation limits
+- [`docs/briefs/M1_1_IMPLEMENTATION.md`](docs/briefs/M1_1_IMPLEMENTATION.md) — bounded Claude handoff
+
 - [`docs/proposals/M1_COMBAT_FOUNDATION.md`](docs/proposals/M1_COMBAT_FOUNDATION.md) — technical proposal
 - [`docs/reports/M1_COMBAT_FOUNDATION.md`](docs/reports/M1_COMBAT_FOUNDATION.md) — feature report (files, API, save impact, limitations)
 - [`docs/DATA_CONTRACTS.md`](docs/DATA_CONTRACTS.md) — every Resource, the rules vocabulary, how to add content

@@ -56,7 +56,8 @@ Explicit integer values keep `.tres` files and saves stable when new values are 
 `StringName` ids on Resources instead.
 
 ## D-006 — Damage types: SLASH, BLUNT, PIERCE, FIRE, STORM, BLIGHT, PURE
-**Owner:** Claude (technical) / Director (design). **Status:** *Provisional.*
+**Owner:** Claude (technical) / Director (design). **Status:** Accepted for M1, 7 October 2026.
+BLIGHT remains reserved; acceptance does not authorize its behaviour or new content.
 
 **WHY:** Weapon choice must matter ("Build test"); weakness/resistance by physical family (Sword=SLASH,
 Hammer=BLUNT, Bow=PIERCE) creates that decision with no extra systems. FIRE/STORM align with Burn/Shock;
@@ -66,7 +67,8 @@ PURE is status damage that ignores Guard.
 bonus Stagger.
 
 ## D-007 — Focus is per character, integer, capped (default 10, start 2)
-**Owner:** Claude (implementation of GDD). **Status:** *Provisional numbers.*
+**Owner:** Claude (implementation of GDD). **Status:** Rule accepted by Director, 7 October 2026;
+numbers retained as provisional tuning. This does not decide expedition persistence.
 
 **WHY:** GDD's Mara passive ("protagonist parries grant Mara Focus") implies per-character pools.
 Small integers are readable as pips.
@@ -75,7 +77,7 @@ weakness +1, parry +2, break +2, Guard +1, Inspect +1, plus traits. Enemies have
 (+1 per activation) which pay for big moves — this is the GDD's `resource_cost`.
 
 ## D-008 — Reactions: one window per enemy action; first input locks the choice
-**Owner:** Claude (technical). **Status:** Locked unless Director objects.
+**Owner:** Claude (technical), confirmed by Director. **Status:** Accepted, 7 October 2026.
 
 **WHY:** Prevents "press every button" exploits and keeps AoE reactions to one decision. Unavailable
 reaction types are shown crossed out (rules are never hidden). *Amended in M1 UI work:* in the reaction
@@ -148,7 +150,8 @@ then appends their events to the matching `ui_*` actions. The battle log key is 
 focus navigation so Tab never moves menu focus.
 
 ## D-016 — UI layout is built in code; scenes are thin roots
-**Owner:** Claude (technical). **Status:** Provisional — revisit when final art and a UI artist arrive.
+**Owner:** Claude (technical). **Status:** Retained for M1.1 by Director, 7 October 2026.
+New artwork alone does not justify a scene architecture migration.
 
 **WHY:** M1 UI is procedural placeholder art (pixel silhouettes, drawn icons) whose sizes depend on the
 text-scale accessibility setting and the theme built in `UITheme`. Building it in code keeps one
@@ -158,4 +161,78 @@ scenes headless.
 styling, easy to desynchronise from the theme).
 **CONSEQUENCES:** `scenes/**.tscn` contain a single root with a script. Replacing placeholder visuals
 with sprites happens inside the widgets (`UnitView`, `IconPainter`), not in the presenter.
+
+## D-017 — Combat clarity is the next gate
+**Owner:** Director. **Status:** Approved design, 7 October 2026; implementation pending.
+
+**DECISION:** [M1.1](design/M1_1_COMBAT_CLARITY.md) is incorporated into the canonical GDD.
+**WHY:** Functional tests and simulation don't establish readable decisions or fun.
+**REJECTED:** World expansion, new enemies, or new mechanics before a human READ/REACT pass.
+**CONSEQUENCES:** Prioritize honest information, stable input prompts and practice setup; retain engine,
+trait system and balance. Five-person comprehension rubric is directional evidence, not a statistical claim.
+
+## D-018 — Research must not leak through previews
+**Owner:** Director. **Status:** Approved design, 7 October 2026; implementation pending.
+
+**DECISION:** One presentation knowledge policy covers intents, previews, details and reaction names.
+Unknown affinity hides all affinity-derived estimates/guarantees, not merely its label. Exact engine
+calculations remain unchanged. Known previews state their direct-hit/per-target scope.
+**WHY:** “Weakness?” and inferred exact bonuses give away the answer before learning it.
+**REJECTED:** Misleading neutral estimates; a second combat/prediction simulator.
+**CONSEQUENCES:** Qualitative fallback until knowledge unlocks. Inspect remains useful. UI cannot claim
+complete multi-hit/AoE/trigger results from a single-hit estimate.
+
+## D-019 — Keep binary Parries and current slice environment
+**Owner:** Director. **Status:** Accepted existing rules, 7 October 2026.
+
+**DECISION:** Successful party Parry triggers Bell Crow; successful Hollow Parry grants Mara Focus.
+Spore Fog uses the existing once-per-round Burn ignition. No Perfect Parry tier, Blight or positioning.
+**WHY:** Existing triggers deliver the intended synergy cheaply and read clearly.
+**REJECTED:** Additional timing axis and status system merely to satisfy ambiguous examples.
+**CONSEQUENCES:** Correct GDD terminology. Retain current 12 Stagger, 2 Focus, 8 Fire as tunable values.
+
+## D-020 — Mastery may avoid damage; simulation is not a balance verdict
+**Owner:** Director. **Status:** Retain current tuning, 7 October 2026.
+
+**DECISION:** No chip damage, HP inflation, new feints or forced reaction restrictions. Keep 3–5 normal
+rounds and investigate actual elapsed time. Tactician is smarter through existing public rules.
+**WHY:** Reported autopilot outcomes cannot establish human tactical dominance or pacing.
+**REJECTED:** Nerfing mastery to manufacture losses; new AI tools driven only by never-used counts.
+**CONSEQUENCES:** Human and controlled Lab tests precede retuning. Knowledge-limited autopilot deferred.
+
+## D-021 — One decision dock, stable input ownership
+**Owner:** Director. **Status:** Approved design, 7 October 2026; implementation pending.
+
+**DECISION:** Planning/command/reaction reuse one region. Preserve the current gamepad mapping and
+first-allowed reaction lock, with fresh presses between states. Explicit safe pause/focus-loss contract.
+**WHY:** The next input should be clear without learning a separate screen for each weapon.
+**REJECTED:** New widgets/minigames per action; colour-only legality; hidden running clock under a modal.
+**CONSEQUENCES:** Existing command graders remain; focus-loss and input carry-through require regression tests.
+
+## D-022 — Practice and Lab share the current sandbox
+**Owner:** Director. **Status:** Approved design, 7 October 2026; implementation pending.
+
+**DECISION:** Practice exposes preset/loadout/difficulty/assist; Lab retains full tools. Practice is manual,
+Unknown knowledge, no progress recording; saved difficulty/assist stay respected.
+**WHY:** A first fight should test play, not comprehension of a developer form.
+**REJECTED:** Tutorial campaign, new tutorial engine or removal of simulation tools.
+**CONSEQUENCES:** One BattleSetup builder; Lab overrides cannot silently bleed into Practice.
+
+## D-023 — Art replacement uses existing presentation interfaces
+**Owner:** Director. **Status:** Art direction approved; generated candidates staged, 7 October 2026.
+
+**DECISION:** Fen Patrol cast + one reusable backdrop first. SpriteFrames and generic event transforms,
+with placeholder fallback. [Manifest](../assets/art/briarfen_v01/manifest.json) records irregular regions.
+**WHY:** Recognition and readable motion justify the cost; bespoke per-move sheets do not.
+**REJECTED:** Full-cast animation expansion, art-driven timing/hitboxes, treating generated art as final.
+**CONSEQUENCES:** Pixel cleanup gate; no runtime assignment until renderer hookup. Familiar remains trigger-only.
+
+## D-024 — Expedition persistence is not implicitly decided by M1
+**Owner:** Director. **Status:** Deferred to expedition specification, 7 October 2026.
+
+**DECISION:** Do not assume HP, potions and Focus all persist between battles. Decide their boundaries
+explicitly when the excursion loop is specified. M1 remains isolated encounters.
+**WHY:** Different carry rules change farming, recovery and encounter value; current sims cannot test them.
+**REJECTED:** Justifying empty attrition fights with an unimplemented future loop.
+**CONSEQUENCES:** No save or resource-reset change in M1.1; every current fight must teach or test a decision.
 

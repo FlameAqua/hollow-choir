@@ -1,4 +1,61 @@
-# Hollow Choir: Deep-Research Game Design Brief, Master Prompt, and AI Collaboration Plan
+# Hollow Choir — Canonical Game Design Document
+
+## Current design authority — 7 October 2026
+
+**Owner:** Game Director (ChatGPT). **Current milestone:** M1 combat foundation implemented;
+M1.1 combat clarity and art integration specified, awaiting implementation and human validation.
+
+Protect **READ · REACT · ADAPT · EXPERIMENT · AFFECT THE WORLD**. Do not begin the world slice or
+expand enemy/weapon/system counts until the combat clarity gate passes. Keep the existing deterministic
+engine, trait composition, two controlled party members and trigger-only familiar.
+
+Canonical requirements comprise this document and the explicitly incorporated
+[M1.1 Combat Clarity specification](docs/design/M1_1_COMBAT_CLARITY.md). The dated current decisions
+and that specification supersede older illustrative prompts below where they disagree. The original
+research brief and collaboration prompts are retained as rationale and long-term direction; their
+examples and unreverified external citations are not proof that features exist or work.
+
+Current review: [M1 Director Review](docs/reviews/M1_DIRECTOR_REVIEW.md).
+Engineering handoff: [M1.1 Claude Implementation Brief](docs/briefs/M1_1_IMPLEMENTATION.md).
+Visual deliverable: [three-state combat study](docs/design/visuals/combat_study.html).
+Art deliverable: [Briarfen candidates and import resources](assets/art/briarfen_v01/README.md).
+Decisions and original evidence: [Decision Log](docs/DECISION_LOG.md),
+[resolved M1 questions](docs/DESIGN_QUESTIONS.md).
+
+### Current scope and rules
+
+- **Presentation before expansion:** clarify actor/target/intent, honest preview scope, input ownership,
+  condition consequences and first-launch practice. Reuse existing widgets and Resources. New art
+  begins with the Fen Patrol cast and a shared Briarfen stage; it does not authorize new encounters.
+- **Knowledge:** legality, targets, status threats, condition rules and channel interruptibility are
+  always readable. Named enemy moves and exact incoming detail require UNDERSTOOD/Inspect;
+  affinities require STUDIED or a revealing hit. Unknown affinity cannot leak through outgoing
+  estimates, Focus bonuses, break/kill labels or formulas. See M1.1 F1 for display fallback.
+- **Reactions:** binary success/failure. A successful Parry is the familiar/passive trigger; there
+  is no separate “Perfect Parry.” First allowed input locks; disallowed keys are inert. AoE uses one
+  window. Successful Evade/Parry keep zero incoming hit damage; environment effects may still apply.
+- **Slice conditions:** Spore Fog reuses Burn: first actual Burn application each round causes
+  8 Fire damage to every other unit on that target's side, once globally per round. No Blight or
+  positional targeting system. Flooded Ground retains Evade → Wet, IMPACT splash, nonrecursive Shock
+  spread among Wet allies and shorter Burn. All rules must be visible.
+- **Balance:** retain loaded M1 numbers while presentation is repaired. Three to five normal rounds
+  remains the target. Good simulation win rates do not prove fun, tactics, comprehension or pacing.
+  Do not add forced chip damage, enemy HP inflation, hidden feints, or attacks solely to counter skill.
+- **World pressure:** expedition persistence remains a later explicit specification; do not assume
+  HP, potion charges and Focus all carry together. Normal fights must teach/test a choice even without
+  attrition. AFFECT THE WORLD is deferred, not passed by M1.
+- **Implementation boundary:** this Director pass supplies design, art candidates, declarative frame
+  Resources and acceptance tests. It does not implement production GDScript. Art is staged and the
+  HTML study is illustrative; neither is a claim that the running UI has already been replaced.
+
+### Milestone acceptance
+
+M1.1 requires the specification's functional regressions and fresh-player READ/REACT rubric, including
+four enemies, keyboard/controller, enlarged text, no sound and reduced effects. Headless tests cannot
+pass human comprehension or artistic quality. Full prototype/world acceptance criteria below remain
+long-term gates, not a declaration of current completion.
+
+## Original design brief and research rationale
 
 ## Design thesis and research synthesis
 
@@ -594,7 +651,9 @@ Healing is stronger, but repeated healing causes Exposure.
 
 **Spore Fog**
 
-Blight accumulates gradually.
+Slice rule (M1.1): the first actual Burn applied each round ignites the spores, dealing 8 Fire
+damage to every other unit on that target's side. One shared trigger per round. Blight accumulation
+is a deferred world/corruption idea, not an implemented or approved slice requirement.
 
 **Unstable Ley**
 
@@ -798,7 +857,7 @@ Technique: Intercept an incoming attack.
 
 Technique: Condemn an enemy action, increasing its Stagger vulnerability.
 
-Passive: Perfect protagonist parries grant Mara Focus.
+Passive: successful protagonist Parries grant Mara 2 Focus (binary reactions; no Perfect tier).
 
 Her story questions whether morality exists when obedience has been engineered into an entire civilization.
 
@@ -816,7 +875,7 @@ After potion use, restore minor Heart.
 
 **Bell Crow**
 
-After Perfect Parry, damage enemy Stagger.
+After a successful party Parry, deal 12 Stagger to the attacker, once per round.
 
 **Cinder Pup**
 
@@ -1749,7 +1808,7 @@ Equipment properties should favor behavior-changing effects.
 
 Examples:
 
-Perfect Parry creates Focus.
+Successful Parry creates Focus (binary reaction; no separate Perfect grade).
 
 Brace empowers next Hammer attack.
 
