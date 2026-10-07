@@ -570,9 +570,9 @@ func _save_prefs() -> void:
 
 func _load_prefs() -> void:
 	# Defaults first: the first preset encounter and loadout, the player's own settings.
-	_select_meta(_encounter, &"toy_training")
+	_select_meta(_encounter, _registry.defaults.practice_encounter.id)
 	_on_encounter_selected(_encounter.selected)
-	_select_meta(_loadout, &"starter_sword")
+	_select_meta(_loadout, _registry.defaults.starter_loadout.id)
 	_on_loadout_selected(_loadout.selected)
 	_select_meta(_difficulty, int(Settings.data.tactical_difficulty))
 	_select_meta(_assist, int(Settings.data.execution_assist))

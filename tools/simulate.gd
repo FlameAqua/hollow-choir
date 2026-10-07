@@ -5,7 +5,7 @@ extends SceneTree
 ##
 ## Options (comma-separated lists or "all"):
 ##   --encounter=fen_patrol,mirebell_cantor   default: all
-##   --loadout=starter_sword                   default: starter_sword,starter_hammer,starter_bow
+##   --loadout=starter_sword                   default: GameDefaults.simulation_loadouts
 ##   --exec=MISS,GOOD,PERFECT,MIXED            default: MIXED
 ##   --difficulty=STORY,ADVENTURER,TACTICIAN   default: ADVENTURER
 ##   --assist=STANDARD                         default: STANDARD
@@ -29,7 +29,10 @@ func _initialize() -> void:
 		return
 	var library := registry.make_library()
 	var encounters := _select(registry.encounters, "encounter", registry.sorted_ids(registry.encounters))
-	var loadouts := _select(registry.loadouts, "loadout", [&"starter_sword", &"starter_hammer", &"starter_bow"])
+	var default_loadouts: Array[StringName] = []
+	for loadout in registry.defaults.simulation_loadouts:
+		default_loadouts.append(loadout.id)
+	var loadouts := _select(registry.loadouts, "loadout", default_loadouts)
 	var execs := _select_enum(Enums.SimulatedExecution, "exec", ["MIXED"])
 	var difficulties := _select_enum(Enums.TacticalDifficulty, "difficulty", ["ADVENTURER"])
 	var assists := _select_enum(Enums.ExecutionAssist, "assist", ["STANDARD"])

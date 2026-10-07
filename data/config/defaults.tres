@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="GameDefaults" format=3]
+
+[ext_resource type="Script" path="res://src/data/config/game_defaults.gd" id="1_defaults"]
+[ext_resource type="Script" path="res://src/data/encounters/party_loadout.gd" id="2_loadout"]
+[ext_resource type="Resource" path="res://data/loadouts/starter_sword.tres" id="3_sword"]
+[ext_resource type="Resource" path="res://data/loadouts/starter_hammer.tres" id="4_hammer"]
+[ext_resource type="Resource" path="res://data/loadouts/starter_bow.tres" id="5_bow"]
+[ext_resource type="Resource" path="res://data/encounters/toy_training.tres" id="6_toy"]
+
+[resource]
+script = ExtResource("1_defaults")
+starter_loadout = ExtResource("3_sword")
+practice_encounter = ExtResource("6_toy")
+simulation_loadouts = Array[ExtResource("2_loadout")]([ExtResource("3_sword"), ExtResource("4_hammer"), ExtResource("5_bow")])

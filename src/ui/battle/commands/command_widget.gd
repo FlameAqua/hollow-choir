@@ -53,7 +53,7 @@ func _finish(grade: Enums.ExecutionGrade) -> void:
 
 func _draw_frame(title_hint: String) -> void:
 	var rect := Rect2(Vector2.ZERO, size)
-	draw_rect(rect, Color(0.04, 0.04, 0.07, 0.9))
+	draw_rect(rect, Color(0.04, 0.04, 0.07, 0.98))
 	draw_rect(rect, UITheme.ACCENT.darkened(0.3), false, 1.5)
 	var font_size := UITheme.font_size(0.85)
 	draw_string(_font, Vector2(14, 8 + font_size), action_name, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, UITheme.ACCENT)

@@ -393,10 +393,7 @@ func _on_result_secondary() -> void:
 
 ## Opened directly (F6 in the editor): the toy fight with the saved loadout and current settings.
 func _default_launch() -> BattleLaunch:
-	var registry := Database.registry
-	var encounter: EncounterDefinition = registry.encounters.get(&"toy_training")
-	if encounter == null:
-		encounter = registry.encounters.values()[0]
+	var encounter := Database.registry.defaults.practice_encounter
 	var setup := BattleSetup.from_encounter(GameState.build_loadout(), encounter, Database.library,
 		Settings.difficulty_profile(), Settings.assist_profile(), randi() % 100000)
 	setup.research_levels = GameState.research_levels()

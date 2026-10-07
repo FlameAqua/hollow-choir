@@ -27,6 +27,7 @@ var assist_profiles: Dictionary[int, ExecutionAssistProfile] = {}
 var skill_profiles: Dictionary[int, ExecutionSkillProfile] = {}
 var balance: BalanceConfig
 var research: ResearchConfig
+var defaults: GameDefaults
 ## Problems found while loading (unknown files, duplicate ids). See also validate().
 var load_problems: PackedStringArray = PackedStringArray()
 var _paths: Dictionary[String, String] = {}
@@ -89,6 +90,10 @@ func validate() -> PackedStringArray:
 		problems.append_array(balance.validate())
 	if research == null:
 		problems.append("no ResearchConfig in %s" % DATA_ROOT)
+	if defaults == null:
+		problems.append("no GameDefaults in %s" % DATA_ROOT)
+	else:
+		problems.append_array(defaults.validate())
 	for collection: Dictionary in [weapons, armor, enemies, companions, protagonists, familiars, potions,
 			encounters, loadouts, conditions, actions, buffs, traits, statuses, roles, resonances,
 			difficulty_profiles, assist_profiles, skill_profiles]:
@@ -136,6 +141,10 @@ func _register(resource: Resource, path: String) -> void:
 		balance = resource
 	elif resource is ResearchConfig:
 		research = resource
+	elif resource is GameDefaults:
+		if defaults != null:
+			load_problems.append("multiple GameDefaults files (%s)" % path)
+		defaults = resource
 	elif resource is WeaponDefinition:
 		_put(weapons, resource.id, resource, path)
 	elif resource is ArmorDefinition:
