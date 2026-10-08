@@ -1,0 +1,922 @@
+[
+  {
+    "action_usage": {
+      "condemn": 75,
+      "kindle": 4,
+      "lunge": 137,
+      "spear_flurry": 413,
+      "sword_strike": 348,
+      "use_mending_draught": 54
+    },
+    "damage_taken": 59.41,
+    "enemy_action_usage": {
+      "clamp": 24,
+      "drench": 96,
+      "harrying_lunge": 13,
+      "rending_bite": 209,
+      "shell_slam": 318,
+      "static_lash": 4
+    },
+    "flags": [
+      "OVERLONG: mean 5.4 rounds (target 3-5)",
+      "AI NEVER USED: shell_ward, arc_storm",
+      "PARTY NEVER USED: arc_cleave, spark, riposte_stance, intercept, guard, use_fen_water_flask"
+    ],
+    "focus_generated": 10.83,
+    "healing": 24.3,
+    "interrupts": 0.0,
+    "label": "fen_patrol | starter_sword | Mixed | Adventurer | Standard",
+    "rounds": {
+      "max": 7,
+      "mean": 5.41,
+      "median": 5,
+      "min": 5,
+      "p90": 6
+    },
+    "runs": 100,
+    "stagger_breaks": 0.93,
+    "timeout_rate": 0.0,
+    "win_rate": 1.0
+  },
+  {
+    "action_usage": {
+      "condemn": 69,
+      "kindle": 8,
+      "lunge": 138,
+      "spear_flurry": 417,
+      "sword_strike": 353,
+      "use_mending_draught": 60
+    },
+    "damage_taken": 55.1,
+    "enemy_action_usage": {
+      "drench": 100,
+      "harrying_lunge": 2,
+      "rending_bite": 224,
+      "shell_slam": 294,
+      "shell_ward": 11
+    },
+    "flags": [
+      "OVERLONG: mean 5.5 rounds (target 3-5)",
+      "AI NEVER USED: clamp, static_lash, arc_storm",
+      "PARTY NEVER USED: arc_cleave, spark, riposte_stance, intercept, guard, use_fen_water_flask"
+    ],
+    "focus_generated": 10.78,
+    "healing": 27.0,
+    "interrupts": 0.0,
+    "label": "fen_patrol | starter_sword | Mixed | Tactician | Standard",
+    "rounds": {
+      "max": 7,
+      "mean": 5.46,
+      "median": 5,
+      "min": 5,
+      "p90": 6
+    },
+    "runs": 100,
+    "stagger_breaks": 0.93,
+    "timeout_rate": 0.0,
+    "win_rate": 1.0
+  },
+  {
+    "action_usage": {
+      "condemn": 70,
+      "earthsplitter": 89,
+      "hammer_blow": 225,
+      "shockwave": 16,
+      "spear_flurry": 253,
+      "use_mending_draught": 51
+    },
+    "damage_taken": 54.33,
+    "enemy_action_usage": {
+      "clamp": 8,
+      "drench": 96,
+      "harrying_lunge": 22,
+      "rending_bite": 282,
+      "shell_slam": 137,
+      "static_lash": 71
+    },
+    "flags": [
+      "AI NEVER USED: shell_ward, arc_storm",
+      "PARTY NEVER USED: spark, kindle, anchor_stance, intercept, guard, use_clotting_salve"
+    ],
+    "focus_generated": 8.63,
+    "healing": 22.93,
+    "interrupts": 0.0,
+    "label": "fen_patrol | starter_hammer | Mixed | Adventurer | Standard",
+    "rounds": {
+      "max": 5,
+      "mean": 3.72,
+      "median": 4,
+      "min": 3,
+      "p90": 4
+    },
+    "runs": 100,
+    "stagger_breaks": 0.65,
+    "timeout_rate": 0.0,
+    "win_rate": 1.0
+  },
+  {
+    "action_usage": {
+      "condemn": 69,
+      "earthsplitter": 91,
+      "hammer_blow": 223,
+      "shockwave": 19,
+      "spear_flurry": 247,
+      "use_mending_draught": 57
+    },
+    "damage_taken": 51.63,
+    "enemy_action_usage": {
+      "drench": 114,
+      "harrying_lunge": 2,
+      "rending_bite": 303,
+      "shell_slam": 117,
+      "shell_ward": 5,
+      "static_lash": 53
+    },
+    "flags": [
+      "AI NEVER USED: clamp, arc_storm",
+      "PARTY NEVER USED: spark, kindle, anchor_stance, intercept, guard, use_clotting_salve"
+    ],
+    "focus_generated": 8.7,
+    "healing": 25.63,
+    "interrupts": 0.0,
+    "label": "fen_patrol | starter_hammer | Mixed | Tactician | Standard",
+    "rounds": {
+      "max": 5,
+      "mean": 3.7,
+      "median": 4,
+      "min": 3,
+      "p90": 4
+    },
+    "runs": 100,
+    "stagger_breaks": 0.67,
+    "timeout_rate": 0.0,
+    "win_rate": 1.0
+  },
+  {
+    "action_usage": {
+      "condemn": 61,
+      "heartseeker": 149,
+      "kindle": 1,
+      "loosed_arrow": 310,
+      "spear_flurry": 413,
+      "spotters_mark": 22,
+      "use_mending_draught": 61
+    },
+    "damage_taken": 64.06,
+    "enemy_action_usage": {
+      "clamp": 23,
+      "drench": 96,
+      "harrying_lunge": 13,
+      "rending_bite": 197,
+      "shell_slam": 348,
+      "static_lash": 4
+    },
+    "flags": [
+      "OVERLONG: mean 5.3 rounds (target 3-5)",
+      "AI NEVER USED: shell_ward, arc_storm",
+      "PARTY NEVER USED: spark, steady_aim, intercept, guard, use_focus_tincture"
+    ],
+    "focus_generated": 12.2,
+    "healing": 27.45,
+    "interrupts": 0.0,
+    "label": "fen_patrol | starter_bow | Mixed | Adventurer | Standard",
+    "rounds": {
+      "max": 6,
+      "mean": 5.35,
+      "median": 5,
+      "min": 5,
+      "p90": 6
+    },
+    "runs": 100,
+    "stagger_breaks": 0.73,
+    "timeout_rate": 0.0,
+    "win_rate": 1.0
+  },
+  {
+    "action_usage": {
+      "condemn": 53,
+      "heartseeker": 166,
+      "kindle": 1,
+      "loosed_arrow": 287,
+      "spear_flurry": 417,
+      "spotters_mark": 16,
+      "steady_aim": 2,
+      "use_mending_draught": 60
+    },
+    "damage_taken": 53.63,
+    "enemy_action_usage": {
+      "drench": 100,
+      "harrying_lunge": 2,
+      "rending_bite": 210,
+      "shell_slam": 300,
+      "shell_ward": 2
+    },
+    "flags": [
+      "OVERLONG: mean 5.3 rounds (target 3-5)",
+      "AI NEVER USED: clamp, static_lash, arc_storm",
+      "PARTY NEVER USED: spark, intercept, guard, use_focus_tincture"
+    ],
+    "focus_generated": 12.66,
+    "healing": 27.0,
+    "interrupts": 0.0,
+    "label": "fen_patrol | starter_bow | Mixed | Tactician | Standard",
+    "rounds": {
+      "max": 6,
+      "mean": 5.3,
+      "median": 5,
+      "min": 4,
+      "p90": 6
+    },
+    "runs": 100,
+    "stagger_breaks": 0.73,
+    "timeout_rate": 0.0,
+    "win_rate": 1.0
+  },
+  {
+    "action_usage": {
+      "arc_cleave": 45,
+      "condemn": 22,
+      "guard": 27,
+      "intercept": 72,
+      "lunge": 235,
+      "spear_flurry": 304,
+      "sword_strike": 131,
+      "use_mending_draught": 21
+    },
+    "damage_taken": 30.9,
+    "enemy_action_usage": {
+      "harrying_lunge": 22,
+      "overgrowth_smash": 9,
+      "pummel": 100,
+      "rending_bite": 195,
+      "spore_chorus": 222
+    },
+    "flags": [
+      "AI NEVER USED: sporeburst, needle_hum",
+      "PARTY NEVER USED: spark, kindle, riposte_stance, use_fen_water_flask"
+    ],
+    "focus_generated": 10.4,
+    "healing": 9.42,
+    "interrupts": 0.69,
+    "label": "rot_grove | starter_sword | Mixed | Adventurer | Standard",
+    "rounds": {
+      "max": 6,
+      "mean": 4.46,
+      "median": 4,
+      "min": 4,
+      "p90": 5
+    },
+    "runs": 100,
+    "stagger_breaks": 0.69,
+    "timeout_rate": 0.0,
+    "win_rate": 1.0
+  },
+  {
+    "action_usage": {
+      "arc_cleave": 20,
+      "condemn": 28,
+      "kindle": 2,
+      "lunge": 218,
+      "spear_flurry": 365,
+      "sword_strike": 164,
+      "use_mending_draught": 51
+    },
+    "damage_taken": 51.74,
+    "enemy_action_usage": {
+      "harrying_lunge": 1,
+      "pummel": 284,
+      "rending_bite": 216,
+      "spore_chorus": 187
+    },
+    "flags": [
+      "AI NEVER USED: overgrowth_smash, sporeburst, needle_hum",
+      "PARTY NEVER USED: spark, riposte_stance, intercept, guard, use_fen_water_flask"
+    ],
+    "focus_generated": 9.22,
+    "healing": 22.95,
+    "interrupts": 0.0,
+    "label": "rot_grove | starter_sword | Mixed | Tactician | Standard",
+    "rounds": {
+      "max": 6,
+      "mean": 4.4,
+      "median": 4,
+      "min": 4,
+      "p90": 5
+    },
+    "runs": 100,
+    "stagger_breaks": 0.42,
+    "timeout_rate": 0.0,
+    "win_rate": 1.0
+  },
+  {
+    "action_usage": {
+      "anchor_stance": 3,
+      "condemn": 13,
+      "earthsplitter": 151,
+      "guard": 44,
+      "hammer_blow": 326,
+      "intercept": 105,
+      "kindle": 1,
+      "shockwave": 3,
+      "spear_flurry": 339,
+      "use_mending_draught": 29
+    },
+    "damage_taken": 31.71,
+    "enemy_action_usage": {
+      "harrying_lunge": 1,
+      "overgrowth_smash": 56,
+      "pummel": 100,
+      "rending_bite": 107,
+      "spore_chorus": 342
+    },
+    "flags": [
+      "OVERLONG: mean 5.3 rounds (target 3-5)",
+      "AI NEVER USED: sporeburst, needle_hum",
+      "PARTY NEVER USED: spark, use_clotting_salve"
+    ],
+    "focus_generated": 9.55,
+    "healing": 13.01,
+    "interrupts": 0.64,
+    "label": "rot_grove | starter_hammer | Mixed | Adventurer | Standard",
+    "rounds": {
+      "max": 7,
+      "mean": 5.29,
+      "median": 5,
+      "min": 4,
+      "p90": 6
+    },
+    "runs": 100,
+    "stagger_breaks": 1.41,
+    "timeout_rate": 0.0,
+    "win_rate": 1.0
+  },
+  {
+    "action_usage": {
+      "condemn": 18,
+      "earthsplitter": 117,
+      "hammer_blow": 304,
+      "kindle": 1,
+      "shockwave": 3,
+      "spear_flurry": 406,
+      "use_mending_draught": 49
+    },
+    "damage_taken": 49.11,
+    "enemy_action_usage": {
+      "pummel": 303,
+      "rending_bite": 108,
+      "spore_chorus": 286
+    },
+    "flags": [
+      "AI NEVER USED: overgrowth_smash, sporeburst, needle_hum, harrying_lunge",
+      "PARTY NEVER USED: spark, anchor_stance, intercept, guard, use_clotting_salve"
+    ],
+    "focus_generated": 8.31,
+    "healing": 22.05,
+    "interrupts": 0.0,
+    "label": "rot_grove | starter_hammer | Mixed | Tactician | Standard",
+    "rounds": {
+      "max": 6,
+      "mean": 4.73,
+      "median": 5,
+      "min": 4,
+      "p90": 5
+    },
+    "runs": 100,
+    "stagger_breaks": 1.0,
+    "timeout_rate": 0.0,
+    "win_rate": 1.0
+  },
+  {
+    "action_usage": {
+      "condemn": 70,
+      "guard": 30,
+      "heartseeker": 122,
+      "intercept": 28,
+      "loosed_arrow": 317,
+      "spear_flurry": 373,
+      "spotters_mark": 29,
+      "steady_aim": 37,
+      "use_mending_draught": 51
+    },
+    "damage_taken": 53.01,
+    "enemy_action_usage": {
+      "harrying_lunge": 24,
+      "overgrowth_smash": 118,
+      "pummel": 100,
+      "rending_bite": 225,
+      "spore_chorus": 277
+    },
+    "flags": [
+      "OVERLONG: mean 5.5 rounds (target 3-5)",
+      "AI NEVER USED: sporeburst, needle_hum",
+      "PARTY NEVER USED: spark, kindle, use_focus_tincture"
+    ],
+    "focus_generated": 8.82,
+    "healing": 22.9,
+    "interrupts": 0.07,
+    "label": "rot_grove | starter_bow | Mixed | Adventurer | Standard",
+    "rounds": {
+      "max": 8,
+      "mean": 5.51,
+      "median": 5,
+      "min": 4,
+      "p90": 7
+    },
+    "runs": 100,
+    "stagger_breaks": 0.23,
+    "timeout_rate": 0.0,
+    "win_rate": 1.0
+  },
+  {
+    "action_usage": {
+      "condemn": 65,
+      "guard": 3,
+      "heartseeker": 133,
+      "intercept": 23,
+      "loosed_arrow": 292,
+      "spear_flurry": 374,
+      "spotters_mark": 32,
+      "steady_aim": 9,
+      "use_mending_draught": 53
+    },
+    "damage_taken": 56.59,
+    "enemy_action_usage": {
+      "harrying_lunge": 1,
+      "overgrowth_smash": 68,
+      "pummel": 205,
+      "rending_bite": 242,
+      "spore_chorus": 248
+    },
+    "flags": [
+      "OVERLONG: mean 5.1 rounds (target 3-5)",
+      "AI NEVER USED: sporeburst, needle_hum",
+      "PARTY NEVER USED: spark, kindle, use_focus_tincture"
+    ],
+    "focus_generated": 9.17,
+    "healing": 23.85,
+    "interrupts": 0.09,
+    "label": "rot_grove | starter_bow | Mixed | Tactician | Standard",
+    "rounds": {
+      "max": 7,
+      "mean": 5.14,
+      "median": 5,
+      "min": 4,
+      "p90": 6
+    },
+    "runs": 100,
+    "stagger_breaks": 0.21,
+    "timeout_rate": 0.0,
+    "win_rate": 1.0
+  },
+  {
+    "action_usage": {
+      "condemn": 5,
+      "kindle": 8,
+      "lunge": 276,
+      "spear_flurry": 518,
+      "sword_strike": 310,
+      "use_mending_draught": 99
+    },
+    "damage_taken": 77.8,
+    "enemy_action_usage": {
+      "briar_lash": 25,
+      "hunts_end": 3,
+      "pack_howl": 36,
+      "rending_bite": 105,
+      "thornrend": 502
+    },
+    "flags": [
+      "AI NEVER USED: harrying_lunge",
+      "PARTY NEVER USED: arc_cleave, spark, riposte_stance, intercept, guard, use_fen_water_flask"
+    ],
+    "focus_generated": 11.4,
+    "healing": 44.51,
+    "interrupts": 0.0,
+    "label": "bramble_den | starter_sword | Mixed | Adventurer | Standard",
+    "rounds": {
+      "max": 8,
+      "mean": 6.25,
+      "median": 6,
+      "min": 5,
+      "p90": 7
+    },
+    "runs": 100,
+    "stagger_breaks": 0.78,
+    "timeout_rate": 0.0,
+    "win_rate": 1.0
+  },
+  {
+    "action_usage": {
+      "arc_cleave": 1,
+      "condemn": 4,
+      "kindle": 5,
+      "lunge": 276,
+      "spear_flurry": 524,
+      "sword_strike": 323,
+      "use_mending_draught": 112
+    },
+    "damage_taken": 79.86,
+    "enemy_action_usage": {
+      "briar_lash": 37,
+      "hunts_end": 3,
+      "pack_howl": 95,
+      "rending_bite": 106,
+      "thornrend": 462
+    },
+    "flags": [
+      "AI NEVER USED: harrying_lunge",
+      "PARTY NEVER USED: spark, riposte_stance, intercept, guard, use_fen_water_flask"
+    ],
+    "focus_generated": 11.38,
+    "healing": 50.39,
+    "interrupts": 0.0,
+    "label": "bramble_den | starter_sword | Mixed | Tactician | Standard",
+    "rounds": {
+      "max": 7,
+      "mean": 6.4,
+      "median": 6,
+      "min": 5,
+      "p90": 7
+    },
+    "runs": 100,
+    "stagger_breaks": 0.55,
+    "timeout_rate": 0.0,
+    "win_rate": 1.0
+  },
+  {
+    "action_usage": {
+      "condemn": 9,
+      "earthsplitter": 127,
+      "hammer_blow": 422,
+      "shockwave": 2,
+      "spear_flurry": 471,
+      "use_mending_draught": 103
+    },
+    "damage_taken": 84.77,
+    "enemy_action_usage": {
+      "briar_lash": 27,
+      "harrying_lunge": 1,
+      "hunts_end": 9,
+      "pack_howl": 53,
+      "rending_bite": 109,
+      "thornrend": 395
+    },
+    "flags": [
+      "PARTY NEVER USED: spark, kindle, anchor_stance, intercept, guard, use_clotting_salve"
+    ],
+    "focus_generated": 9.86,
+    "healing": 46.3,
+    "interrupts": 0.0,
+    "label": "bramble_den | starter_hammer | Mixed | Adventurer | Standard",
+    "rounds": {
+      "max": 8,
+      "mean": 5.83,
+      "median": 6,
+      "min": 5,
+      "p90": 6
+    },
+    "runs": 100,
+    "stagger_breaks": 1.0,
+    "timeout_rate": 0.0,
+    "win_rate": 1.0
+  },
+  {
+    "action_usage": {
+      "condemn": 3,
+      "earthsplitter": 125,
+      "hammer_blow": 419,
+      "shockwave": 2,
+      "spear_flurry": 479,
+      "use_mending_draught": 114
+    },
+    "damage_taken": 98.77,
+    "enemy_action_usage": {
+      "briar_lash": 47,
+      "hunts_end": 21,
+      "pack_howl": 97,
+      "rending_bite": 111,
+      "thornrend": 332
+    },
+    "flags": [
+      "AI NEVER USED: harrying_lunge",
+      "PARTY NEVER USED: spark, kindle, anchor_stance, intercept, guard, use_clotting_salve"
+    ],
+    "focus_generated": 9.98,
+    "healing": 51.29,
+    "interrupts": 0.0,
+    "label": "bramble_den | starter_hammer | Mixed | Tactician | Standard",
+    "rounds": {
+      "max": 10,
+      "mean": 5.96,
+      "median": 6,
+      "min": 5,
+      "p90": 7
+    },
+    "runs": 100,
+    "stagger_breaks": 1.0,
+    "timeout_rate": 0.0,
+    "win_rate": 1.0
+  },
+  {
+    "action_usage": {
+      "condemn": 41,
+      "heartseeker": 163,
+      "kindle": 10,
+      "loosed_arrow": 429,
+      "spear_flurry": 492,
+      "spotters_mark": 36,
+      "use_mending_draught": 127
+    },
+    "damage_taken": 95.77,
+    "enemy_action_usage": {
+      "briar_lash": 22,
+      "harrying_lunge": 15,
+      "hunts_end": 15,
+      "pack_howl": 34,
+      "rending_bite": 181,
+      "thornrend": 548
+    },
+    "flags": [
+      "PARTY NEVER USED: spark, steady_aim, intercept, guard, use_focus_tincture"
+    ],
+    "focus_generated": 13.04,
+    "healing": 57.09,
+    "interrupts": 0.0,
+    "label": "bramble_den | starter_bow | Mixed | Adventurer | Standard",
+    "rounds": {
+      "max": 10,
+      "mean": 6.69,
+      "median": 7,
+      "min": 5,
+      "p90": 8
+    },
+    "runs": 100,
+    "stagger_breaks": 0.65,
+    "timeout_rate": 0.0,
+    "win_rate": 1.0
+  },
+  {
+    "action_usage": {
+      "condemn": 48,
+      "heartseeker": 189,
+      "kindle": 3,
+      "loosed_arrow": 403,
+      "spear_flurry": 490,
+      "spotters_mark": 23,
+      "use_mending_draught": 112
+    },
+    "damage_taken": 89.85,
+    "enemy_action_usage": {
+      "briar_lash": 38,
+      "harrying_lunge": 1,
+      "hunts_end": 4,
+      "pack_howl": 111,
+      "rending_bite": 178,
+      "thornrend": 484
+    },
+    "flags": [
+      "PARTY NEVER USED: spark, steady_aim, intercept, guard, use_focus_tincture"
+    ],
+    "focus_generated": 12.43,
+    "healing": 50.39,
+    "interrupts": 0.0,
+    "label": "bramble_den | starter_bow | Mixed | Tactician | Standard",
+    "rounds": {
+      "max": 10,
+      "mean": 6.54,
+      "median": 6,
+      "min": 5,
+      "p90": 7
+    },
+    "runs": 100,
+    "stagger_breaks": 0.16,
+    "timeout_rate": 0.0,
+    "win_rate": 1.0
+  },
+  {
+    "action_usage": {
+      "kindle": 1,
+      "lunge": 696,
+      "spear_flurry": 1106,
+      "sword_strike": 450,
+      "use_mending_draught": 115
+    },
+    "damage_taken": 124.46,
+    "enemy_action_usage": {
+      "drowning_toll": 30,
+      "final_knell": 38,
+      "mire_spray": 179,
+      "requiem": 22,
+      "root_lash": 96,
+      "storm_peal": 238,
+      "toll": 147
+    },
+    "flags": [
+      "PARTY NEVER USED: arc_cleave, spark, riposte_stance, intercept, condemn, guard, use_fen_water_flask"
+    ],
+    "focus_generated": 23.91,
+    "healing": 51.58,
+    "interrupts": 0.78,
+    "label": "mirebell_cantor | starter_sword | Mixed | Adventurer | Standard",
+    "rounds": {
+      "max": 14,
+      "mean": 12.05,
+      "median": 12,
+      "min": 10,
+      "p90": 13
+    },
+    "runs": 100,
+    "stagger_breaks": 1.98,
+    "timeout_rate": 0.0,
+    "win_rate": 0.97
+  },
+  {
+    "action_usage": {
+      "lunge": 700,
+      "spear_flurry": 1123,
+      "sword_strike": 431,
+      "use_mending_draught": 104
+    },
+    "damage_taken": 108.13,
+    "enemy_action_usage": {
+      "drowning_toll": 3,
+      "final_knell": 71,
+      "mire_spray": 254,
+      "requiem": 24,
+      "root_lash": 175,
+      "storm_peal": 144,
+      "toll": 69
+    },
+    "flags": [
+      "PARTY NEVER USED: arc_cleave, spark, kindle, riposte_stance, intercept, condemn, guard, use_fen_water_flask"
+    ],
+    "focus_generated": 24.15,
+    "healing": 46.69,
+    "interrupts": 0.76,
+    "label": "mirebell_cantor | starter_sword | Mixed | Tactician | Standard",
+    "rounds": {
+      "max": 15,
+      "mean": 11.98,
+      "median": 12,
+      "min": 10,
+      "p90": 13
+    },
+    "runs": 100,
+    "stagger_breaks": 2.0,
+    "timeout_rate": 0.0,
+    "win_rate": 1.0
+  },
+  {
+    "action_usage": {
+      "condemn": 24,
+      "earthsplitter": 286,
+      "hammer_blow": 658,
+      "spear_flurry": 1023,
+      "use_mending_draught": 114
+    },
+    "damage_taken": 114.82,
+    "enemy_action_usage": {
+      "drowning_toll": 69,
+      "final_knell": 54,
+      "mire_spray": 169,
+      "requiem": 6,
+      "root_lash": 83,
+      "storm_peal": 213,
+      "toll": 125
+    },
+    "flags": [
+      "PARTY NEVER USED: shockwave, spark, kindle, anchor_stance, intercept, guard, use_clotting_salve"
+    ],
+    "focus_generated": 19.0,
+    "healing": 51.2,
+    "interrupts": 0.84,
+    "label": "mirebell_cantor | starter_hammer | Mixed | Adventurer | Standard",
+    "rounds": {
+      "max": 12,
+      "mean": 10.78,
+      "median": 11,
+      "min": 9,
+      "p90": 12
+    },
+    "runs": 100,
+    "stagger_breaks": 2.01,
+    "timeout_rate": 0.0,
+    "win_rate": 0.99
+  },
+  {
+    "action_usage": {
+      "condemn": 20,
+      "earthsplitter": 297,
+      "hammer_blow": 639,
+      "spear_flurry": 989,
+      "use_mending_draught": 84
+    },
+    "damage_taken": 95.4,
+    "enemy_action_usage": {
+      "drowning_toll": 5,
+      "final_knell": 64,
+      "mire_spray": 237,
+      "requiem": 1,
+      "root_lash": 204,
+      "storm_peal": 119,
+      "toll": 60
+    },
+    "flags": [
+      "PARTY NEVER USED: shockwave, spark, kindle, anchor_stance, intercept, guard, use_clotting_salve"
+    ],
+    "focus_generated": 20.02,
+    "healing": 37.64,
+    "interrupts": 0.8,
+    "label": "mirebell_cantor | starter_hammer | Mixed | Tactician | Standard",
+    "rounds": {
+      "max": 13,
+      "mean": 10.36,
+      "median": 10,
+      "min": 9,
+      "p90": 11
+    },
+    "runs": 100,
+    "stagger_breaks": 2.03,
+    "timeout_rate": 0.0,
+    "win_rate": 1.0
+  },
+  {
+    "action_usage": {
+      "condemn": 12,
+      "guard": 1,
+      "heartseeker": 363,
+      "kindle": 12,
+      "loosed_arrow": 682,
+      "spear_flurry": 1024,
+      "spotters_mark": 13,
+      "use_mending_draught": 94
+    },
+    "damage_taken": 101.44,
+    "enemy_action_usage": {
+      "drowning_toll": 6,
+      "final_knell": 19,
+      "mire_spray": 209,
+      "requiem": 69,
+      "root_lash": 102,
+      "storm_peal": 131,
+      "toll": 162
+    },
+    "flags": [
+      "PARTY NEVER USED: spark, steady_aim, intercept, use_focus_tincture"
+    ],
+    "focus_generated": 23.33,
+    "healing": 42.2,
+    "interrupts": 0.2,
+    "label": "mirebell_cantor | starter_bow | Mixed | Adventurer | Standard",
+    "rounds": {
+      "max": 14,
+      "mean": 11.17,
+      "median": 11,
+      "min": 9,
+      "p90": 12
+    },
+    "runs": 100,
+    "stagger_breaks": 1.37,
+    "timeout_rate": 0.0,
+    "win_rate": 0.99
+  },
+  {
+    "action_usage": {
+      "condemn": 14,
+      "heartseeker": 362,
+      "kindle": 11,
+      "loosed_arrow": 662,
+      "spear_flurry": 1033,
+      "spotters_mark": 19,
+      "use_mending_draught": 75
+    },
+    "damage_taken": 86.52,
+    "enemy_action_usage": {
+      "final_knell": 20,
+      "mire_spray": 322,
+      "requiem": 68,
+      "root_lash": 130,
+      "storm_peal": 80,
+      "toll": 64
+    },
+    "flags": [
+      "AI NEVER USED: drowning_toll",
+      "PARTY NEVER USED: spark, steady_aim, intercept, guard, use_focus_tincture"
+    ],
+    "focus_generated": 23.2,
+    "healing": 33.7,
+    "interrupts": 0.2,
+    "label": "mirebell_cantor | starter_bow | Mixed | Tactician | Standard",
+    "rounds": {
+      "max": 13,
+      "mean": 11.01,
+      "median": 11,
+      "min": 9,
+      "p90": 12
+    },
+    "runs": 100,
+    "stagger_breaks": 1.38,
+    "timeout_rate": 0.0,
+    "win_rate": 1.0
+  }
+]

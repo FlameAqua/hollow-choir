@@ -1,6 +1,6 @@
 # Hollow Choir — Canonical Game Design Document
 
-## Current design authority — 7 October 2026
+## Current design authority — 8 October 2026
 
 **Owner:** Game Director (ChatGPT). **Current milestone:** M1 combat foundation implemented;
 M1.1 combat clarity and art integration specified, awaiting implementation and human validation.
@@ -21,6 +21,15 @@ Visual deliverable: [three-state combat study](docs/design/visuals/combat_study.
 Art deliverable: [Briarfen candidates and import resources](assets/art/briarfen_v01/README.md).
 Decisions and original evidence: [Decision Log](docs/DECISION_LOG.md),
 [resolved M1 questions](docs/DESIGN_QUESTIONS.md).
+
+Director preparation while engineering is unavailable:
+[controlled policy audit](docs/reports/M1_DIRECTOR_POLICY_AUDIT.md),
+[human playtest pack](docs/playtests/M1_1_SESSION_PACK.md), and
+[Claude return queue](docs/briefs/CLAUDE_RETURN_QUEUE.md).
+These provide evidence and a validation protocol, not a passed gate or an implemented UI.
+[Expedition resource candidate A](docs/design/EXPEDITION_RESOURCE_CANDIDATE.md) is a **noncanonical
+paper proposal**: compare all-reset encounters with potion-only carry before authorizing any trial.
+It does not supersede D-024 or expand the current implementation scope.
 
 ### Current scope and rules
 

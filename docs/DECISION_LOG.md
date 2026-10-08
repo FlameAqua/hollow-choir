@@ -236,3 +236,28 @@ explicitly when the excursion loop is specified. M1 remains isolated encounters.
 **REJECTED:** Justifying empty attrition fights with an unimplemented future loop.
 **CONSEQUENCES:** No save or resource-reset change in M1.1; every current fight must teach or test a decision.
 
+## D-025 — Separate action-policy evidence from human combat acceptance
+**Owner:** Director. **Status:** Approved evaluation method, 8 October 2026; human gate pending.
+
+**DECISION:** Compare existing SMART, BASIC_ONLY and RANDOM policies with fixed execution/assist
+settings; use the [audit](reports/M1_DIRECTOR_POLICY_AUDIT.md) to focus the
+[human session pack](playtests/M1_1_SESSION_PACK.md), not to pass the milestone.
+**WHY:** Basic-only still selects targets and uses competent automated defenses. Random actions are
+not a model of beginners. Wins alone cannot establish the value or readability of techniques.
+**REJECTED:** Mandatory losses in normal fights; inferred human difficulty/seconds from simulation;
+new enemy mechanics or balance changes before the M1.1 comprehension gate.
+**CONSEQUENCES:** Preserve current tuning. Record first-read, adaptation, weapon decisions and pacing
+separately, with exact build/settings and no invented human results. Current engineering priority stays M1.1.
+
+## D-026 — Prepare a bounded expedition candidate without unlocking implementation
+**Owner:** Director. **Status:** Paper comparison only, 8 October 2026; carry policy still undecided.
+
+**DECISION:** Prepare [candidate A](design/EXPEDITION_RESOURCE_CANDIDATE.md): full HP and normal starting
+Focus each fight, only existing potion charges carried. Compare it against cheaper all-reset control C.
+**WHY:** A single visible supply budget is cheaper to reason about than simultaneous HP/Focus/item
+attrition; it still needs evidence of a useful decision that isolated encounters cannot provide.
+**REJECTED:** Treating this draft as approved scope; camps, wounds, durability, field crafting or a
+world-state implementation while combat clarity remains open.
+**CONSEQUENCES:** D-024 remains in force. The candidate includes boundary/save/retry requirements for
+review, not new runtime fields. Choose control C if persistence adds only hoarding or bookkeeping.
+

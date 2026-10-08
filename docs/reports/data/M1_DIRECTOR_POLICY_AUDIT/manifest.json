@@ -1,0 +1,123 @@
+{
+  "analysis_recorded_at_utc": "2026-10-07T23:58:46.175733+00:00",
+  "source_commit": "455ec506fd7c75d6edbf5fe5c1dd6b5725767118",
+  "godot_version": "4.7.2.stable.official.ed1daf0bf",
+  "production_changes_during_audit": false,
+  "completed_battles": 7200,
+  "cells_per_policy": 24,
+  "runs_per_cell": 100,
+  "base_seed": 23,
+  "seed_formula": "base_seed * 100003 + run_index * 7919 + 17",
+  "run_index_range_inclusive": [
+    0,
+    99
+  ],
+  "first_battle_seed": 2300086,
+  "last_battle_seed": 3084067,
+  "autopilot_rng_seed": "battle_seed + 1",
+  "executor_rng_seed": "battle_seed + 2",
+  "research_override": null,
+  "research_note": "CLI leaves research_levels empty; SMART still reads exact engine previews.",
+  "mixed_base_weights": {
+    "miss": 0.25,
+    "good": 0.55,
+    "perfect": 0.2
+  },
+  "mixed_base_reaction_success": {
+    "brace": 0.88,
+    "evade": 0.6,
+    "parry": 0.25
+  },
+  "defense_policy": "All action policies share ExecutionSimulator expected-hit-damage selection with parry Stagger credit; legal responses/window modifiers apply.",
+  "initial_attempts": "SMART and RANDOM were stopped by the initial 240-second shell limit before export. Their partial logs were excluded. Complete reruns with a 900-second limit supply their JSON. BASIC_ONLY completed within the initial limit.",
+  "commands": {
+    "smart": [
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "res://tools/simulate.gd",
+      "--",
+      "--encounter=fen_patrol,rot_grove,bramble_den,mirebell_cantor",
+      "--loadout=starter_sword,starter_hammer,starter_bow",
+      "--exec=MIXED",
+      "--difficulty=ADVENTURER,TACTICIAN",
+      "--assist=STANDARD",
+      "--runs=100",
+      "--seed=23",
+      "--policy=SMART",
+      "--out=res://docs/reports/data/M1_DIRECTOR_POLICY_AUDIT/smart.json"
+    ],
+    "basic_only": [
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "res://tools/simulate.gd",
+      "--",
+      "--encounter=fen_patrol,rot_grove,bramble_den,mirebell_cantor",
+      "--loadout=starter_sword,starter_hammer,starter_bow",
+      "--exec=MIXED",
+      "--difficulty=ADVENTURER,TACTICIAN",
+      "--assist=STANDARD",
+      "--runs=100",
+      "--seed=23",
+      "--policy=BASIC_ONLY",
+      "--out=res://docs/reports/data/M1_DIRECTOR_POLICY_AUDIT/basic_only.json"
+    ],
+    "random": [
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "res://tools/simulate.gd",
+      "--",
+      "--encounter=fen_patrol,rot_grove,bramble_den,mirebell_cantor",
+      "--loadout=starter_sword,starter_hammer,starter_bow",
+      "--exec=MIXED",
+      "--difficulty=ADVENTURER,TACTICIAN",
+      "--assist=STANDARD",
+      "--runs=100",
+      "--seed=23",
+      "--policy=RANDOM",
+      "--out=res://docs/reports/data/M1_DIRECTOR_POLICY_AUDIT/random.json"
+    ]
+  },
+  "raw_reports": {
+    "smart": {
+      "file": "smart.json",
+      "sha256": "9f7820186156def43b0c58d2ac1342a3e091436e7a71e5efb232e976787586b5",
+      "exit_code": 0,
+      "tool_elapsed_seconds": 197.7,
+      "wins": 2395,
+      "engine_timeouts": 0
+    },
+    "basic_only": {
+      "file": "basic_only.json",
+      "sha256": "6e82d6d7b8582cae356b0d4a212185b8f648184930ff948a1f2d1aad0c06c2f2",
+      "exit_code": 0,
+      "tool_elapsed_seconds": 160.9,
+      "wins": 2300,
+      "engine_timeouts": 0
+    },
+    "random": {
+      "file": "random.json",
+      "sha256": "59f1c63cbe01d3fcde466aaff6986ad25cb98966e35424bfb136215bcaccb85c",
+      "exit_code": 0,
+      "tool_elapsed_seconds": 163.5,
+      "wins": 1207,
+      "engine_timeouts": 55
+    }
+  },
+  "metric_caveats": [
+    "JSON contains batch aggregates, not per-run records.",
+    "damage_taken sums damage events and can include overkill.",
+    "rounds include victories, defeats and engine timeouts.",
+    "Simulator p90 indexes floor(n*0.9), zero-based: 91st of 100; median uses upper middle.",
+    "Same initial seeds do not imply identical random consumption after different choices."
+  ],
+  "comparison_csv_sha256": "9237379e0d54e4e6cd11bdfe1a81bab86b00e143978435cb876939ea8b54e242"
+}
