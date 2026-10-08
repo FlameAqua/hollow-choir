@@ -57,7 +57,7 @@ func show_readout(value: UnitReadout, expanded: bool) -> void:
 		var card := PreviewPanel.new()
 		add_child(card)
 		card.show_intent(value.intent)
-		card.custom_minimum_size.y = PreviewPanel.intent_height(value.intent)
+		card.custom_minimum_size.y = PreviewPanel.card_height(value.intent)
 		if not value.intent.telegraph.is_empty():
 			add_child(UITheme.label(value.intent.telegraph, UITheme.TEXT_DIM, -1, true))
 		if not value.intent.telegraph_detail.is_empty():

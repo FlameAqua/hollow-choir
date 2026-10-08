@@ -1,0 +1,101 @@
+[gd_resource type="Resource" script_class="MusicLibrary" format=3]
+
+[ext_resource type="Script" path="res://src/audio/music_library.gd" id="library"]
+[ext_resource type="Script" path="res://src/audio/music_playlist.gd" id="playlist"]
+[ext_resource type="Script" path="res://src/audio/music_track.gd" id="track"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/regions/briarfen/briarfen_battle_v01_9a7d7a4c3664.ogg" id="audio0"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/regions/briarfen/briarfen_battle_v01_intense_3584cae0354f.ogg" id="audio1"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/regions/briarfen/briarfen_battle_v02_57ff4be5c9fd.ogg" id="audio2"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/regions/briarfen/briarfen_boss_mirebell_v01_86441a73241e.ogg" id="audio3"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/regions/briarfen/briarfen_boss_mirebell_v02_5528e45354be.ogg" id="audio4"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/global/global_title_v01_8e49eff01674.ogg" id="audio5"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/global/global_title_v02_dc1da6c08aa5.ogg" id="audio6"]
+
+[sub_resource type="Resource" id="track0"]
+script = ExtResource("track")
+id = &"briarfen_battle_v01"
+version = 1
+tone = &"base"
+stream = ExtResource("audio0")
+source_offset_seconds = 0.000000
+gain_db = -12.0
+crossfade_seconds = 3.0
+
+[sub_resource type="Resource" id="track1"]
+script = ExtResource("track")
+id = &"briarfen_battle_v01_intense"
+version = 1
+tone = &"intense"
+stream = ExtResource("audio1")
+source_offset_seconds = 0.000000
+gain_db = -12.0
+crossfade_seconds = 3.0
+
+[sub_resource type="Resource" id="track2"]
+script = ExtResource("track")
+id = &"briarfen_battle_v02"
+version = 2
+tone = &"base"
+stream = ExtResource("audio2")
+source_offset_seconds = 0.000000
+gain_db = -12.0
+crossfade_seconds = 3.0
+
+[sub_resource type="Resource" id="track3"]
+script = ExtResource("track")
+id = &"briarfen_boss_mirebell_v01"
+version = 1
+tone = &"base"
+stream = ExtResource("audio3")
+source_offset_seconds = 0.000000
+gain_db = -12.0
+crossfade_seconds = 3.0
+
+[sub_resource type="Resource" id="track4"]
+script = ExtResource("track")
+id = &"briarfen_boss_mirebell_v02"
+version = 2
+tone = &"base"
+stream = ExtResource("audio4")
+source_offset_seconds = 0.000000
+gain_db = -12.0
+crossfade_seconds = 3.0
+
+[sub_resource type="Resource" id="track5"]
+script = ExtResource("track")
+id = &"global_title_v01"
+version = 1
+tone = &"base"
+stream = ExtResource("audio5")
+source_offset_seconds = 0.000000
+gain_db = -12.0
+crossfade_seconds = 3.0
+
+[sub_resource type="Resource" id="track6"]
+script = ExtResource("track")
+id = &"global_title_v02"
+version = 2
+tone = &"base"
+stream = ExtResource("audio6")
+source_offset_seconds = 0.000000
+gain_db = -12.0
+crossfade_seconds = 3.0
+
+[sub_resource type="Resource" id="playlist0"]
+script = ExtResource("playlist")
+cue_id = &"global_title"
+tracks = Array[ExtResource("track")]([SubResource("track5"), SubResource("track6")])
+
+[sub_resource type="Resource" id="playlist1"]
+script = ExtResource("playlist")
+cue_id = &"briarfen_battle"
+tracks = Array[ExtResource("track")]([SubResource("track0"), SubResource("track1"), SubResource("track2")])
+
+[sub_resource type="Resource" id="playlist2"]
+script = ExtResource("playlist")
+cue_id = &"briarfen_boss_mirebell"
+tracks = Array[ExtResource("track")]([SubResource("track3"), SubResource("track4")])
+
+[resource]
+script = ExtResource("library")
+playlists = Array[ExtResource("playlist")]([SubResource("playlist0"), SubResource("playlist1"), SubResource("playlist2")])

@@ -15,6 +15,7 @@ var _column: VBoxContainer
 
 func _ready() -> void:
 	GameState.resume_session()
+	AudioManager.request_music(&"global_title")
 	var backdrop := TextureRect.new()
 	backdrop.texture = TITLE_BACKDROP
 	backdrop.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -58,6 +59,8 @@ func _ready() -> void:
 	spacer.custom_minimum_size.y = 8
 	_column.add_child(spacer)
 	_first_button = _button("Combat Sandbox", func() -> void: SceneRouter.goto(SceneRouter.SANDBOX))
+	_button("Field Guide", func() -> void: SceneRouter.goto(SceneRouter.FIELD_GUIDE))
+	_button("Audio Lab", func() -> void: SceneRouter.goto(SceneRouter.AUDIO_LAB))
 	_button("Settings", func() -> void: SceneRouter.goto(SceneRouter.SETTINGS))
 	_button("Quit", func() -> void: get_tree().quit())
 	_column.add_child(UITheme.label("v%s" % ProjectSettings.get_setting("application/config/version", "0"), UITheme.TEXT_DIM, UITheme.secondary_size()))

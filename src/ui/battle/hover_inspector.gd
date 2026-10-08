@@ -8,9 +8,6 @@ var suppressed: Callable
 var bounds_provider: Callable
 var keyboard_source: Callable
 var expanded := false
-# Compatibility fields; target information now stays in the dock instead of pinning a popup.
-var pinned_text := ""
-var pinned_enemy := false
 var _text: RichTextLabel
 var _scroll: ScrollContainer
 var _card: PreviewPanel
@@ -70,23 +67,42 @@ func _input(event: InputEvent) -> void:
 	elif event is InputEventJoypadMotion and absf(event.axis_value) > 0.5:
 		_pointer = false
 	# Wheel works over the inspected icon as well as inside the card; no pointer chase is needed.
-	if visible and event is InputEventMouseButton and event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
-		var hovered := get_viewport().gui_get_hovered_control()
-		var over_card := hovered != null and (hovered == self or is_ancestor_of(hovered))
-		var over_source := hovered != null and is_instance_valid(_source) and (hovered == _source or _source.is_ancestor_of(hovered))
-		# Expanded details deliberately own the wheel over their source, even inside a menu.
-		# Collapsed cards leave normal Actions/Supplies list navigation alone.
-		var parent := hovered
-		while over_source and not expanded and parent != null:
-			if parent is ScrollContainer:
-				over_source = false
-			parent = parent.get_parent_control()
-		if over_card or over_source:
+	if event is InputEventMouseButton and event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
+		if claims_wheel(get_viewport().gui_get_hovered_control()):
 			_scroll.scroll_vertical += (-1 if event.button_index == MOUSE_BUTTON_WHEEL_UP else 1) * 72
 			get_viewport().set_input_as_handled()
 	if visible and not _pointer and event is InputEventKey and event.pressed and event.physical_keycode in [KEY_PAGEUP, KEY_PAGEDOWN]:
 		_scroll.scroll_vertical += (-1 if event.physical_keycode == KEY_PAGEUP else 1) * maxi(72, int(_scroll.size.y * 0.8))
 		get_viewport().set_input_as_handled()
+
+## The single wheel rule for a battle: does a wheel event over [param hovered] scroll this card?
+## Yes over the card itself; over its current source while expanded (even a button inside a list);
+## and over a collapsed source that is not inside a scrolling list (enemy bodies, intent icons).
+## Otherwise Actions/Supplies keep their own list wheel. Every wheel handler asks here, so one
+## event moves one pane regardless of which handler the scene tree calls first.
+func claims_wheel(hovered: Control) -> bool:
+	if not visible or hovered == null:
+		return false
+	if hovered == self or is_ancestor_of(hovered):
+		return true
+	if not is_instance_valid(_source) or (hovered != _source and not _source.is_ancestor_of(hovered)):
+		return false
+	if expanded:
+		return true
+	var parent := hovered
+	while parent != null:
+		if parent is ScrollContainer:
+			return false
+		parent = parent.get_parent_control()
+	return true
+
+## Deliberate keyboard/controller navigation selects focus inspection (or the reviewed target).
+## Pointer motion or a click selects pointer inspection again. Modifier keys never switch it.
+func follow_keyboard() -> void:
+	_pointer = false
+
+func follows_pointer() -> bool:
+	return _pointer
 
 func clear() -> void:
 	visible = false
@@ -107,16 +123,14 @@ func _process(delta: float) -> void:
 		_render_content(_shown, _payload)
 		# Explain fields inside the card in its own footer, without opening a nested popup.
 		if _card.visible:
-			var point := _card.get_global_transform_with_canvas().affine_inverse() * _pointer_position
-			var fact := _card.field_tooltip(point)
+			var fact := _card.field_tooltip(_local_point(_card))
 			if not fact.is_empty():
-				var plain := RegEx.create_from_string("\\[[^\\]]*\\]").sub(fact, "", true)
 				_hint.visible = true
-				_hint.text = plain.replace("\n", " · ")
+				_hint.text = UITheme.plain_text(fact).replace("\n", " · ")
 		elif _unit_card.visible:
 			var field := source
 			while field != null and field != self:
-				var fact := field.get_tooltip(field.get_global_transform_with_canvas().affine_inverse() * _pointer_position)
+				var fact := field.get_tooltip(_local_point(field))
 				if not fact.is_empty():
 					_hint.visible = true
 					_hint.text = fact.replace("\n", " · ")
@@ -130,7 +144,7 @@ func _process(delta: float) -> void:
 	var enemy := false
 	var payload: RefCounted
 	while not outside and source != null and content.is_empty():
-		var point := source.get_global_transform_with_canvas().affine_inverse() * _pointer_position if _pointer else source.size * 0.5
+		var point := _local_point(source) if _pointer else source.size * 0.5
 		content = source.get_tooltip(point)
 		if not content.is_empty():
 			enemy = bool(source.get_meta(&"enemy_inspection", false))
@@ -166,22 +180,17 @@ func _render_content(content: String, payload: RefCounted) -> void:
 	_card.visible = payload is ActionReadout or payload is IntentReadout
 	_unit_card.visible = payload is UnitReadout
 	if payload != null:
-		var target_count := 1
-		var payload_height := 0
 		if payload is ActionReadout:
 			_card.show_readout(payload)
-			target_count = payload.targets.size()
-			payload_height = 38 if not payload.statuses.is_empty() else 0
 			_text.text = PreviewPanel.describe_details(payload) if expanded else ""
 		elif payload is IntentReadout:
 			_card.show_intent(payload)
-			target_count = payload.target_uids.size()
-			payload_height = (38 if not payload.statuses.is_empty() else 0) + (38 if payload.targets_party or payload.is_channel else 0)
 			_text.text = PreviewPanel.intent_details(payload) if expanded else ""
 		elif payload is UnitReadout:
 			_unit_card.show_readout(payload, expanded)
 			_text.text = ""
-		_card.custom_minimum_size.y = PreviewPanel.intent_height(payload) if payload is IntentReadout else PreviewPanel.action_height(payload) if payload is ActionReadout else 80 + (UITheme.secondary_size() + 12) * maxi(1, target_count) + payload_height
+		if _card.visible:
+			_card.custom_minimum_size.y = PreviewPanel.card_height(payload)
 		_text.visible = expanded and not payload is UnitReadout
 	else:
 		_text.visible = true
@@ -206,6 +215,10 @@ func _update_hint() -> void:
 	_hint.text = " · ".join(parts)
 	_hint.visible = not _hint.text.is_empty()
 
+## The pointer in [param control]'s own coordinates, through any content scale (82% cards).
+func _local_point(control: Control) -> Vector2:
+	return control.get_global_transform_with_canvas().affine_inverse() * _pointer_position
+
 func _styled(content: String, accent: Color) -> String:
 	var lines := content.split("\n", true, 1)
 	return "[color=%s][b]%s[/b][/color]%s" % [UITheme.hex(accent), lines[0], "\n" + lines[1] if lines.size() > 1 else ""]
@@ -218,9 +231,8 @@ func _bounds() -> Rect2:
 func _fit(content: String, payload: RefCounted = null) -> void:
 	var bounds := _bounds()
 	var width := minf(560 * UITheme.text_scale(), minf(bounds.size.x * 0.46, get_viewport_rect().size.x - 24))
-	var plain := RegEx.create_from_string("\\[[^\\]]*\\]").sub(content, "", true)
 	var lines := 0
-	for line in plain.split("\n"):
+	for line in UITheme.plain_text(content).split("\n"):
 		lines += maxi(1, ceili(get_theme_default_font().get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, UITheme.secondary_size()).x / maxf(60, width - 42)))
 	var height := lines * (UITheme.secondary_size() + 5) + 70.0
 	if payload != null:

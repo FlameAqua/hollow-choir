@@ -52,7 +52,7 @@ static func affinity_known(ctx: BattleContext, target: BattleUnit, damage_type: 
 		return true
 	if target.revealed_affinities.has(damage_type):
 		return true
-	return ResearchRules.detail_level(ctx, target) >= Enums.ResearchLevel.STUDIED
+	return ResearchRules.affinities_known(ResearchRules.detail_level(ctx, target))
 
 
 static func _heal_estimate(ctx: BattleContext, actor: BattleUnit, action: ActionDefinition,

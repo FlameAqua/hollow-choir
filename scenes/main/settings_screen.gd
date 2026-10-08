@@ -17,6 +17,7 @@ var _first_control: Control
 
 
 func _ready() -> void:
+	AudioManager.request_music(&"global_title")
 	var background := ColorRect.new()
 	background.color = UITheme.BG
 	add_child(background)

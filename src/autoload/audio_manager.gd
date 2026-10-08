@@ -1,5 +1,6 @@
 extends Node
-## Plays short sound cues through a small player pool on the SFX bus. Every battle mechanic maps to
+## Plays music playlists through two streaming decks and short cues through a pool on the SFX bus.
+## Every battle mechanic maps to
 ## a cue (GDD: "Every battle mechanic must have audiovisual feedback"). Placeholder sounds are
 ## synthesised by tools/generate_placeholder_sfx.py and live in assets/audio/sfx/.
 
@@ -17,11 +18,15 @@ const SFX_DIR := "res://assets/audio/sfx/"
 var _players: Array[AudioStreamPlayer] = []
 var _streams: Dictionary[int, AudioStream] = {}
 var _next := 0
+var music: MusicMixer
 
 
 func _ready() -> void:
 	_ensure_bus(BUS_MUSIC)
 	_ensure_bus(BUS_SFX)
+	music = MusicMixer.new()
+	music.library = load("res://assets/audio/music/runtime_library.tres")
+	add_child(music)
 	for i in POOL_SIZE:
 		var player := AudioStreamPlayer.new()
 		player.bus = BUS_SFX
@@ -53,6 +58,17 @@ func set_bus_volume(bus: StringName, linear: float) -> void:
 		return
 	AudioServer.set_bus_mute(index, linear <= 0.001)
 	AudioServer.set_bus_volume_db(index, linear_to_db(maxf(linear, 0.001)))
+
+
+func request_music(cue_id: StringName, tone: StringName = &"base") -> void:
+	music.request(cue_id, tone)
+
+
+func battle_music(setup: BattleSetup) -> StringName:
+	for enemy in setup.enemies:
+		if enemy.id == &"mirebell_cantor":
+			return &"briarfen_boss_mirebell"
+	return &"briarfen_battle"
 
 
 func _ensure_bus(bus: StringName) -> void:

@@ -4,21 +4,14 @@ extends Control
 signal hovered(enemy_uid: int)
 signal clicked(enemy_uid: int)
 enum State { WAITING = 0, PLANNED = 1, ACTED = 2, BROKEN = 3, DEFEATED = 4 }
-enum Mode { FULL = 0, COMPACT = 1, LINE = 2 }
 var enemy_uid := -1
 var slot_number := 0
 var enemy_name := ""
 var state: State = State.WAITING
-var mode: Mode = Mode.FULL
 var readout: IntentReadout
-var stats: PresentationLedger.UnitDisplay
 var engine: BattleEngine
 var use_art := true
 var _regions: Array[Dictionary] = []
-var selected := false:
-	set(value):
-		selected = value
-		queue_redraw()
 
 func _init(uid: int = -1, number: int = 0, title: String = "") -> void:
 	enemy_uid = uid
@@ -50,10 +43,6 @@ func show_state(value: State) -> void:
 	state = value
 	if state != State.PLANNED:
 		readout = null
-	queue_redraw()
-
-func show_stats(value: PresentationLedger.UnitDisplay) -> void:
-	stats = value
 	queue_redraw()
 
 func plain_text() -> String:

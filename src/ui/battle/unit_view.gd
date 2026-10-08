@@ -1,9 +1,9 @@
 class_name UnitView
 extends Control
 ## Stage view of one BattleUnit: its idle sprite (or the placeholder silhouette when it has no art),
-## shared presentation transforms (lunge, hit, windup, fall), and a nameplate with the slot number,
-## HP, Stagger remaining and status icons. Everything shown comes from the PresentationLedger, so
-## nothing appears before the event that caused it (D-013, M1.1 F3). Read-only on the unit.
+## shared presentation transforms (lunge, hit, windup, fall), and a compact plate with textured
+## HP/break tracks, HP digits and status icons. Everything shown comes from the PresentationLedger,
+## so nothing appears before the event that caused it (D-013, M1.1 F3). Read-only on the unit.
 ##
 ## Art (M1.1 F5): CombatantDefinition.sprite_frames is optional. The `idle` animation's first frame
 ## is drawn at the SpriteFrames' `display_height` metadata (art pixels → screen pixels), scaled down
@@ -47,20 +47,16 @@ const SHAPES := {
 var uid: int = -1
 var unit: BattleUnit
 var ledger: PresentationLedger
-## 1-based intent-rail slot for enemies (0 = none). Shown on the nameplate.
-var slot: int = 0
+## Selection brackets (action or reaction targets).
 var highlighted: bool = false:
 	set(value):
 		highlighted = value
 		queue_redraw()
-## Word shown with the selection bracket ("TARGET", "TARGETED").
-var highlight_label: String = "TARGET"
+## Dim brackets on the acting unit.
 var active: bool = false:
 	set(value):
 		active = value
 		queue_redraw()
-## Word shown under an active party member ("YOUR TURN") — empty for enemies.
-var active_label: String = ""
 ## 0..1 hit flash (reduced flashing uses a dark tint instead).
 var flash: float = 0.0:
 	set(value):
@@ -86,11 +82,6 @@ var reduce_flashing: bool = false
 var reduce_motion: bool = false
 ## Disables real art (tests: art must never change combat results or targeting).
 var use_sprites: bool = true
-## Optional plate toggle retained for callers. The current layout always shows icon/number stats.
-var show_plate: bool = true:
-	set(value):
-		show_plate = value
-		fit(_shrink, _plate_width)
 
 var detail_provider: Callable
 var readout_provider: Callable
@@ -107,7 +98,7 @@ var _plate_width: float = 150.0
 var _shrink: float = 1.0
 
 
-func setup(battle_unit: BattleUnit, p_ledger: PresentationLedger, p_slot: int = 0) -> void:
+func setup(battle_unit: BattleUnit, p_ledger: PresentationLedger) -> void:
 	unit = battle_unit
 	set_meta(&"enemy_inspection", unit.is_enemy())
 	set_meta(&"inspection_unit", func(point: Vector2) -> UnitReadout:
@@ -117,7 +108,6 @@ func setup(battle_unit: BattleUnit, p_ledger: PresentationLedger, p_slot: int = 
 		return readout_provider.call(uid) if readout_provider.is_valid() else null)
 	uid = battle_unit.uid
 	ledger = p_ledger
-	slot = p_slot
 	_load_art()
 	displayed_hp = battle_unit.hp
 	displayed_stagger = battle_unit.stagger
@@ -136,10 +126,6 @@ func natural_height() -> float:
 	return _natural_size.y
 
 
-func has_sprite() -> bool:
-	return _texture != null
-
-
 ## Resizes the view for the stage: [param shrink] (≤ 1) scales the sprite, [param plate_width] the
 ## nameplate. The nameplate never shrinks its text.
 func fit(shrink: float, plate_width: float) -> void:
@@ -147,26 +133,19 @@ func fit(shrink: float, plate_width: float) -> void:
 	_plate_width = plate_width
 	_sprite_size = (_natural_size * clampf(shrink, 0.1, 1.0)).round()
 	# Draw wide art beyond its lane; pixels must not enlarge/overlap input targets.
-	custom_minimum_size = Vector2(_plate_width if show_plate else _sprite_size.x, _sprite_size.y + plate_height())
+	custom_minimum_size = Vector2(_plate_width, _sprite_size.y + plate_height())
 	size = custom_minimum_size
 	queue_redraw()
 
 
 ## Constant for a given text size, so selecting, hitting or adding a status never moves the sprite.
 func plate_height() -> float:
-	var line := float(UITheme.secondary_size()) + 4.0
-	if not show_plate:
-		return line + 4.0
-	return maxf(line + 24.0, 52.0)
+	return maxf(float(UITheme.secondary_size()) + 28.0, 52.0)
 
 
 ## Point where effects / floating text should appear (above the sprite).
 func anchor_top() -> Vector2:
 	return global_position + Vector2(size.x * 0.5, 0.0)
-
-
-func anchor_center() -> Vector2:
-	return global_position + Vector2(size.x * 0.5, _sprite_size.y * 0.55)
 
 
 ## Global rect of the body (sprite area): selection and reaction rings centre on it.
@@ -261,10 +240,7 @@ func _draw() -> void:
 			_draw_tag(Vector2(size.x * 0.5, state_y), "BROKEN", UITheme.STAGGER, small)
 		else:
 			CombatIcons.paint(self, "state_broken", Rect2(size.x * 0.5 - 16, sprite_origin.y + _sprite_size.y - 34, 32, 32), UITheme.STAGGER)
-	if show_plate:
-		_draw_plate(Vector2(0.0, _sprite_size.y + 4.0), display, broken)
-	else:
-		_draw_badge(Vector2(size.x * 0.5, _sprite_size.y + 4.0))
+	_draw_plate(Vector2(0.0, _sprite_size.y + 4.0), display, broken)
 	# Brackets carry selection; turn order carries the active turn. No repeated text over sprites.
 
 
@@ -381,17 +357,6 @@ func _draw_plate(origin: Vector2, display: PresentationLedger.UnitDisplay, broke
 			_draw_effects(Vector2(effect_x, y), remaining, display)
 	else:
 		_draw_effects(Vector2(x, origin.y - small - 10), inner, display)
-
-
-## Plate hidden (large text): just the slot number (enemies) or the name, matching the rail.
-func _draw_badge(at: Vector2) -> void:
-	var small := UITheme.secondary_size()
-	var text := "%02d" % slot if slot > 0 else unit.display_name
-	var width := _text_width(text, small) + 12.0
-	var rect := Rect2(at.x - width * 0.5, at.y, width, small + 4.0)
-	draw_rect(rect, Color(UITheme.PANEL, 0.9))
-	draw_rect(rect, UITheme.ACCENT if highlighted else UITheme.BORDER, false, 1.0)
-	draw_string(_font, Vector2(rect.position.x + 6.0, rect.end.y - 4.0), text, HORIZONTAL_ALIGNMENT_LEFT, -1, small, UITheme.TEXT)
 
 
 ## Status icons with their remaining turns first (the dangerous information), then stance and

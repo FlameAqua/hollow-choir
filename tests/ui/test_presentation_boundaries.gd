@@ -192,8 +192,7 @@ func test_target_review_does_not_pin_a_popup_over_controls() -> void:
 	potion.pressed.emit()
 	await _frames(3)
 	assert_true(scene._picker.is_targeting())
-	assert_true(scene._inspector.pinned_text.is_empty(), "target facts stay in the dock instead of pinning a popup")
-	assert_false(scene._inspector.visible, "target review alone opens no hover card")
+	assert_false(scene._inspector.visible, "target review alone pins no popup; its facts stay in the dock")
 	var other := -1
 	for uid in scene._picker._targets:
 		if uid != scene._picker._targets[scene._picker._target_index]:
@@ -202,6 +201,24 @@ func test_target_review_does_not_pin_a_popup_over_controls() -> void:
 	await _frames(2)
 	assert_false(scene._picker.is_targeting(), "a click on the other ally selects it")
 	assert_eq(int(scene.engine.input_log[-1].target), other)
+	scene.queue_free()
+
+
+## The hovered card re-renders when a presented event changes only a fact it shows (here, cover).
+func test_hovered_unit_card_follows_presented_cover() -> void:
+	Engine.time_scale = 20.0
+	var scene := _battle(_setup(&"fen_patrol"), false, Enums.SimulatedExecution.GOOD)
+	assert_true(await _until(func() -> bool: return scene._picker.is_active()))
+	Engine.time_scale = 1.0
+	var party := scene.engine.get_state().party()
+	_hover(scene._battlefield.body_point(party[0].uid))
+	await _frames(10)
+	var card: UnitInspectionCard = scene._inspector._unit_card
+	assert_true(card.visible, "hovering an ally shows its structured card")
+	assert_false("\n".join(card.readout.notes).contains("Covered"))
+	await _present(scene, BattleEvent.new(BattleEvent.Type.COVER_STARTED, party[1].uid, party[0].uid))
+	await _frames(10)
+	assert_true("\n".join(card.readout.notes).contains("Covered by " + party[1].display_name), "the open card shows the cover that just played")
 	scene.queue_free()
 
 
@@ -250,6 +267,29 @@ func test_host_setup_covers_only_a_paused_battle() -> void:
 	sandbox.queue_free()
 
 
+## Setup covers the battle completely: in-flight feedback on raised layers cannot draw over it.
+func test_setup_hides_residual_battle_layers_until_resume() -> void:
+	var sandbox: CombatSandbox = load(SANDBOX_SCENE).instantiate()
+	_tree.root.add_child(sandbox)
+	sandbox.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	sandbox.size = Vector2(1280, 720)
+	await _frames(2)
+	Engine.time_scale = 20.0
+	var battle := _sandbox_battle(sandbox, false)
+	assert_true(await _until(func() -> bool: return battle._picker.is_active()))
+	Engine.time_scale = 1.0
+	var feedback := FloatingText.spawn(battle._overlay, Vector2(400, 300), "Evaded", UITheme.TEXT)
+	sandbox._toggle_setup()
+	await _frames(2)
+	assert_true(sandbox._setup.visible)
+	assert_false(feedback.is_visible_in_tree(), "frozen battle feedback never draws over Setup")
+	sandbox._show_setup(false)
+	await _frames(1)
+	assert_true(battle.is_visible_in_tree(), "closing Setup shows the battle again")
+	assert_false(battle.is_paused())
+	sandbox.queue_free()
+
+
 func test_inspector_reads_only_its_own_battle() -> void:
 	var battle := Control.new()
 	var outside := Button.new()
@@ -261,15 +301,14 @@ func test_inspector_reads_only_its_own_battle() -> void:
 	var inside := Button.new()
 	inside.tooltip_text = "Battle control"
 	battle.add_child(inside)
-	inspector.pinned_text = "Pinned target"
-	inspector._pointer = false
+	inspector.follow_keyboard()
 	inside.grab_focus()
 	inspector._process(0.2)
 	assert_eq(inspector.shown_text(), "Battle control")
 	outside.grab_focus()
 	inspector._process(0.2)
 	inspector._process(0.2)
-	assert_false(inspector.visible, "a host control's tooltip or the pinned card never shows over another screen")
+	assert_false(inspector.visible, "a host control's tooltip never shows over another screen")
 	battle.queue_free()
 	outside.queue_free()
 
@@ -380,7 +419,7 @@ func test_corpse_and_state_fallbacks_draw_in_the_same_lane() -> void:
 			ledger.snapshot(engine)
 			var view := UnitView.new()
 			view.use_sprites = variant != "art off"
-			view.setup(unit, ledger, 1)
+			view.setup(unit, ledger)
 			canvas.add_child(view)
 			var lane := view.size
 			ledger.unit(unit.uid).broken = true
@@ -464,6 +503,14 @@ func _button(scene: BattleScene, wanted: Callable) -> Button:
 		if wanted.call(button.get_meta(&"option")):
 			return button
 	return null
+
+
+func _hover(at: Vector2) -> void:
+	var motion := InputEventMouseMotion.new()
+	motion.position = at
+	motion.global_position = at
+	motion.relative = Vector2(2, 0)
+	_tree.root.push_input(motion, true)
 
 
 func _click(at: Vector2) -> void:

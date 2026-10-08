@@ -2,47 +2,60 @@
 
 A 2D top-down pixel-art RPG with **reactive turn-based combat**: read every enemy's intent, choose a
 tactical action, then execute it with a short timing command and defend with Brace / Evade / Parry
-in real time. Design canon lives in [`DESIGN_DOCUMENT.md`](DESIGN_DOCUMENT.md).
+in real time. Design canon lives in [`docs/DESIGN_DOCUMENT.md`](docs/DESIGN_DOCUMENT.md).
 
-**Milestone 1 — Combat Foundation** (this branch) covers the roadmap's *Foundation*, *Combat toy* and
-*Combat ecosystem* phases: a deterministic battle engine, data-driven content, utility AI with three
-tactical difficulties, four execution assists, a playable battle UI, the CombatSandbox and headless
-balance simulation. The overworld, hub, quests and progression UIs are later milestones.
+**Version 0.3.0** ([release notes](docs/RELEASE_NOTES.md)). The playable build is the combat
+foundation: a deterministic battle engine, data-driven content, utility AI with three tactical
+difficulties, four execution assists, the V0.2 combat UI, Practice/Lab and headless balance
+simulation, a saved-knowledge Field Guide and randomized music playlists. The M1.1 human clarity
+gate (fresh-player READ/REACT sessions) is still open. The
+overworld, hub, quests and progression UIs are later milestones.
 
 ## Running it
 
 Requires **Godot 4.7.2** (standard build; no addons, no C#).
 
 1. Open the folder in the Godot editor (or run the executable with `--path <repo>`); press **Play**.
-2. Main menu → **Combat Sandbox**: pick a preset encounter or build one, choose loadout, conditions,
-   difficulty, assist and execution mode, then **Start battle**. **Restart** is instant; **Simulate**
-   runs the same setup 10–500 times and shows a balance report.
-3. **Settings** has Tactical Difficulty and Execution Assist (independent, changeable any time),
-   accessibility options, volumes and rebinding.
+2. Title → **Combat Sandbox**. **Practice** offers curated encounters with fixed, honest rules.
+   **Lab** builds any fight (enemies, conditions, equipment, knowledge, simulated execution,
+   autopilot) and **Simulate** runs it 10–500 times. Inside a battle, **Setup** returns to these
+   pages and **Restart** replays the fight.
+3. **Settings** covers Tactical Difficulty and Execution Assist (independent, changeable any time),
+   window size, text size (75–200%), accessibility options, volumes and rebinding.
+4. **Field Guide** shows saved species research and weapon practice. Practice remains unrecorded;
+   use Lab's **Record progress** opt-in to populate the guide. Opening it never grants progress.
 
 ### Default controls
 
 | Action | Keyboard | Gamepad |
 |---|---|---|
-| Menus / targets | Arrows, Enter or Z confirm, Escape or X back | D-pad, A / B |
+| Menus / targets | Arrows; Enter confirms; Escape, X or Backspace go back | D-pad; A confirms, B goes back |
 | Action command | Space or Z | A / X |
 | Brace · Evade · Parry | A · S · D | LB · X · RB |
-| Analysis details (hold) | Alt | Y |
+| Details (hold by default; Toggle/Always in Settings) | Alt | Y |
 | Battle log · Pause | Tab · Escape | Back · Start |
 
-During an enemy attack a ring shrinks onto its target: press a reaction as it lands. The first
-allowed key locks your choice; crossed-out reactions are unavailable for that move.
+Hover or focus anything for an immediate explanation in one contextual card; hold Details to
+expand it. A targeted action always asks for its recipient: click it or press Confirm, or go back
+without spending anything. Before each manual command or reaction, its real meter or ring appears
+for a short, motionless preparation beat. During an enemy attack a ring shrinks onto its target:
+press a reaction as it lands. The first allowed key locks your choice, and crossed-out reactions
+are unavailable for that move. Saved custom bindings always take precedence over these defaults.
 
 ## Development
 
 ```sh
 godot --headless --path . --import                                     # once per fresh checkout
-godot --headless --path . --script res://tests/run_tests.gd            # 120 tests, ~15 s
 godot --headless --path . --script res://tools/check_scripts.gd        # compile every script
-godot --headless --path . --script res://tools/simulate.gd -- --encounter=all --exec=MISS,GOOD,PERFECT,MIXED --runs=100
+godot --headless --path . --script res://tests/run_tests.gd            # full suite, ~40 s
+godot --headless --path . --script res://tools/simulate.gd -- --encounter=all --exec=MIXED --runs=10 --seed=1
 ```
 
-CI (`.github/workflows/ci.yml`) runs the same steps on every push. Details: [`docs/TESTING.md`](docs/TESTING.md).
+On a development machine, run tests and captures through `python tools/qa_godot.py …` (same Godot
+arguments). It gives each run a throwaway user-data home, so your own settings, saves and Lab
+choices neither affect results nor get overwritten. CI (`.github/workflows/ci.yml`) runs the
+import, script check, full suite and simulation smoke run on every push. Details, the suite map,
+rendered captures and the manual checklist: [`docs/TESTING.md`](docs/TESTING.md).
 
 ### Layout
 
@@ -54,42 +67,67 @@ src/battle/      pure, deterministic combat: engine, rules, AI, previews, simula
 src/progression/ save-facing progress models (bestiary, mastery, loadout)
 src/save/        save migration
 src/autoload/    EventBus, Database, AudioManager, Settings, GameState, SaveManager, SceneRouter
-src/ui/          theme and battle widgets (presenter pieces, command and reaction widgets)
-scenes/          battle scene, CombatSandbox, main menu, settings (thin roots; UI built in code)
+src/audio/       typed playlists and two-deck, real-time music mixer
+src/ui/          theme and battle presentation (readouts, ledger, inspector, cards, timing widgets)
+scenes/          battle scene, CombatSandbox (Practice/Lab), main menu, settings (UI built in code)
 tests/           headless test runner, fixtures, unit / content / UI suites
-tools/           simulation CLI, script compile check, placeholder SFX generator
-docs/            proposal, decision log, data contracts, testing, design questions, reports
+tools/           script check, simulation CLI, QA launcher, capture tool, placeholder SFX generator
+docs/            design document, decision log, contracts, briefs, reports, release notes
+assets/          art (by purpose and region) and audio (see the audio contract)
 ```
 
 ### Documents
 
-- [`docs/design/M1_1_COMBAT_CLARITY.md`](docs/design/M1_1_COMBAT_CLARITY.md) — core combat clarity contract; layout revised by the icon-first UI contract
-- [`docs/design/visuals/combat_study.html`](docs/design/visuals/combat_study.html) — local three-state UI study (illustrative, not a game build)
-- [`docs/art/briarfen_v01/README.md`](docs/art/briarfen_v01/README.md) — v01 source provenance and individual idle packaging
-- [`assets/art/STYLE_GUIDE.md`](assets/art/STYLE_GUIDE.md) — canonical materials, silhouettes, pixel targets and accessible UI conventions
-- [`docs/art/briarfen_v02/README.md`](docs/art/briarfen_v02/README.md) — integrated existing-enemy art and shared combat textures
-- [`docs/briefs/BRIARFEN_V02_ART_INTEGRATION.md`](docs/briefs/BRIARFEN_V02_ART_INTEGRATION.md) — bounded art resource and UI texture handoff
-- [`docs/reviews/M1_DIRECTOR_REVIEW.md`](docs/reviews/M1_DIRECTOR_REVIEW.md) — pillar review, source findings and validation limits
-- [`docs/briefs/M1_1_IMPLEMENTATION.md`](docs/briefs/M1_1_IMPLEMENTATION.md) — bounded Claude handoff
+Current authority (read first):
 
-- [`docs/proposals/M1_COMBAT_FOUNDATION.md`](docs/proposals/M1_COMBAT_FOUNDATION.md) — technical proposal
-- [`docs/reports/M1_COMBAT_FOUNDATION.md`](docs/reports/M1_COMBAT_FOUNDATION.md) — feature report (files, API, save impact, limitations)
-- [`docs/DATA_CONTRACTS.md`](docs/DATA_CONTRACTS.md) — every Resource, the rules vocabulary, how to add content
-- [`docs/DECISION_LOG.md`](docs/DECISION_LOG.md) — irreversible decisions and why
-- [`docs/DESIGN_QUESTIONS.md`](docs/DESIGN_QUESTIONS.md) — open questions for the Director, with simulation evidence
-- [`docs/TESTING.md`](docs/TESTING.md) — suites, simulation CLI, manual acceptance checklist
+- [`docs/DESIGN_DOCUMENT.md`](docs/DESIGN_DOCUMENT.md) — canonical GDD; its opening sections list current authority
+- [`docs/design/V02_UI_INTERACTION.md`](docs/design/V02_UI_INTERACTION.md), [`V02_UI_FOLLOWUP.md`](docs/design/V02_UI_FOLLOWUP.md),
+  [`V02_SUPPORT_PRESENTATION.md`](docs/design/V02_SUPPORT_PRESENTATION.md) and
+  [`V02_PRE_PUSH_POLISH.md`](docs/design/V02_PRE_PUSH_POLISH.md) — current combat UI contracts
+- [`docs/DATA_CONTRACTS.md`](docs/DATA_CONTRACTS.md) — every Resource, the rules vocabulary, presentation data, save formats
+- [`docs/DECISION_LOG.md`](docs/DECISION_LOG.md) — decisions and why
+- [`docs/TESTING.md`](docs/TESTING.md) — suites, simulation CLI, QA launcher, captures, manual checklist
+- [`assets/art/STYLE_GUIDE.md`](assets/art/STYLE_GUIDE.md) and [`assets/audio/AUDIO_CONTRACT.md`](assets/audio/AUDIO_CONTRACT.md) — art and audio contracts
+- [`docs/reports/V0_2_1_ENGINEERING_CLEANUP.md`](docs/reports/V0_2_1_ENGINEERING_CLEANUP.md) — latest engineering report
+- [`docs/design/V03_FIELD_GUIDE_AND_AUDIO.md`](docs/design/V03_FIELD_GUIDE_AND_AUDIO.md) and
+  [`docs/reports/V0_3_FIELD_GUIDE_AND_AUDIO.md`](docs/reports/V0_3_FIELD_GUIDE_AND_AUDIO.md) — V0.3 scope and evidence
+
+History and preparation:
+
+- [`docs/design/M1_1_COMBAT_CLARITY.md`](docs/design/M1_1_COMBAT_CLARITY.md) — core combat clarity contract (layout superseded by the V0.2 contracts)
+- [`docs/reports/v02_ui/README.md`](docs/reports/v02_ui/README.md) — V0.2 UI evidence and captures
+- [`docs/reports/M1_1_ENGINEERING_REVIEW_2026_10_08.md`](docs/reports/M1_1_ENGINEERING_REVIEW_2026_10_08.md) — M1.1 engineering review
+- [`docs/reviews/M1_DIRECTOR_REVIEW.md`](docs/reviews/M1_DIRECTOR_REVIEW.md) — pillar review, source findings and validation limits
+- [`docs/playtests/M1_1_SESSION_PACK.md`](docs/playtests/M1_1_SESSION_PACK.md) — human playtest protocol (blank sheets are intentional)
+- [`docs/proposals/M1_COMBAT_FOUNDATION.md`](docs/proposals/M1_COMBAT_FOUNDATION.md) and [`docs/reports/M1_COMBAT_FOUNDATION.md`](docs/reports/M1_COMBAT_FOUNDATION.md) — original M1 proposal and report
+- [`docs/DESIGN_QUESTIONS.md`](docs/DESIGN_QUESTIONS.md) — resolved M1 questions with simulation evidence
+- Art provenance: [`docs/art/briarfen_v01/README.md`](docs/art/briarfen_v01/README.md),
+  [`docs/art/briarfen_v02/README.md`](docs/art/briarfen_v02/README.md), [`docs/art/CINDER_PUP_V01.md`](docs/art/CINDER_PUP_V01.md)
 
 ### Roles
 
-Per the GDD collaboration table, ChatGPT is Game Director (design, balance models, UX specs, scope) and
-Claude is Lead Gameplay Engineer (architecture, implementation, tests, tools). All M1 content numbers
-are **provisional** and live in data so the Director can retune them without code changes.
+ChatGPT is Game Director and owns UI/UX direction, art consistency and UI integration. Claude is
+Lead Gameplay Engineer and owns combat architecture, deterministic rules, the presentation-ledger
+contract, tools and tests. Agent prompts: [`docs/CHATGPT_PROMPT.md`](docs/CHATGPT_PROMPT.md),
+[`docs/CLAUDE_PROMPT.md`](docs/CLAUDE_PROMPT.md). All content numbers are **provisional** and live
+in data, so the Director can retune them without code changes.
 
-Current UI: [icon-first contract](docs/design/ICON_FIRST_COMBAT_UI.md), [runtime review](docs/reports/ui_refresh/README.md), [art library](assets/art/README.md).
-
-## Art and audio preparation
+## Art and audio
 
 [Shared frame/backdrop direction](docs/design/ENVIRONMENT_FRAME_ART.md),
 [music folder contract](assets/audio/AUDIO_CONTRACT.md), and
-[Suno requests](docs/audio/SUNO_REQUESTS.md) cover the latest asset preparation.
-Runtime assignment/music playback remain separate from this delivery.
+[Suno requests](docs/audio/SUNO_REQUESTS.md) describe the asset pipeline. All six supplied songs are
+approved by Adrian and integrated: two base versions each for title, Briarfen battle and Mirebell
+boss, plus a v01 intense battle mix. **Audio Lab** on the title lets you select songs, versions,
+tones at the current timestamp, seek by clicking/dragging the playhead, and preview endings with
+a countdown before automatic rotation. Next version starts another mix from zero.
+Versions shuffle without immediate repeats and overlap at their endings; scene changes crossfade.
+Same-cue restarts preserve playback. Music and SFX retain separate volume/mute controls.
+
+Import one or more files with `python tools/import_music.py "path/to/file.m4a" "path/to/other.m4a"`.
+It normalizes names, preserves external originals and rebuilds playlists; `--replace` archives
+previous audio before a deliberate swap. See [music import instructions](docs/audio/MUSIC_IMPORT.md).
+After removing inbox files, run `python tools/prepare_music.py` (Python 3.11+, FFmpeg/FFprobe), then
+let Godot import. Tone groups
+such as `_calm` and `_intense` support future full-mix transitions. Simultaneous synchronized layers
+require aligned arrangements and a later adapter; current tracks have no verified beat alignment.

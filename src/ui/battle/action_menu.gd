@@ -1,7 +1,7 @@
 class_name ActionMenu
 extends PanelContainer
 ## Flat action grid + existing potion slots. Both use the same ActionOption path.
-signal row_focused(option: ActionOption, group: Array)
+signal row_focused(option: ActionOption)
 signal option_chosen(option: ActionOption)
 var supplies: PanelContainer
 var _heading: Label
@@ -13,6 +13,9 @@ var _engine: BattleEngine
 var _unit: BattleUnit
 var _memory: Dictionary[int, int] = {}
 var preview_provider: Callable
+## (hovered: Control) -> bool: another pane owns this wheel event (HoverInspector.claims_wheel).
+## The lists then stay still, so one wheel event never moves two panes.
+var wheel_claimed: Callable
 var _action_scroll: ScrollContainer
 var _supply_scroll: ScrollContainer
 
@@ -54,6 +57,8 @@ func _input(event: InputEvent) -> void:
 	if not visible or not event is InputEventMouseButton or not event.pressed or not event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
 		return
 	var hovered := get_viewport().gui_get_hovered_control()
+	if wheel_claimed.is_valid() and wheel_claimed.call(hovered):
+		return
 	for scroll in [_action_scroll, _supply_scroll]:
 		if scroll != null and scroll.is_visible_in_tree() and hovered != null and (hovered == scroll or scroll.is_ancestor_of(hovered)):
 			scroll.scroll_vertical += (-1 if event.button_index == MOUSE_BUTTON_WHEEL_UP else 1) * 64
@@ -72,12 +77,6 @@ func show_options(unit: BattleUnit, options: Array[ActionOption], engine: Battle
 func hide_menu() -> void:
 	visible = false
 
-func in_group() -> bool:
-	return false
-
-func back() -> bool:
-	return false
-
 func refocus() -> void:
 	focus_index(_memory.get(_unit.uid, 0))
 
@@ -91,12 +90,6 @@ func focus_option(option: ActionOption) -> void:
 func focus_index(index: int) -> void:
 	if not _buttons.is_empty() and visible:
 		_buttons[clampi(index, 0, _buttons.size() - 1)].grab_focus()
-
-func row_texts() -> PackedStringArray:
-	var result := PackedStringArray()
-	for button in _buttons:
-		result.append(str(button.get_meta(&"text", "")))
-	return result
 
 func _rebuild() -> void:
 	_list.columns = 3 if UITheme.text_scale() >= 1.5 else 2
@@ -141,7 +134,6 @@ func _option_button(option: ActionOption) -> Button:
 			return preview_provider.call(option)
 		var target := option.target_uids[0] if not option.target_uids.is_empty() else -1
 		return ActionReadout.build(_engine, _unit.uid, option, target))
-	button.set_meta(&"text", "%s %s" % [label, count])
 	var description := _engine.get_state().potion_slots[option.item_slot].potion.description if item else option.action.description
 	button.tooltip_text = "%s\n%s\n%s" % [label, description, ActionReadout.reason_text(_unit, option) if not option.legal else ("%s charges" % count.trim_prefix("×") if item else "%s Focus" % count)]
 	var row := HBoxContainer.new()
@@ -173,8 +165,8 @@ func _option_button(option: ActionOption) -> Button:
 	_buttons.append(button)
 	button.focus_entered.connect(func() -> void:
 		_memory[_unit.uid] = _buttons.find(button)
-		row_focused.emit(option, []))
+		row_focused.emit(option))
 	# Pointer preview never steals keyboard focus or turns a stray accept into a hovered action.
-	button.mouse_entered.connect(func() -> void: row_focused.emit(option, []))
+	button.mouse_entered.connect(func() -> void: row_focused.emit(option))
 	button.pressed.connect(func() -> void: option_chosen.emit(option))
 	return button

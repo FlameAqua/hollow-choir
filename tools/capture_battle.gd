@@ -1,18 +1,36 @@
 extends SceneTree
-## Renders real screenshots of the running battle UI for visual review (M1.1 visual checks).
-## Needs a display (not --headless). One run captures one state:
+## Renders real screenshots of the running game UI for visual review. Needs a display (not
+## --headless). One run captures one state; run it through tools/qa_godot.py so the capture uses
+## default settings in a throwaway user-data home:
 ##
-##   godot --path . --script res://tools/capture_battle.gd -- --encounter=fen_patrol \
-##       --loadout=starter_sword --size=1280x720 --scale=1.0 --state=planning --out=res://captures/x.png
+##   python tools/qa_godot.py --hidden --rendering-method gl_compatibility \
+##       --script res://tools/capture_battle.gd -- --state=planning --out=res://captures/planning.png
 ##
-## States: planning (first player turn), details (planning with Details on), target (choosing a
-## target), command (an action command running), reaction (a reaction mid wind-up), pause-before
-## (Assisted reaction waiting for Confirm), result (end of an autoplayed battle), practice / lab
-## (the sandbox setup views).
-## Options: --enemies=thornhound,thornhound,… builds a custom encounter; --reduced turns on reduce
-## motion + reduce flashing and turns screen shake off; --assist=ASSISTED; --knowledge=UNDERSTOOD;
-## --seed=N; --no-art disables sprites and the backdrop.
-
+## States:
+##   planning           first player turn          details    planning with Details expanded
+##   target             recipient review (--action=<id>, default the first legal targeted action)
+##   prepare-command    actual attack meter inside the 400 ms preparation beat, held for the shot
+##   prepare-reaction   actual reaction ring/cards inside the preparation beat, held for the shot
+##   command            a running action command   reaction   a reaction just before impact
+##   pause-before       Assisted reaction waiting for Confirm (use --assist=ASSISTED)
+##   result             end of an autoplayed battle
+##   condition-card     compact condition card (--condition=<id>), held
+##   condition-flight   the same card mid-flight to its header icon
+##   opening            first encounter banner held, pointer over an ally (no card may cover it)
+##   opening-condition  the opening's Flooded Ground card held, pointer over an ally
+##   setup / resumed    sandbox Setup covering a paused battle / the battle after closing Setup
+##   practice / lab     the sandbox setup views     settings   the Settings screen (--tab=N)
+##   field-guide / field-guide-empty / weapon-practice   V0.3 save-readout fixtures (no save writes)
+##   audio-lab          intense mix at 45s; --preview-ending or --audio-controls for scrolled controls
+## Planning options: --inspect-action=<id> hovers that action or supply button; --hover=enemy|
+## intent|action|supply hovers a source; --expanded holds Details (Alt).
+## Common options: --size=1280x720, --scale=1.0|1.5|2.0, --encounter=<id>, --loadout=<id>,
+## --enemies=thornhound,thornhound,… (custom encounter, optional --condition=<id>), --reduced
+## (reduce motion + flashing, no shake), --assist=ASSISTED, --knowledge=UNDERSTOOD, --seed=N,
+## --no-art (sprites and backdrop off), --out=res://… or user://… (PNG).
+##
+## These are capture fixtures (see capture_runner.gd): held tweens, frozen clocks and synthetic
+## input make a moment reviewable; they do not measure timing skill or certify input latency.
 
 
 func _initialize() -> void:

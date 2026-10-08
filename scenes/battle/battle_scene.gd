@@ -45,9 +45,6 @@ var _timeline: TimelineBar
 var _battlefield: Battlefield
 var _rail: IntentRail
 var _ribbon: ConditionRibbon
-var _party_panel: PanelContainer
-var _party_box: VBoxContainer
-var _party_cards: Dictionary[int, PartyCard] = {}
 var _menu: ActionMenu
 var _idle: PanelContainer
 var _idle_label: Label
@@ -56,8 +53,6 @@ var _supplies: PanelContainer
 var _inspector: HoverInspector
 var _familiar: FamiliarCard
 var _timed_host: Control
-var _details_panel: DetailsPanel
-var _stack_dim: ColorRect
 var _help: Label
 var _target_prompt: Label
 var _log: BattleLogPanel
@@ -99,6 +94,7 @@ func _ready() -> void:
 ## Begins the battle described by [param p_launch]. Call once per instance.
 func start(p_launch: BattleLaunch) -> void:
 	launch = p_launch
+	AudioManager.request_music(AudioManager.battle_music(launch.setup))
 	engine = BattleEngine.new(launch.setup)
 	var battle_seed := launch.setup.seed
 	_autopilot = PartyAutopilot.new(PartyAutopilot.Policy.SMART, battle_seed + 1)
@@ -116,7 +112,10 @@ func start(p_launch: BattleLaunch) -> void:
 	_rail.battlefield = _battlefield
 	_rail.setup(engine.get_state().enemies(false))
 	for view: UnitView in _battlefield.views.values():
-		view.detail_provider = _unit_tooltip
+		# The card and its change key come from the same filtered, ledger-driven readout.
+		view.detail_provider = func(uid: int) -> String:
+			var readout := _unit_readout(uid)
+			return readout.plain_text() if readout != null else ""
 		view.readout_provider = _unit_readout
 	_timeline.engine = engine
 	_timeline.ledger = _events.ledger
@@ -125,10 +124,8 @@ func start(p_launch: BattleLaunch) -> void:
 	_ribbon.engine = engine
 	_ribbon.ledger = _events.ledger
 	_familiar.setup(engine.get_state().familiar, _events.ledger, use_art)
-	_picker.setup(engine, _menu, _battlefield, _rail, _info)
-	_picker.show_debug = launch.show_ai_reasoning
+	_picker.setup(engine, _menu, _battlefield, _info)
 	_header_title.text = "HOLLOW CHOIR  /  %s" % (launch.setup.label if not launch.setup.label.is_empty() else "Battle")
-	_party_panel.visible = false
 	_apply_settings()
 	_apply_layout()
 	_events.refresh_rail()
@@ -221,7 +218,6 @@ func _safe_point() -> void:
 
 func _answer_select(request: ActionSelectRequest) -> void:
 	var actor := engine.get_unit(request.unit_uid)
-	_set_card_active(request.unit_uid)
 	var choice: ActionChoice
 	if launch.autoplay:
 		_set_idle("%s chooses… (autopilot)" % actor.display_name)
@@ -229,11 +225,9 @@ func _answer_select(request: ActionSelectRequest) -> void:
 		await _events.wait(0.25)
 	else:
 		_show_planning(true)
-		_battlefield.set_active(request.unit_uid, "YOUR TURN")
-		_refresh_details_panel.call_deferred()
+		_battlefield.set_active(request.unit_uid)
 		choice = await _picker.choose(request)
 		_show_planning(false)
-		_refresh_details_panel()
 	if choice == null or engine.submit_action(choice) != OK:
 		push_warning("BattleScene: choice rejected; asking again")
 	_set_idle("%s: %s" % [actor.display_name, BattleKnowledge.action_label(engine, actor, choice.action)] if choice != null else "")
@@ -287,7 +281,7 @@ func _command_title(request: CommandRequest) -> String:
 func _answer_reaction(request: ReactionRequest) -> void:
 	var windup_seconds := request.spec.windup_ms / 1000.0
 	var result: ReactionResult
-	_battlefield.set_highlights(request.target_uids, "TARGETED")
+	_battlefield.set_highlights(request.target_uids)
 	if _executor != null:
 		_events.windup(request.attacker_uid, windup_seconds)
 		await _events.wait(windup_seconds)
@@ -319,14 +313,14 @@ func _answer_reaction(request: ReactionRequest) -> void:
 
 func _reaction_help(spec: ReactionSpec) -> String:
 	var parts := PackedStringArray()
-	if spec.pause_before:
-		parts.append("%s Begin" % InputBindings.prompt(InputBindings.CONFIRM))
 	for reaction: Enums.ReactionType in ReactionReadout.REACTIONS:
 		var name := EnumText.reaction(reaction)
 		var key := InputBindings.prompt(ReactionReadout.KEYS[reaction])
-		parts.append("%s %s" % [key, name] if spec.is_allowed(reaction) else "%s unavailable" % name)
-	parts.append("first allowed press locks")
-	return " · ".join(parts)
+		parts.append("%s %s%s" % [key, name, "" if spec.is_allowed(reaction) else " ×"])
+	var rule := "First allowed press locks"
+	if spec.pause_before:
+		rule = "%s Begin · %s" % [InputBindings.prompt(InputBindings.CONFIRM), rule]
+	return " · ".join(parts) + "\n" + rule
 
 
 ## The actual input widget is already visible, with its clock at zero and input inactive.
@@ -349,16 +343,12 @@ func _begin_timed() -> void:
 	_menu.visible = false
 	_info.visible = false
 	_idle.visible = false
-	if layout != null and layout.mode == BattleLayout.Mode.STACKED:
-		_apply_layout()
 
 
 func _end_timed() -> void:
 	_inspector.enabled = true
 	_timed_active = false
 	_set_idle("")
-	if layout != null and layout.mode == BattleLayout.Mode.STACKED:
-		_apply_layout()
 
 
 func _finish_battle() -> void:
@@ -515,7 +505,6 @@ func _set_details(on: bool) -> void:
 	_details = value
 	_inspector.expanded = value
 	_picker.details = value
-	_refresh_details_panel()
 	_refresh_help()
 
 
@@ -556,20 +545,22 @@ func refocus() -> void:
 		_menu.refocus()
 
 
-## The sandbox owns the visible page. Suspend this subtree without a second pause overlay.
+## The sandbox owns the visible page. Suspend and hide this subtree without a second pause overlay:
+## frozen floating text or a late banner (raised z layers) must not draw over the host page.
 func cover_for_host() -> void:
 	_host_paused = true
 	_modal.visible = false
 	_pause_panel.visible = false
 	_inspector.clear()
-	_details_panel.visible = false
 	process_mode = Node.PROCESS_MODE_DISABLED
+	visible = false
 
 
 func resume_from_host() -> void:
 	if not _host_paused:
 		return
 	_host_paused = false
+	visible = true
 	process_mode = Node.PROCESS_MODE_INHERIT
 	_modal.visible = _result_panel.visible
 	_pause_closed.emit()
@@ -618,10 +609,7 @@ func _refresh_hud() -> void:
 	_timeline.refresh()
 	_header_round.text = "%d" % maxi(1, _timeline.round_number)
 	_header_round.tooltip_text = "Round %d" % maxi(1, _timeline.round_number)
-	for uid: int in _party_cards:
-		_party_cards[uid].refresh()
 	_familiar.refresh()
-	_rail.refresh_stats(_events.ledger)
 	if _ribbon_dirty():
 		_ribbon.refresh()
 
@@ -638,11 +626,6 @@ func _ribbon_dirty() -> bool:
 	return false
 
 
-func _set_card_active(uid: int) -> void:
-	for key: int in _party_cards:
-		_party_cards[key].active = key == uid
-
-
 func _set_idle(text: String) -> void:
 	_idle_label.text = text
 	_idle.visible = not _timed_active and not _picker.is_active()
@@ -655,10 +638,6 @@ func _show_planning(on: bool) -> void:
 	_supplies.visible = on
 	_info.visible = on
 	_idle.visible = not on and not _timed_active
-	if not on:
-		_set_card_active(-1)
-	if layout != null and layout.mode == BattleLayout.Mode.STACKED:
-		_apply_layout()
 
 
 func _set_help(text: String) -> void:
@@ -680,13 +659,18 @@ func _refresh_help() -> void:
 
 
 func _on_device_changed() -> void:
-	_log_button.tooltip_text = "%s Battle log" % InputBindings.prompt(InputBindings.LOG)
-	_pause_button.tooltip_text = "%s Pause · after the current action during timing" % InputBindings.prompt(InputBindings.MENU)
+	_refresh_toolbar_tooltips()
 	_ribbon.refresh()
 	if _picker.is_active():
 		_picker.render()
 		_set_help(_picker.help_text())
 	_refresh_help()
+
+
+## Bound keys follow the active device; the shared inspector shows these as cards.
+func _refresh_toolbar_tooltips() -> void:
+	_log_button.tooltip_text = "%s Battle log" % InputBindings.prompt(InputBindings.LOG)
+	_pause_button.tooltip_text = "%s Pause\nNow while choosing; otherwise after the current action." % InputBindings.prompt(InputBindings.MENU)
 
 
 func _on_settings_changed() -> void:
@@ -731,16 +715,10 @@ func _apply_layout() -> void:
 	_place(_target_prompt, Rect2(Vector2(layout.timeline.get_center().x - 220, layout.timeline.get_center().y - prompt_height * 0.5), Vector2(440, prompt_height)))
 	_place(_help, layout.help)
 	_place(_timed_host, layout.timed)
-	_place(_details_panel, layout.details)
-	_stack_dim.visible = false
-	_picker.details_view = _details_panel
-	_refresh_details_panel()
-	_battlefield.set_plates(true)
-	_rail.arrange(layout.stage, layout.stage, IntentSlot.Mode.COMPACT)
-	_party_panel.visible = false
+	_rail.arrange(layout.stage)
 	_place(_menu, layout.actions)
 	_place(_info, layout.preview)
-	_place(_supplies, layout.familiar)
+	_place(_supplies, layout.supplies)
 	_place(_idle, Rect2(layout.actions.position, Vector2(layout.preview.end.x - layout.actions.position.x, layout.actions.size.y)))
 	var log_width := minf(460, layout.stage.size.x * 0.45)
 	_place(_log, Rect2(layout.stage.end.x - log_width, layout.stage.position.y, log_width, layout.stage.size.y))
@@ -749,7 +727,6 @@ func _apply_layout() -> void:
 func _place_dynamic() -> void:
 	if _battlefield == null or layout == null:
 		return
-	_battlefield.reserved_rect = Rect2()
 	_battlefield.layout_units()
 	_rail.place_slots()
 	if engine != null and engine.get_state().familiar != null:
@@ -760,37 +737,13 @@ func _place_dynamic() -> void:
 		at.x = maxf(0, at.x)
 		_place(_familiar, Rect2(_battlefield.position + at, pet_size))
 
-func _unit_tooltip(uid: int) -> String:
-	var unit := engine.get_unit(uid)
-	if unit == null:
-		return ""
-	if _picker.is_active() and _details:
-		return UnitDetails.describe(engine, unit, launch.show_ai_reasoning)
-	var display := _events.ledger.unit(uid)
-	if display != null and not display.alive:
-		return unit.display_name + "\nDefeated."
-	var summary := "%s\n[color=%s]HP %d/%d[/color]" % [unit.display_name, UITheme.hex(UITheme.DANGER if unit.is_enemy() else UITheme.HEART), roundi(_battlefield.view(uid).displayed_hp), display.max_hp if display != null else unit.max_hp]
-	if display != null:
-		summary += "\n[color=%s]Break %d / %d[/color]" % [UITheme.hex(UITheme.STAGGER), roundi(_battlefield.view(uid).displayed_stagger), roundi(display.max_stagger)] if unit.is_enemy() else "\n[color=%s]Focus %d[/color]" % [UITheme.hex(UITheme.FOCUS), display.focus]
-		for status in display.statuses:
-			summary += "\n%s · %s" % [EnumText.status(status.status), UnitDetails.remaining_text(status.definition, status.remaining)]
-		for buff in display.buffs:
-			summary += "\n%s · %d" % [buff.name, buff.remaining]
-	if not _picker.is_active() and unit.is_enemy() and _rail.slot(uid) != null:
-		summary += "\n" + _rail.slot(uid).plain_text()
-	return summary
-
+## Stage inspection: presented (ledger) state, the displayed intent, and planning-time knowledge.
 func _unit_readout(uid: int) -> UnitReadout:
 	var unit := engine.get_unit(uid)
+	if unit == null:
+		return null
 	var slot := _rail.slot(uid)
 	return UnitReadout.build(engine, unit, _events.ledger.unit(uid), slot.readout if slot != null else null, _picker.is_active())
-
-
-func _refresh_details_panel() -> void:
-	if _details_panel == null:
-		return
-	# Alt expands the same contextual inspector; never stack a second window over it.
-	_details_panel.visible = false
 
 
 static func _place(node: Control, rect: Rect2) -> void:
@@ -831,7 +784,6 @@ func _build() -> void:
 	_log_button.icon = CombatIcons.texture("log")
 	_log_button.expand_icon = true
 	_log_button.custom_minimum_size = Vector2(40, 36)
-	_log_button.tooltip_text = "%s Battle log" % InputBindings.prompt(InputBindings.LOG)
 	_log_button.focus_mode = Control.FOCUS_ALL
 	_log_button.flat = true
 	_log_button.pressed.connect(func() -> void: _log.toggle())
@@ -840,12 +792,11 @@ func _build() -> void:
 	_pause_button.icon = CombatIcons.texture("pause")
 	_pause_button.expand_icon = true
 	_pause_button.custom_minimum_size = Vector2(40, 36)
-	_pause_button.tooltip_text = "%s Pause · after the current action during timing" % InputBindings.prompt(InputBindings.MENU)
 	_pause_button.focus_mode = Control.FOCUS_ALL
 	_pause_button.flat = true
-	_pause_button.tooltip_text = "Pause now while choosing; otherwise after the current action"
 	_pause_button.pressed.connect(request_pause)
 	_toolbar.add_child(_pause_button)
+	_refresh_toolbar_tooltips()
 
 	_timeline = TimelineBar.new()
 	_timeline.name = "Timeline"
@@ -856,13 +807,6 @@ func _build() -> void:
 	add_child(_battlefield)
 	_battlefield.unit_hovered.connect(_on_unit_hovered)
 	_battlefield.unit_clicked.connect(func(uid: int) -> void: _picker.click(uid))
-
-	_stack_dim = ColorRect.new()
-	_stack_dim.name = "StackDim"
-	_stack_dim.color = Color(UITheme.BG, 0.82)
-	_stack_dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_stack_dim.visible = false
-	add_child(_stack_dim)
 
 	_rail = IntentRail.new()
 	_rail.name = "IntentRail"
@@ -882,18 +826,6 @@ func _build() -> void:
 	_ribbon.name = "ConditionRibbon"
 	header.add_child(_ribbon)
 	header.move_child(_ribbon, header.get_child_count() - 2)
-
-	_party_panel = PanelContainer.new()
-	_party_panel.name = "Party"
-	_party_panel.add_theme_stylebox_override("panel", UITheme.box(UITheme.PANEL, UITheme.BORDER, 1, 4, 10, 8))
-	add_child(_party_panel)
-	var party_scroll := ScrollContainer.new()
-	party_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_NEVER
-	_party_panel.add_child(party_scroll)
-	_party_box = VBoxContainer.new()
-	_party_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_party_box.add_theme_constant_override("separation", 4)
-	party_scroll.add_child(_party_box)
 
 	_supplies = PanelContainer.new()
 	_supplies.name = "Supplies"
@@ -925,16 +857,13 @@ func _build() -> void:
 	_timed_host.z_index = 60
 	_timed_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_timed_host)
-	_details_panel = DetailsPanel.new()
-	_details_panel.name = "Details"
-	_details_panel.visible = false
-	add_child(_details_panel)
 
 	_help = UITheme.label("", UITheme.TEXT_DIM, UITheme.secondary_size())
 	_help.name = "Help"
 	_help.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_help.clip_text = true
-	_help.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	_help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_help.clip_text = false
+	_help.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
 	add_child(_help)
 
 	_log = BattleLogPanel.new()
@@ -990,6 +919,8 @@ func _build() -> void:
 		var uid := _picker.reviewed_target_uid()
 		return _battlefield.view(uid) if uid >= 0 else null
 	add_child(_inspector)
+	# One wheel rule for the dock lists and the card, independent of input callback order.
+	_menu.wheel_claimed = _inspector.claims_wheel
 	_banner.visibility_changed.connect(func() -> void:
 		if _banner.visible:
 			_inspector.clear())
@@ -1002,7 +933,7 @@ func _build() -> void:
 	_picker.name = "ActionPicker"
 	add_child(_picker)
 	_picker.help_changed.connect(_set_help)
-	_picker.keyboard_navigation.connect(func() -> void: _inspector._pointer = false)
+	_picker.keyboard_navigation.connect(_inspector.follow_keyboard)
 	# Target facts remain in the dock. Context cards appear only on hover or explicit navigation.
 
 
@@ -1041,23 +972,3 @@ func _build_pause_panel() -> void:
 		button.focus_neighbor_bottom = button.get_path_to(buttons[wrapi(index + 1, 0, buttons.size())])
 		button.focus_neighbor_left = button.get_path_to(button)
 		button.focus_neighbor_right = button.get_path_to(button)
-
-
-func _build_party_cards() -> void:
-	for child in _party_box.get_children():
-		child.queue_free()
-	_party_cards.clear()
-	_party_box.add_child(UITheme.heading("Your party"))
-	for unit in engine.get_state().party(false):
-		var card := PartyCard.new()
-		card.unit = unit
-		card.ledger = _events.ledger
-		card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		card.mouse_entered.connect(func() -> void: _on_unit_hovered(unit.uid))
-		card.gui_input.connect(func(event: InputEvent) -> void:
-			var click := event as InputEventMouseButton
-			if click != null and click.pressed and click.button_index == MOUSE_BUTTON_LEFT:
-				_picker.click(unit.uid))
-		_party_box.add_child(card)
-		card.refresh()
-		_party_cards[unit.uid] = card

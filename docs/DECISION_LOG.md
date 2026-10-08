@@ -394,3 +394,52 @@ suppression callback. No extra overlay, notification service or combat phase.
 grade, charge or consume beats; held keys/Confirm are relatching boundaries. Assist pause, timing
 specs, grading and battle rules remain. Opening/condition details are available again after the
 announcement, including reduced-motion docking behavior. Actual captures and regressions record it.
+
+## D-036 — Expose saved knowledge and integrate authorized version playlists in V0.3
+
+**Owner:** Director/UI integrator. **Status:** Implemented in the working tree, 8 October 2026;
+human clarity, controller comfort and runtime listening remain open.
+
+**DECISION:** Add a read-only Field Guide over existing bestiary/mastery, fix enlarged reaction
+help using the font's real line height, and integrate Adrian's six explicitly approved songs as
+three version playlists. Use private shuffle bags, two streaming decks, scene fades and end-aware
+overlaps; prepare native-rate, measured exports while preserving originals. Recognize future
+`_calm` / `_intense` groups and matching version requests. See [V0.3 contract](design/V03_FIELD_GUIDE_AND_AUDIO.md).
+
+**WHY:** Make knowledge earned in combat visible outside it and give repeated fights a coherent
+soundscape using existing content. Reusable playlists support additions/replacements without
+hard-coding v1/v2. This advances the slice while the new-world/content gate remains open.
+
+**REJECTED:** New progression rewards, new combat/world systems before clarity acceptance, source
+overwrites, soundtrack-driven combat clocks, global RNG use, and claiming separate generated
+versions are sample-aligned stems. Future simultaneous layers require verified aligned exports
+and their own synchronized adapter; filename suffixes alone establish only grouping.
+
+**CONSEQUENCES:** Supersedes D-029's single selected mix/runtime hold following Adrian's explicit
+music authorization. No save/rule/balance/binding change. Human musical-fit authorization is recorded;
+agent audition, seamless loops, verified licensing and human comprehension are not inferred.
+
+**AUTHORIZED FOLLOW-UP:** Include the supplied v01 intense battle example, standardize boss inbox
+filenames/sidecars to underscores, and expose manual song/version/tone/end tests in Audio Lab.
+Add a reusable file-argument importer with external-original preservation and archived deliberate
+replacements. Automatic battle intensity and simultaneous aligned layers still require an engine
+contract; the manual frontend supports listening while that work is specified.
+
+**TIMESTAMP FOLLOW-UP:** Adrian requested adaptive same-position changes and a usable seek bar.
+Same-song version/tone selections now preserve source time through leading-trim offsets; only new
+cues and Next version start at zero. Preview ending leaves five seconds before automatic rotation
+and displays a countdown. Click/drag/keyboard seeking commits the selected deck. Pending audio-mix
+reads avoid rapid-switch drift. This supplies timestamp continuity without claiming verified musical
+alignment or implementing automatic intensity policy.
+
+## D-037 — Accept V0.3 engineering and preserve the open human gates
+
+**Owner:** Director. **Status:** Accepted for Adrian's authorized push, 8 October 2026.
+**DECISION:** Accept Claude's [engineering review](reports/V0_3_ENGINEERING_REVIEW.md), fix the
+two remaining importer inconsistencies and release the combat/Field Guide/audio foundation as
+0.3.0. [Final acceptance](reports/V0_3_DIRECTOR_ACCEPTANCE.md) records the independent checks.
+**WHY:** The reported defects have targeted regressions, the complete suite passes and the final
+tooling repairs preserve media bytes. No combat or save-format expansion is needed for release.
+**CONSEQUENCES:** Engineering acceptance does not pass fresh-player clarity, controller or listening
+review. Adrian separately authorized moving toward exploration and towns; the next stage requires
+its own bounded Director contract and Claude backend handoff. V0.3 contains no overworld runtime.

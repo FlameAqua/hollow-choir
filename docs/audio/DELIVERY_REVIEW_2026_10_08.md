@@ -1,5 +1,11 @@
 # First music delivery — comparison and intake record
 
+**V0.3 update:** Adrian has approved all six base inbox songs and requested version playlists. They are
+now integrated using measured, hash-named Ogg exports and end-aware crossfades. The original intake
+evidence below is historical; no agent audition, seamless-loop or beat-alignment claim is added.
+See [V0.3 report](../reports/V0_3_FIELD_GUIDE_AND_AUDIO.md) and the
+[prepared manifest](../../assets/audio/music/prepared_manifest.json) for current processing.
+
 Received 8 October 2026 from Adrian: six Suno originals based on the project request prompts,
 two variants each for title, ordinary Briarfen battle and Mirebell boss. **All six passed technical
 decode checks. Musical fit, loop joins and version selection have not been auditioned in this pass.**
@@ -14,8 +20,8 @@ Requested BPM/meter are creative direction; delivered tempo and meter are unmeas
 | `global_title` | v02 | 2:29.96 | [M4A](../../assets/audio/source/inbox/global_title_v02.m4a) | [Ogg](../../assets/audio/source/review/global/global_title_v02.ogg) | -15.13 / -0.76 dBTP |
 | `briarfen_battle` | v01 | 1:59.52 | [M4A](../../assets/audio/source/inbox/briarfen_battle_v01.m4a) | [Ogg](../../assets/audio/source/review/regions/briarfen/briarfen_battle_v01.ogg) | -14.12 / -1.24 dBTP |
 | `briarfen_battle` | v02 | 1:59.64 | [M4A](../../assets/audio/source/inbox/briarfen_battle_v02.m4a) | [Ogg](../../assets/audio/source/review/regions/briarfen/briarfen_battle_v02.ogg) | -13.71 / -0.42 dBTP |
-| `briarfen_boss_mirebell` | v01 | 2:29.96 | [M4A](../../assets/audio/source/inbox/briarfen-boss-mirebell_v01.m4a) | [Ogg](../../assets/audio/source/review/regions/briarfen/briarfen_boss_mirebell_v01.ogg) | -14.33 / -1.53 dBTP |
-| `briarfen_boss_mirebell` | v02 | 2:29.72 | [M4A](../../assets/audio/source/inbox/briarfen-boss-mirebell_v02.m4a) | [Ogg](../../assets/audio/source/review/regions/briarfen/briarfen_boss_mirebell_v02.ogg) | -14.46 / -0.25 dBTP |
+| `briarfen_boss_mirebell` | v01 | 2:29.96 | [M4A](../../assets/audio/source/inbox/briarfen_boss_mirebell_v01.m4a) | [Ogg](../../assets/audio/source/review/regions/briarfen/briarfen_boss_mirebell_v01.ogg) | -14.33 / -1.53 dBTP |
+| `briarfen_boss_mirebell` | v02 | 2:29.72 | [M4A](../../assets/audio/source/inbox/briarfen_boss_mirebell_v02.m4a) | [Ogg](../../assets/audio/source/review/regions/briarfen/briarfen_boss_mirebell_v02.ogg) | -14.46 / -0.25 dBTP |
 
 ## Listening notes to capture
 
@@ -52,7 +58,8 @@ Raw-level comparisons are retained for honest review; playback gain is not selec
 
 [Catalog v2](../../assets/audio/music/catalog.json) links six unique delivery IDs to per-source
 `.delivery.json` metadata, original hashes, technical measurements and comparison hashes.
-Original boss filenames retain `briarfen-boss-mirebell`; stable cue/export IDs use underscores.
+Boss inbox filenames now use `briarfen_boss_mirebell` throughout. Delivery metadata retains the
+original uploaded spelling as provenance; the audio bytes are unchanged by the rename.
 The user reported that the songs were based on the request prompts. Exact generation text/date,
 provider track links, BPM/meter and usage evidence remain unknown rather than inferred.
 

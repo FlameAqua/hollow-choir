@@ -204,7 +204,7 @@ as gameplay rules. Explicit target review is required even for one legal single-
 **Save slot** (`user://saves/slot_N.json`, atomic temp-file + rename, D-011):
 
 ```json
-{ "save_version": 1, "game_version": "0.1.0", "saved_at_unix": 1767225600, "slot": 0,
+{ "save_version": 1, "game_version": "0.3.0", "saved_at_unix": 1767225600, "slot": 0,
   "data": { "loadout": {"weapon", "garb", "charm", "relic", "companion", "familiar", "potions"},
             "bestiary": {"points": {id: n}, "sources": {id: [source…]}},
             "weapon_mastery": {id: n},
@@ -217,6 +217,8 @@ as gameplay rules. Explicit target review is required even for one legal single-
 All references are content ids (strings); no node or Resource is serialized. Sections for later
 milestones exist now (empty) so their arrival does not need a migration. To change the format: bump
 `SaveMigrator.CURRENT_VERSION` and add one `_to_N` step; never edit a released step.
+`game_version` is informational (`application/config/version`); only `save_version` drives migration,
+so an application version bump never requires a save-version bump.
 
 **Settings** (`user://settings.cfg`, global, not per slot, D-009): sections `gameplay`
 (tactical_difficulty, execution_assist, auto_brace, reaction_pause), `display` (window_mode,
@@ -855,3 +857,80 @@ FamiliarDefinition.portrait remains the sole familiar art binding; AtlasTexture 
 padding without altering its source PNG. ConditionRibbon's condition_id metadata identifies a
 current header button for announcement docking; missing IDs fall back to a stationary fade.
 ResourceBarArt's frame textures are presentation resources, with no gameplay geometry or values.
+
+## V0.2.1 presentation interfaces (transient, not saved)
+
+See [the cleanup report](reports/V0_2_1_ENGINEERING_CLEANUP.md). No Resource, save, settings or
+content field changed.
+
+- **Inspection providers.** A source control supplies its text through `get_tooltip(point)` and
+  its typed payload through one of three metadata providers, called with the source-local point:
+  `inspection_readout` (ActionReadout, action and supply buttons), `inspection_intent`
+  (IntentReadout, the move icon) or `inspection_unit` (UnitReadout, unit bodies; individual field
+  regions return null). The inspector re-renders when the text changes. A unit body's text is
+  therefore `UnitReadout.plain_text()`, built from the same readout the card draws, which lists
+  every field the card can show.
+- **Wheel ownership.** `HoverInspector.claims_wheel(hovered)` is the single rule: the card itself,
+  its current source while expanded, or a collapsed source outside any scrolling list. Otherwise
+  the hovered Actions/Supplies list scrolls (`ActionMenu.wheel_claimed`, wired by BattleScene).
+  Neither handler depends on scene-tree callback order.
+- **Inspection source.** `HoverInspector.follow_keyboard()` selects focus inspection after
+  deliberate navigation (ActionPicker's `keyboard_navigation` signal). Pointer motion or a click
+  selects pointer inspection again. `follows_pointer()` reports it.
+- **Layout.** `BattleLayout` exposes `header, timeline, stage, dock, help, actions, preview,
+  supplies, timed` (`familiar` was renamed `supplies`; the unused party/details/overlay/rail/ribbon
+  rectangles and modes were removed). These are presentation geometry, never hit areas.
+- **Cards.** `PreviewPanel.card_height(readout)` sizes nested action and move cards.
+  `PreviewPanel.get_text()` returns the card's plain text. `UITheme.plain_text(bbcode)` is the one
+  markup stripper.
+- **Removed scaffolding.** `DetailsPanel`, `PartyCard`, the inspector's pinned fields, the picker's
+  group/analysis-extra path and its `target_reviewed` signal, UnitView's label/plate-badge fields,
+  and the intent strip's mode, stats and selection fields. None had a remaining consumer.
+- **QA isolation.** `tools/qa_godot.py` sets `APPDATA`, `XDG_DATA_HOME` and `HOLLOW_CHOIR_QA_HOME`.
+  `tools/qa_user_data.gd` (preloaded by the test runner and capture tool) refuses to run when user data is outside that
+  home.
+
+## V0.3 presentation additions
+
+`FieldGuideReadout.build(EnemyDefinition, BestiaryState, ResearchConfig)` returns null for unknown
+species. Otherwise it contains the learned identity/portrait, current level/points, config-derived
+next threshold/fraction and filtered text sections. It never stores engine state or temporary
+Inspect/hit reveals. Observed shows field notes/sources; Studied adds affinities; Understood adds
+base stats, species traits/immunities and initial move cards; Mastered adds tendencies, rare
+interactions and later-phase moves. Existing Understood trait text may mention later moves, as
+in battle. Later phase thresholds are not shown. The guide displays existing weapon_mastery totals
+and ignores missing content IDs without rewriting the save. No new persisted fields.
+
+`MusicLibrary.playlists: Array[MusicPlaylist]`, `MusicPlaylist.cue_id/tracks`, and
+`MusicTrack.id/version/tone/stream/source_offset_seconds/gain_db/crossfade_seconds/sync_group` are presentation Resources
+outside `data/` and DefinitionRegistry. `AudioManager.request_music(cue_id, tone = base)` requests
+one cue; missing cue fades to silence. Missing tone falls back to base, then calm, then remaining
+playable mixes. Tone changes prefer the same version and preserve source time. The offset is the
+preparation manifest's trim_start_seconds, defaulting to zero for old Resources. Same-song manual
+selections also preserve source time; new cues and explicit Next version start at zero. A target
+outside its source-time range clamps to its start/tail. `sync_group` is reserved for an aligned-layer
+adapter; current full mixes overlap and are never claimed sample synchronized.
+
+`tools/prepare_music.py` generates `assets/audio/music/runtime_library.tres` and
+`prepared_manifest.json` from authorized inbox names. The manifest is tooling evidence, not a
+runtime parser: source/export paths and SHA-256, native rate, duration, measured edge trims,
+constant export gain, user authorization and decode check. Source updates regenerate active
+playlists, without deleting old exports. The delivery catalog retains history and active_playlist
+markers; single-version selected fields can remain null because playlist membership is explicit.
+Playback uses a private RNG, real-time fades and two persistent decks on the existing Music bus.
+
+Manual audition is exposed by `MusicMixer.audition(cue_id, track_id) -> bool` (invalid IDs preserve
+playback), `next_mix() -> bool` (starts another version at zero), `test_loop() -> bool` (seeks five
+seconds before the normal end-overlap trigger, unavailable during fades), `seek(seconds) -> bool`
+(rejects nonfinite values, clamps bounds and commits the selected deck), and
+`playback_status() -> Dictionary`. Status contains cue, requested tone, actual track/tone,
+position/duration and source_position in seconds, seconds_until_transition, transition reason,
+fading and active player count. Audio Lab uses these presentation-only methods; selection does
+not pin later shuffle rotation. Its HSlider supports click/drag/keyboard seeking and suppresses
+playback-update feedback. Pending play/seek reads do not repeatedly add pre-command mix age.
+Explicit auditions and version-preserving tone switches update shuffle history.
+
+`tools/import_music.py` accepts paths or inbox filenames. It canonicalizes spaces/dashes/case and
+version padding, copies external originals or renames inbox audio/sidecars, rejects duplicate
+cue/version/tone formats and archives previous audio/metadata before explicit `--replace` swaps.
+The delivery metadata retains original_filename provenance and records current_filename separately.

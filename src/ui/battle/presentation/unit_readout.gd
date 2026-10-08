@@ -70,3 +70,31 @@ static func build(engine: BattleEngine, unit: BattleUnit, display: PresentationL
 	if BattleKnowledge.knows_tendencies(engine, unit) and not definition.ai_tendencies.is_empty():
 		r.notes.append("Tendencies: " + definition.ai_tendencies)
 	return r
+
+## Every field this readout can show, as plain text. The inspector re-renders the card whenever this
+## changes, so a new cover note, effect or declared move can never leave a stale card on screen.
+func plain_text() -> String:
+	var lines := PackedStringArray([title])
+	if not alive:
+		lines.append("Defeated")
+		return "\n".join(lines)
+	if not role.is_empty():
+		lines.append(role)
+	if not knowledge.is_empty():
+		lines.append("Knowledge: " + knowledge)
+	lines.append("Health %d / %d" % [hp, max_hp])
+	var resource_value := "Broken" if broken else "%d / %d" % [resource, max_resource]
+	lines.append(("Break remaining " if enemy else "Focus ") + resource_value)
+	if not weak_point.is_empty():
+		lines.append("Weak point: %s · %s" % [weak_point, "Exposed" if exposed else "Covered"])
+	for affinity in affinities:
+		lines.append("%s: %s" % [EnumText.damage_type(affinity.type), affinity.category])
+	for effect in effects:
+		lines.append("%s · %s" % [effect.name, effect.value])
+	lines.append_array(notes)
+	if intent != null:
+		var damage := PackedStringArray()
+		for uid in intent.target_uids:
+			damage.append(intent.damage_text(uid))
+		lines.append("Declared move: %s → %s · %s · %s" % [intent.label, intent.target_text, intent.threat_word, ", ".join(damage)])
+	return "\n".join(lines)

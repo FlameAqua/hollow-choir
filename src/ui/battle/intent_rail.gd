@@ -4,7 +4,6 @@ extends Control
 signal slot_hovered(enemy_uid: int)
 signal slot_clicked(enemy_uid: int)
 var slots: Dictionary[int, IntentSlot] = {}
-var mode: IntentSlot.Mode = IntentSlot.Mode.FULL
 var battlefield: Battlefield
 
 func _ready() -> void:
@@ -24,8 +23,8 @@ func setup(enemies: Array[BattleUnit]) -> void:
 		entry.mouse_exited.connect(func() -> void: slot_hovered.emit(-1))
 		slots[enemy.uid] = entry
 
-func arrange(area: Rect2, _preferred: Rect2, p_mode: IntentSlot.Mode) -> void:
-	mode = p_mode
+## Covers the stage; each strip then follows its enemy's view.
+func arrange(area: Rect2) -> void:
 	position = area.position
 	size = area.size
 	place_slots()
@@ -54,11 +53,3 @@ func show_intent(uid: int, readout: IntentReadout) -> void:
 func show_state(uid: int, state: IntentSlot.State) -> void:
 	if slots.has(uid):
 		slots[uid].show_state(state)
-
-func refresh_stats(ledger: PresentationLedger) -> void:
-	for uid: int in slots:
-		slots[uid].show_stats(ledger.unit(uid))
-
-func set_selected(uid: int) -> void:
-	for key: int in slots:
-		slots[key].selected = key == uid

@@ -3,12 +3,15 @@ extends SceneTree
 ##
 ##   godot --headless --path . --import            # once per fresh checkout (class cache)
 ##   godot --headless --path . --script res://tests/run_tests.gd [-- --filter=substring]
+##   python tools/qa_godot.py --headless --script res://tests/run_tests.gd   # isolated user data
 ##
 ## Discovers res://tests/**/test_*.gd scripts extending TestCase and runs every test_* method.
 ## A test fails on a failed assertion or on any engine/script error it did not declare with
-## expect_engine_errors(). Exits with code 1 if anything failed.
+## expect_engine_errors(). Exits with code 1 if anything failed. The user data directory is
+## printed first; a QA launcher whose isolation did not take effect stops the run.
 
 const TEST_ROOT := "res://tests"
+const QA_USER_DATA := preload("res://tools/qa_user_data.gd")
 
 var _logger := TestErrorLogger.new()
 
@@ -22,6 +25,10 @@ func _run() -> void:
 	# Autoloads finish _ready() during the first frame; tests may rely on them.
 	await process_frame
 	_logger.take_errors()
+	if not QA_USER_DATA.check():
+		OS.remove_logger(_logger)
+		quit(1)
+		return
 	var filter := ""
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--filter="):

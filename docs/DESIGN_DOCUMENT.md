@@ -3,8 +3,18 @@
 ## Current design authority — 8 October 2026
 
 **Owner:** Game Director (ChatGPT). **Current milestone:** M1 combat foundation implemented;
-M1.1 combat clarity and icon-first UI/art integration implemented in the current uncommitted tree,
-awaiting engineering sign-off and human validation.
+M1.1 combat clarity and icon-first UI/art integration implemented. V0.3 adds a Field Guide for
+existing saved research/practice and user-approved music playlists. Engineering review is complete
+and [V0.3 is accepted for the user-authorized push](reports/V0_3_DIRECTOR_ACCEPTANCE.md).
+Human combat validation remains open.
+
+Current V0.3 authority: [Field Guide and audio contract](design/V03_FIELD_GUIDE_AND_AUDIO.md),
+[implementation evidence](reports/V0_3_FIELD_GUIDE_AND_AUDIO.md) and
+[engineering review brief](briefs/V0_3_REVIEW.md). Adrian explicitly approved all six inbox tracks,
+randomized version playlists and future calm/intense grouping. This supersedes the earlier
+single-selected-mix and runtime-audio holds. Current tracks crossfade as independent full mixes;
+simultaneous layers require verified alignment and a later adapter. Progression and combat rules
+are unchanged. Field Guide is read only; Practice still records no progress.
 
 Protect **READ · REACT · ADAPT · EXPERIMENT · AFFECT THE WORLD**. Do not begin the world slice or
 expand enemy/weapon/system counts until the combat clarity gate passes. Keep the existing deterministic
@@ -3678,3 +3688,9 @@ The same widget stays visible when timing starts; no separate Get ready panel. E
 condition announcements fit settled text before fading in and suppress hover details until hidden.
 See [the revised handoff](briefs/V02_PRE_PUSH_POLISH.md) and
 [opening/timing evidence](reports/v02_ui/OPENING_AND_TIMING_PREVIEW.md).
+
+Version 0.2.1 (8 October 2026) is an engineering cleanup with no player-facing design change. It
+removes unused UI scaffolding, applies one wheel-ownership rule, refreshes unit cards from their
+filtered readout, isolates QA runs from player data, keeps `docs/` out of Godot's import, and records
+the application version. See [the cleanup report](reports/V0_2_1_ENGINEERING_CLEANUP.md) and
+[release notes](RELEASE_NOTES.md). Human gates remain open.

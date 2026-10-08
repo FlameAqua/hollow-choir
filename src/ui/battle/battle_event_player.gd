@@ -152,8 +152,7 @@ func _play_one(event: BattleEvent) -> void:
 			await _wait(0.14)
 		T.TURN_STARTED:
 			timeline.acting_uid = event.subject
-			var unit := engine.get_unit(event.subject)
-			battlefield.set_active(event.subject, "YOUR TURN" if unit != null and not unit.is_enemy() else "")
+			battlefield.set_active(event.subject)
 			hud_changed.emit()
 			await _wait(0.1)
 		T.TURN_SKIPPED:
@@ -464,14 +463,6 @@ func _preview_from_event(event: BattleEvent, unit: BattleUnit) -> IntentPreview:
 		if action.allows_reaction(reaction):
 			preview.allowed.append(reaction)
 	return preview
-
-
-## The ledger already holds the condition this event added (it applies before playback).
-func _condition_summary(display_name: String) -> String:
-	for definition in ledger.conditions:
-		if definition.display_name == display_name:
-			return RuleNotes.condition_summary(definition)
-	return ""
 
 
 func _grade_cue(grade: Enums.ExecutionGrade) -> void:

@@ -24,3 +24,21 @@ static func detail_level(ctx: BattleContext, enemy: BattleUnit) -> Enums.Researc
 	if enemy.inspected:
 		level = maxi(level, ctx.library.research.inspect_reveal_level) as Enums.ResearchLevel
 	return level
+
+
+# The research gates. Engine previews, battle widgets (BattleKnowledge) and the saved-knowledge
+# Field Guide all ask these, so a level cannot reveal something in one place and hide it in another.
+
+## Affinities (weak / resisted / neutral) and every number derived from them.
+static func affinities_known(level: Enums.ResearchLevel) -> bool:
+	return level >= Enums.ResearchLevel.STUDIED
+
+
+## Move names, exact incoming damage, telegraph details and species traits.
+static func moves_known(level: Enums.ResearchLevel) -> bool:
+	return level >= Enums.ResearchLevel.UNDERSTOOD
+
+
+## AI tendencies (in the Field Guide also rare interactions and later boss-phase moves).
+static func tendencies_known(level: Enums.ResearchLevel) -> bool:
+	return level >= Enums.ResearchLevel.MASTERED

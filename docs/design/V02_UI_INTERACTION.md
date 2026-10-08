@@ -99,7 +99,8 @@ honored. An invalid resolution falls back; a large resolution on a smaller monit
 overwriting the preference. A queued Setup request never covers an active timing window. A defeated
 unit's brief reads Defeated from the ledger. Closing/restarting frees any old inspection source.
 Long analysis, multiple targets and enlarged type use bounded scrolling/explicit overflow rather
-than allowing controls off-screen. The old DetailsPanel is retained hidden for compatibility.
+than allowing controls off-screen. The old DetailsPanel had no remaining consumer and was removed
+in V0.2.1; Alt still expands the one contextual card.
 
 ## ACCESSIBILITY REQUIREMENTS
 

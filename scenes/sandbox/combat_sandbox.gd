@@ -17,7 +17,6 @@ const PREFS_PATH := "user://sandbox.cfg"
 const EXECUTION_MANUAL := -1
 const KNOWLEDGE_FROM_SAVE := -1
 const SIM_BATTLES_PER_FRAME := 2
-const FORM_WIDTH := 620.0
 
 enum View { PRACTICE = 0, LAB = 1 }
 
@@ -95,11 +94,6 @@ func _input(event: InputEvent) -> void:
 	elif _setup.visible and _battle != null and event.is_action_pressed(InputBindings.MENU):
 		get_viewport().set_input_as_handled()
 		_show_setup(false)
-
-
-## Current view (tests).
-func current_view() -> View:
-	return _view
 
 
 func show_view(view: View) -> void:
@@ -560,35 +554,6 @@ func _field(grid: GridContainer, title: String) -> OptionButton:
 	return option
 
 
-## "Choose your next test": the practice encounters with what each tests (selecting one fills
-## Practice's encounter field).
-func _build_next_tests() -> Control:
-	var panel := PanelContainer.new()
-	panel.add_theme_stylebox_override("panel", UITheme.box(Color(UITheme.PANEL, 0.92), UITheme.BORDER, 1, 4, 22, 18))
-	panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 8)
-	panel.add_child(box)
-	box.add_child(UITheme.label("Choose your next test.", UITheme.TEXT, UITheme.font_size(1.3), true))
-	for index in _registry.defaults.practice_encounters.size():
-		var encounter := _registry.defaults.practice_encounters[index]
-		if encounter.practice_note.is_empty() or index == 0:
-			continue
-		var pick := Button.new()
-		pick.flat = true
-		pick.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		pick.text = encounter.display_name
-		pick.add_theme_color_override("font_color", UITheme.ACCENT)
-		pick.pressed.connect(func() -> void:
-			show_view(View.PRACTICE)
-			_practice_encounter.select(index)
-			_update_practice_summary())
-		box.add_child(pick)
-		box.add_child(UITheme.label(encounter.practice_note, UITheme.TEXT_DIM, UITheme.secondary_size(), true))
-	return panel
-
-
 func _build_lab() -> VBoxContainer:
 	var page := VBoxContainer.new()
 	page.name = "Lab"
@@ -732,6 +697,7 @@ func _toggle_setup() -> void:
 
 func _show_setup(open: bool) -> void:
 	_setup.visible = open or _battle == null
+	AudioManager.request_music(&"global_title" if _setup.visible else AudioManager.battle_music(_battle.launch.setup))
 	_hide_button.visible = _battle != null
 	if _setup.visible:
 		if _battle != null:

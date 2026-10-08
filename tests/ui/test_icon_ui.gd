@@ -54,8 +54,16 @@ func test_full_size_cast_and_supply_selection_reuse_existing_costs() -> void:
 	assert_true(await _until(func() -> bool: return scene._picker.is_active()))
 	for i in 3:
 		await _tree.process_frame
-	assert_false(scene._party_panel.visible, "no duplicate party card")
-	assert_eq(scene._battlefield.reserved_rect, Rect2(), "intent icons reserve no sprite space")
+	# The party stands on stage only; the dock holds exactly Actions, the preview and Supplies.
+	var dock := Rect2(scene.global_position + scene.layout.dock.position, scene.layout.dock.size)
+	var dock_panels := scene.find_children("*", "PanelContainer", true, false).filter(func(node: Node) -> bool:
+		return (node as Control).is_visible_in_tree() and (node as Control).get_global_rect().intersects(dock))
+	assert_eq(dock_panels.size(), 3, "no duplicate party card in the dock")
+	for panel in [scene._menu, scene._info, scene._supplies]:
+		assert_true(dock_panels.has(panel))
+	for member in scene.engine.get_state().party():
+		assert_true(scene._battlefield.view(member.uid).is_visible_in_tree(), "each party member is shown on stage")
+	# Intent icons reserve no sprite space: every body keeps its intended height.
 	for enemy in scene.engine.get_state().enemies():
 		var view := scene._battlefield.view(enemy.uid)
 		assert_almost_eq(view._sprite_size.y, view.natural_height(), 1.0, "four-enemy bodies retain intended heights")

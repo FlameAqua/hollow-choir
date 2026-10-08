@@ -21,15 +21,28 @@ static func level(engine: BattleEngine, unit: BattleUnit) -> Enums.ResearchLevel
 
 ## Move names, exact incoming damage and telegraph details.
 static func knows_moves(engine: BattleEngine, unit: BattleUnit) -> bool:
-	return level(engine, unit) >= Enums.ResearchLevel.UNDERSTOOD
+	return saved_moves_known(level(engine, unit))
 
 
 static func knows_traits(engine: BattleEngine, unit: BattleUnit) -> bool:
-	return level(engine, unit) >= Enums.ResearchLevel.UNDERSTOOD
+	return saved_moves_known(level(engine, unit))
 
 
 static func knows_tendencies(engine: BattleEngine, unit: BattleUnit) -> bool:
-	return level(engine, unit) >= Enums.ResearchLevel.MASTERED
+	return saved_tendencies_known(level(engine, unit))
+
+
+## The saved-level gates (Field Guide), shared with engine previews through ResearchRules.
+static func saved_moves_known(research: Enums.ResearchLevel) -> bool:
+	return ResearchRules.moves_known(research)
+
+
+static func saved_affinities_known(research: Enums.ResearchLevel) -> bool:
+	return ResearchRules.affinities_known(research)
+
+
+static func saved_tendencies_known(research: Enums.ResearchLevel) -> bool:
+	return ResearchRules.tendencies_known(research)
 
 
 ## Whether [param unit]'s response to [param damage_type] (weak / resisted / neutral) is known.

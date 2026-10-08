@@ -1,50 +1,33 @@
 class_name PreviewPanel
 extends PanelContainer
-## Dock preview column (M1.1 F1). Immediate layer: the selected action, its actual target(s), cost,
-## the Good-timing result in plain words and honest scope ("direct hit", "per target · no total").
-## Analysis layer (Details): per-grade numbers, formula, windows, unit details and battlefield rules.
-## Everything comes from an ActionReadout; this widget never reads research itself.
+## Shared action / enemy-move card (dock preview column and inspector cards, M1.1 F1). Title and
+## Focus/charges or threat at the top, status payloads beneath, targets at left and outcomes at
+## right, honest scope ("Good · hit", "Good · each") at the bottom. Analysis text (per-grade
+## numbers, formula, windows) comes from the static describe helpers. Everything comes from an
+## ActionReadout or IntentReadout; this widget never reads research itself.
 
 const BIG := 1.5
 
-var _scroll: ScrollContainer
-var _text: RichTextLabel
 var _summary: Control
 var _readout: ActionReadout
 var _intent_readout: IntentReadout
 var _regions: Array[Dictionary] = []
+## Equivalent plain text of the card for accessibility and test clients.
+var _plain := ""
 ## The dock uses the same native-font transform as inspection. Nested inspector cards stay at 1.
 var summary_scale: float = 1.0
 
 
 func _ready() -> void:
 	add_theme_stylebox_override("panel", UITheme.box(UITheme.PANEL, UITheme.BORDER, 1, 4, 14, 10))
-	_scroll = ScrollContainer.new()
-	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_NEVER
-	add_child(_scroll)
-	_text = UITheme.rich_text()
-	_text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_text.name = "Text"
-	_scroll.add_child(_text)
 
 
-func show_text(bbcode: String) -> void:
-	if _summary != null:
-		_summary.visible = false
-	_scroll.visible = true
-	_text.text = bbcode
-	_scroll.scroll_vertical = 0
-
-
-func show_readout(readout: ActionReadout, target_detail: String = "") -> void:
+func show_readout(readout: ActionReadout) -> void:
 	_intent_readout = null
 	_readout = readout
-	# Keep an equivalent plain-text representation for accessibility/test clients.
-	_text.text = describe(readout, false)
+	_plain = UITheme.plain_text(describe(readout, false))
 	_ensure_summary()
-	_summary.visible = true
-	_scroll.visible = false
-	tooltip_text = describe(readout, true) + ("\n\n" + target_detail if not target_detail.is_empty() else "")
+	tooltip_text = describe(readout, true)
 	_summary.queue_redraw()
 
 
@@ -166,11 +149,9 @@ func field_tooltip(point: Vector2) -> String:
 ## Enemy moves use the same title / resource / payload / outcome card, with filtered facts only.
 func show_intent(readout: IntentReadout) -> void:
 	_ensure_summary()
-	_summary.visible = true
-	_scroll.visible = false
 	_readout = null
 	_intent_readout = readout
-	_text.text = "%s\n%s\n%s" % [readout.label, readout.target_text, readout.telegraph]
+	_plain = "%s\n%s\n%s" % [readout.label, readout.target_text, readout.telegraph]
 	_summary.queue_redraw()
 
 
@@ -272,12 +253,11 @@ static func row_icon(row: ActionReadout.TargetRow, action_icon: String) -> Strin
 
 
 func get_text() -> String:
-	return _text.get_parsed_text()
+	return _plain
 
 
-## [param prompt]: device-aware next-step hint for the current planning state ("" for none).
-## [param extra]: details appended in the analysis layer (unit details, battlefield rules).
-static func describe(readout: ActionReadout, details: bool, prompt: String = "", extra: String = "") -> String:
+## The card as BBCode text: the immediate layer, plus the analysis layer when [param details].
+static func describe(readout: ActionReadout, details: bool) -> String:
 	var lines := PackedStringArray()
 	if not readout.legal:
 		lines.append("[color=%s]Unavailable · %s[/color]" % [UITheme.hex(UITheme.THREAT), readout.reason])
@@ -301,16 +281,12 @@ static func describe(readout: ActionReadout, details: bool, prompt: String = "",
 	if details:
 		lines.append("")
 		_details_block(readout, lines)
-		if not extra.is_empty():
-			lines.append("")
-			lines.append(extra)
-	if not prompt.is_empty():
-		lines.append(_dim(prompt))
 	return "\n".join(lines)
 
 
-## The analysis layer alone (the Details panel): action details, then [param extra].
-static func describe_details(readout: ActionReadout, extra: String = "") -> String:
+## The analysis layer alone (expanded inspection beneath the card): authored rules, named support
+## effects, per-grade numbers, formula and windows.
+static func describe_details(readout: ActionReadout) -> String:
 	var lines := PackedStringArray()
 	lines.append("[color=%s]%s[/color]" % [UITheme.hex(UITheme.INFO), readout.category_text])
 	if not readout.description.is_empty():
@@ -318,13 +294,20 @@ static func describe_details(readout: ActionReadout, extra: String = "") -> Stri
 	for note in readout.support_effects:
 		lines.append("[color=%s]%s · %s[/color]\n%s" % [UITheme.hex(note.color), note.label, readout.actor_name if note.recipient == "self" else note.recipient, note.explanation])
 	_details_block(readout, lines)
-	if not extra.is_empty():
-		lines.append("")
-		lines.append(extra)
 	return "\n\n".join(lines)
 
 static func action_height(readout: ActionReadout) -> float:
 	return 80 + (UITheme.secondary_size() + 12) * (maxi(1, readout.targets.size()) + readout.support_effects.size()) + (38 if not readout.statuses.is_empty() else 0)
+
+
+## Native (unscaled) height a nested card needs for [param readout]: its rows are drawn bottom-up,
+## so callers size the card with this rather than with their own row arithmetic.
+static func card_height(readout: RefCounted) -> float:
+	if readout is IntentReadout:
+		return intent_height(readout)
+	if readout is ActionReadout:
+		return action_height(readout)
+	return 0.0
 
 
 static func _header(readout: ActionReadout) -> String:

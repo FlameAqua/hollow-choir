@@ -2,13 +2,15 @@ class_name ActionPicker
 extends Node
 ## Planning: focus an action → review a recipient for any explicitly targeted action → commit.
 ## Back from the target returns to the same action and spends nothing. The preview always shows the
-## focused action against its actual target; pointer hover never replaces it unless Details is on,
-## and Details never moves the target. Owns no battle state; returns an ActionChoice.
+## focused action against its actual target. While target review is open, pointer hover moves the
+## reviewed recipient unless Details is on (Details never moves the target). Owns no battle state;
+## returns an ActionChoice.
 
 signal picked(choice: ActionChoice)
 ## The planning prompt changed (help bar text).
 signal help_changed(text: String)
-signal target_reviewed(uid: int)
+## Direction/Confirm/Back arrived; emitted before target review consumes the key, so the shared
+## inspector can follow keyboard focus even when its own input callback never sees the event.
 signal keyboard_navigation
 
 enum Mode { IDLE, MENU, TARGET }
@@ -16,40 +18,23 @@ enum Mode { IDLE, MENU, TARGET }
 var engine: BattleEngine
 var menu: ActionMenu
 var battlefield: Battlefield
-var rail: IntentRail
 var info: PreviewPanel
 ## Details (analysis layer) is on: hold, toggle or Always.
-var details := false:
-	set(value):
-		if details != value:
-			details = value
-			if not value:
-				_detail_uid = -1
-			render()
-## Lab debug: AI reasoning in unit details.
-var show_debug := false
-## Where the analysis layer goes (the Details panel over the stage); null = appended to the preview
-## (stacked large-text layout).
-var details_view: DetailsPanel
+var details := false
 
 var _mode := Mode.IDLE
 var _unit: BattleUnit
 var _focused: ActionOption
-var _group: Array = []
 var _option: ActionOption
 var _targets: Array[int] = []
 var _target_index := 0
 var _last_enemy_target := -1
-## Unit under the pointer while Details is on (-1 = the action's own target).
-var _detail_uid := -1
 
 
-func setup(p_engine: BattleEngine, p_menu: ActionMenu, p_battlefield: Battlefield, p_rail: IntentRail,
-		p_info: PreviewPanel) -> void:
+func setup(p_engine: BattleEngine, p_menu: ActionMenu, p_battlefield: Battlefield, p_info: PreviewPanel) -> void:
 	engine = p_engine
 	menu = p_menu
 	battlefield = p_battlefield
-	rail = p_rail
 	info = p_info
 	menu.preview_provider = func(option: ActionOption) -> ActionReadout:
 		var target := _targets[_target_index] if _mode == Mode.TARGET and option == _option else _default_target(option)
@@ -79,8 +64,6 @@ func acting_unit() -> BattleUnit:
 func choose(request: ActionSelectRequest) -> ActionChoice:
 	_unit = engine.get_unit(request.unit_uid)
 	_focused = null
-	_group = []
-	_detail_uid = -1
 	_mode = Mode.MENU
 	battlefield.set_highlight(-1)
 	menu.show_options(_unit, request.options, engine)
@@ -92,34 +75,24 @@ func choose(request: ActionSelectRequest) -> ActionChoice:
 ## Abandons the selection (battle freed or restarted).
 func cancel() -> void:
 	_mode = Mode.IDLE
-	target_reviewed.emit(-1)
 	menu.hide_menu()
 	battlefield.set_highlight(-1)
-	if rail != null:
-		rail.set_selected(-1)
 
 
-## Re-renders the preview for the current focus (Details toggled, device changed…).
+## Re-renders the preview for the current focus (device changed, returned from target review…).
 func render() -> void:
 	match _mode:
 		Mode.MENU:
 			if _focused != null:
 				_show(_focused, _default_target(_focused))
-			elif not _group.is_empty():
-				_show_group(_group)
 		Mode.TARGET:
 			_show(_option, _targets[_target_index])
 
 
-## Pointer over a unit: with Details on it chooses whose details to show; while targeting (Details
-## off) it moves the target cursor. Otherwise it does nothing (the action summary stays).
+## Pointer over a unit while targeting moves the target cursor, unless Details is on: expanded
+## inspection may read any unit without changing the reviewed recipient.
 func hover(uid: int) -> void:
-	if _mode == Mode.IDLE:
-		return
-	if details:
-		if uid >= 0 and uid != _detail_uid:
-			_detail_uid = uid
-			render()
+	if _mode == Mode.IDLE or details:
 		return
 	if _mode == Mode.TARGET and uid >= 0 and _targets.has(uid) and _targets[_target_index] != uid:
 		_target_index = _targets.find(uid)
@@ -141,10 +114,6 @@ func _input(event: InputEvent) -> void:
 			keyboard_navigation.emit()
 			break
 	if _mode == Mode.MENU:
-		if event.is_action_pressed(InputBindings.CANCEL) and menu.in_group():
-			get_viewport().set_input_as_handled()
-			AudioManager.play(AudioManager.Cue.UI_CANCEL)
-			menu.back()
 		return
 	var step := 0
 	if event.is_action_pressed(InputBindings.LEFT) or event.is_action_pressed(InputBindings.UP):
@@ -175,12 +144,11 @@ func back_to_menu() -> void:
 	help_changed.emit(_help())
 
 
-func _on_row_focused(option: ActionOption, group: Array) -> void:
+func _on_row_focused(option: ActionOption) -> void:
 	if _mode != Mode.MENU:
 		return
 	AudioManager.play(AudioManager.Cue.UI_MOVE, 0.0, -8.0)
 	_focused = option
-	_group = group
 	render()
 	help_changed.emit(_help())
 
@@ -216,7 +184,6 @@ func _update_target() -> void:
 
 
 func _submit(option: ActionOption, target_uid: int) -> void:
-	target_reviewed.emit(-1)
 	var target := engine.get_unit(target_uid)
 	if target != null and target.is_enemy():
 		_last_enemy_target = target_uid
@@ -224,8 +191,6 @@ func _submit(option: ActionOption, target_uid: int) -> void:
 	menu.hide_menu()
 	help_changed.emit("")
 	battlefield.set_highlight(-1)
-	if rail != null:
-		rail.set_selected(-1)
 	picked.emit(ActionChoice.from_option(_unit.uid, option, target_uid))
 
 
@@ -249,63 +214,14 @@ func _show(option: ActionOption, target_uid: int) -> void:
 	_highlight(readout)
 
 
-## Group row focused: what is inside, with costs and reasons, before opening it.
-func _show_group(group: Array) -> void:
-	var lines := PackedStringArray()
-	for item: ActionOption in group:
-		var name := item.action.display_name
-		if item.item_slot >= 0:
-			name = engine.get_state().potion_slots[item.item_slot].potion.display_name
-		var cost := " · %d Focus" % item.action.focus_cost if item.action.focus_cost > 0 else ""
-		var line := "[b]%s[/b]%s" % [name, cost]
-		if not item.legal:
-			line += "  [color=%s]%s[/color]" % [UITheme.hex(UITheme.THREAT), ActionReadout.reason_text(_unit, item)]
-		lines.append(line)
-		if not item.action.description.is_empty():
-			lines.append("[color=%s]%s[/color]" % [UITheme.hex(UITheme.TEXT_DIM), item.action.description])
-	lines.append("[color=%s]%s Open[/color]" % [UITheme.hex(UITheme.TEXT_DIM), InputBindings.prompt(InputBindings.CONFIRM)])
-	info.show_text("\n".join(lines))
-	battlefield.set_highlight(-1)
-	if rail != null:
-		rail.set_selected(-1)
-
-
-## Bone-gold bracket + "TARGET" on the unit(s) the action would actually hit, and the rail slot.
+## Selection brackets on the unit(s) the action would actually hit (no words over the sprites).
 func _highlight(readout: ActionReadout) -> void:
 	var uids: Array[int] = []
 	for row in readout.targets:
 		uids.append(row.uid)
 	if readout.scope == ActionReadout.Scope.SELF:
 		uids = [_unit.uid]
-	battlefield.set_highlights(uids, "TARGET" if _mode == Mode.TARGET or uids.size() == 1 else "TARGETS")
-	if rail != null:
-		rail.set_selected(uids[0] if uids.size() == 1 and engine.get_unit(uids[0]).is_enemy() else -1)
-	target_reviewed.emit(uids[0] if _mode == Mode.TARGET and uids.size() == 1 else -1)
-
-
-func _details_extra(readout: ActionReadout) -> String:
-	var uid := _detail_uid
-	if uid < 0:
-		uid = readout.targets[0].uid if not readout.targets.is_empty() else _unit.uid
-	var parts := PackedStringArray()
-	parts.append(UnitDetails.describe(engine, engine.get_unit(uid), show_debug))
-	for active in engine.get_state().conditions:
-		parts.append("[color=%s]%s[/color]" % [UITheme.hex(UITheme.WET), "\n".join(RuleNotes.condition_rule(engine.ctx.library, active.definition))])
-	var interactions := RuleNotes.status_interactions(engine.ctx.library)
-	if not interactions.is_empty():
-		parts.append("[color=%s]Status rules: %s[/color]" % [UITheme.hex(UITheme.TEXT_DIM), " ".join(interactions)])
-	return "\n\n".join(parts)
-
-
-func _prompt(option: ActionOption) -> String:
-	if not option.legal:
-		return ""
-	var confirm := InputBindings.prompt(InputBindings.CONFIRM)
-	if _mode == Mode.TARGET:
-		return "%s Confirm target · %s Back" % [confirm, InputBindings.prompt(InputBindings.CANCEL)]
-	if option.action.needs_target_choice():
-		return "%s Choose target" % confirm
-	return "%s Use" % confirm
+	battlefield.set_highlights(uids)
 
 
 ## Device-aware keys for the current planning step only (M1.1 context help).
@@ -321,10 +237,9 @@ func _help() -> String:
 				InputBindings.label(InputBindings.RIGHT), InputBindings.prompt(InputBindings.CONFIRM),
 				InputBindings.prompt(InputBindings.CANCEL)]
 		Mode.MENU:
-			var back := " · %s Back" % InputBindings.prompt(InputBindings.CANCEL) if menu.in_group() else \
-				" · %s Pause" % InputBindings.prompt(InputBindings.MENU)
-			return "[%s/%s] Choose · %s Select%s · %s Details" % [InputBindings.label(InputBindings.UP),
-				InputBindings.label(InputBindings.DOWN), InputBindings.prompt(InputBindings.CONFIRM), back, details_key]
+			return "[%s/%s] Choose · %s Select · %s Pause · %s Details" % [InputBindings.label(InputBindings.UP),
+				InputBindings.label(InputBindings.DOWN), InputBindings.prompt(InputBindings.CONFIRM),
+				InputBindings.prompt(InputBindings.MENU), details_key]
 	return ""
 
 func target_prompt() -> String:

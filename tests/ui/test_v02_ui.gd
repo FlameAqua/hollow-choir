@@ -32,15 +32,15 @@ func test_modifiers_do_not_replace_pointer_details_and_alt_uses_one_card() -> vo
 		event.pressed = true
 		Input.parse_input_event(event)
 		await _frames(6)
-		assert_true(scene._inspector._pointer, "modifier keeps the pointer source")
+		assert_true(scene._inspector.follows_pointer(), "modifier keeps the pointer source")
 		if key == KEY_ALT:
 			assert_true(scene._inspector.expanded, "Alt expands the current inspector")
+			assert_eq(_stage_panels(scene), [scene._inspector], "Alt never stacks a second details window over the stage")
 		assert_true(scene._inspector.shown_text().contains(enemy.display_name), "modifier cannot replace enemy with keyboard-focused action")
 		event.pressed = false
 		Input.parse_input_event(event)
 		await _frames(3)
 		assert_false(scene._inspector.expanded, "releasing Alt collapses the structured card")
-	assert_false(scene._details_panel.visible, "Alt never stacks a second details window")
 	assert_false(scene._inspector.get_global_rect().intersects(scene._supplies.get_global_rect()))
 	var before := scene.engine.input_log.size()
 	var space := InputBindings.event_from_code("key:Space")
@@ -68,7 +68,7 @@ func test_modifiers_do_not_replace_pointer_details_and_alt_uses_one_card() -> vo
 	right.pressed = false
 	_tree.root.push_input(right, true)
 	await _frames(10)
-	assert_false(scene._inspector._pointer, "consumed target navigation switches inspection from mouse to keyboard")
+	assert_false(scene._inspector.follows_pointer(), "consumed target navigation switches inspection from mouse to keyboard")
 	assert_true(scene._inspector.shown_text().contains(scene.engine.get_unit(scene._picker.reviewed_target_uid()).display_name))
 	scene._picker.back_to_menu()
 	scene.cover_for_host()
@@ -269,6 +269,63 @@ func test_expanded_action_details_own_wheel_over_the_action_source() -> void:
 	_wheel(point)
 	await _frames(3)
 	assert_gt(list_scroll.scroll_vertical, 0, "releasing Alt restores normal list scrolling")
+	scene.queue_free()
+
+func test_wheel_ownership_ignores_handler_order_and_covers_supplies_and_enemy_sources() -> void:
+	var scene := await _battle()
+	# Put the inspector before the menu, so the menu's input callback now runs first. The one
+	# shared wheel rule must still decide; this ordering previously sent the wheel to the list.
+	scene.move_child(scene._inspector, scene._menu.get_index())
+	scene._menu.size.y = 120
+	scene._supplies.size.y = 64
+	var actor := scene._picker.acting_unit()
+	scene._menu.preview_provider = func(option: ActionOption) -> ActionReadout:
+		var readout := ActionReadout.build(scene.engine, actor.uid, option)
+		readout.details += "\n" + "A long rule explanation for scrolling.\n".repeat(35)
+		return readout
+	await _frames(4)
+	var details := scene._inspector._scroll
+	for list: ScrollContainer in [scene._menu._action_scroll, scene._menu._supply_scroll]:
+		var source: Button
+		for button in scene._menu._buttons:
+			if list.is_ancestor_of(button):
+				source = button
+				break
+		assert_not_null(source)
+		assert_gt(list.get_v_scroll_bar().max_value, list.size.y, "the constrained list overflows")
+		# A point over the button that is inside the list's visible (clipped) area.
+		var point := Vector2(source.get_global_rect().get_center().x, list.get_global_rect().position.y + minf(10, list.size.y * 0.5))
+		list.scroll_vertical = 0
+		_move(point)
+		assert_true(await _inspecting(scene, source), "the card adopts the hovered source")
+		Input.action_press(InputBindings.INFO)
+		await _frames(5)
+		assert_true(scene._inspector.expanded)
+		details.scroll_vertical = 0
+		_wheel(point)
+		await _frames(3)
+		assert_gt(details.scroll_vertical, 0, "expanded details own the wheel over their source")
+		assert_eq(list.scroll_vertical, 0, "one wheel event moves one pane")
+		Input.action_release(InputBindings.INFO)
+		await _frames(4)
+		_wheel(point)
+		await _frames(3)
+		assert_gt(list.scroll_vertical, 0, "collapsed inspection: the hovered list scrolls")
+		list.scroll_vertical = 0
+	# An enemy body is not inside a list: its card scrolls from the source.
+	var enemy := scene.engine.get_state().enemies()[0]
+	scene._inspector.bounds_provider = func() -> Rect2: return Rect2(24, 140, 1232, 110)
+	_move(scene._battlefield.body_point(enemy.uid))
+	assert_true(await _inspecting(scene, scene._battlefield.view(enemy.uid)), "the card adopts the enemy source")
+	Input.action_press(InputBindings.INFO)
+	await _frames(6)
+	assert_true(scene._inspector._unit_card.visible)
+	assert_gt(details.get_v_scroll_bar().max_value, details.size.y, "expanded enemy analysis overflows the constrained card")
+	details.scroll_vertical = 0
+	_wheel(scene._battlefield.body_point(enemy.uid))
+	await _frames(3)
+	assert_gt(details.scroll_vertical, 0, "wheel over the enemy source scrolls its card")
+	Input.action_release(InputBindings.INFO)
 	scene.queue_free()
 
 func test_single_ally_intercept_requires_explicit_target_and_cancel_spends_nothing() -> void:
@@ -871,6 +928,20 @@ func _battle() -> BattleScene:
 func _frames(count: int) -> void:
 	for i in count:
 		await _tree.process_frame
+
+## Waits (real time) until the inspector shows [param source]; replacing a subject settles briefly.
+func _inspecting(scene: BattleScene, source: Control) -> bool:
+	var deadline := Time.get_ticks_msec() + 2000
+	while scene._inspector._source != source and Time.get_ticks_msec() < deadline:
+		await _tree.process_frame
+	return scene._inspector._source == source
+
+## Visible framed panels over the stage, other than those nested inside the inspector's own card.
+func _stage_panels(scene: BattleScene) -> Array:
+	var stage := scene._battlefield.get_global_rect()
+	return scene.find_children("*", "PanelContainer", true, false).filter(func(node: Node) -> bool:
+		var panel := node as Control
+		return panel.is_visible_in_tree() and panel.get_global_rect().intersects(stage) and not scene._inspector.is_ancestor_of(panel))
 
 func _move(point: Vector2) -> void:
 	var motion := InputEventMouseMotion.new()

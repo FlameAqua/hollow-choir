@@ -26,8 +26,6 @@ var ledger: PresentationLedger
 var views: Dictionary[int, UnitView] = {}
 var screen_shake := true
 var reduce_motion := false
-## Legacy compatibility field; the icon-first layout leaves it empty and does not reserve space.
-var reserved_rect := Rect2()
 ## Real art on/off (tests compare results with art disabled).
 var use_art := true
 
@@ -56,17 +54,14 @@ func setup(p_engine: BattleEngine, p_ledger: PresentationLedger, reduce_flashing
 	for child in _stage.get_children():
 		child.queue_free()
 	views.clear()
-	var slot := 0
 	for unit in engine.get_state().units:
 		var view := UnitView.new()
 		view.name = "Unit%d" % unit.uid
 		view.reduce_flashing = reduce_flashing
 		view.reduce_motion = reduce_motion
 		view.use_sprites = use_art
-		if unit.is_enemy():
-			slot += 1
 		_stage.add_child(view)
-		view.setup(unit, ledger, slot if unit.is_enemy() else 0)
+		view.setup(unit, ledger)
 		view.clicked.connect(func(uid: int) -> void: unit_clicked.emit(uid))
 		view.hovered.connect(func(uid: int) -> void: unit_hovered.emit(uid))
 		view.mouse_exited.connect(func() -> void: unit_hovered.emit(-1))
@@ -76,12 +71,6 @@ func setup(p_engine: BattleEngine, p_ledger: PresentationLedger, reduce_flashing
 
 func view(uid: int) -> UnitView:
 	return views.get(uid)
-
-
-## 1-based rail slot of an enemy (stable for the whole battle), or 0.
-func slot_of(uid: int) -> int:
-	var unit_view := view(uid)
-	return unit_view.slot if unit_view != null else 0
 
 
 ## Global position of a unit's body centre (reaction rings, projectiles).
@@ -102,32 +91,22 @@ func forward(uid: int) -> Vector2:
 	return Vector2.LEFT if unit != null and unit.is_enemy() else Vector2.RIGHT
 
 
-func set_active(uid: int, label: String = "") -> void:
+## Dim corner brackets on the acting unit (-1 clears). The portrait timeline names whose turn it is.
+func set_active(uid: int) -> void:
 	for key: int in views:
-		views[key].active_label = label if key == uid else ""
 		views[key].active = key == uid
 
 
-## Highlights [param uid] with a bracket and [param label] ("TARGET"); -1 clears.
-func set_highlight(uid: int, label: String = "TARGET") -> void:
+## Selection brackets on [param uid]; -1 clears. No word is drawn over the sprite.
+func set_highlight(uid: int) -> void:
 	for key: int in views:
-		views[key].highlight_label = label
 		views[key].highlighted = key == uid
 
 
-## Highlights several units at once (reaction targets).
-func set_highlights(uids: Array[int], label: String) -> void:
+## Selection brackets on several units at once (action targets, reaction targets).
+func set_highlights(uids: Array[int]) -> void:
 	for key: int in views:
-		views[key].highlight_label = label
 		views[key].highlighted = uids.has(key)
-
-
-## Shows or hides every nameplate (hidden at large text; the rail and party column carry the
-## numbers and a slot badge identifies each unit).
-func set_plates(visible_plates: bool) -> void:
-	for key: int in views:
-		views[key].show_plate = visible_plates
-	layout_units()
 
 
 func refresh_units() -> void:

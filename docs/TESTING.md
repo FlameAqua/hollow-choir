@@ -19,7 +19,7 @@ the project has been imported once. Re-run it after adding new scripts.
 ## 2. Automated suites
 
 ```sh
-godot --headless --path . --script res://tests/run_tests.gd                  # everything (~25 s)
+godot --headless --path . --script res://tests/run_tests.gd                  # everything (~40 s)
 godot --headless --path . --script res://tests/run_tests.gd -- --filter=ui   # substring filter
 godot --headless --path . --script res://tools/check_scripts.gd              # compile every script
 ```
@@ -27,7 +27,43 @@ godot --headless --path . --script res://tools/check_scripts.gd              # c
 The runner exits with code 1 on any failure. A test also fails when it causes an engine or script
 error it did not declare with `expect_engine_errors(n)` — a `push_error` or a runtime error inside
 game code is never silently ignored. (Some tests deliberately trigger errors, e.g. corrupt saves; the
-console shows those, the test counts them.)
+console shows those, the test counts them.) Expected diagnostics in a passing full run: four
+invalid-save errors (missing/future `save_version`, a corrupt file and its JSON parse error) and one
+`BattleEngine: rejected action (Needs 5 Focus)` warning. Anything else is unexpected.
+
+Run the suite alone. Widget tests use wall-clock timing, so a parallel Godot process can make them
+flaky. Headless probes and simulations can run in parallel.
+
+### Isolated user data (QA launcher)
+
+Godot reads `user://settings.cfg` (text size, bindings, window mode…) at startup, and some tests
+and captures write `user://` files. On a development machine, wrap any command in the QA launcher so
+each run uses a fresh, throwaway user-data home:
+
+```sh
+python tools/qa_godot.py --headless --script res://tools/check_scripts.gd
+python tools/qa_godot.py --headless --script res://tests/run_tests.gd -- --filter=test_v02_ui
+```
+
+It takes the same Godot arguments (`--path` is added). Choose the executable with `--godot PATH`
+or the `GODOT` variable. Use `--home DIR` to reuse a home, or `--keep-home` to inspect one. The test
+runner and capture tool print `User data: …` first and stop with exit code 1 if the launcher asked
+for isolation that did not take effect. CI runners start clean, so CI calls Godot directly.
+
+### Rendered captures
+
+`tools/capture_battle.gd` renders the real scenes for visual review. It needs a display, not
+`--headless`. Its header lists every state and option, including opening/condition announcements,
+held preparation beats, inspection, recipient review and Setup/resume:
+
+```sh
+python tools/qa_godot.py --hidden --rendering-method gl_compatibility --script res://tools/capture_battle.gd -- \
+    --state=prepare-reaction --scale=2.0 --out=res://docs/reports/<pass>/reaction_200.png
+```
+
+Captures are fixtures. To hold a moment, the harness pauses presentation tweens, freezes widget
+clocks and supplies synthetic pointer/focus input. Report them as such. They do not measure timing
+skill, input latency or human comprehension. It never edits settings files, saves, rules or art.
 
 | Suite | What it guards |
 |---|---|
@@ -46,8 +82,8 @@ console shows those, the test counts them.)
 | `ui/test_presentation.gd` | M1.1 knowledge filtering: unknown affinities hide every derived number, a revealing hit unlocks one damage type, Inspect reveals without changing results, per-target area previews, honest status qualifiers, previews consume no RNG/Focus, research-gated intent labels, channel countdowns, reaction readouts read the rules |
 | `ui/test_icon_ui.gd` | icon-first UI: immediate inspector with short-gap retention, icon/reaction legality from the filtered readouts, full-size cast and supply costs, every semantic icon and migrated art loads, four wide enemies keep disjoint lanes, reaction visuals share the graders' windows |
 | `ui/test_stage_art.gd` | stage refresh: the defeated pose follows the presented UNIT_DEFEATED (not the HP tween), corpses stay addressable but never living targets, nine static dead poses, shared footing and compact plates, enlarged title focus/scroll |
-| `ui/test_presentation_boundaries.gd` | playback never runs ahead of presented events (timeline, condition ribbon, forecast, intent rail including Inspect mid-batch), pinned details leave targets clickable, the sandbox setup page only covers a paused battle, the inspector reads only its own battle, unusable options explain themselves, the reaction cue appears only when a press would be read, portrait/corpse/Broken+Exposed fallbacks draw |
-| `ui/test_v02_ui.gd` | modifier/Alt hover stability, timeline-to-action hover recovery, source/card overflow scrolling, fixed Practice footer at five resolutions and three text sizes, individual health/break/reaction explanations and displayed-intent cards, deliberate confirm/rebinding mirrors, global resolution persistence/fallback |
+| `ui/test_presentation_boundaries.gd` | playback never runs ahead of presented events (timeline, condition ribbon, forecast, intent rail including Inspect mid-batch), target review pins no popup and leaves targets clickable, an open unit card follows presented cover, the sandbox setup page only covers a paused battle, the inspector reads only its own battle, unusable options explain themselves, the reaction cue appears only when a press would be read, portrait/corpse/Broken+Exposed fallbacks draw |
+| `ui/test_v02_ui.gd` | modifier/Alt hover stability and one card over the stage, timeline-to-action hover recovery, source/card overflow scrolling, wheel ownership in either handler order (actions, supplies, enemy sources), fixed Practice footer at five resolutions and three text sizes, individual health/break/reaction explanations and displayed-intent cards, explicit sole-recipient review, Hold/Toggle/Always, support cards, condition docking, familiar footing, the preparation beat for all command types and reactions, announcement fitting and hover suppression, deliberate confirm/rebinding mirrors, global resolution persistence/fallback |
 
 V0.2 supersedes the older pinned-inspection expectation: target review retains facts in the dock
 without automatically pinning a popup. Setup owns one overlay, disables covered battle input and
@@ -60,6 +96,46 @@ requires separate action and recipient confirmation.
 
 UI tests are coroutines (`await` frames/signals); the runner awaits each test. Widget tests inject
 input at a chosen moment by back-dating the widget's start time instead of waiting in real time.
+
+### V0.3 additions
+
+`ui/test_v03_field_guide.gd` guards save-only research levels, later-phase cards, changed thresholds,
+existing progression round trips, unknown saved IDs, read-only/focus/scroll behavior at 100/150/200%,
+empty saves and two visible 200% reaction-help lines. `unit/test_music.gd` covers shuffle bags,
+private RNG, same-cue idempotence, version/tone fallback, end scheduling, real-time fades, rapid
+requests, missing-cue cleanup, imported music and Music-bus mute. Headless audio tests exercise
+transport state; they do not establish audible joins, SFX intelligibility or exact device latency.
+`ui/test_audio_lab.gd` drives the real version/tone buttons into the intense example, checks the
+same-timestamp switches, ending-preview countdown and read-only settings/progress, and verifies initial focus/scroll and fixed Back
+at 100/150/200%. Music tests also cover manual audition validation and shuffle history after tone
+switches. It also drives native pointer/keyboard seek input. Music tests check source offsets,
+shorter targets, nonfinite seek rejection, seeks during fades, rapid switches without mix-age drift
+and overlapping player positions after audio frames. `test_import_music.py` protects originals,
+verifies metadata renames and archived swaps,
+and rejects unknown cues/duplicate formats. Import usage: [music instructions](audio/MUSIC_IMPORT.md).
+
+Run media preparation tests with Python 3.11+ and FFmpeg/FFprobe:
+
+```sh
+python -m unittest discover -s tests -p 'test_*.py'
+python tools/prepare_music.py
+```
+
+The Python tests create a temporary tone under `.godot/qa`, perform real decode/trim/replacement,
+check source preservation and cached runs, and cover future version/tone names and duplicate IDs.
+They also reject version zero and repair legacy cached codec/channel metadata without re-encoding.
+Final V0.3 release checks: nine Python tests and 212 Godot tests / 1,976 assertions passed;
+see [Director acceptance](reports/V0_3_DIRECTOR_ACCEPTANCE.md).
+Current exports are cached by source/export hashes; rerunning preparation leaves media unchanged.
+The active library follows inbox additions/removals; old exports remain unselected recovery files.
+
+Capture states `field-guide`, `field-guide-empty` and `weapon-practice` use explicit in-memory
+progress fixtures without save writes. V0.3 captures and their limits are in
+[the report](reports/V0_3_FIELD_GUIDE_AND_AUDIO.md). On a restricted Windows host, use a fresh
+`--home .godot/qa/<run-name>` if the OS temporary folder cannot be written by Godot.
+The `audio-lab` capture selects the supplied intense example and seeks to 45 seconds. Optional
+`--preview-ending` shows the real countdown; `--audio-controls` scrolls the playhead into view.
+These fixtures do not establish audible transition quality.
 
 ## 3. Balance simulation (CLI)
 

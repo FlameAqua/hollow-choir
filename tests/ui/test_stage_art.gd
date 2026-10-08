@@ -12,7 +12,7 @@ func test_defeated_pose_follows_ledger_event_even_while_hp_tween_is_nonzero() ->
 	var ledger := PresentationLedger.new()
 	ledger.snapshot(engine)
 	var view := UnitView.new()
-	view.setup(enemy, ledger, 1)
+	view.setup(enemy, ledger)
 	var before := view.size
 	var damage := BattleEvent.new()
 	damage.type = BattleEvent.Type.DAMAGE

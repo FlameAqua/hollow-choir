@@ -37,6 +37,15 @@ const CONTROL_HEIGHT := 40.0
 ## Bundled pixel font. Preloaded so exported builds keep it as a tracked dependency.
 const PIXEL_FONT := preload("res://assets/art/global/fonts/DepartureMono.otf")
 
+static var _markup: RegEx
+
+
+## [param bbcode] without its markup: plain accessible text, footer explanations and text measurement.
+static func plain_text(bbcode: String) -> String:
+	if _markup == null:
+		_markup = RegEx.create_from_string("\\[[^\\]]*\\]")
+	return _markup.sub(bbcode, "", true)
+
 
 ## Canvas text needs an explicit fit; draw_string's width is an alignment width, not a clip.
 static func fit_text(text: String, width: float, font: Font, font_size: int) -> String:
@@ -123,14 +132,6 @@ static func box(bg: Color, border: Color, border_width: int, radius: int, margin
 	var vertical := margin_v if margin_v >= 0.0 else margin * 0.6
 	style.content_margin_top = vertical
 	style.content_margin_bottom = vertical
-	return style
-
-
-## A panel with a coloured bar on its left edge (intent slots, selected rows).
-static func accent_box(bg: Color, bar: Color, bar_width: int = 4, margin: float = 10.0) -> StyleBoxFlat:
-	var style := box(bg, bar, 0, 2, margin)
-	style.border_width_left = bar_width
-	style.content_margin_left = margin + bar_width
 	return style
 
 
