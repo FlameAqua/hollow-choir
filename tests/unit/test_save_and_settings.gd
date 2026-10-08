@@ -100,8 +100,27 @@ func test_settings_clamp_bad_values() -> void:
 	config.set_value("display", "combat_speed", -3.0)
 	var settings := GameSettings.new()
 	settings.read_from(config)
-	assert_almost_eq(settings.text_scale, 1.75)
+	assert_almost_eq(settings.text_scale, 2.0, 0.001, "200% is the largest text size")
 	assert_almost_eq(settings.combat_speed, 0.5)
+
+
+func test_settings_load_absent_and_unknown_details_modes_safely() -> void:
+	var old_hold := ConfigFile.new()
+	old_hold.set_value("display", "advanced_tooltips", 0)
+	var old_always := ConfigFile.new()
+	old_always.set_value("display", "advanced_tooltips", 1)
+	var future := ConfigFile.new()
+	future.set_value("display", "advanced_tooltips", 7)
+	var settings := GameSettings.new()
+	settings.read_from(ConfigFile.new())
+	assert_eq(settings.advanced_tooltips, GameSettings.TooltipMode.HOLD, "absent key: hold")
+	assert_false(settings.reduce_motion, "absent key: motion stays on")
+	settings.read_from(old_hold)
+	assert_eq(settings.advanced_tooltips, GameSettings.TooltipMode.HOLD, "a saved Hold keeps its meaning")
+	settings.read_from(old_always)
+	assert_eq(settings.advanced_tooltips, GameSettings.TooltipMode.ALWAYS, "a saved Always keeps its meaning")
+	settings.read_from(future)
+	assert_eq(settings.advanced_tooltips, GameSettings.TooltipMode.HOLD, "unknown modes fall back to hold")
 
 
 func test_input_bindings_install_and_round_trip() -> void:

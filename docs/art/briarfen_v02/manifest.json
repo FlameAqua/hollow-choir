@@ -1,0 +1,1864 @@
+{
+  "version": 2,
+  "date": "2026-10-08",
+  "status": "candidate_art_integrated_in_combat_ui",
+  "scope": "Existing content; presentation integration only; combat rules unchanged",
+  "style_guide": "../../../assets/art/STYLE_GUIDE.md",
+  "prompt_record": "prompts.json",
+  "provenance": {
+    "method": "OpenAI built-in image_gen.imagegen",
+    "references": [
+      "assets/art/sources/briarfen/v01/cast.png",
+      "assets/art/environments/briarfen/briarfen_marsh_night_1.png"
+    ],
+    "reference_role": "Project-owned style and palette references; originals unchanged",
+    "generated_source_directory": "C:/Users/Adrian/.codex/generated_images/01a11ac6-9e35-71f2-8ad5-44c55f8e0919",
+    "cleanup_trial": "Three extraction edits were trialled but discarded; they redrew the sources without meeting final pixel/alpha requirements. Original candidates retained."
+  },
+  "region_measurement": {
+    "alpha_threshold_for_visible_bounds": 16,
+    "padding_px": 4,
+    "meaning": "Analysis and declarative atlas regions only; source PNG pixels were not changed; faint residue may remain."
+  },
+  "sprites": [
+    {
+      "id": "straw_penitent",
+      "file": "assets/art/enemies/briarfen/sprites/straw_penitent_idle.png",
+      "size_px": [
+        1312,
+        1199
+      ],
+      "mode": "RGBA",
+      "sha256": "a910bca4bd93297c8d6d179e339cdbf667bd6308f8dd5f4636548170fe89771d",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "partial_alpha_percent": 32.907,
+      "alpha_1_to_239_percent": 5.493,
+      "generated_source": "exec-bebc1924-882d-410d-b41b-b63c06768e68.png",
+      "region_xywh": [
+        150,
+        18,
+        1006,
+        1167
+      ],
+      "native_facing": "left",
+      "feet_anchor_in_region_px": [
+        503.0,
+        1167
+      ],
+      "contact_inset_source_px": 4,
+      "preview_display_height_px": 116,
+      "frames_resource": "assets/art/enemies/briarfen/frames/straw_penitent_idle.tres",
+      "animation": "idle",
+      "frame_count": 1,
+      "status": "candidate_requires_final_size_pixel_cleanup",
+      "runtime_assigned": true,
+      "definition": "data/enemies/straw_penitent.tres"
+    },
+    {
+      "id": "sporecaller",
+      "file": "assets/art/enemies/briarfen/sprites/sporecaller_idle.png",
+      "size_px": [
+        1536,
+        1024
+      ],
+      "mode": "RGBA",
+      "sha256": "b1dd6c2bd7761674ff790f7778e08c8c8250f19c87a3184dd14560342f60d15b",
+      "alpha_range": [
+        0,
+        254
+      ],
+      "partial_alpha_percent": 24.605,
+      "alpha_1_to_239_percent": 4.952,
+      "generated_source": "exec-e01af9f2-1def-4e57-8fb8-5aadd0458056.png",
+      "region_xywh": [
+        343,
+        128,
+        817,
+        822
+      ],
+      "native_facing": "left",
+      "feet_anchor_in_region_px": [
+        408.5,
+        822
+      ],
+      "contact_inset_source_px": 4,
+      "preview_display_height_px": 96,
+      "frames_resource": "assets/art/enemies/briarfen/frames/sporecaller_idle.tres",
+      "animation": "idle",
+      "frame_count": 1,
+      "status": "candidate_requires_final_size_pixel_cleanup",
+      "runtime_assigned": true,
+      "definition": "data/enemies/sporecaller.tres"
+    },
+    {
+      "id": "rotcap_brute",
+      "file": "assets/art/enemies/briarfen/sprites/rotcap_brute_idle.png",
+      "size_px": [
+        1536,
+        1024
+      ],
+      "mode": "RGBA",
+      "sha256": "2823ffbaf9d2d3c3e197b99541c0b7b4cc02119bb264c9f4ec7f1d6125816d58",
+      "alpha_range": [
+        0,
+        254
+      ],
+      "partial_alpha_percent": 40.045,
+      "alpha_1_to_239_percent": 4.732,
+      "generated_source": "exec-04908b7b-2ff0-4623-87fc-218b615e236f.png",
+      "region_xywh": [
+        205,
+        40,
+        1112,
+        937
+      ],
+      "native_facing": "left",
+      "feet_anchor_in_region_px": [
+        556.0,
+        937
+      ],
+      "contact_inset_source_px": 4,
+      "preview_display_height_px": 128,
+      "frames_resource": "assets/art/enemies/briarfen/frames/rotcap_brute_idle.tres",
+      "animation": "idle",
+      "frame_count": 1,
+      "status": "candidate_requires_final_size_pixel_cleanup",
+      "runtime_assigned": true,
+      "definition": "data/enemies/rotcap_brute.tres"
+    },
+    {
+      "id": "bogwife",
+      "file": "assets/art/enemies/briarfen/sprites/bogwife_idle.png",
+      "size_px": [
+        1315,
+        1196
+      ],
+      "mode": "RGBA",
+      "sha256": "dc9333bb3709dfbae442ac4ea33ff512e96eeafccbed2a227a50d7f0c63c6719",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "partial_alpha_percent": 45.123,
+      "alpha_1_to_239_percent": 7.822,
+      "generated_source": "exec-66305640-b541-4ae1-a5ad-3a003a75f6ac.png",
+      "region_xywh": [
+        71,
+        112,
+        1161,
+        1021
+      ],
+      "native_facing": "left",
+      "feet_anchor_in_region_px": [
+        580.5,
+        1021
+      ],
+      "contact_inset_source_px": 4,
+      "preview_display_height_px": 128,
+      "frames_resource": "assets/art/enemies/briarfen/frames/bogwife_idle.tres",
+      "animation": "idle",
+      "frame_count": 1,
+      "status": "candidate_requires_final_size_pixel_cleanup",
+      "runtime_assigned": true,
+      "definition": "data/enemies/bogwife.tres"
+    },
+    {
+      "id": "bramblejaw",
+      "file": "assets/art/enemies/briarfen/sprites/bramblejaw_idle.png",
+      "size_px": [
+        1536,
+        1024
+      ],
+      "mode": "RGBA",
+      "sha256": "c40b9de72238ba539f20df597494354b7395bcc75f22798db1921b177a10ba30",
+      "alpha_range": [
+        0,
+        254
+      ],
+      "partial_alpha_percent": 35.243,
+      "alpha_1_to_239_percent": 7.465,
+      "generated_source": "exec-33335da6-dccc-4eab-840d-aee1976a6e4e.png",
+      "region_xywh": [
+        91,
+        125,
+        1394,
+        814
+      ],
+      "native_facing": "left",
+      "feet_anchor_in_region_px": [
+        697.0,
+        814
+      ],
+      "contact_inset_source_px": 4,
+      "preview_display_height_px": 116,
+      "frames_resource": "assets/art/enemies/briarfen/frames/bramblejaw_idle.tres",
+      "animation": "idle",
+      "frame_count": 1,
+      "status": "candidate_requires_final_size_pixel_cleanup",
+      "runtime_assigned": true,
+      "definition": "data/enemies/bramblejaw.tres"
+    },
+    {
+      "id": "mirebell_cantor",
+      "file": "assets/art/enemies/briarfen/sprites/mirebell_cantor_idle.png",
+      "size_px": [
+        1312,
+        1199
+      ],
+      "mode": "RGBA",
+      "sha256": "75044a2c4f99b0b1600785f0e817c7a16641ec3e0b683a26c5f95d18c88c66a9",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "partial_alpha_percent": 53.637,
+      "alpha_1_to_239_percent": 6.073,
+      "generated_source": "exec-10f5bbc8-5154-49b8-88fb-6866bd2094e9.png",
+      "region_xywh": [
+        128,
+        39,
+        1106,
+        1127
+      ],
+      "native_facing": "left",
+      "feet_anchor_in_region_px": [
+        553.0,
+        1127
+      ],
+      "contact_inset_source_px": 4,
+      "preview_display_height_px": 160,
+      "frames_resource": "assets/art/enemies/briarfen/frames/mirebell_cantor_idle.tres",
+      "animation": "idle",
+      "frame_count": 1,
+      "status": "candidate_requires_final_size_pixel_cleanup",
+      "runtime_assigned": true,
+      "definition": "data/enemies/mirebell_cantor.tres"
+    }
+  ],
+  "atlases": [
+    {
+      "id": "effects",
+      "file": "assets/art/global/ui/combat/atlases/effects_atlas.png",
+      "size_px": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "sha256": "73e09ee3067dc24809c585be9796f0637b5b67deb971fcd802fc06cac4e14504",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "partial_alpha_percent": 43.502,
+      "alpha_1_to_239_percent": 9.476,
+      "generated_source": "exec-e85d0ebf-dc82-4fea-b82a-6d6ba848f55a.png",
+      "layout": "four_by_four_semantic_rows_with_measured_individual_regions_not_uniform_slicing",
+      "requested_size_px": [
+        1024,
+        1024
+      ],
+      "row_boundaries_px": [
+        0,
+        331,
+        625,
+        924,
+        1254
+      ],
+      "column_boundaries_px": [
+        0,
+        309,
+        629,
+        936,
+        1254
+      ],
+      "split_gutter_max_alpha": 1,
+      "status": "candidate_requires_small_size_cleanup",
+      "icons": [
+        {
+          "id": "status_burn",
+          "row": 1,
+          "column": 1,
+          "region_xywh": [
+            59,
+            35,
+            221,
+            282
+          ],
+          "margin_xywh": [
+            30.5,
+            0.0,
+            61,
+            0
+          ],
+          "texture_size_px": [
+            282,
+            282
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/status_burn.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        },
+        {
+          "id": "status_wet",
+          "row": 1,
+          "column": 2,
+          "region_xywh": [
+            390,
+            54,
+            176,
+            263
+          ],
+          "margin_xywh": [
+            43.5,
+            0.0,
+            87,
+            0
+          ],
+          "texture_size_px": [
+            263,
+            263
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/status_wet.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        },
+        {
+          "id": "status_shock",
+          "row": 1,
+          "column": 3,
+          "region_xywh": [
+            703,
+            35,
+            182,
+            281
+          ],
+          "margin_xywh": [
+            49.5,
+            0.0,
+            99,
+            0
+          ],
+          "texture_size_px": [
+            281,
+            281
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/status_shock.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        },
+        {
+          "id": "status_bleed",
+          "row": 1,
+          "column": 4,
+          "region_xywh": [
+            951,
+            45,
+            259,
+            272
+          ],
+          "margin_xywh": [
+            6.5,
+            0.0,
+            13,
+            0
+          ],
+          "texture_size_px": [
+            272,
+            272
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/status_bleed.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        },
+        {
+          "id": "buff_guarding",
+          "row": 2,
+          "column": 1,
+          "region_xywh": [
+            51,
+            351,
+            223,
+            260
+          ],
+          "margin_xywh": [
+            18.5,
+            0.0,
+            37,
+            0
+          ],
+          "texture_size_px": [
+            260,
+            260
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/buff_guarding.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        },
+        {
+          "id": "buff_shielded",
+          "row": 2,
+          "column": 2,
+          "region_xywh": [
+            338,
+            358,
+            276,
+            248
+          ],
+          "margin_xywh": [
+            0.0,
+            14.0,
+            0,
+            28
+          ],
+          "texture_size_px": [
+            276,
+            276
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/buff_shielded.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        },
+        {
+          "id": "buff_shelled",
+          "row": 2,
+          "column": 3,
+          "region_xywh": [
+            653,
+            356,
+            263,
+            255
+          ],
+          "margin_xywh": [
+            0.0,
+            4.0,
+            0,
+            8
+          ],
+          "texture_size_px": [
+            263,
+            263
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/buff_shelled.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        },
+        {
+          "id": "buff_taking_cover",
+          "row": 2,
+          "column": 4,
+          "region_xywh": [
+            950,
+            386,
+            281,
+            233
+          ],
+          "margin_xywh": [
+            0.0,
+            24.0,
+            0,
+            48
+          ],
+          "texture_size_px": [
+            281,
+            281
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/buff_taking_cover.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        },
+        {
+          "id": "buff_steady_aim",
+          "row": 3,
+          "column": 1,
+          "region_xywh": [
+            49,
+            654,
+            223,
+            236
+          ],
+          "margin_xywh": [
+            6.5,
+            0.0,
+            13,
+            0
+          ],
+          "texture_size_px": [
+            236,
+            236
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/buff_steady_aim.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        },
+        {
+          "id": "buff_riposte_stance",
+          "row": 3,
+          "column": 2,
+          "region_xywh": [
+            333,
+            650,
+            257,
+            252
+          ],
+          "margin_xywh": [
+            0.0,
+            2.5,
+            0,
+            5
+          ],
+          "texture_size_px": [
+            257,
+            257
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/buff_riposte_stance.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        },
+        {
+          "id": "buff_anchored",
+          "row": 3,
+          "column": 3,
+          "region_xywh": [
+            646,
+            633,
+            277,
+            283
+          ],
+          "margin_xywh": [
+            3.0,
+            0.0,
+            6,
+            0
+          ],
+          "texture_size_px": [
+            283,
+            283
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/buff_anchored.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        },
+        {
+          "id": "buff_condemned",
+          "row": 3,
+          "column": 4,
+          "region_xywh": [
+            972,
+            638,
+            246,
+            268
+          ],
+          "margin_xywh": [
+            11.0,
+            0.0,
+            22,
+            0
+          ],
+          "texture_size_px": [
+            268,
+            268
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/buff_condemned.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        },
+        {
+          "id": "buff_coiled",
+          "row": 4,
+          "column": 1,
+          "region_xywh": [
+            49,
+            932,
+            235,
+            267
+          ],
+          "margin_xywh": [
+            16.0,
+            0.0,
+            32,
+            0
+          ],
+          "texture_size_px": [
+            267,
+            267
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/buff_coiled.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        },
+        {
+          "id": "buff_chorus_driven",
+          "row": 4,
+          "column": 2,
+          "region_xywh": [
+            356,
+            953,
+            245,
+            241
+          ],
+          "margin_xywh": [
+            0.0,
+            2.0,
+            0,
+            4
+          ],
+          "texture_size_px": [
+            245,
+            245
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/buff_chorus_driven.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        },
+        {
+          "id": "buff_frenzy",
+          "row": 4,
+          "column": 3,
+          "region_xywh": [
+            655,
+            939,
+            266,
+            271
+          ],
+          "margin_xywh": [
+            2.5,
+            0.0,
+            5,
+            0
+          ],
+          "texture_size_px": [
+            271,
+            271
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/buff_frenzy.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        },
+        {
+          "id": "state_broken",
+          "row": 4,
+          "column": 4,
+          "region_xywh": [
+            950,
+            948,
+            270,
+            255
+          ],
+          "margin_xywh": [
+            0.0,
+            7.5,
+            0,
+            15
+          ],
+          "texture_size_px": [
+            270,
+            270
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/state_broken.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        }
+      ]
+    },
+    {
+      "id": "actions",
+      "file": "assets/art/global/ui/combat/atlases/actions_atlas.png",
+      "size_px": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "sha256": "5613a914594610dbc2e62ff216c1a66f95f15cf4cbeba7142c8095a4a063db98",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "partial_alpha_percent": 48.003,
+      "alpha_1_to_239_percent": 15.525,
+      "generated_source": "exec-93a12e50-aafe-48ab-82f6-08bd5474576c.png",
+      "layout": "four_by_four_semantic_rows_with_measured_individual_regions_not_uniform_slicing",
+      "requested_size_px": [
+        1024,
+        1024
+      ],
+      "row_boundaries_px": [
+        0,
+        322,
+        635,
+        918,
+        1254
+      ],
+      "column_boundaries_px": [
+        0,
+        316,
+        630,
+        952,
+        1254
+      ],
+      "split_gutter_max_alpha": 8,
+      "status": "candidate_requires_small_size_cleanup",
+      "icons": [
+        {
+          "id": "action_slash",
+          "row": 1,
+          "column": 1,
+          "region_xywh": [
+            37,
+            41,
+            270,
+            272
+          ],
+          "margin_xywh": [
+            1.0,
+            0.0,
+            2,
+            0
+          ],
+          "texture_size_px": [
+            272,
+            272
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/action_slash.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        },
+        {
+          "id": "action_blunt",
+          "row": 1,
+          "column": 2,
+          "region_xywh": [
+            342,
+            29,
+            275,
+            282
+          ],
+          "margin_xywh": [
+            3.5,
+            0.0,
+            7,
+            0
+          ],
+          "texture_size_px": [
+            282,
+            282
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/action_blunt.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        },
+        {
+          "id": "action_pierce",
+          "row": 1,
+          "column": 3,
+          "region_xywh": [
+            735,
+            21,
+            191,
+            294
+          ],
+          "margin_xywh": [
+            51.5,
+            0.0,
+            103,
+            0
+          ],
+          "texture_size_px": [
+            294,
+            294
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/action_pierce.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        },
+        {
+          "id": "action_fire",
+          "row": 1,
+          "column": 4,
+          "region_xywh": [
+            999,
+            29,
+            216,
+            286
+          ],
+          "margin_xywh": [
+            35.0,
+            0.0,
+            70,
+            0
+          ],
+          "texture_size_px": [
+            286,
+            286
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/action_fire.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        },
+        {
+          "id": "action_storm",
+          "row": 2,
+          "column": 1,
+          "region_xywh": [
+            44,
+            330,
+            226,
+            301
+          ],
+          "margin_xywh": [
+            37.5,
+            0.0,
+            75,
+            0
+          ],
+          "texture_size_px": [
+            301,
+            301
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/action_storm.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        },
+        {
+          "id": "action_guard",
+          "row": 2,
+          "column": 2,
+          "region_xywh": [
+            334,
+            339,
+            266,
+            264
+          ],
+          "margin_xywh": [
+            0.0,
+            1.0,
+            0,
+            2
+          ],
+          "texture_size_px": [
+            266,
+            266
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/action_guard.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        },
+        {
+          "id": "action_inspect",
+          "row": 2,
+          "column": 3,
+          "region_xywh": [
+            678,
+            350,
+            274,
+            254
+          ],
+          "margin_xywh": [
+            0.0,
+            10.0,
+            0,
+            20
+          ],
+          "texture_size_px": [
+            274,
+            274
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/action_inspect.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        },
+        {
+          "id": "action_item",
+          "row": 2,
+          "column": 4,
+          "region_xywh": [
+            1010,
+            354,
+            216,
+            258
+          ],
+          "margin_xywh": [
+            21.0,
+            0.0,
+            42,
+            0
+          ],
+          "texture_size_px": [
+            258,
+            258
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/action_item.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        },
+        {
+          "id": "action_heal",
+          "row": 3,
+          "column": 1,
+          "region_xywh": [
+            36,
+            662,
+            259,
+            250
+          ],
+          "margin_xywh": [
+            0.0,
+            4.5,
+            0,
+            9
+          ],
+          "texture_size_px": [
+            259,
+            259
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/action_heal.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        },
+        {
+          "id": "action_cleanse",
+          "row": 3,
+          "column": 2,
+          "region_xywh": [
+            325,
+            656,
+            297,
+            242
+          ],
+          "margin_xywh": [
+            0.0,
+            27.5,
+            0,
+            55
+          ],
+          "texture_size_px": [
+            297,
+            297
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/action_cleanse.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        },
+        {
+          "id": "action_empower",
+          "row": 3,
+          "column": 3,
+          "region_xywh": [
+            677,
+            639,
+            207,
+            261
+          ],
+          "margin_xywh": [
+            27.0,
+            0.0,
+            54,
+            0
+          ],
+          "texture_size_px": [
+            261,
+            261
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/action_empower.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        },
+        {
+          "id": "action_mark",
+          "row": 3,
+          "column": 4,
+          "region_xywh": [
+            985,
+            662,
+            216,
+            218
+          ],
+          "margin_xywh": [
+            1.0,
+            0.0,
+            2,
+            0
+          ],
+          "texture_size_px": [
+            218,
+            218
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/action_mark.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        },
+        {
+          "id": "action_counter",
+          "row": 4,
+          "column": 1,
+          "region_xywh": [
+            36,
+            944,
+            261,
+            269
+          ],
+          "margin_xywh": [
+            4.0,
+            0.0,
+            8,
+            0
+          ],
+          "texture_size_px": [
+            269,
+            269
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/action_counter.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        },
+        {
+          "id": "action_intercept",
+          "row": 4,
+          "column": 2,
+          "region_xywh": [
+            345,
+            943,
+            272,
+            265
+          ],
+          "margin_xywh": [
+            0.0,
+            3.5,
+            0,
+            7
+          ],
+          "texture_size_px": [
+            272,
+            272
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/action_intercept.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        },
+        {
+          "id": "action_flurry",
+          "row": 4,
+          "column": 3,
+          "region_xywh": [
+            639,
+            935,
+            301,
+            282
+          ],
+          "margin_xywh": [
+            0.0,
+            9.5,
+            0,
+            19
+          ],
+          "texture_size_px": [
+            301,
+            301
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/action_flurry.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        },
+        {
+          "id": "action_anchor",
+          "row": 4,
+          "column": 4,
+          "region_xywh": [
+            952,
+            926,
+            273,
+            284
+          ],
+          "margin_xywh": [
+            5.5,
+            0.0,
+            11,
+            0
+          ],
+          "texture_size_px": [
+            284,
+            284
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/action_anchor.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        }
+      ]
+    },
+    {
+      "id": "intents",
+      "file": "assets/art/global/ui/combat/atlases/intents_atlas.png",
+      "size_px": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "sha256": "4661cf98aa3970131a1ad5362a0d2fbf69eaf2e9d02bb6008bf339dd6aeb627d",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "partial_alpha_percent": 41.962,
+      "alpha_1_to_239_percent": 10.907,
+      "generated_source": "exec-c507b20a-264c-4325-83f2-dfbbea359561.png",
+      "layout": "four_by_four_semantic_rows_with_measured_individual_regions_not_uniform_slicing",
+      "requested_size_px": [
+        1024,
+        1024
+      ],
+      "row_boundaries_px": [
+        0,
+        331,
+        626,
+        922,
+        1254
+      ],
+      "column_boundaries_px": [
+        0,
+        317,
+        627,
+        939,
+        1254
+      ],
+      "split_gutter_max_alpha": 1,
+      "status": "candidate_requires_small_size_cleanup",
+      "icons": [
+        {
+          "id": "intent_attack",
+          "row": 1,
+          "column": 1,
+          "region_xywh": [
+            48,
+            50,
+            256,
+            270
+          ],
+          "margin_xywh": [
+            7.0,
+            0.0,
+            14,
+            0
+          ],
+          "texture_size_px": [
+            270,
+            270
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/intent_attack.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        },
+        {
+          "id": "intent_heavy_attack",
+          "row": 1,
+          "column": 2,
+          "region_xywh": [
+            332,
+            33,
+            286,
+            288
+          ],
+          "margin_xywh": [
+            1.0,
+            0.0,
+            2,
+            0
+          ],
+          "texture_size_px": [
+            288,
+            288
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/intent_heavy_attack.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        },
+        {
+          "id": "intent_area_attack",
+          "row": 1,
+          "column": 3,
+          "region_xywh": [
+            642,
+            92,
+            279,
+            177
+          ],
+          "margin_xywh": [
+            0.0,
+            51.0,
+            0,
+            102
+          ],
+          "texture_size_px": [
+            279,
+            279
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/intent_area_attack.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        },
+        {
+          "id": "intent_hex",
+          "row": 1,
+          "column": 4,
+          "region_xywh": [
+            972,
+            62,
+            245,
+            254
+          ],
+          "margin_xywh": [
+            4.5,
+            0.0,
+            9,
+            0
+          ],
+          "texture_size_px": [
+            254,
+            254
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/intent_hex.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        },
+        {
+          "id": "intent_armor_break",
+          "row": 2,
+          "column": 1,
+          "region_xywh": [
+            51,
+            341,
+            224,
+            269
+          ],
+          "margin_xywh": [
+            22.5,
+            0.0,
+            45,
+            0
+          ],
+          "texture_size_px": [
+            269,
+            269
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/intent_armor_break.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        },
+        {
+          "id": "intent_heal",
+          "row": 2,
+          "column": 2,
+          "region_xywh": [
+            351,
+            358,
+            242,
+            240
+          ],
+          "margin_xywh": [
+            0.0,
+            1.0,
+            0,
+            2
+          ],
+          "texture_size_px": [
+            242,
+            242
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/intent_heal.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        },
+        {
+          "id": "intent_buff",
+          "row": 2,
+          "column": 3,
+          "region_xywh": [
+            670,
+            348,
+            226,
+            252
+          ],
+          "margin_xywh": [
+            13.0,
+            0.0,
+            26,
+            0
+          ],
+          "texture_size_px": [
+            252,
+            252
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/intent_buff.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        },
+        {
+          "id": "intent_protect",
+          "row": 2,
+          "column": 4,
+          "region_xywh": [
+            985,
+            341,
+            223,
+            264
+          ],
+          "margin_xywh": [
+            20.5,
+            0.0,
+            41,
+            0
+          ],
+          "texture_size_px": [
+            264,
+            264
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/intent_protect.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        },
+        {
+          "id": "intent_battlefield",
+          "row": 3,
+          "column": 1,
+          "region_xywh": [
+            24,
+            643,
+            273,
+            264
+          ],
+          "margin_xywh": [
+            0.0,
+            4.5,
+            0,
+            9
+          ],
+          "texture_size_px": [
+            273,
+            273
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/intent_battlefield.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        },
+        {
+          "id": "intent_wait",
+          "row": 3,
+          "column": 2,
+          "region_xywh": [
+            331,
+            730,
+            281,
+            91
+          ],
+          "margin_xywh": [
+            0.0,
+            95.0,
+            0,
+            190
+          ],
+          "texture_size_px": [
+            281,
+            281
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/intent_wait.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        },
+        {
+          "id": "reaction_brace",
+          "row": 3,
+          "column": 3,
+          "region_xywh": [
+            639,
+            643,
+            271,
+            262
+          ],
+          "margin_xywh": [
+            0.0,
+            4.5,
+            0,
+            9
+          ],
+          "texture_size_px": [
+            271,
+            271
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/reaction_brace.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        },
+        {
+          "id": "reaction_evade",
+          "row": 3,
+          "column": 4,
+          "region_xywh": [
+            957,
+            664,
+            272,
+            224
+          ],
+          "margin_xywh": [
+            0.0,
+            24.0,
+            0,
+            48
+          ],
+          "texture_size_px": [
+            272,
+            272
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/reaction_evade.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        },
+        {
+          "id": "reaction_parry",
+          "row": 4,
+          "column": 1,
+          "region_xywh": [
+            43,
+            939,
+            259,
+            274
+          ],
+          "margin_xywh": [
+            7.5,
+            0.0,
+            15,
+            0
+          ],
+          "texture_size_px": [
+            274,
+            274
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/reaction_parry.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        },
+        {
+          "id": "channel",
+          "row": 4,
+          "column": 2,
+          "region_xywh": [
+            373,
+            943,
+            192,
+            266
+          ],
+          "margin_xywh": [
+            37.0,
+            0.0,
+            74,
+            0
+          ],
+          "texture_size_px": [
+            266,
+            266
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/channel.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        },
+        {
+          "id": "interrupt",
+          "row": 4,
+          "column": 3,
+          "region_xywh": [
+            638,
+            949,
+            273,
+            253
+          ],
+          "margin_xywh": [
+            0.0,
+            10.0,
+            0,
+            20
+          ],
+          "texture_size_px": [
+            273,
+            273
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/interrupt.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        },
+        {
+          "id": "unavailable",
+          "row": 4,
+          "column": 4,
+          "region_xywh": [
+            966,
+            946,
+            251,
+            258
+          ],
+          "margin_xywh": [
+            3.5,
+            0.0,
+            7,
+            0
+          ],
+          "texture_size_px": [
+            258,
+            258
+          ],
+          "texture_resource": "assets/art/global/ui/combat/icons/unavailable.tres",
+          "target_display_size_px": 32,
+          "runtime_lookup_integrated": true
+        }
+      ]
+    }
+  ],
+  "import": {
+    "compression": "lossless",
+    "filter": "nearest",
+    "mipmaps": false
+  },
+  "non_goals": [
+    "new gameplay content",
+    "balance changes",
+    "full animation",
+    "final pixel-art approval",
+    "human clarity acceptance"
+  ],
+  "mappings": {
+    "statuses": {
+      "1": "status_burn",
+      "2": "status_wet",
+      "3": "status_shock",
+      "5": "status_bleed"
+    },
+    "buffs": {
+      "anchored": "buff_anchored",
+      "chorus_driven": "buff_chorus_driven",
+      "coiled": "buff_coiled",
+      "condemned": "buff_condemned",
+      "frenzy": "buff_frenzy",
+      "guarding": "buff_guarding",
+      "riposte_stance": "buff_riposte_stance",
+      "shelled": "buff_shelled",
+      "shielded": "buff_shielded",
+      "steady_aim": "buff_steady_aim",
+      "taking_cover": "buff_taking_cover"
+    },
+    "stagger_states": {
+      "broken": "state_broken"
+    },
+    "player_actions": {
+      "sword_strike": "action_slash",
+      "lunge": "action_pierce",
+      "arc_cleave": "action_slash",
+      "riposte_stance": "action_counter",
+      "hammer_blow": "action_blunt",
+      "earthsplitter": "action_blunt",
+      "shockwave": "action_blunt",
+      "anchor_stance": "action_anchor",
+      "loosed_arrow": "action_pierce",
+      "heartseeker": "action_pierce",
+      "steady_aim": "action_mark",
+      "spotters_mark": "action_mark",
+      "kindle": "action_fire",
+      "spark": "action_storm",
+      "spear_flurry": "action_flurry",
+      "intercept": "action_intercept",
+      "condemn": "action_mark",
+      "guard": "action_guard",
+      "inspect": "action_inspect"
+    },
+    "enemy_actions": {
+      "clamp": {
+        "source": "data/enemies/bogshell.tres",
+        "family_icon": "action_slash",
+        "public_intent_icon": "intent_attack",
+        "intent_category_value": 0,
+        "family_visibility": "only_when_presenter_move_is_named"
+      },
+      "shell_ward": {
+        "source": "data/enemies/bogshell.tres",
+        "family_icon": "action_intercept",
+        "public_intent_icon": "intent_protect",
+        "intent_category_value": 7,
+        "family_visibility": "only_when_presenter_move_is_named"
+      },
+      "shell_slam": {
+        "source": "data/enemies/bogshell.tres",
+        "family_icon": "action_blunt",
+        "public_intent_icon": "intent_heavy_attack",
+        "intent_category_value": 1,
+        "family_visibility": "only_when_presenter_move_is_named"
+      },
+      "moss_mend": {
+        "source": "data/enemies/bogwife.tres",
+        "family_icon": "action_heal",
+        "public_intent_icon": "intent_heal",
+        "intent_category_value": 5,
+        "family_visibility": "only_when_presenter_move_is_named"
+      },
+      "cleansing_mire": {
+        "source": "data/enemies/bogwife.tres",
+        "family_icon": "action_cleanse",
+        "public_intent_icon": "intent_heal",
+        "intent_category_value": 5,
+        "family_visibility": "only_when_presenter_move_is_named"
+      },
+      "bog_spit": {
+        "source": "data/enemies/bogwife.tres",
+        "family_icon": "action_pierce",
+        "public_intent_icon": "intent_attack",
+        "intent_category_value": 0,
+        "family_visibility": "only_when_presenter_move_is_named"
+      },
+      "thornrend": {
+        "source": "data/enemies/bramblejaw.tres",
+        "family_icon": "action_slash",
+        "public_intent_icon": "intent_attack",
+        "intent_category_value": 0,
+        "family_visibility": "only_when_presenter_move_is_named"
+      },
+      "briar_lash": {
+        "source": "data/enemies/bramblejaw.tres",
+        "family_icon": "action_slash",
+        "public_intent_icon": "intent_area_attack",
+        "intent_category_value": 2,
+        "family_visibility": "only_when_presenter_move_is_named"
+      },
+      "hunts_end": {
+        "source": "data/enemies/bramblejaw.tres",
+        "family_icon": "action_pierce",
+        "public_intent_icon": "intent_heavy_attack",
+        "intent_category_value": 1,
+        "family_visibility": "only_when_presenter_move_is_named"
+      },
+      "pack_howl": {
+        "source": "data/enemies/bramblejaw.tres",
+        "family_icon": "action_empower",
+        "public_intent_icon": "intent_buff",
+        "intent_category_value": 6,
+        "family_visibility": "only_when_presenter_move_is_named"
+      },
+      "static_lash": {
+        "source": "data/enemies/fen_wisp.tres",
+        "family_icon": "action_storm",
+        "public_intent_icon": "intent_attack",
+        "intent_category_value": 0,
+        "family_visibility": "only_when_presenter_move_is_named"
+      },
+      "drench": {
+        "source": "data/enemies/fen_wisp.tres",
+        "family_icon": "status_wet",
+        "public_intent_icon": "intent_hex",
+        "intent_category_value": 3,
+        "family_visibility": "only_when_presenter_move_is_named"
+      },
+      "arc_storm": {
+        "source": "data/enemies/fen_wisp.tres",
+        "family_icon": "action_storm",
+        "public_intent_icon": "intent_area_attack",
+        "intent_category_value": 2,
+        "family_visibility": "only_when_presenter_move_is_named"
+      },
+      "toll": {
+        "source": "data/enemies/mirebell_cantor.tres",
+        "family_icon": "action_blunt",
+        "public_intent_icon": "intent_attack",
+        "intent_category_value": 0,
+        "family_visibility": "only_when_presenter_move_is_named"
+      },
+      "root_lash": {
+        "source": "data/enemies/mirebell_cantor.tres",
+        "family_icon": "action_slash",
+        "public_intent_icon": "intent_area_attack",
+        "intent_category_value": 2,
+        "family_visibility": "only_when_presenter_move_is_named"
+      },
+      "mire_spray": {
+        "source": "data/enemies/mirebell_cantor.tres",
+        "family_icon": "status_wet",
+        "public_intent_icon": "intent_hex",
+        "intent_category_value": 3,
+        "family_visibility": "only_when_presenter_move_is_named"
+      },
+      "storm_peal": {
+        "source": "data/enemies/mirebell_cantor.tres",
+        "family_icon": "action_storm",
+        "public_intent_icon": "intent_area_attack",
+        "intent_category_value": 2,
+        "family_visibility": "only_when_presenter_move_is_named"
+      },
+      "requiem": {
+        "source": "data/enemies/mirebell_cantor.tres",
+        "family_icon": "action_storm",
+        "public_intent_icon": "intent_area_attack",
+        "intent_category_value": 2,
+        "family_visibility": "only_when_presenter_move_is_named"
+      },
+      "drowning_toll": {
+        "source": "data/enemies/mirebell_cantor.tres",
+        "family_icon": "action_storm",
+        "public_intent_icon": "intent_attack",
+        "intent_category_value": 0,
+        "family_visibility": "only_when_presenter_move_is_named"
+      },
+      "final_knell": {
+        "source": "data/enemies/mirebell_cantor.tres",
+        "family_icon": "action_blunt",
+        "public_intent_icon": "intent_heavy_attack",
+        "intent_category_value": 1,
+        "family_visibility": "only_when_presenter_move_is_named"
+      },
+      "pummel": {
+        "source": "data/enemies/rotcap_brute.tres",
+        "family_icon": "action_blunt",
+        "public_intent_icon": "intent_attack",
+        "intent_category_value": 0,
+        "family_visibility": "only_when_presenter_move_is_named"
+      },
+      "overgrowth_smash": {
+        "source": "data/enemies/rotcap_brute.tres",
+        "family_icon": "action_blunt",
+        "public_intent_icon": "intent_heavy_attack",
+        "intent_category_value": 1,
+        "family_visibility": "only_when_presenter_move_is_named"
+      },
+      "spore_chorus": {
+        "source": "data/enemies/sporecaller.tres",
+        "family_icon": "action_empower",
+        "public_intent_icon": "intent_buff",
+        "intent_category_value": 6,
+        "family_visibility": "only_when_presenter_move_is_named"
+      },
+      "sporeburst": {
+        "source": "data/enemies/sporecaller.tres",
+        "family_icon": "intent_battlefield",
+        "public_intent_icon": "intent_battlefield",
+        "intent_category_value": 8,
+        "family_visibility": "only_when_presenter_move_is_named"
+      },
+      "needle_hum": {
+        "source": "data/enemies/sporecaller.tres",
+        "family_icon": "action_pierce",
+        "public_intent_icon": "intent_attack",
+        "intent_category_value": 0,
+        "family_visibility": "only_when_presenter_move_is_named"
+      },
+      "practice_swing": {
+        "source": "data/enemies/straw_penitent.tres",
+        "family_icon": "action_blunt",
+        "public_intent_icon": "intent_attack",
+        "intent_category_value": 0,
+        "family_visibility": "only_when_presenter_move_is_named"
+      },
+      "wide_sweep": {
+        "source": "data/enemies/straw_penitent.tres",
+        "family_icon": "action_blunt",
+        "public_intent_icon": "intent_area_attack",
+        "intent_category_value": 2,
+        "family_visibility": "only_when_presenter_move_is_named"
+      },
+      "slow_overhead": {
+        "source": "data/enemies/straw_penitent.tres",
+        "family_icon": "action_blunt",
+        "public_intent_icon": "intent_heavy_attack",
+        "intent_category_value": 1,
+        "family_visibility": "only_when_presenter_move_is_named"
+      },
+      "rending_bite": {
+        "source": "data/enemies/thornhound.tres",
+        "family_icon": "action_slash",
+        "public_intent_icon": "intent_attack",
+        "intent_category_value": 0,
+        "family_visibility": "only_when_presenter_move_is_named"
+      },
+      "harrying_lunge": {
+        "source": "data/enemies/thornhound.tres",
+        "family_icon": "action_pierce",
+        "public_intent_icon": "intent_attack",
+        "intent_category_value": 0,
+        "family_visibility": "only_when_presenter_move_is_named"
+      }
+    },
+    "intent_categories": {
+      "0": "intent_attack",
+      "1": "intent_heavy_attack",
+      "2": "intent_area_attack",
+      "3": "intent_hex",
+      "4": "intent_armor_break",
+      "5": "intent_heal",
+      "6": "intent_buff",
+      "7": "intent_protect",
+      "8": "intent_battlefield",
+      "9": "intent_wait"
+    },
+    "reactions": {
+      "1": "reaction_brace",
+      "2": "reaction_evade",
+      "3": "reaction_parry"
+    },
+    "channel_markers": {
+      "channel": "channel",
+      "interruptible": "interrupt",
+      "unavailable": "unavailable"
+    },
+    "potions": {
+      "clotting_salve": "action_cleanse",
+      "fen_water_flask": "status_wet",
+      "focus_tincture": "action_empower",
+      "mending_draught": "action_heal"
+    },
+    "conditions": {
+      "flooded_ground": "status_wet",
+      "spore_fog": "intent_battlefield"
+    }
+  },
+  "validation": {
+    "file_dimensions_regions_ids_mapping_coverage": "passed",
+    "enemy_definition_count": 9,
+    "new_sprite_count": 6,
+    "texture_count": 48,
+    "status_count": 4,
+    "buff_count": 11,
+    "player_action_count": 19,
+    "enemy_action_count": 30,
+    "runtime_resource_loading": "passed_Godot_4.7.2_six_frames_and_48_textures_zero_issues",
+    "human_art_review": "pending",
+    "final_pixel_cleanup": "pending",
+    "M1_1_fresh_player_gate": "pending",
+    "gameplay_fields_unchanged": [
+      "straw_penitent",
+      "sporecaller",
+      "rotcap_brute",
+      "bogwife",
+      "bramblejaw",
+      "mirebell_cantor"
+    ],
+    "selected_png_hashes": "passed",
+    "runtime_captures": [
+      "runtime_mixed_cast.png",
+      "runtime_elite_boss.png"
+    ],
+    "asset_review_board": "asset_review.png",
+    "browser_gallery_render": "unverified_browser_security_policy_blocks_file_protocol_and_loopback_preview_unreachable",
+    "original_layout_observation": "Intent rail constrains enemy bodies to approximately 50-60px at default scale; final silhouette readability is not approved.",
+    "current_ui_contract": "docs/design/ICON_FIRST_COMBAT_UI.md",
+    "ui_lookup": "integrated_native_CombatIconMap_resource",
+    "ui_regression": {
+      "tests_passed": 142,
+      "tests_failed": 0,
+      "assertions": 928,
+      "scripts_checked": 172,
+      "scripts_failed": 0,
+      "evidence": "docs/reports/ui_refresh/README.md"
+    }
+  },
+  "original_art_only_non_goals": [
+    "new gameplay content",
+    "balance changes",
+    "UI lookup production code",
+    "full animation",
+    "final pixel-art approval",
+    "human clarity acceptance"
+  ]
+}

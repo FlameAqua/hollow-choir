@@ -1,0 +1,38 @@
+[gd_resource type="Theme" load_steps=12 format=3]
+[ext_resource type="StyleBox" path="res://assets/art/global/ui/frames/choir_v01/styles/panel.tres" id="1"]
+[ext_resource type="StyleBox" path="res://assets/art/global/ui/frames/choir_v01/styles/raised.tres" id="2"]
+[ext_resource type="StyleBox" path="res://assets/art/global/ui/frames/choir_v01/styles/selected.tres" id="3"]
+[ext_resource type="StyleBox" path="res://assets/art/global/ui/frames/choir_v01/styles/enemy.tres" id="4"]
+[ext_resource type="StyleBox" path="res://assets/art/global/ui/frames/choir_v01/styles/focus.tres" id="5"]
+[ext_resource type="StyleBox" path="res://assets/art/global/ui/frames/choir_v01/styles/bar_track.tres" id="6"]
+[ext_resource type="StyleBox" path="res://assets/art/global/ui/frames/choir_v01/styles/hp_ally.tres" id="7"]
+[ext_resource type="StyleBox" path="res://assets/art/global/ui/frames/choir_v01/styles/hp_enemy.tres" id="8"]
+[ext_resource type="StyleBox" path="res://assets/art/global/ui/frames/choir_v01/styles/resource_focus.tres" id="9"]
+[ext_resource type="StyleBox" path="res://assets/art/global/ui/frames/choir_v01/styles/resource_stagger.tres" id="10"]
+[ext_resource type="FontFile" path="res://assets/art/global/fonts/DepartureMono.otf" id="font"]
+[resource]
+default_font = ExtResource("font")
+default_font_size = 22
+Panel/styles/panel = ExtResource("1")
+PanelContainer/styles/panel = ExtResource("1")
+TooltipPanel/styles/panel = ExtResource("3")
+Label/colors/font_color = Color(0.945098, 0.917647, 0.835294, 1)
+Button/colors/font_color = Color(0.945098, 0.917647, 0.835294, 1)
+Button/colors/font_hover_color = Color(0.886275, 0.776471, 0.505882, 1)
+Button/colors/font_disabled_color = Color(0.498039, 0.549020, 0.501961, 1)
+Button/styles/normal = ExtResource("2")
+Button/styles/hover = ExtResource("3")
+Button/styles/pressed = ExtResource("1")
+Button/styles/focus = ExtResource("5")
+Button/styles/disabled = ExtResource("1")
+ProgressBar/styles/background = ExtResource("6")
+ProgressBar/styles/fill = ExtResource("7")
+EnemyHealthBar/base_type = &"ProgressBar"
+EnemyHealthBar/styles/background = ExtResource("6")
+EnemyHealthBar/styles/fill = ExtResource("8")
+FocusBar/base_type = &"ProgressBar"
+FocusBar/styles/background = ExtResource("6")
+FocusBar/styles/fill = ExtResource("9")
+StaggerBar/base_type = &"ProgressBar"
+StaggerBar/styles/background = ExtResource("6")
+StaggerBar/styles/fill = ExtResource("10")

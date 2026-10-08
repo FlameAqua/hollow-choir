@@ -1,0 +1,149 @@
+{
+  "catalog_version": 2,
+  "id": "briarfen_marsh",
+  "filename_contract": "briarfen_marsh_<day|night>_<positive integer>.png",
+  "pairing": "Same numeric index is the same composition. Sort numerically within lighting set.",
+  "default_id": "briarfen_marsh_night_1",
+  "selection": "Explicit existing Texture2D assignment; no automatic cycling or rules.",
+  "tool": "built-in imagegen; original night 1 from prior project image generation",
+  "entries": [
+    {
+      "id": "briarfen_marsh_day_1",
+      "title": "Old Marsh / Day",
+      "path": "assets/art/environments/briarfen/briarfen_marsh_day_1.png",
+      "region": "briarfen",
+      "pair_id": "briarfen_marsh_1",
+      "lighting": "day",
+      "index": 1,
+      "dimensions_px": [
+        1672,
+        941
+      ],
+      "mode": "RGB",
+      "sha256": "7fdc7b4736ed6055d50573816a43bf9595ca6aa2d2ae9289cde59b4d4b695e18",
+      "status": "generated_candidate_requires_artist_human_review",
+      "runtime_assignment": "available_for_explicit_assignment",
+      "decorative_only": true,
+      "backdrop_focus_y": 0.62,
+      "intended_actor_plane": "shared open lower foreground; same bottom-centre actor footing",
+      "prompt_record": "docs/art/stage_refresh/prompts_manifest.json",
+      "prompt_entry": "briarfen_marsh_day_1",
+      "cleanup": "PNG bytes unchanged; no resizing, repaint or artist cleanup."
+    },
+    {
+      "id": "briarfen_marsh_night_1",
+      "title": "Old Marsh / Night",
+      "path": "assets/art/environments/briarfen/briarfen_marsh_night_1.png",
+      "region": "briarfen",
+      "pair_id": "briarfen_marsh_1",
+      "lighting": "night",
+      "index": 1,
+      "dimensions_px": [
+        1672,
+        941
+      ],
+      "mode": "RGB",
+      "sha256": "a710438ed98a66ec5155d3928a627418a50f4c90c9a7215a8ac9799621e35d64",
+      "status": "generated_candidate_requires_artist_human_review",
+      "runtime_assignment": "defaults.battle_backdrop and title",
+      "decorative_only": true,
+      "backdrop_focus_y": 0.62,
+      "intended_actor_plane": "shared open lower foreground; same bottom-centre actor footing",
+      "prompt_record": "docs/art/briarfen_v01/manifest.json",
+      "prompt_entry": "stage",
+      "cleanup": "PNG bytes unchanged; no resizing, repaint or artist cleanup."
+    },
+    {
+      "id": "briarfen_marsh_day_2",
+      "title": "Sunken Bell Causeway / Day",
+      "path": "assets/art/environments/briarfen/briarfen_marsh_day_2.png",
+      "region": "briarfen",
+      "pair_id": "briarfen_marsh_2",
+      "lighting": "day",
+      "index": 2,
+      "dimensions_px": [
+        1672,
+        941
+      ],
+      "mode": "RGB",
+      "sha256": "7d6e5b7a1937cb1b08062a84469f050d16ab98c46af44dc872bc6ad2c1e29dd0",
+      "status": "generated_candidate_requires_artist_human_review",
+      "runtime_assignment": "available_for_explicit_assignment",
+      "decorative_only": true,
+      "backdrop_focus_y": 0.62,
+      "intended_actor_plane": "shared open lower foreground; same bottom-centre actor footing",
+      "prompt_record": "docs/art/stage_refresh/prompts_manifest.json",
+      "prompt_entry": "briarfen_marsh_day_2",
+      "cleanup": "PNG bytes unchanged; no resizing, repaint or artist cleanup."
+    },
+    {
+      "id": "briarfen_marsh_night_2",
+      "title": "Sunken Bell Causeway / Night",
+      "path": "assets/art/environments/briarfen/briarfen_marsh_night_2.png",
+      "region": "briarfen",
+      "pair_id": "briarfen_marsh_2",
+      "lighting": "night",
+      "index": 2,
+      "dimensions_px": [
+        1672,
+        941
+      ],
+      "mode": "RGB",
+      "sha256": "bd1071748c1a7e938004e9b8632ecadfc25da8db3daac86b415b02ccd68a380c",
+      "status": "generated_candidate_requires_artist_human_review",
+      "runtime_assignment": "available_for_explicit_assignment",
+      "decorative_only": true,
+      "backdrop_focus_y": 0.62,
+      "intended_actor_plane": "shared open lower foreground; same bottom-centre actor footing",
+      "prompt_record": "docs/art/briarfen_alternatives_v01/prompts.json",
+      "prompt_entry": 0,
+      "cleanup": "PNG bytes unchanged; no resizing, repaint or artist cleanup."
+    },
+    {
+      "id": "briarfen_marsh_day_3",
+      "title": "Root Hollow / Day",
+      "path": "assets/art/environments/briarfen/briarfen_marsh_day_3.png",
+      "region": "briarfen",
+      "pair_id": "briarfen_marsh_3",
+      "lighting": "day",
+      "index": 3,
+      "dimensions_px": [
+        1672,
+        941
+      ],
+      "mode": "RGB",
+      "sha256": "063b687af10f9efdce82ea8723c185bf73bfd2e09832c86f23fab1cf37a5527f",
+      "status": "generated_candidate_requires_artist_human_review",
+      "runtime_assignment": "available_for_explicit_assignment",
+      "decorative_only": true,
+      "backdrop_focus_y": 0.62,
+      "intended_actor_plane": "shared open lower foreground; same bottom-centre actor footing",
+      "prompt_record": "docs/art/stage_refresh/prompts_manifest.json",
+      "prompt_entry": "briarfen_marsh_day_3",
+      "cleanup": "PNG bytes unchanged; no resizing, repaint or artist cleanup."
+    },
+    {
+      "id": "briarfen_marsh_night_3",
+      "title": "Root Hollow / Night",
+      "path": "assets/art/environments/briarfen/briarfen_marsh_night_3.png",
+      "region": "briarfen",
+      "pair_id": "briarfen_marsh_3",
+      "lighting": "night",
+      "index": 3,
+      "dimensions_px": [
+        1672,
+        941
+      ],
+      "mode": "RGB",
+      "sha256": "2a10da41a65be386287b9bb432d088621e302b48f7704d4c672a846024e82a61",
+      "status": "generated_candidate_requires_artist_human_review",
+      "runtime_assignment": "available_for_explicit_assignment",
+      "decorative_only": true,
+      "backdrop_focus_y": 0.62,
+      "intended_actor_plane": "shared open lower foreground; same bottom-centre actor footing",
+      "prompt_record": "docs/art/briarfen_alternatives_v01/prompts.json",
+      "prompt_entry": 1,
+      "cleanup": "PNG bytes unchanged; no resizing, repaint or artist cleanup."
+    }
+  ]
+}

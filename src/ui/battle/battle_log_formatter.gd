@@ -1,7 +1,8 @@
 class_name BattleLogFormatter
 extends RefCounted
 ## Turns BattleEvents into readable log lines, and builds the defeat recap so a player can always
-## say what killed them (GDD acceptance "Information test").
+## say what killed them (GDD acceptance "Information test"). Enemy moves use the same knowledge-
+## filtered label as the intent rail (BattleKnowledge.action_label): a name only once understood.
 
 
 static func line(event: BattleEvent, engine: BattleEngine) -> String:
@@ -14,14 +15,14 @@ static func line(event: BattleEvent, engine: BattleEngine) -> String:
 		T.INTENT_DECLARED:
 			var targets := _names(engine, event.uids)
 			var channel := " (channel %d)" % int(event.amount) if event.amount > 0 else ""
-			return "%s plans [i]%s[/i]%s%s." % [subject, event.action.display_name if event.action else "?",
-				" on " + targets if not targets.is_empty() else "", channel]
+			return "%s plans [i]%s[/i]%s%s." % [subject, _label(engine, event), " on " + targets if not targets.is_empty() else "",
+				channel]
 		T.INTENT_CHANGED:
-			return "%s re-aims %s at %s." % [subject, event.action.display_name, _names(engine, event.uids)]
+			return "%s re-aims its %s at %s." % [subject, _label(engine, event), _names(engine, event.uids)]
 		T.TURN_SKIPPED:
 			return "[color=#c9a3ff]%s is Broken and loses its turn.[/color]" % subject
 		T.ACTION_STARTED:
-			return "%s uses [b]%s[/b]." % [subject, event.action.display_name if event.action else "?"]
+			return "%s uses [b]%s[/b]." % [subject, _label(engine, event)]
 		T.COMMAND_RESULT:
 			return "  %s timing." % EnumText.grade(event.grade)
 		T.REACTION_RESULT:
@@ -71,11 +72,12 @@ static func line(event: BattleEvent, engine: BattleEngine) -> String:
 		T.STATUS_EXTENDED:
 			return "  %s: %s extended +%d." % [subject, EnumText.status(event.status), int(event.amount)]
 		T.CHANNEL_STARTED:
-			return "[color=#d8b45a]%s begins channeling %s (%d).[/color]" % [subject, event.action.display_name, int(event.amount)]
+			return "[color=%s]%s begins channeling %s (releases in %d more of its activations).[/color]" % [UITheme.hex(UITheme.ACCENT),
+				subject, _label(engine, event), int(event.amount)]
 		T.CHANNEL_CONTINUED:
 			return "%s keeps channeling (%d)." % [subject, int(event.amount)]
 		T.CHANNEL_INTERRUPTED:
-			return "[color=#c9a3ff]%s's %s is interrupted by %s![/color]" % [subject, event.action.display_name, other]
+			return "[color=%s]%s's %s is interrupted by %s![/color]" % [UITheme.hex(UITheme.STAGGER), subject, _label(engine, event), other]
 		T.INTERCEPTED:
 			return "  %s intercepts the attack meant for %s!" % [subject, other]
 		T.COVER_STARTED:
@@ -119,10 +121,17 @@ static func defeat_recap(history: Array[BattleEvent], engine: BattleEngine) -> S
 					"%s %s" % [EnumText.reaction(event.reaction), "succeeded" if event.success else "failed"]
 			if event.type == BattleEvent.Type.DAMAGE and event.subject == unit.uid:
 				var source := _name(engine, event.other)
-				var move := event.action.display_name if event.action != null else (EnumText.status(event.status) if event.has_flag(BattleEvent.FLAG_STATUS_TICK) else "an effect")
+				var move := _label(engine, event, event.other) if event.action != null else (EnumText.status(event.status) if event.has_flag(BattleEvent.FLAG_STATUS_TICK) else "an effect")
 				killing = "%s's %s for %d (%s)" % [source, move, int(event.amount), last_reaction if not last_reaction.is_empty() else "no reaction possible"]
 		lines.append("%s fell to %s." % [unit.display_name, killing if not killing.is_empty() else "unknown causes"])
 	return "\n".join(lines)
+
+
+## The event's action as the player knows it (actor = [param actor_uid], default the subject).
+static func _label(engine: BattleEngine, event: BattleEvent, actor_uid: int = -2) -> String:
+	if event.action == null:
+		return "?"
+	return BattleKnowledge.action_label(engine, engine.get_unit(event.subject if actor_uid == -2 else actor_uid), event.action)
 
 
 static func _name(engine: BattleEngine, uid: int) -> String:

@@ -10,5 +10,6 @@ script = ExtResource("4_4e5kj")
 id = &"toy_training"
 display_name = "Training Yard"
 description = "The combat toy: one patient dummy that telegraphs every reaction type."
+practice_note = "Read a telegraph. Try Brace, Evade and Parry."
 group = "Toy"
 enemies = Array[ExtResource("2_epd2d")]([ExtResource("3_ijha6")])

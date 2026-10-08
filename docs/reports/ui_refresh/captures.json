@@ -1,0 +1,115 @@
+[
+  {
+    "file": "planning.png",
+    "arguments": [
+      "--size=1280x720",
+      "--seed=3",
+      "--reduced",
+      "--enemies=straw_penitent,sporecaller,rotcap_brute,bogwife",
+      "--state=planning"
+    ],
+    "result": "captured_without_runtime_errors"
+  },
+  {
+    "file": "planning_150.png",
+    "arguments": [
+      "--size=1280x720",
+      "--seed=3",
+      "--reduced",
+      "--enemies=straw_penitent,sporecaller,rotcap_brute,bogwife",
+      "--state=planning",
+      "--scale=1.5",
+      "--condition=spore_fog"
+    ],
+    "result": "captured_without_runtime_errors"
+  },
+  {
+    "file": "planning_200.png",
+    "arguments": [
+      "--size=1280x720",
+      "--seed=3",
+      "--reduced",
+      "--enemies=straw_penitent,sporecaller,rotcap_brute,bogwife",
+      "--state=planning",
+      "--scale=2.0",
+      "--condition=spore_fog"
+    ],
+    "result": "captured_without_runtime_errors"
+  },
+  {
+    "file": "elite_boss.png",
+    "arguments": [
+      "--size=1280x720",
+      "--seed=3",
+      "--reduced",
+      "--enemies=bramblejaw,mirebell_cantor",
+      "--state=planning"
+    ],
+    "result": "captured_without_runtime_errors"
+  },
+  {
+    "file": "target.png",
+    "arguments": [
+      "--size=1280x720",
+      "--seed=3",
+      "--reduced",
+      "--state=target"
+    ],
+    "result": "captured_without_runtime_errors"
+  },
+  {
+    "file": "target_200.png",
+    "arguments": [
+      "--size=1280x720",
+      "--seed=3",
+      "--reduced",
+      "--enemies=thornhound,thornhound,thornhound,thornhound",
+      "--state=target",
+      "--scale=2.0",
+      "--condition=flooded_ground"
+    ],
+    "result": "captured_without_runtime_errors"
+  },
+  {
+    "file": "reaction.png",
+    "arguments": [
+      "--size=1280x720",
+      "--seed=3",
+      "--reduced",
+      "--state=reaction"
+    ],
+    "result": "captured_without_runtime_errors"
+  },
+  {
+    "file": "reaction_200.png",
+    "arguments": [
+      "--size=1280x720",
+      "--seed=3",
+      "--reduced",
+      "--state=reaction",
+      "--scale=2.0"
+    ],
+    "result": "captured_without_runtime_errors"
+  },
+  {
+    "file": "attack.png",
+    "arguments": [
+      "--size=1280x720",
+      "--seed=3",
+      "--reduced",
+      "--state=command"
+    ],
+    "result": "captured_without_runtime_errors"
+  },
+  {
+    "file": "no_art.png",
+    "arguments": [
+      "--size=1280x720",
+      "--seed=3",
+      "--reduced",
+      "--state=planning",
+      "--no-art"
+    ],
+    "result": "captured_without_runtime_errors"
+  }
+]

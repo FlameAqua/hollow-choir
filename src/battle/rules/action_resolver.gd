@@ -113,7 +113,10 @@ static func _hit(ctx: BattleContext, actor: BattleUnit, target: BattleUnit, acti
 		flags |= BattleEvent.FLAG_WEAK_POINT
 	if calc.broken_bonus:
 		flags |= BattleEvent.FLAG_BROKEN_BONUS
-	if (calc.is_weakness or calc.is_resisted) and not target.revealed_affinities.has(calc.damage_type):
+	# A direct hit shows its result, so it reveals the target's affinity for that damage type
+	# whether it was weak, resisted or neutral (knowledge only; never changes outcomes).
+	if target.is_enemy() and calc.damage_type not in [Enums.DamageType.NONE, Enums.DamageType.PURE] \
+			and not target.revealed_affinities.has(calc.damage_type):
 		target.revealed_affinities.append(calc.damage_type)
 	var rc := RuleContext.make(Enums.TriggerType.HIT_LANDED, actor, target, action)
 	rc.grade = grade

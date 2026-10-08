@@ -1,0 +1,70 @@
+[
+  {
+    "name": "frames",
+    "arguments": [
+      "--size=1280x720",
+      "--state=planning",
+      "--seed=3",
+      "--reduced",
+      "--enemies=straw_penitent,sporecaller,rotcap_brute,bogwife",
+      "--skin"
+    ],
+    "result": "captured_without_runtime_errors"
+  },
+  {
+    "name": "causeway",
+    "arguments": [
+      "--size=1280x720",
+      "--state=planning",
+      "--seed=3",
+      "--reduced",
+      "--enemies=straw_penitent,sporecaller,rotcap_brute,bogwife",
+      "--background=res://assets/art/environments/briarfen/briarfen_marsh_night_2.png",
+      "--out=res://docs/art/briarfen_alternatives_v01/causeway_stage.png"
+    ],
+    "result": "captured_without_runtime_errors"
+  },
+  {
+    "name": "root_hollow",
+    "arguments": [
+      "--size=1280x720",
+      "--state=planning",
+      "--seed=3",
+      "--reduced",
+      "--enemies=straw_penitent,sporecaller,rotcap_brute,bogwife",
+      "--background=res://assets/art/environments/briarfen/briarfen_marsh_night_3.png",
+      "--out=res://docs/art/briarfen_alternatives_v01/root_hollow_stage.png"
+    ],
+    "result": "captured_without_runtime_errors"
+  },
+  {
+    "name": "root_hollow_200",
+    "arguments": [
+      "--size=1280x720",
+      "--state=planning",
+      "--seed=3",
+      "--reduced",
+      "--enemies=straw_penitent,sporecaller,rotcap_brute,bogwife",
+      "--background=res://assets/art/environments/briarfen/briarfen_marsh_night_3.png",
+      "--out=res://docs/art/briarfen_alternatives_v01/root_hollow_200.png",
+      "--scale=2.0",
+      "--condition=spore_fog"
+    ],
+    "result": "captured_without_runtime_errors"
+  },
+  {
+    "name": "causeway_150",
+    "arguments": [
+      "--size=1280x720",
+      "--state=planning",
+      "--seed=3",
+      "--reduced",
+      "--enemies=straw_penitent,sporecaller,rotcap_brute,bogwife",
+      "--background=res://assets/art/environments/briarfen/briarfen_marsh_night_2.png",
+      "--out=res://docs/art/briarfen_alternatives_v01/causeway_150.png",
+      "--scale=1.5",
+      "--condition=flooded_ground"
+    ],
+    "result": "captured_without_runtime_errors"
+  }
+]

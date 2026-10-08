@@ -1,0 +1,229 @@
+{
+  "version": 1,
+  "tool": "built-in imagegen",
+  "notes": "Generated PNG bytes preserved; AtlasTexture regions measure alpha >=24 with 2px margin. No repaint or raster cleanup applied.",
+  "entries": [
+    {
+      "id": "thornhound",
+      "kind": "dead",
+      "path": "assets/art/enemies/briarfen/sprites/thornhound_dead.png",
+      "dimensions_px": [
+        1557,
+        1010
+      ],
+      "sha256": "c051136628c26f1d34c1ed814c005f03527d65bc4fb69ab279171e169610c279",
+      "status": "generated_candidate_integrated",
+      "prompt": "Use case: precise-object-edit. Create one DEFEATED sprite variant of the exact Hollow Choir enemy shown in the reference. Preserve identity, anatomy, materials, palette and pixel cluster rendering; change its pose and life state only. The same lean grey thorn-backed hound lies completely limp on its left side, head to the left, closed dull eye, legs folded naturally, tail along the ground, all rust thorns and pale muzzle retained. It must read as defeated and motionless at a small game sprite size, not attacking, sleeping upright or turning into another species. Complete silhouette, low horizontal side-view pose, bottom contact along a single ground baseline. Subject centered with generous empty transparent margin; no clipped appendages. Deliberate stepped pixel-art clusters, crisp dark contour, muted peat/olive/bone/rust/tarnished-brass palette, consistent with reference. Output genuine transparent alpha everywhere outside the creature, including through gaps. Remove the reference's surrounding haze and atmospheric glow. No ground plane, painted shadow, scenery, halo, gradient background, labels, checkerboard, interface, watermark, blood, gore, dismemberment or exposed organs. One sprite only, no sheet, no frames, no text.",
+      "reference": "C:\\Users\\Adrian\\Code\\Games\\hollow-choir\\assets\\art\\enemies\\briarfen\\sprites\\thornhound_idle.png",
+      "atlas_region_xywh": [
+        55,
+        359,
+        1485,
+        526
+      ],
+      "display_width": 198.5
+    },
+    {
+      "id": "bogshell",
+      "kind": "dead",
+      "path": "assets/art/enemies/briarfen/sprites/bogshell_dead.png",
+      "dimensions_px": [
+        1520,
+        1035
+      ],
+      "sha256": "b01dd0475ab2f352ccbf939db62170a0a2a7d7f930f2e7d1a71c99630f8b6509",
+      "status": "generated_candidate_integrated",
+      "prompt": "Use case: precise-object-edit. Create one DEFEATED sprite variant of the exact Hollow Choir enemy shown in the reference. Preserve identity, anatomy, materials, palette and pixel cluster rendering; change its pose and life state only. The same mossy crustacean shell creature collapsed flat, claws resting on the ground, legs tucked motionless beneath the heavy shell, pale fungal plates and small branches retained. It must read as defeated and motionless at a small game sprite size, not attacking, sleeping upright or turning into another species. Complete silhouette, low horizontal side-view pose, bottom contact along a single ground baseline. Subject centered with generous empty transparent margin; no clipped appendages. Deliberate stepped pixel-art clusters, crisp dark contour, muted peat/olive/bone/rust/tarnished-brass palette, consistent with reference. Output genuine transparent alpha everywhere outside the creature, including through gaps. Remove the reference's surrounding haze and atmospheric glow. No ground plane, painted shadow, scenery, halo, gradient background, labels, checkerboard, interface, watermark, blood, gore, dismemberment or exposed organs. One sprite only, no sheet, no frames, no text.",
+      "reference": "C:\\Users\\Adrian\\Code\\Games\\hollow-choir\\assets\\art\\enemies\\briarfen\\sprites\\bogshell_idle.png",
+      "atlas_region_xywh": [
+        52,
+        228,
+        1431,
+        663
+      ],
+      "display_width": 158.7
+    },
+    {
+      "id": "fen_wisp",
+      "kind": "dead",
+      "path": "assets/art/enemies/briarfen/sprites/fen_wisp_dead.png",
+      "dimensions_px": [
+        1774,
+        887
+      ],
+      "sha256": "12cb5f2f81d9bc58e307b77a30fc38ae4fa65006010adfe5694902d37c2109ee",
+      "status": "generated_candidate_integrated",
+      "prompt": "Use case: precise-object-edit. Create one DEFEATED sprite variant of the exact Hollow Choir enemy shown in the reference. Preserve identity, anatomy, materials, palette and pixel cluster rendering; change its pose and life state only. The same hollow twisting root cage has fallen horizontally onto the ground, its cyan spirit extinguished to a very small dull blue remnant, no floating lights; the recognizable root lattice remains. It must read as defeated and motionless at a small game sprite size, not attacking, sleeping upright or turning into another species. Complete silhouette, low horizontal side-view pose, bottom contact along a single ground baseline. Subject centered with generous empty transparent margin; no clipped appendages. Deliberate stepped pixel-art clusters, crisp dark contour, muted peat/olive/bone/rust/tarnished-brass palette, consistent with reference. Output genuine transparent alpha everywhere outside the creature, including through gaps. Remove the reference's surrounding haze and atmospheric glow. No ground plane, painted shadow, scenery, halo, gradient background, labels, checkerboard, interface, watermark, blood, gore, dismemberment or exposed organs. One sprite only, no sheet, no frames, no text.",
+      "reference": "C:\\Users\\Adrian\\Code\\Games\\hollow-choir\\assets\\art\\enemies\\briarfen\\sprites\\fen_wisp_idle.png",
+      "atlas_region_xywh": [
+        226,
+        305,
+        1451,
+        528
+      ],
+      "display_width": 88.6
+    },
+    {
+      "id": "straw_penitent",
+      "kind": "dead",
+      "path": "assets/art/enemies/briarfen/sprites/straw_penitent_dead.png",
+      "dimensions_px": [
+        1610,
+        977
+      ],
+      "sha256": "36d0d756612cf53f0db5a3ed88cb49a7959975258e07ded2856d18190c8a1604",
+      "status": "generated_candidate_integrated",
+      "prompt": "Use case: precise-object-edit. Create one DEFEATED sprite variant of the exact Hollow Choir enemy shown in the reference. Preserve identity, anatomy, materials, palette and pixel cluster rendering; change its pose and life state only. The same hooded straw effigy lies toppled horizontally, its single wooden stake snapped and resting beside the ragged ivory and oxblood cloth, blank mask tilted onto the ground, loose straw gathered under the body. It must read as defeated and motionless at a small game sprite size, not attacking, sleeping upright or turning into another species. Complete silhouette, low horizontal side-view pose, bottom contact along a single ground baseline. Subject centered with generous empty transparent margin; no clipped appendages. Deliberate stepped pixel-art clusters, crisp dark contour, muted peat/olive/bone/rust/tarnished-brass palette, consistent with reference. Output genuine transparent alpha everywhere outside the creature, including through gaps. Remove the reference's surrounding haze and atmospheric glow. No ground plane, painted shadow, scenery, halo, gradient background, labels, checkerboard, interface, watermark, blood, gore, dismemberment or exposed organs. One sprite only, no sheet, no frames, no text.",
+      "reference": "C:\\Users\\Adrian\\Code\\Games\\hollow-choir\\assets\\art\\enemies\\briarfen\\sprites\\straw_penitent_idle.png",
+      "atlas_region_xywh": [
+        57,
+        333,
+        1514,
+        458
+      ],
+      "display_width": 115.0
+    },
+    {
+      "id": "sporecaller",
+      "kind": "dead",
+      "path": "assets/art/enemies/briarfen/sprites/sporecaller_dead.png",
+      "dimensions_px": [
+        1536,
+        1024
+      ],
+      "sha256": "b309cbec9b0299366ad27721c0b9ea698c8b22e831f41b8e4ee3791f6a793d54",
+      "status": "generated_candidate_integrated",
+      "prompt": "Use case: precise-object-edit. Create one DEFEATED sprite variant of the exact Hollow Choir enemy shown in the reference. Preserve identity, anatomy, materials, palette and pixel cluster rendering; change its pose and life state only. The same three-cap fungal cluster has collapsed into a low fallen group, stems bent and caps resting sideways together, charcoal gills, bone edges, moss and little branches retained. One defeated organism, not three separate creatures. It must read as defeated and motionless at a small game sprite size, not attacking, sleeping upright or turning into another species. Complete silhouette, low horizontal side-view pose, bottom contact along a single ground baseline. Subject centered with generous empty transparent margin; no clipped appendages. Deliberate stepped pixel-art clusters, crisp dark contour, muted peat/olive/bone/rust/tarnished-brass palette, consistent with reference. Output genuine transparent alpha everywhere outside the creature, including through gaps. Remove the reference's surrounding haze and atmospheric glow. No ground plane, painted shadow, scenery, halo, gradient background, labels, checkerboard, interface, watermark, blood, gore, dismemberment or exposed organs. One sprite only, no sheet, no frames, no text.",
+      "reference": "C:\\Users\\Adrian\\Code\\Games\\hollow-choir\\assets\\art\\enemies\\briarfen\\sprites\\sporecaller_idle.png",
+      "atlas_region_xywh": [
+        153,
+        225,
+        1272,
+        690
+      ],
+      "display_width": 109.7
+    },
+    {
+      "id": "rotcap_brute",
+      "kind": "dead",
+      "path": "assets/art/enemies/briarfen/sprites/rotcap_brute_dead.png",
+      "dimensions_px": [
+        1536,
+        1024
+      ],
+      "sha256": "eb085096136aa77b2f7ceca6d4a82fc442d977ef27f9191612203c749d21b1a9",
+      "status": "generated_candidate_integrated",
+      "prompt": "Use case: precise-object-edit. Create one DEFEATED sprite variant of the exact Hollow Choir enemy shown in the reference. Preserve identity, anatomy, materials, palette and pixel cluster rendering; change its pose and life state only. The same broad fungal brute slumped fully onto its side with heavy arms resting limply, its broad rust-orange cap canted low, root feet folded under, pale ribs and moss retained. It must read as defeated and motionless at a small game sprite size, not attacking, sleeping upright or turning into another species. Complete silhouette, low horizontal side-view pose, bottom contact along a single ground baseline. Subject centered with generous empty transparent margin; no clipped appendages. Deliberate stepped pixel-art clusters, crisp dark contour, muted peat/olive/bone/rust/tarnished-brass palette, consistent with reference. Output genuine transparent alpha everywhere outside the creature, including through gaps. Remove the reference's surrounding haze and atmospheric glow. No ground plane, painted shadow, scenery, halo, gradient background, labels, checkerboard, interface, watermark, blood, gore, dismemberment or exposed organs. One sprite only, no sheet, no frames, no text.",
+      "reference": "C:\\Users\\Adrian\\Code\\Games\\hollow-choir\\assets\\art\\enemies\\briarfen\\sprites\\rotcap_brute_idle.png",
+      "atlas_region_xywh": [
+        85,
+        199,
+        1429,
+        721
+      ],
+      "display_width": 174.7
+    },
+    {
+      "id": "bogwife",
+      "kind": "dead",
+      "path": "assets/art/enemies/briarfen/sprites/bogwife_dead.png",
+      "dimensions_px": [
+        1536,
+        1024
+      ],
+      "sha256": "2a21ed562cf084d48f0964608d01af4b4501191889897afaff33cf905f0f3aaa",
+      "status": "generated_candidate_integrated",
+      "prompt": "Use case: precise-object-edit. Create one DEFEATED sprite variant of the exact Hollow Choir enemy shown in the reference. Preserve identity, anatomy, materials, palette and pixel cluster rendering; change its pose and life state only. The same hooded root-and-cloth bogwife lies collapsed on its side, no upright posture, ivory and dark ragged robes gathered low, staff and small bronze bells resting beside it, root hands limp. It must read as defeated and motionless at a small game sprite size, not attacking, sleeping upright or turning into another species. Complete silhouette, low horizontal side-view pose, bottom contact along a single ground baseline. Subject centered with generous empty transparent margin; no clipped appendages. Deliberate stepped pixel-art clusters, crisp dark contour, muted peat/olive/bone/rust/tarnished-brass palette, consistent with reference. Output genuine transparent alpha everywhere outside the creature, including through gaps. Remove the reference's surrounding haze and atmospheric glow. No ground plane, painted shadow, scenery, halo, gradient background, labels, checkerboard, interface, watermark, blood, gore, dismemberment or exposed organs. One sprite only, no sheet, no frames, no text.",
+      "reference": "C:\\Users\\Adrian\\Code\\Games\\hollow-choir\\assets\\art\\enemies\\briarfen\\sprites\\bogwife_idle.png",
+      "atlas_region_xywh": [
+        70,
+        319,
+        1443,
+        579
+      ],
+      "display_width": 167.4
+    },
+    {
+      "id": "bramblejaw",
+      "kind": "dead",
+      "path": "assets/art/enemies/briarfen/sprites/bramblejaw_dead.png",
+      "dimensions_px": [
+        1774,
+        887
+      ],
+      "sha256": "8f9c6bf687f70fedd65991c72569219ae4de0880aef0922d972fe13058a6c361",
+      "status": "generated_candidate_integrated",
+      "prompt": "Use case: precise-object-edit. Create one DEFEATED sprite variant of the exact Hollow Choir enemy shown in the reference. Preserve identity, anatomy, materials, palette and pixel cluster rendering; change its pose and life state only. The same large pale-muzzled thorn hound lies completely limp on its side, head left, dark closed eye, weighty tangled branch mantle collapsed low, legs folded and tail resting behind. Preserve kinship with Thornhound and its larger jaw. It must read as defeated and motionless at a small game sprite size, not attacking, sleeping upright or turning into another species. Complete silhouette, low horizontal side-view pose, bottom contact along a single ground baseline. Subject centered with generous empty transparent margin; no clipped appendages. Deliberate stepped pixel-art clusters, crisp dark contour, muted peat/olive/bone/rust/tarnished-brass palette, consistent with reference. Output genuine transparent alpha everywhere outside the creature, including through gaps. Remove the reference's surrounding haze and atmospheric glow. No ground plane, painted shadow, scenery, halo, gradient background, labels, checkerboard, interface, watermark, blood, gore, dismemberment or exposed organs. One sprite only, no sheet, no frames, no text.",
+      "reference": "C:\\Users\\Adrian\\Code\\Games\\hollow-choir\\assets\\art\\enemies\\briarfen\\sprites\\bramblejaw_idle.png",
+      "atlas_region_xywh": [
+        53,
+        181,
+        1692,
+        608
+      ],
+      "display_width": 228.5
+    },
+    {
+      "id": "mirebell_cantor",
+      "kind": "dead",
+      "path": "assets/art/enemies/briarfen/sprites/mirebell_cantor_dead.png",
+      "dimensions_px": [
+        1512,
+        1040
+      ],
+      "sha256": "ba2f821edebd3ab23c430124fb66d0cd0024bf80eaa5bb6879931bc9d8ada41f",
+      "status": "generated_candidate_integrated",
+      "prompt": "Use case: precise-object-edit. Create one DEFEATED sprite variant of the exact Hollow Choir enemy shown in the reference. Preserve identity, anatomy, materials, palette and pixel cluster rendering; change its pose and life state only. The same massive hooded root-and-fungus Cantor has collapsed into a low heap on its side, its large tarnished brass bell lying sideways among the roots, ivory hood and rust shelf fungi retained, no upright standing pose. It must read as defeated and motionless at a small game sprite size, not attacking, sleeping upright or turning into another species. Complete silhouette, low horizontal side-view pose, bottom contact along a single ground baseline. Subject centered with generous empty transparent margin; no clipped appendages. Deliberate stepped pixel-art clusters, crisp dark contour, muted peat/olive/bone/rust/tarnished-brass palette, consistent with reference. Output genuine transparent alpha everywhere outside the creature, including through gaps. Remove the reference's surrounding haze and atmospheric glow. No ground plane, painted shadow, scenery, halo, gradient background, labels, checkerboard, interface, watermark, blood, gore, dismemberment or exposed organs. One sprite only, no sheet, no frames, no text.",
+      "reference": "C:\\Users\\Adrian\\Code\\Games\\hollow-choir\\assets\\art\\enemies\\briarfen\\sprites\\mirebell_cantor_idle.png",
+      "atlas_region_xywh": [
+        27,
+        238,
+        1466,
+        700
+      ],
+      "display_width": 180.6
+    },
+    {
+      "id": "briarfen_marsh_day_1",
+      "kind": "day",
+      "path": "assets/art/environments/briarfen/briarfen_marsh_day_1.png",
+      "dimensions_px": [
+        1672,
+        941
+      ],
+      "sha256": "7fdc7b4736ed6055d50573816a43bf9595ca6aa2d2ae9289cde59b4d4b695e18",
+      "status": "generated_candidate_integrated",
+      "prompt": "Use case: lighting-weather edit. Make a DAYTIME lighting counterpart of this exact Hollow Choir Briarfen combat backdrop. Preserve all architecture, roots, foliage, standing plane, object positions, camera, pixel-cluster scale, 16:9 aspect ratio and composition. Change ONLY time of day and environmental lighting: cool misty overcast morning, a pale grey-green sky, diffuse muted daylight on worn ivory stone, natural olive moss and rust bark. Remove the moon and replace its place with continuous cloud/fog; no visible sun disk. The foreground stays low-contrast charcoal peat and blue-green wet stone, not a bright sunny meadow, so character silhouettes remain readable. Retain atmospheric distance and this restrained desaturated palette; avoid bright cyan glows or saturated yellow sunlight. Keep the entire lower 35 percent open and level for combat actors. Deliberate crisp stepped pixel clusters, no smooth painterly gradients, blur, photorealism, or new props. No characters, enemies, text, UI, icons, health bars, watermarks, vignettes or lighting overlays. Opaque full-bleed environment, one background only.",
+      "reference": "C:\\Users\\Adrian\\Code\\Games\\hollow-choir\\assets\\art\\environments\\briarfen\\briarfen_marsh_night_1.png",
+      "atlas_region_xywh": null
+    },
+    {
+      "id": "briarfen_marsh_day_2",
+      "kind": "day",
+      "path": "assets/art/environments/briarfen/briarfen_marsh_day_2.png",
+      "dimensions_px": [
+        1672,
+        941
+      ],
+      "sha256": "7d6e5b7a1937cb1b08062a84469f050d16ab98c46af44dc872bc6ad2c1e29dd0",
+      "status": "generated_candidate_integrated",
+      "prompt": "Use case: lighting-weather edit. Make a DAYTIME lighting counterpart of this exact Hollow Choir Briarfen combat backdrop. Preserve all architecture, roots, foliage, standing plane, object positions, camera, pixel-cluster scale, 16:9 aspect ratio and composition. Change ONLY time of day and environmental lighting: cool misty overcast morning, a pale grey-green sky, diffuse muted daylight on worn ivory stone, natural olive moss and rust bark. Remove the moon and replace its place with continuous cloud/fog; no visible sun disk. The foreground stays low-contrast charcoal peat and blue-green wet stone, not a bright sunny meadow, so character silhouettes remain readable. Retain atmospheric distance and this restrained desaturated palette; avoid bright cyan glows or saturated yellow sunlight. Keep the entire lower 35 percent open and level for combat actors. Deliberate crisp stepped pixel clusters, no smooth painterly gradients, blur, photorealism, or new props. No characters, enemies, text, UI, icons, health bars, watermarks, vignettes or lighting overlays. Opaque full-bleed environment, one background only.",
+      "reference": "C:\\Users\\Adrian\\Code\\Games\\hollow-choir\\assets\\art\\environments\\briarfen\\briarfen_marsh_night_2.png",
+      "atlas_region_xywh": null
+    },
+    {
+      "id": "briarfen_marsh_day_3",
+      "kind": "day",
+      "path": "assets/art/environments/briarfen/briarfen_marsh_day_3.png",
+      "dimensions_px": [
+        1672,
+        941
+      ],
+      "sha256": "063b687af10f9efdce82ea8723c185bf73bfd2e09832c86f23fab1cf37a5527f",
+      "status": "generated_candidate_integrated",
+      "prompt": "Use case: lighting-weather edit. Make a DAYTIME lighting counterpart of this exact Hollow Choir Briarfen combat backdrop. Preserve all architecture, roots, foliage, standing plane, object positions, camera, pixel-cluster scale, 16:9 aspect ratio and composition. Change ONLY time of day and environmental lighting: cool misty overcast morning, a pale grey-green sky, diffuse muted daylight on worn ivory stone, natural olive moss and rust bark. Remove the moon and replace its place with continuous cloud/fog; no visible sun disk. The foreground stays low-contrast charcoal peat and blue-green wet stone, not a bright sunny meadow, so character silhouettes remain readable. Retain atmospheric distance and this restrained desaturated palette; avoid bright cyan glows or saturated yellow sunlight. Keep the entire lower 35 percent open and level for combat actors. Deliberate crisp stepped pixel clusters, no smooth painterly gradients, blur, photorealism, or new props. No characters, enemies, text, UI, icons, health bars, watermarks, vignettes or lighting overlays. Opaque full-bleed environment, one background only.",
+      "reference": "C:\\Users\\Adrian\\Code\\Games\\hollow-choir\\assets\\art\\environments\\briarfen\\briarfen_marsh_night_3.png",
+      "atlas_region_xywh": null
+    }
+  ]
+}

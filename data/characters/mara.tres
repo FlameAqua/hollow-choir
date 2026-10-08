@@ -10,6 +10,7 @@
 [ext_resource type="Script" path="res://src/data/combat/action_definition.gd" id="8_k2xx1"]
 [ext_resource type="Resource" path="res://data/actions/companion/intercept.tres" id="9_qxxih"]
 [ext_resource type="Resource" path="res://data/actions/companion/condemn.tres" id="10_042ry"]
+[ext_resource type="SpriteFrames" path="res://assets/art/global/characters/frames/mara_idle.tres" id="99_frames"]
 
 [sub_resource type="Resource" id="Resource_nxbfk"]
 script = ExtResource("5_f1xpm")
@@ -52,3 +53,4 @@ guard = 16
 tempo = 12
 shape = 3
 color = Color(0.85, 0.82, 0.95, 1)
+sprite_frames = ExtResource("99_frames")

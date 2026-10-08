@@ -222,7 +222,7 @@ Unknown knowledge, no progress recording; saved difficulty/assist stay respected
 **Owner:** Director. **Status:** Art direction approved; generated candidates staged, 7 October 2026.
 
 **DECISION:** Fen Patrol cast + one reusable backdrop first. SpriteFrames and generic event transforms,
-with placeholder fallback. [Manifest](../assets/art/briarfen_v01/manifest.json) records irregular regions.
+with placeholder fallback. [Manifest](../docs/art/briarfen_v01/manifest.json) records irregular regions.
 **WHY:** Recognition and readable motion justify the cost; bespoke per-move sheets do not.
 **REJECTED:** Full-cast animation expansion, art-driven timing/hitboxes, treating generated art as final.
 **CONSEQUENCES:** Pixel cleanup gate; no runtime assignment until renderer hookup. Familiar remains trigger-only.
@@ -261,3 +261,136 @@ world-state implementation while combat clarity remains open.
 **CONSEQUENCES:** D-024 remains in force. The candidate includes boundary/save/retry requirements for
 review, not new runtime fields. Choose control C if persistence adds only hoarding or bookkeeping.
 
+## D-027 — Extend existing-cast art with one shared combat symbol vocabulary
+**Owner:** Director. **Status:** User-authorized art continuation, 8 October 2026; final pixel/human approval pending.
+
+**DECISION:** Incorporate the [art style guide](../assets/art/STYLE_GUIDE.md) and prepare
+[v0.2](../docs/art/briarfen_v02/README.md): six already-defined enemy idle candidates plus
+48 shared combat symbols. Bind enemy frames through existing data; hand off UI lookup to engineering.
+**WHY:** Recognisable actors/effects support READ/REACT. Existing categories, families and event
+transforms cover the current moves more cheaply than bespoke animation and icons for every technique.
+**REJECTED:** New content, new statuses, full animation, ornate panel skins, art-driven rules/timing,
+automatic resizing presented as final cleanup, and a passed human gate inferred from generated images.
+**CONSEQUENCES:** The user's request supersedes the broader-cast staging hold in D-023/M1.1 F5 only.
+Knowledge gating, accessibility, pixel cleanup and new-content limits remain. Exact prompts, regions,
+provenance and mappings are versioned. [Actual captures](../docs/art/briarfen_v02/QA.md) reveal a
+four-enemy layout/recognition constraint; resolve it within M1.1 before art/readability approval.
+
+## D-028 — Assign UI integration to ChatGPT and simplify combat presentation
+**Owner:** Director / UI integrator (ChatGPT). **Status:** User-authorized and implemented in the working tree, 8 October 2026; human gate open.
+
+**DECISION:** Adopt [icon-first combat UI](design/ICON_FIRST_COMBAT_UI.md): no enemy context panels or
+rail-driven sprite shrink, immediate hover/focus inspection, compact red enemy stats, portrait turn order,
+icon toolbar/conditions, expanded actions and existing potion slots, familiar beside allies, pixel font,
+and real-window reaction arcs/cards. Reorganise art by purpose and region; v01 gets individual lossless sprites.
+**WHY:** Preserve battlefield recognition and meaningful choices while removing repeated prose and waits.
+**REJECTED:** New inventory systems, pet turns, bespoke move interfaces, strobing feedback, hidden knowledge
+leaks, balance changes and UI pixel bounds becoming combat geometry.
+**CONSEQUENCES:** ChatGPT owns UI presentation code/art wiring and its canonical documentation. Claude owns
+core engine architecture. This explicitly supersedes the earlier Director-only production-code boundary
+for UI integration and older M1.1 panel/dock/font requirements. Existing combat rules and human gates remain.
+
+## D-029 — Bounded environment/frame assets and full-mix audio intake
+**Owner:** Director/UI integrator. **Status:** User-authorized asset preparation, 8 October 2026; runtime and human approval pending.
+
+**DECISION:** Prepare two decorative Briarfen backgrounds, one shared stepped frame/bar family, and the
+[audio folder contract](../assets/audio/AUDIO_CONTRACT.md) with a small [Suno request pack](audio/SUNO_REQUESTS.md).
+Reuse existing music first. One full mix per cue is sufficient; stems/adaptive middleware are deferred.
+**WHY:** Repeated fights gain atmosphere and consistent presentation through reusable assets, while
+source/approval/loop expectations stop agents from silently selecting or transforming incoming music.
+**REJECTED:** New encounters/terrain rules, bespoke UI boxes, busy text interiors, fake HP fractions,
+automatic music scans, timing driven by soundtrack, mandatory stems, and inferred human approval.
+**CONSEQUENCES:** Latest user request permits bounded frame ornament despite D-027's older hold.
+Current UI/default backdrop/AudioManager remain unchanged while Claude reviews. New native resources,
+source provenance and review evidence are prepared; later assignment follows canonical contracts.
+
+## D-030 — Clearer glyphs, grounded actors and reusable defeat presentation
+**Owner:** Director/UI integrator. **Status:** User-authorized and implemented in the working tree, 8 October 2026; artist/human review open.
+
+**DECISION:** Adopt [the stage refresh](design/STAGE_PRESENTATION_REFRESH.md): three flat numbered
+day/night pairs, Departure Mono, a framed/scrollable title, thin break tracks directly below enemy HP,
+static Broken/Exposed markers and one dead pose for each of the nine existing enemies. Keep corpses
+visible through the same ledger/UnitView path, without changing living-target eligibility.
+**WHY:** Clearer G/5 and less plate height improve READ; shared state shapes preserve REACT and clarify
+existing openings for ADAPT/EXPERIMENT. Reusable renderer/data changes avoid nine bespoke death systems.
+**REJECTED:** Nested alternatives, art-induced actor shrink, HP-tween-driven death, flash-only weakness,
+new stun rules, necromancer/cannibal mechanics, a corpse manager, persistent bodies or day/night rules.
+**CONSEQUENCES:** This latest user request supersedes earlier font sizes, idle-only art limits and the
+title-frame staging hold. Core rules, balance, save formats and human gates remain. Combat frame
+textures stay staged; actual UI captures and regression evidence are recorded separately from art approval.
+
+## D-031 — One inspector, deliberate confirmation and bounded menus for V0.2
+**Owner:** Director/UI integrator. **Status:** User-authorized UI fixes in the working tree, 8 October 2026; human comfort review open.
+
+**DECISION:** Adopt [the V0.2 interaction/card contract](design/V02_UI_INTERACTION.md): scrollable
+Practice/Lab with a fixed footer, five window sizes, one immediate inspector with per-icon event
+coordinates, shared structured action/enemy cards, dark spaced intent tiles and exclusive Setup
+ownership. Enter/gamepad A confirm; Space/Z remain command defaults; explicit rebinds are respected.
+**WHY:** The user's playtest found off-screen controls, stranded pause overlays, modifier-induced
+inspection flicker, blocked Supplies and nonfunctional scrolling. Shared routing/layout fixes
+support READ/REACT and preserve ADAPT/EXPERIMENT choices more cheaply than bespoke tooltips per move.
+**REJECTED:** Pinned target/second Alt overlays, native accept defaults appended to rebinds,
+unexplained selection bars, hidden-state leaks, new combat/input timing and release scope expansion.
+**CONSEQUENCES:** Supersedes the old UI requirements listed above. A global resolution preference
+is additive; no progress-save format changes. Fresh automated/rendered evidence is separate from
+controller, color-vision, human play feel and release approval.
+
+## D-032 — Less repeated stage UI, structured inspection and explicit recipient review
+**Owner:** Director/UI integrator. **Status:** User-authorized follow-up, 8 October 2026; human visual/comfort review open.
+
+**DECISION:** Adopt [the V0.2 follow-up](design/V02_UI_FOLLOWUP.md): move reaction legality to
+inspection/active reaction UI, remove repeated turn/target tags and the familiar readiness circle,
+name threat, separate unit fields/affinities, compact the existing inspector through a native-font
+content transform, and require target review even for one legal recipient. Lists own their wheel;
+Hold-details follows actual held state. Redraw the shared heart and existing terrain decoration.
+**WHY:** Adrian's screenshots show ambiguous threat/readiness markers, overflowed combined facts,
+redundant stage icons and accidental commitment. Shared presentation fixes improve READ/REACT and
+preserve deliberate ADAPT/EXPERIMENT choices.
+**REJECTED:** Bespoke unit cards, a second inspection overlay, new confirmation modals, new combat
+or environmental rules, research/future-state leaks and new particle middleware.
+**CONSEQUENCES:** Supersedes the specific earlier UI behaviors in D-031; retains engine rules,
+knowledge thresholds, native font raster sizes, accessibility preferences and release/human gates.
+
+## D-033 — Complete support cards and reuse the shared presentation art
+
+**Owner:** Director/UI integrator. **Status:** User-authorized, 8 October 2026; human visual review open.
+**DECISION:** Adopt [the support presentation contract](design/V02_SUPPORT_PRESENTATION.md).
+Restore authored descriptions in expanded actions, show direct support effects by icon/name and
+recipient, assign Cinder Pup art, use existing textured HP/break resources, and dock compact
+condition announcements to the header. Reduced motion substitutes a stationary card and steady border.
+**WHY:** Guard's existing rules were skipped by its expanded card; non-damage outcomes fabricated
+a dash. Cinder Pup was the only equipped creature without art. Terrain introductions did not teach
+the location of their persistent details. Shared adapters/resources improve READ without adding rules.
+**REJECTED:** Per-action widgets, a second resolver, new familiar mechanics, notification middleware,
+flashing arrival effects, repeated terrain introductions and a new art family.
+**CONSEQUENCES:** Transient UI fields only; no save/balance/research/timing changes. Source artwork,
+generation prompt and current rendered/test evidence are documented. Release approval is separate.
+
+## D-034 — Expanded action scrolling and a brief manual preparation beat
+
+**Owner:** Director/UI integrator. **Status:** User-authorized pre-push polish, 8 October 2026.
+**DECISION:** Adopt [the final polish contract](design/V02_PRE_PUSH_POLISH.md): expanded action
+details own wheel input over their source; Cinder Pup display scale becomes 1.2; manual commands
+and reactions show one 400 ms real-time preparation cue before starting their existing clock.
+**WHY:** Action-list wheel priority blocked convenient expanded inspection. The Pup was hard to
+read. Consecutive timing sequences felt overwhelming, even though each grading window was correct.
+**REUSE:** Existing inspector arbitration, familiar portrait fitting, transition panel, scene-bound
+tween, fresh-press latches and command/reaction widgets. No new combat timing or notification system.
+**CONSEQUENCES:** Supersedes unconditional list-wheel priority only while details are expanded.
+Preparation pauses on focus loss, cancels on restart, ignores Combat Speed, and never consumes an
+active timing window. Simulator/untimed actions skip it. Human pacing review remains open.
+
+## D-035 — Prepare on the actual timing UI; fit and protect announcements
+
+**Owner:** Director/UI integrator. **Status:** User-authorized screenshot/UX follow-up, 8 October 2026.
+**DECISION:** Revise [the polish contract](design/V02_PRE_PUSH_POLISH.md): the actual command meter
+or reaction ring/cards stay visible during the 400 ms beat, inactive at zero time, then start in
+place. Announcements fit settled autowrap content and suppress contextual inspection until hidden.
+**WHY:** A separate Get ready panel prevented scanning the timing cues during preparation. A
+temporary narrow label layout left the first banner oversized; hover details could cover it.
+**REUSE:** Existing widgets, clocks, fresh-press latches, bound tween, Banner panel and inspector
+suppression callback. No extra overlay, notification service or combat phase.
+**CONSEQUENCES:** Supersedes D-034's transition-panel presentation only. Preparation input cannot
+grade, charge or consume beats; held keys/Confirm are relatching boundaries. Assist pause, timing
+specs, grading and battle rules remain. Opening/condition details are available again after the
+announcement, including reduced-motion docking behavior. Actual captures and regressions record it.

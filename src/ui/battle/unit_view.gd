@@ -1,14 +1,22 @@
 class_name UnitView
 extends Control
-## Battlefield view of one BattleUnit: placeholder pixel silhouette (until sprites exist), HP and
-## Stagger bars, statuses, buffs, weak-point marker and Broken state. Read-only on the unit.
+## Stage view of one BattleUnit: its idle sprite (or the placeholder silhouette when it has no art),
+## shared presentation transforms (lunge, hit, windup, fall), and a nameplate with the slot number,
+## HP, Stagger remaining and status icons. Everything shown comes from the PresentationLedger, so
+## nothing appears before the event that caused it (D-013, M1.1 F3). Read-only on the unit.
+##
+## Art (M1.1 F5): CombatantDefinition.sprite_frames is optional. The `idle` animation's first frame
+## is drawn at the SpriteFrames' `display_height` metadata (art pixels → screen pixels), scaled down
+## further only when the stage is short; `faces_left` metadata says which way the art faces (party
+## faces right, enemies left; never flipped twice). Missing art falls back to the silhouette. No
+## targeting, hit area or timing comes from sprite bounds: the hit area is this control's rect.
 
 signal clicked(uid: int)
 signal hovered(uid: int)
 
 const PIXEL := 4.0
-const BAR_WIDTH := 112.0
-const FOOTER := 64.0
+const IDLE := &"idle"
+const DEAD := &"dead"
 
 ## Pixel-art silhouettes: [x, y, w, h, shade] in grid cells. shade: 0 base, 1 dark, 2 light, 3 accent.
 const SHAPES := {
@@ -38,15 +46,22 @@ const SHAPES := {
 
 var uid: int = -1
 var unit: BattleUnit
+var ledger: PresentationLedger
+## 1-based intent-rail slot for enemies (0 = none). Shown on the nameplate.
+var slot: int = 0
 var highlighted: bool = false:
 	set(value):
 		highlighted = value
 		queue_redraw()
+## Word shown with the selection bracket ("TARGET", "TARGETED").
+var highlight_label: String = "TARGET"
 var active: bool = false:
 	set(value):
 		active = value
 		queue_redraw()
-## 0..1 white flash after a hit (reduced-flashing uses a dark tint instead).
+## Word shown under an active party member ("YOUR TURN") — empty for enemies.
+var active_label: String = ""
+## 0..1 hit flash (reduced flashing uses a dark tint instead).
 var flash: float = 0.0:
 	set(value):
 		flash = value
@@ -68,39 +83,84 @@ var displayed_stagger: float = 0.0:
 		displayed_stagger = value
 		queue_redraw()
 var reduce_flashing: bool = false
-var faces_left: bool = false
+var reduce_motion: bool = false
+## Disables real art (tests: art must never change combat results or targeting).
+var use_sprites: bool = true
+## Optional plate toggle retained for callers. The current layout always shows icon/number stats.
+var show_plate: bool = true:
+	set(value):
+		show_plate = value
+		fit(_shrink, _plate_width)
 
+var detail_provider: Callable
+var readout_provider: Callable
+var _regions: Array[Dictionary] = []
 var _font: Font
+var _texture: Texture2D
+var _dead_texture: Texture2D
+var _dead_size: Vector2
+var _flip: bool = false
+## Natural sprite size before the stage's shrink factor.
+var _natural_size: Vector2
 var _sprite_size: Vector2
+var _plate_width: float = 150.0
+var _shrink: float = 1.0
 
 
-func setup(battle_unit: BattleUnit) -> void:
+func setup(battle_unit: BattleUnit, p_ledger: PresentationLedger, p_slot: int = 0) -> void:
 	unit = battle_unit
+	set_meta(&"enemy_inspection", unit.is_enemy())
+	set_meta(&"inspection_unit", func(point: Vector2) -> UnitReadout:
+		for region in _regions:
+			if (region.rect as Rect2).has_point(point):
+				return null
+		return readout_provider.call(uid) if readout_provider.is_valid() else null)
 	uid = battle_unit.uid
-	faces_left = battle_unit.is_enemy()
-	var shape: Dictionary = SHAPES.get(battle_unit.definition.shape, SHAPES[Enums.VisualShape.HUMANOID])
-	var scale_factor := battle_unit.definition.visual_scale
-	_sprite_size = shape.grid * PIXEL * scale_factor
-	custom_minimum_size = Vector2(maxf(_sprite_size.x, BAR_WIDTH) + 16.0, _sprite_size.y + FOOTER)
-	size = custom_minimum_size
+	ledger = p_ledger
+	slot = p_slot
+	_load_art()
 	displayed_hp = battle_unit.hp
 	displayed_stagger = battle_unit.stagger
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	mouse_entered.connect(func() -> void: hovered.emit(uid))
 	tooltip_text = ""
+	fit(1.0, _plate_width)
 
 
 func _ready() -> void:
 	_font = get_theme_default_font()
 
 
-func _gui_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		clicked.emit(uid)
-		accept_event()
+## Natural (unscaled) sprite height in screen pixels.
+func natural_height() -> float:
+	return _natural_size.y
 
 
-## Point where effects/floating text should appear (above the sprite).
+func has_sprite() -> bool:
+	return _texture != null
+
+
+## Resizes the view for the stage: [param shrink] (≤ 1) scales the sprite, [param plate_width] the
+## nameplate. The nameplate never shrinks its text.
+func fit(shrink: float, plate_width: float) -> void:
+	_shrink = shrink
+	_plate_width = plate_width
+	_sprite_size = (_natural_size * clampf(shrink, 0.1, 1.0)).round()
+	# Draw wide art beyond its lane; pixels must not enlarge/overlap input targets.
+	custom_minimum_size = Vector2(_plate_width if show_plate else _sprite_size.x, _sprite_size.y + plate_height())
+	size = custom_minimum_size
+	queue_redraw()
+
+
+## Constant for a given text size, so selecting, hitting or adding a status never moves the sprite.
+func plate_height() -> float:
+	var line := float(UITheme.secondary_size()) + 4.0
+	if not show_plate:
+		return line + 4.0
+	return maxf(line + 24.0, 52.0)
+
+
+## Point where effects / floating text should appear (above the sprite).
 func anchor_top() -> Vector2:
 	return global_position + Vector2(size.x * 0.5, 0.0)
 
@@ -109,37 +169,116 @@ func anchor_center() -> Vector2:
 	return global_position + Vector2(size.x * 0.5, _sprite_size.y * 0.55)
 
 
+## Global rect of the body (sprite area): selection and reaction rings centre on it.
+func body_rect() -> Rect2:
+	return Rect2(global_position + Vector2((size.x - _sprite_size.x) * 0.5, 0.0), _sprite_size)
+
+
+func _load_art() -> void:
+	_texture = null
+	_dead_texture = null
+	_flip = false
+	var definition := unit.definition
+	var frames := definition.sprite_frames
+	if use_sprites and frames != null and frames.has_animation(IDLE) and frames.get_frame_count(IDLE) > 0:
+		_texture = frames.get_frame_texture(IDLE, 0)
+	if _texture != null:
+		var native := Vector2(_texture.get_width(), _texture.get_height())
+		var height := float(frames.get_meta(&"display_height", 0.0))
+		if height <= 0.0:
+			height = native.y
+		_natural_size = Vector2(native.x * height / native.y, height).round()
+		var faces_left := bool(frames.get_meta(&"faces_left", unit.is_enemy()))
+		_flip = faces_left != unit.is_enemy()
+		if frames.has_animation(DEAD) and frames.get_frame_count(DEAD) > 0:
+			_dead_texture = frames.get_frame_texture(DEAD, 0)
+			var width := float(frames.get_meta(&"dead_display_width", _natural_size.x))
+			_dead_size = Vector2(width, width * _dead_texture.get_height() / maxf(1, _dead_texture.get_width()))
+	else:
+		var shape: Dictionary = SHAPES.get(definition.shape, SHAPES[Enums.VisualShape.HUMANOID])
+		_natural_size = shape.grid * PIXEL * definition.visual_scale
+
+
+func _gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		clicked.emit(uid)
+		accept_event()
+
+
+func _display() -> PresentationLedger.UnitDisplay:
+	return ledger.unit(uid) if ledger != null else null
+
+
+## Life presentation follows the defeat event, not an HP tween or future resolved engine state.
+func presentation_animation() -> StringName:
+	var display := _display()
+	return IDLE if (display.alive if display != null else unit.is_alive()) else DEAD
+
+
 func _draw() -> void:
+	_regions.clear()
 	if unit == null:
 		return
-	var alive := unit.is_alive() or displayed_hp > 0.5
+	var display := _display()
+	var alive := presentation_animation() == IDLE
+	var broken := display.broken if display != null else unit.is_broken()
 	var sprite_origin := Vector2((size.x - _sprite_size.x) * 0.5, 0.0) + body_offset
 	var center := sprite_origin + _sprite_size * 0.5
 	# Shadow.
-	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-	_draw_ellipse(Vector2(size.x * 0.5, _sprite_size.y - 2.0), Vector2(_sprite_size.x * 0.42, 6.0), Color(0, 0, 0, 0.35))
-	# Selection / active markers.
-	if highlighted:
-		_draw_brackets(Rect2(sprite_origin - Vector2(6, 6), _sprite_size + Vector2(12, 12)), UITheme.FOCUS)
-	elif active:
-		_draw_brackets(Rect2(sprite_origin - Vector2(4, 4), _sprite_size + Vector2(8, 8)), UITheme.ACCENT.darkened(0.2))
-	# Body (scaled around its feet, tilted when Broken, lying down when a party member falls).
-	var tilt := 0.18 if unit.is_broken() else 0.0
+	_draw_ellipse(Vector2(size.x * 0.5, _sprite_size.y - 2.0), Vector2(_sprite_size.x * 0.4, 5.0), Color(0, 0, 0, 0.35))
+	# Selection uses corner brackets; turn ownership also appears in the portrait timeline.
+	var small := UITheme.secondary_size()
+	if alive and highlighted:
+		_draw_brackets(Rect2(sprite_origin - Vector2(6, 6), _sprite_size + Vector2(12, 12)), UITheme.DANGER if unit.is_enemy() else UITheme.ACCENT)
+	elif alive and active:
+		_draw_brackets(Rect2(sprite_origin - Vector2(4, 4), _sprite_size + Vector2(8, 8)), UITheme.ACCENT.darkened(0.25))
+	# Corpses stay at the same foot anchor and never acquire target eligibility from their pixels.
 	if not alive:
-		tilt = -1.35
+		_draw_defeated(sprite_origin)
+		return
+	var tilt := 0.18 if broken else 0.0
 	var pivot := Vector2(center.x, sprite_origin.y + _sprite_size.y)
-	draw_set_transform(pivot, tilt, Vector2(body_scale, body_scale))
+	var body := Transform2D(tilt, Vector2(body_scale, body_scale), 0.0, pivot)
+	draw_set_transform_matrix(body)
 	var local_origin := sprite_origin - pivot
-	if alive or not unit.is_enemy():
+	if _texture != null:
+		_draw_sprite(local_origin, body)
+	else:
 		_draw_silhouette(local_origin)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-	if not alive:
-		return
-	if unit.is_weak_point_exposed():
+	var weak_point := display.weak_point if display != null else unit.is_weak_point_exposed()
+	if weak_point:
 		_draw_weak_point(center + Vector2(0, _sprite_size.y * 0.05))
-	if unit.is_broken():
+	if broken:
 		_draw_cracks(center)
-	_draw_footer(Vector2(0.0, _sprite_size.y + 4.0))
+	# State tags sit inside the lower body, clear of the intent strip and target label.
+	var state_y := sprite_origin.y + _sprite_size.y - 8
+	if weak_point and UITheme.text_scale() < 1.3:
+		_draw_tag(Vector2(size.x * 0.5, state_y), "EXPOSED", UITheme.FOCUS, small)
+		state_y -= small + 10
+	if broken:
+		if UITheme.text_scale() < 1.3:
+			_draw_tag(Vector2(size.x * 0.5, state_y), "BROKEN", UITheme.STAGGER, small)
+		else:
+			CombatIcons.paint(self, "state_broken", Rect2(size.x * 0.5 - 16, sprite_origin.y + _sprite_size.y - 34, 32, 32), UITheme.STAGGER)
+	if show_plate:
+		_draw_plate(Vector2(0.0, _sprite_size.y + 4.0), display, broken)
+	else:
+		_draw_badge(Vector2(size.x * 0.5, _sprite_size.y + 4.0))
+	# Brackets carry selection; turn order carries the active turn. No repeated text over sprites.
+
+
+func _draw_sprite(origin: Vector2, body: Transform2D) -> void:
+	var tint := Color.WHITE
+	if flash > 0.0:
+		tint = Color(1, 1, 1).lerp(Color(0.35, 0.25, 0.25), flash) if reduce_flashing else Color(1, 1, 1).lerp(Color(2.2, 2.2, 2.2), flash)
+	if _flip:
+		# Mirror around the body's own axis (the pivot sits at the feet, centred).
+		draw_set_transform_matrix(body * Transform2D(0.0, Vector2(-1, 1), 0.0, Vector2.ZERO))
+		draw_texture_rect(_texture, Rect2(-(origin.x + _sprite_size.x), origin.y, _sprite_size.x, _sprite_size.y), false, tint)
+		draw_set_transform_matrix(body)
+	else:
+		draw_texture_rect(_texture, Rect2(origin, _sprite_size), false, tint)
 
 
 func _draw_silhouette(origin: Vector2) -> void:
@@ -147,7 +286,8 @@ func _draw_silhouette(origin: Vector2) -> void:
 	var flash_color := Color(0.15, 0.1, 0.1) if reduce_flashing else Color(1, 1, 1)
 	var shades := [base, base.darkened(0.35), base.lightened(0.28), UITheme.ACCENT.lerp(base, 0.3)]
 	var shape: Dictionary = SHAPES.get(unit.definition.shape, SHAPES[Enums.VisualShape.HUMANOID])
-	var cell := PIXEL * unit.definition.visual_scale
+	var cell: float = _sprite_size.y / float(shape.grid.y) if unit.definition.shape != Enums.VisualShape.FLYER \
+		else _sprite_size.x / 16.0
 	var grid_width: float = shape.grid.x
 	if unit.definition.shape == Enums.VisualShape.FLYER:
 		var c := origin + Vector2(8, 8) * cell
@@ -157,6 +297,7 @@ func _draw_silhouette(origin: Vector2) -> void:
 		for i in 3:
 			draw_line(c + Vector2(-3 + i * 3, 5) * cell, c + Vector2(-4 + i * 3, 9) * cell, Color(base, 0.5), cell * 0.8)
 		return
+	var faces_left := unit.is_enemy()
 	for spec: Array in shape.cells:
 		var x: float = spec[0]
 		if faces_left:
@@ -171,68 +312,135 @@ func _draw_silhouette(origin: Vector2) -> void:
 		draw_rect(Rect2(bell.position + Vector2(bell.size.x * 0.4, bell.size.y), Vector2(bell.size.x * 0.2, cell)), Color(0.5, 0.4, 0.2))
 
 
+## Static bullseye/crosshair differs from Broken's cracks, even with motion/flashing reduced.
 func _draw_weak_point(at: Vector2) -> void:
-	var r := 9.0
-	var pulse := 0.6 + 0.4 * sin(Time.get_ticks_msec() * 0.008)
-	var diamond := PackedVector2Array([at + Vector2(0, -r), at + Vector2(r, 0), at + Vector2(0, r), at + Vector2(-r, 0)])
-	draw_colored_polygon(diamond, Color(1.0, 0.85, 0.3, 0.5 + 0.4 * pulse))
-	draw_polyline(diamond + PackedVector2Array([diamond[0]]), Color.WHITE, 1.5)
-	queue_redraw()
+	draw_circle(at, 14, UITheme.BG)
+	draw_arc(at, 11, 0, TAU, 24, UITheme.FOCUS, 2)
+	draw_rect(Rect2(at - Vector2(3, 3), Vector2(6, 6)), UITheme.TEXT)
+	for direction in [Vector2.LEFT, Vector2.RIGHT, Vector2.UP, Vector2.DOWN]:
+		draw_line(at + direction * 16, at + direction * 22, UITheme.FOCUS, 2)
+
+
+func _draw_defeated(origin: Vector2) -> void:
+	var feet := Vector2(size.x * 0.5, origin.y + _sprite_size.y)
+	if _dead_texture != null:
+		var drawn := _dead_size * _shrink
+		draw_texture_rect(_dead_texture, Rect2(feet - Vector2(drawn.x * 0.5, drawn.y), drawn), false, Color(0.78, 0.78, 0.78))
+	else:
+		# A generic flattened body is the fallback for missing dead art and fallen allies.
+		var flattened := Transform2D(0.0, Vector2(1.0, 0.3), 0.0, feet)
+		draw_set_transform_matrix(flattened)
+		if _texture != null:
+			_draw_sprite(Vector2(-_sprite_size.x * 0.5, -_sprite_size.y), flattened)
+		else:
+			_draw_silhouette(Vector2(-_sprite_size.x * 0.5, -_sprite_size.y))
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
 func _draw_cracks(at: Vector2) -> void:
-	var color := Color(0.95, 0.9, 1.0, 0.85)
+	var color := Color(UITheme.STAGGER, 0.9)
 	draw_polyline(PackedVector2Array([at + Vector2(-18, -20), at + Vector2(-6, -6), at + Vector2(-12, 6), at + Vector2(2, 18)]), color, 2.0)
 	draw_polyline(PackedVector2Array([at + Vector2(14, -16), at + Vector2(4, -4), at + Vector2(16, 8)]), color, 2.0)
 
 
-func _draw_footer(origin: Vector2) -> void:
-	var x := (size.x - BAR_WIDTH) * 0.5
-	var y := origin.y
-	var font_size := UITheme.font_size(0.8)
-	draw_string(_font, Vector2(0.0, y + font_size), unit.display_name, HORIZONTAL_ALIGNMENT_CENTER, size.x, font_size, UITheme.TEXT)
-	y += font_size + 4.0
-	# HP bar with numbers.
-	var hp_rect := Rect2(x, y, BAR_WIDTH, 9.0)
-	draw_rect(hp_rect, Color(0, 0, 0, 0.7))
-	var hp_ratio := clampf(displayed_hp / float(maxi(1, unit.max_hp)), 0.0, 1.0)
-	var hp_color := UITheme.BLOOM if unit.side == Enums.Side.PLAYER else Color(0.85, 0.32, 0.28)
-	draw_rect(Rect2(hp_rect.position, Vector2(hp_rect.size.x * hp_ratio, hp_rect.size.y)), hp_color)
-	draw_rect(hp_rect, Color(0, 0, 0, 0.9), false, 1.0)
-	var small := UITheme.font_size(0.66)
-	draw_string(_font, Vector2(x + 2, y + 8), "%d/%d" % [roundi(displayed_hp), unit.max_hp], HORIZONTAL_ALIGNMENT_LEFT, -1, small, Color.WHITE)
-	y += 12.0
+## Compact team-colored HP and icon/number resources. Effects move above the plate when enlarged
+## HP digits leave too little room. Full identity/maxima are in immediate details.
+func _draw_plate(origin: Vector2, display: PresentationLedger.UnitDisplay, broken: bool) -> void:
+	var width := _plate_width
+	var x := (size.x - width) * 0.5 + 6
+	var y := origin.y + 4
+	var small := UITheme.secondary_size()
+	var side := 22.0
+	var inner := width - 12
+	var team := UITheme.DANGER if unit.is_enemy() else UITheme.HEART
+	var max_hp := display.max_hp if display != null else unit.max_hp
+	var max_stagger := display.max_stagger if display != null else unit.max_stagger
+	var hp_rect := Rect2(x, y, inner, 12)
+	ResourceBarArt.paint(self, hp_rect, displayed_hp / maxf(1, max_hp), unit.is_enemy())
+	_regions.append({"rect": hp_rect, "text": "%s · Health\n%d / %d" % [unit.display_name, roundi(displayed_hp), max_hp]})
+	# Thin break track is immediately beneath HP; its value is available in inspection.
 	if unit.is_enemy():
-		var stagger_rect := Rect2(x, y, BAR_WIDTH, 6.0)
-		draw_rect(stagger_rect, Color(0, 0, 0, 0.7))
-		if unit.is_broken():
-			draw_rect(stagger_rect, Color(1, 1, 1, 0.25))
-			draw_string(_font, Vector2(x, y + 6), "BROKEN", HORIZONTAL_ALIGNMENT_CENTER, BAR_WIDTH, small, UITheme.STAGGER)
+		var break_rect := Rect2(x, y + 14, inner, 5)
+		ResourceBarArt.paint(self, break_rect, displayed_stagger / maxf(1, max_stagger), true, true)
+		_regions.append({"rect": break_rect, "text": "Break remaining\n%d / %d\nBreak it to interrupt its channel and skip its next activation." % [roundi(displayed_stagger), roundi(max_stagger)]})
+	y += 24
+	CombatIcons.paint(self, "heart", Rect2(x, y, side, side), team)
+	var hp := str(roundi(displayed_hp))
+	draw_string(_font, Vector2(x + side + 4, y + small), hp, HORIZONTAL_ALIGNMENT_LEFT, -1, small, UITheme.TEXT)
+	if not unit.is_enemy():
+		var focus := str(display.focus if display != null else unit.focus)
+		var right := x + inner - _text_width(focus, small) - side - 4
+		CombatIcons.paint(self, "focus", Rect2(right, y, side, side))
+		draw_string(_font, Vector2(right + side + 4, y + small), focus, HORIZONTAL_ALIGNMENT_LEFT, -1, small, UITheme.FOCUS)
+	if unit.is_enemy():
+		var effect_x := x + side + 9 + _text_width(hp, small)
+		var remaining := maxf(0, x + inner - effect_x)
+		if remaining < side + _text_width("+9", small):
+			_draw_effects(Vector2(x, origin.y - side - 4), inner, display)
 		else:
-			var stagger_ratio := clampf(displayed_stagger / maxf(1.0, unit.max_stagger), 0.0, 1.0)
-			draw_rect(Rect2(stagger_rect.position, Vector2(stagger_rect.size.x * stagger_ratio, stagger_rect.size.y)), UITheme.STAGGER)
-		draw_rect(stagger_rect, Color(0, 0, 0, 0.9), false, 1.0)
-		y += 9.0
+			_draw_effects(Vector2(effect_x, y), remaining, display)
 	else:
-		for i in unit.max_focus:
-			var pip := Rect2(x + i * (BAR_WIDTH / unit.max_focus), y, BAR_WIDTH / unit.max_focus - 2.0, 5.0)
-			draw_rect(pip, UITheme.ACCENT if i < unit.focus else Color(0.25, 0.25, 0.3))
-		y += 8.0
-	# Statuses then buff badges.
-	var cursor := x
-	for status in unit.statuses:
-		IconPainter.draw_status(self, Rect2(cursor, y, 16, 16), status.status)
-		draw_string(_font, Vector2(cursor + 10, y + 16), str(status.remaining), HORIZONTAL_ALIGNMENT_LEFT, -1, small, Color.WHITE)
-		cursor += 21.0
-	for buff in unit.buffs:
-		var glyph := buff.definition.glyph if not buff.definition.glyph.is_empty() else buff.definition.display_name.left(3).to_upper()
-		var badge := Rect2(cursor, y + 1, 28, 14)
-		draw_rect(badge, Color(0.6, 0.15, 0.15, 0.8) if buff.definition.is_debuff else Color(0.15, 0.3, 0.5, 0.85))
-		draw_string(_font, Vector2(cursor + 2, y + 12), glyph, HORIZONTAL_ALIGNMENT_LEFT, -1, small, Color.WHITE)
-		cursor += 31.0
-	if unit.intercepted_by >= 0 or unit.intercepting_for >= 0:
-		var label := "COVERED" if unit.intercepted_by >= 0 else "COVERING"
-		draw_string(_font, Vector2(cursor + 2, y + 12), label, HORIZONTAL_ALIGNMENT_LEFT, -1, small, UITheme.INFO)
+		_draw_effects(Vector2(x, origin.y - small - 10), inner, display)
+
+
+## Plate hidden (large text): just the slot number (enemies) or the name, matching the rail.
+func _draw_badge(at: Vector2) -> void:
+	var small := UITheme.secondary_size()
+	var text := "%02d" % slot if slot > 0 else unit.display_name
+	var width := _text_width(text, small) + 12.0
+	var rect := Rect2(at.x - width * 0.5, at.y, width, small + 4.0)
+	draw_rect(rect, Color(UITheme.PANEL, 0.9))
+	draw_rect(rect, UITheme.ACCENT if highlighted else UITheme.BORDER, false, 1.0)
+	draw_string(_font, Vector2(rect.position.x + 6.0, rect.end.y - 4.0), text, HORIZONTAL_ALIGNMENT_LEFT, -1, small, UITheme.TEXT)
+
+
+## Status icons with their remaining turns first (the dangerous information), then stance and
+## cover badges; whatever does not fit becomes "+N" (names and turns are in Details).
+func _draw_effects(origin: Vector2, width: float, display: PresentationLedger.UnitDisplay) -> void:
+	if display == null:
+		return
+	var side := float(UITheme.secondary_size() + 4)
+	var entries: Array[Dictionary] = []
+	for status in display.statuses:
+		entries.append({"icon": CombatIcons.mapping("statuses", status.status), "count": str(status.remaining), "text": "%s · %s\n%s" % [EnumText.status(status.status), UnitDetails.remaining_text(status.definition, status.remaining), status.definition.description if status.definition != null else ""]})
+	for buff in display.buffs:
+		entries.append({"icon": CombatIcons.mapping("buffs", buff.definition.id if buff.definition != null else ""), "count": str(buff.remaining), "text": "%s · %d\n%s" % [buff.name, buff.remaining, buff.definition.description if buff.definition != null else ""]})
+	if display.covered_by >= 0 or display.covering >= 0:
+		entries.append({"icon": "action_intercept", "count": "", "text": "Intercept\nCovered by an ally" if display.covered_by >= 0 else "Intercept\nCovering an ally"})
+	var cursor := origin.x
+	for i in entries.size():
+		var entry := entries[i]
+		var cell_width := side + _text_width(entry.count, UITheme.secondary_size()) + 12
+		var reserve := _text_width("+%d" % (entries.size() - i - 1), UITheme.secondary_size()) if i < entries.size() - 1 else 0.0
+		if cursor + cell_width > origin.x + width - reserve:
+			var overflow := UITheme.fit_text("+%d" % (entries.size() - i), origin.x + width - cursor, _font, UITheme.secondary_size())
+			draw_string(_font, Vector2(cursor, origin.y + side - 3), overflow, HORIZONTAL_ALIGNMENT_LEFT, -1, UITheme.secondary_size(), UITheme.TEXT)
+			var notes := PackedStringArray()
+			for extra in entries.slice(i):
+				notes.append(extra.text)
+			_regions.append({"rect": Rect2(cursor, origin.y, origin.x + width - cursor, side), "text": "Effects\n" + "\n\n".join(notes)})
+			break
+		var cell := Rect2(cursor - 2, origin.y - 2, cell_width - 6, side + 4)
+		draw_rect(cell, Color(UITheme.BG, 0.96))
+		draw_rect(cell, UITheme.BORDER.darkened(0.25), false, 1)
+		_regions.append({"rect": cell, "text": entry.text})
+		CombatIcons.paint(self, entry.icon, Rect2(cursor, origin.y, side, side))
+		draw_string(_font, Vector2(cursor + side, origin.y + side - 3), entry.count, HORIZONTAL_ALIGNMENT_LEFT, -1, UITheme.secondary_size(), UITheme.TEXT)
+		cursor += cell_width
+
+
+func _text_width(text: String, font_size: int) -> float:
+	if _font == null:
+		return text.length() * font_size * 0.6
+	return _font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+
+
+func _draw_tag(at: Vector2, text: String, color: Color, font_size: int) -> void:
+	var width := _font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x + 12.0
+	var rect := Rect2(at.x - width * 0.5, at.y - font_size - 6.0, width, font_size + 6.0)
+	draw_rect(rect, Color(UITheme.BG, 0.9))
+	draw_rect(rect, color, false, 1.0)
+	draw_string(_font, Vector2(rect.position.x + 6.0, rect.end.y - 4.0), text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, color)
 
 
 func _draw_brackets(rect: Rect2, color: Color) -> void:
@@ -250,3 +458,9 @@ func _draw_ellipse(center: Vector2, radius: Vector2, color: Color) -> void:
 		var angle := TAU * i / 20.0
 		points.append(center + Vector2(cos(angle) * radius.x, sin(angle) * radius.y))
 	draw_colored_polygon(points, color)
+
+func _get_tooltip(_point: Vector2) -> String:
+	for region in _regions:
+		if (region.rect as Rect2).has_point(_point):
+			return region.text
+	return detail_provider.call(uid) if detail_provider.is_valid() else unit.display_name

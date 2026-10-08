@@ -1,0 +1,153 @@
+# Hollow Choir audio delivery and integration contract
+
+Version 1.1 · 8 October 2026 · canonical companion to docs/DESIGN_DOCUMENT.md.
+
+## DESIGN INTENT
+
+Support the world's ambiguity and repeated combat without masking the information that makes reactions
+fair. Choir sound is beautiful, ordered and eventually constraining; Bloom is irregular, alarming and
+alive; human music combines both imperfectly. Neither faction is assigned a simple good/evil sound.
+
+The current slice uses one full mix per music cue. The older GDD's adaptive/stem discussion remains a
+later direction, not a delivery requirement. Reuse suitable existing tracks before generating more.
+
+| Proposal | Player-facing purpose | Decision supported | Interacting systems | Cost | Failure / exploit | Cheaper reuse |
+|---|---|---|---|---|---|---|
+| Briarfen battle full mix | Sustain urgency across repeated fights | Keep attention on public attacks and reactions; adds no rule decision | Music bus, existing command/reaction SFX, scene lifetime | Low file preparation; small later playback integration | Percussion sounds like a beat cue; fatigue; loud mix masks telegraphs | One reusable regional battle loop, not per enemy |
+| Mirebell boss full mix | Give the existing boss a distinct ritual atmosphere | Recognize encounter context without inferring hidden phases | Existing boss identity, same Music bus/player | One additional mix; no boss-music state machine | Musical swell falsely promises an attack/phase | One mix for the entire existing boss fight |
+| Global title mix | Establish the bell/soil identity | Menu orientation; no combat advantage | Main menu, Music bus | One reusable track | Music restarts on every focus change; long silent opening | Reuse an existing suitable track and its motif |
+| Intake/catalog workflow | Make replacements predictable for Adrian and agents | Choose an approved version, not an arbitrary newest file | Files, provenance, import/export, review | Low documentation/data cost | Unreviewed or missing file becomes runtime authority | One ledger and metadata template; no asset database tool |
+
+## PLAYER EXPERIENCE
+
+Music gives the marsh character while the player's eyes and ears remain available for actual timing
+cues. Muting music or all audio preserves every target, legality indicator, window and graded result.
+Repeated encounters do not restart the same opening unnecessarily.
+
+## RULES
+
+1. Intake goes in `assets/audio/source/inbox/` or an explicitly supplied external local folder. Keep
+   originals unchanged and record the original filename. The `source/.gdignore` excludes this tree
+   from Godot import/export; it does not exclude it from Git or automatically back it up.
+2. Copy `source/inbox/delivery.template.json` for each delivery. Unknown metadata stays null. Record
+   provider/source, available prompt, creator and usage evidence. `unverified` is not approval; agents
+   must not infer usage permission merely from a provider name, filename or paid subscription claim.
+3. Review states: `requested` → `received` → `auditioning` → `needs_edit` or `approved_master` →
+   `runtime_ready` → `integrated`. Rejected candidates use `rejected`; keep the reason. Files arriving
+   in a folder never advance state automatically. Only Adrian or the designated director approves
+   musical fit; technical validation cannot claim an audition happened.
+4. Approved masters live under `source/masters/global/` or `source/masters/regions/<region>/`. Runtime
+   exports live under `music/global/` or `music/regions/<region>/`. Ambience/stingers have separate
+   reserved folders. Keep existing `sfx/*.wav` cue filenames and meanings.
+   Whole-file comparison exports may be prepared before approval under `source/review/global/` or
+   `source/review/regions/<region>/`. They remain candidates, excluded by `source/.gdignore`; they
+   cannot be treated as approved masters or loaded by the game. Record their processing and hashes.
+5. Runtime names: `<cue_id>_vNN.ogg`, for example `briarfen_battle_v01.ogg`. Version replacements;
+   never overwrite an approved original. One catalog entry selects one version per stable cue ID.
+6. Accept original WAV, FLAC, MP3 or M4A for intake. Preserve the supplied format and bytes; agents
+   prepare delivery metadata and reviewed runtime exports. Prefer available PCM WAV masters at their native
+   44.1/48 kHz, 16/24-bit stereo. Keep other native rates as source; prepare a reviewed runtime export
+   separately. Do not upsample for a claim of improved quality or convert MP3 into a claimed lossless
+   master. Runtime music target: stereo Ogg Vorbis, 44.1 or 48 kHz, reviewed for audible artifacts.
+7. Request a repeat-friendly 90–180 second full mix, but measure the delivered file. A prompt saying
+   'seamless loop' is not a verified loop. Audition three joins, remove accidental lead/trailing silence,
+   and record exact loop metadata. Preserve source; edits produce a versioned export. Permit `one_shot`
+   for a title arrangement when looping it would sound worse. Never apply a generic crossfade that
+   doubles a drum hit or alters the perceived pulse without listening.
+8. Use at most one selected full mix and, during transitions, two music players. Future integration
+   routes both to the existing Music bus and honors Settings.music_volume. Same cue requests are
+   idempotent and preserve position. A 0.75 second crossfade is the initial transition target. On pause,
+   music may continue; gameplay clocks retain existing pause/focus rules. Scene exit fades/stops the
+   old cue; restart cannot leak players. Missing/unapproved cues resolve to silence, not arbitrary files.
+9. These are contracts for later engineering. This pass adds no music player, cue selection logic,
+   ducking, middleware, automatic scans or combat-state changes. Catalog paths remain null until media
+   is accepted. Candidate source/review paths may be recorded on receipt, while the cue's selected
+   source/runtime/version fields stay null until explicit selection. Runtime code must not load this
+   delivery ledger as though it were a typed registry.
+10. Music never provides the timing clock or secret enemy information. No beat synchronization,
+    exclusive audio telegraphs, phase inference, gameplay RNG use or extra reward trigger.
+
+## UI REQUIREMENTS
+
+Reuse the existing Music/SFX volume controls. No new persistent now-playing panel, track picker or
+combat text. Inspect chosen tracks and credits through documentation for now. Any later settings UI
+must remain keyboard/controller accessible and preserve the existing mute behavior.
+
+## DATA REQUIREMENTS
+
+`music/catalog.json` is the shared delivery ledger, versioned with `catalog_version`. It is not a save
+file or runtime manifest. Required fields per track:
+
+- Stable `cue_id`, `region`, `role`, working title, priority and explicit review `status`.
+- `delivery_id`, source/runtime project-relative paths, version, and approval author/note. Unassigned
+  values are null, not invented paths. A supplied source path must resolve before promotion.
+- Measured duration, sample rate in the loop object, known BPM/meter or null; LUFS/true peak or null
+  until measured. A guessed tempo is a note, never a measured value.
+- `loop.mode`: `unreviewed`, `whole_file`, `region` or `one_shot`. Region bounds use decoded PCM sample
+  frames: zero-based start inclusive, end exclusive, with `0 <= start < end <= total_frames` at the
+  recorded sample rate. Channels do not multiply the frame count. Convert explicitly to importer units;
+  never confuse samples, milliseconds and seconds. Verify the exported Godot stream's actual join.
+- `playback_gain_db`: track trim before the user Music bus, initially null until auditioned. Preserve
+  settings authority. `usage_status` and evidence stay attached to the delivery; do not invent license
+  conclusions. `prompt_reference` links the request, not proof of how a supplied file was generated.
+
+Optional future stems are only accepted as sample-aligned files from the same arrangement, with shared
+tempo, meter, length and loop bounds. Separate generated songs are not compatible stems by default.
+Stems are unnecessary for current acceptance.
+
+Catalog v2 keeps one entry per cue in `tracks`, with `candidate_delivery_ids` linking to explicit
+`candidates` records. Each candidate has a unique delivery ID/version, unchanged source path/hash,
+per-file metadata path, optional comparison export path/hash, measured technical values and review
+state. Two variants do not create two runtime cues; v02 is never selected merely because it is newer.
+Per-file `.delivery.json` v2 also records the probed container/codec, analysis method, optional review
+export processing and whether any actual audition/loop join occurred. Exact generation prompt, BPM,
+meter and generation date stay null when only a project prompt reference was supplied.
+
+## BALANCE PARAMETERS
+
+No combat tuning changes. Offline preparation target for full mixes: roughly -18 to -16 integrated
+LUFS and no more than -1 dBTP, subject to measured/auditioned results; these are mix targets, not Suno
+guarantees. Initial playback trim target is -12 dB before the Music bus, adjusted through audition.
+Keep impact/beat/reaction cues intelligible with default settings. Start with a restrained static mix;
+add ducking only if listening evidence shows it is necessary. No mandatory normalization of source.
+
+## EDGE CASES
+
+- Existing music may suit a different cue than its filename: audition before renaming/assigning.
+- Missing metadata, unclear usage evidence, clipping, lyrics, clicks, long silence or noisy extraction
+  keep a candidate unapproved. Record the reason; do not delete the original.
+- Sparse tracks and unexpected endings may fit title music but fail repeated battle use.
+- Boss music must not introduce non-existent phases or advertise exact enemy impact timing.
+- On defeat/victory, existing SFX remain authoritative; no additional stinger is required in this pass.
+- User mute, rapid scene changes, restart and repeated cue requests must not create playback leaks.
+
+## ACCESSIBILITY REQUIREMENTS
+
+Sound-off combat retains full information. Keep separate Music and SFX controls, no forced headphone
+or stereo-position requirement, no audio-only windows. Avoid sudden startle transients and overly loud
+reward hits. Music is an optional mood layer; hearing, rhythm recognition and volume never gate success.
+
+## ACCEPTANCE TESTS
+
+AUDIO-01: All folders/docs/templates/catalog parse and agree. No null path is treated as a file; all
+assigned paths resolve. Source bytes and SHA-256 survive preparation. Receipt claims match files
+actually supplied; requested but undelivered cues keep null paths.
+
+For actual intake, AUDIO-01 additionally checks candidate IDs/references, both source and comparison
+hashes, successful complete decode, native sample rate/channels and duration parity. An original's
+filename extension never replaces codec/container probing. Technical receipt is separate from AUDIO-02/03.
+
+AUDIO-02: For each supplied candidate, record an actual audition and usage evidence review, then
+measure duration/rate/channels and available loudness metrics. Do not promote missing evidence.
+
+AUDIO-03: Audition three loop joins in the exported stream; no click, accidental silence or doubled
+downbeat. One-shot arrangements are explicitly tagged. Reject invalid/out-of-range loop bounds.
+
+AUDIO-04: Future playback honors Music mute/volume, repeated same-cue requests, rapid scene changes,
+pause/focus behavior, restart and missing tracks. At most two music players during a crossfade, one after.
+
+AUDIO-05: Listen with current battle cues through speakers/headphones and compare music off/on.
+Beat, telegraph, impact and reaction feedback remain identifiable; engine results and clocks are identical.
+
+AUDIO-06: Human approval, actual media checks and runtime playback remain pending until separately
+recorded. Placeholder/catalog validation cannot satisfy them.

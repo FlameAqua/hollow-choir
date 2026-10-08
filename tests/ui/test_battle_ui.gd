@@ -1,8 +1,8 @@
 extends TestCase
 ## Presenter and widget tests (headless). Whole battles run through the real BattleScene with the
 ## autopilot and simulated execution at an accelerated Engine.time_scale. Widgets get their input
-## injected at a chosen moment by back-dating their start time, which checks the input -> grade
-## wiring without waiting in real time (the grading maths itself is covered by test_commands).
+## injected at a chosen moment by setting their clock, which checks the input -> grade wiring
+## without waiting in real time (the grading maths itself is covered by test_commands).
 
 const BATTLE_SCENE := "res://scenes/battle/battle_scene.tscn"
 const TIME_SCALE := 25.0
@@ -53,6 +53,9 @@ func test_keyboard_confirm_submits_the_focused_action() -> void:
 	assert_true(await _wait_until(func() -> bool: return scene._picker.is_active()), "player turn reached")
 	await _frames(3)
 	_push_action(&"ui_accept")
+	assert_true(await _wait_until(func() -> bool: return scene._picker.is_targeting()), "one legal enemy still requires target review")
+	assert_true(_first_action(scene.engine).is_empty(), "selecting an attack alone does not commit it")
+	_push_action(InputBindings.CONFIRM)
 	assert_true(await _wait_until(func() -> bool: return not _first_action(scene.engine).is_empty()), "an action was submitted")
 	var entry := _first_action(scene.engine)
 	if not entry.is_empty():
@@ -85,7 +88,7 @@ func test_timing_widget_grades_a_press_on_the_sweet_spot_perfect() -> void:
 	var widget := TimingWidget.new()
 	_tree.root.add_child(widget)
 	widget.begin(spec, "Test")
-	widget._start_us = Time.get_ticks_usec() - int(spec.target_time_ms() * 1000.0)
+	widget.clock.set_elapsed(spec.target_time_ms())
 	widget._input(_action_event(InputBindings.COMMAND, true))
 	var grade: Enums.ExecutionGrade = await widget.finished
 	assert_eq(grade, Enums.ExecutionGrade.PERFECT)
@@ -109,7 +112,7 @@ func test_hold_widget_grades_a_release_at_the_target_perfect() -> void:
 	_tree.root.add_child(widget)
 	widget.begin(spec, "Test")
 	widget._input(_action_event(InputBindings.COMMAND, true))
-	widget._hold_start_us -= int(spec.target_time_ms() * 1000.0)
+	widget.clock.advance(spec.target_time_ms())
 	widget._input(_action_event(InputBindings.COMMAND, false))
 	var grade: Enums.ExecutionGrade = await widget.finished
 	assert_eq(grade, Enums.ExecutionGrade.PERFECT)
@@ -122,7 +125,7 @@ func test_rhythm_widget_grades_on_beat_presses_perfect() -> void:
 	_tree.root.add_child(widget)
 	widget.begin(spec, "Test")
 	for beat in spec.beat_count:
-		widget._start_us = Time.get_ticks_usec() - int(spec.beat_time_ms(beat) * 1000.0)
+		widget.clock.set_elapsed(spec.beat_time_ms(beat))
 		widget._input(_action_event(InputBindings.COMMAND, true))
 	var grade: Enums.ExecutionGrade = await widget.finished
 	assert_eq(grade, Enums.ExecutionGrade.PERFECT)
@@ -131,7 +134,7 @@ func test_rhythm_widget_grades_on_beat_presses_perfect() -> void:
 
 func test_reaction_widget_locks_the_first_allowed_key_and_grades_it() -> void:
 	var widget := _reaction_widget([Enums.ReactionType.BRACE, Enums.ReactionType.EVADE, Enums.ReactionType.PARRY])
-	widget._start_us = Time.get_ticks_usec() - int(widget.impact_ms() * 1000.0)
+	widget.clock.set_elapsed(widget.impact_ms())
 	widget._input(_action_event(InputBindings.PARRY, true))
 	widget._input(_action_event(InputBindings.BRACE, true))
 	var result: ReactionResult = await widget.finished
@@ -142,7 +145,7 @@ func test_reaction_widget_locks_the_first_allowed_key_and_grades_it() -> void:
 
 func test_reaction_widget_ignores_struck_through_reactions() -> void:
 	var widget := _reaction_widget([Enums.ReactionType.BRACE])
-	widget._start_us = Time.get_ticks_usec() - int(widget.impact_ms() * 1000.0)
+	widget.clock.set_elapsed(widget.impact_ms())
 	widget._input(_action_event(InputBindings.PARRY, true))
 	widget._input(_action_event(InputBindings.BRACE, true))
 	var result: ReactionResult = await widget.finished
@@ -153,7 +156,7 @@ func test_reaction_widget_ignores_struck_through_reactions() -> void:
 
 func test_reaction_widget_without_input_reports_no_reaction() -> void:
 	var widget := _reaction_widget([Enums.ReactionType.BRACE, Enums.ReactionType.EVADE])
-	widget._start_us = Time.get_ticks_usec() - int((widget.impact_ms() + 2000.0) * 1000.0)
+	widget.clock.set_elapsed(widget.impact_ms() + 2000.0)
 	var result: ReactionResult = await widget.finished
 	assert_eq(result.type, Enums.ReactionType.NONE)
 	widget.queue_free()
@@ -172,7 +175,7 @@ func test_log_formatter_and_recap_cover_a_lost_battle() -> void:
 	assert_false(recap.contains("unknown causes"), "recap names the blow: %s" % recap)
 
 
-func test_unit_info_reveals_affinities_only_with_knowledge() -> void:
+func test_unit_details_reveal_affinities_only_with_knowledge() -> void:
 	var setup := _setup(&"fen_patrol", &"starter_sword", 5)
 	var engine := BattleEngine.new(setup)
 	var wisp: BattleUnit = null
@@ -181,12 +184,13 @@ func test_unit_info_reveals_affinities_only_with_knowledge() -> void:
 			wisp = unit
 	assert_not_null(wisp)
 	var weakness := EnumText.damage_type(wisp.enemy_def().weaknesses[0])
-	var unknown := UnitInfo.describe(wisp, engine, false, false)
+	var unknown := UnitDetails.describe(engine, wisp)
 	assert_false(unknown.contains("Weak: %s" % weakness), "weakness hidden while unknown")
-	assert_true(unknown.contains("Weak: ?"))
+	assert_true(unknown.contains("Unknown: "), "says what is still unknown")
 	wisp.research_level = Enums.ResearchLevel.STUDIED
-	var studied := UnitInfo.describe(wisp, engine, false, false)
+	var studied := UnitDetails.describe(engine, wisp)
 	assert_true(studied.contains("Weak: %s" % weakness), "weakness shown once studied")
+	assert_false(studied.contains("Unknown: "))
 
 
 func test_code_labels_are_readable() -> void:
@@ -278,8 +282,9 @@ func _reaction_widget(allowed: Array[Enums.ReactionType]) -> ReactionWidget:
 	action.display_name = "Test Swing"
 	var widget := ReactionWidget.new()
 	_tree.root.add_child(widget)
+	widget.size = Vector2(1280, 720)
 	var points: Array[Vector2] = [Vector2(100, 100)]
-	widget.begin(spec, action, points, "Tester")
+	widget.begin(spec, ReactionReadout.for_spec(spec, "Tester", action.display_name), points, Rect2(300, 500, 704, 180))
 	return widget
 
 

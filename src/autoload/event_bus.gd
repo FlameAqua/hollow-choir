@@ -8,6 +8,8 @@ signal battle_finished(result: BattleResult)
 signal research_level_gained(enemy_id: StringName, level: int)
 ## Settings were changed and applied.
 signal settings_changed
+## The player switched between keyboard/mouse and gamepad; prompts should show the new bindings.
+signal input_device_changed
 ## A save slot was written (slot, success).
 signal game_saved(slot: int, ok: bool)
 ## A save slot was loaded into GameState.

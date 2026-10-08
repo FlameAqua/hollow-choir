@@ -1,90 +1,119 @@
 class_name TimelineBar
 extends Control
-## Initiative timeline: this round's order (acted / acting / upcoming), then the projected next
-## round. Broken units show SKIP; channeling enemies show an hourglass. The current round is driven
-## by the events the presenter has played (round_number / order / acting_uid / acted), so it never
-## runs ahead of the animation; the forecast reads the engine.
-
-const CHIP := 34.0
-const GAP := 6.0
-
+## Portrait order with a separate dimmed next-round forecast. Life, Broken and the forecast come from
+## the PresentationLedger and channel markers from the rail's displayed intent, so nothing changes
+## before the event that caused it has played (the engine is already at the end of the batch).
 var engine: BattleEngine
+## Displayed state (null = live engine state, e.g. a bare timeline in a tool).
+var ledger: PresentationLedger
+var rail: IntentRail
+var use_art := true
 var round_number := 0
 var order: Array[int] = []
 var acting_uid := -1
 var acted: Dictionary[int, bool] = {}
-## Width kept free on the right for the toolbar.
-var reserved_right := 0.0
 var _chips: Array[Dictionary] = []
-var _font: Font
-
 
 func _ready() -> void:
-	_font = get_theme_default_font()
 	mouse_filter = Control.MOUSE_FILTER_PASS
-
+	focus_mode = Control.FOCUS_ALL
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 
 func refresh() -> void:
 	queue_redraw()
 
+func describe() -> String:
+	var parts := PackedStringArray()
+	for uid in _upcoming():
+		parts.append(("NOW " if uid == acting_uid else "") + engine.get_unit(uid).display_name)
+	var forecast := PackedStringArray()
+	for uid in _forecast():
+		forecast.append(engine.get_unit(uid).display_name)
+	if forecast.is_empty():
+		return " › ".join(parts)
+	return "%s | Next round · forecast: %s" % [" › ".join(parts), " → ".join(forecast)]
+
+func _upcoming() -> Array[int]:
+	var result: Array[int] = []
+	if engine != null:
+		for uid in order:
+			var unit := engine.get_unit(uid)
+			if unit != null and _alive(unit) and not acted.has(uid):
+				result.append(uid)
+	return result
+
+func _forecast() -> Array[int]:
+	return ledger.displayed_forecast() if ledger != null else engine.forecast_next_round()
+
+func _alive(unit: BattleUnit) -> bool:
+	var display := ledger.unit(unit.uid) if ledger != null else null
+	return display.alive if display != null else unit.is_alive()
+
+func _broken(unit: BattleUnit) -> bool:
+	var display := ledger.unit(unit.uid) if ledger != null else null
+	return display.broken if display != null else unit.is_broken()
+
+## The hourglass mirrors the channel the rail currently shows for this enemy.
+func _channel(unit: BattleUnit) -> bool:
+	if rail == null:
+		return unit.intent != null and unit.intent.is_channel()
+	var slot := rail.slot(unit.uid)
+	return slot != null and slot.readout != null and slot.readout.is_channel
 
 func _draw() -> void:
 	_chips.clear()
-	draw_rect(Rect2(Vector2.ZERO, size), Color(0.05, 0.05, 0.08, 0.88))
-	draw_line(Vector2(0, size.y), Vector2(size.x, size.y), UITheme.BORDER, 1.0)
+	draw_rect(Rect2(Vector2.ZERO, size), UITheme.PANEL)
 	if engine == null:
 		return
-	var font_size := UITheme.font_size(0.85)
-	draw_string(_font, Vector2(14, size.y * 0.5 + font_size * 0.35), "ROUND %d" % maxi(1, round_number),
-		HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, UITheme.ACCENT)
-	var right_edge := size.x - reserved_right - 10.0
-	var x := 110.0
-	var y := (size.y - CHIP) * 0.5
-	for uid in order:
-		var unit := engine.get_unit(uid)
-		if unit == null or not unit.is_alive() or x + CHIP > right_edge:
-			continue
-		var phase := 0 if acted.has(uid) else (1 if uid == acting_uid else 2)
-		x = _chip(unit, Vector2(x, y), phase, false) + GAP
-	x += 8.0
-	draw_line(Vector2(x, 8), Vector2(x, size.y - 8), UITheme.BORDER, 1.0)
-	draw_string(_font, Vector2(x + 6, 15), "NEXT", HORIZONTAL_ALIGNMENT_LEFT, -1, UITheme.font_size(0.6), UITheme.TEXT_DIM)
-	x += 10.0
-	for uid in engine.forecast_next_round():
-		var unit := engine.get_unit(uid)
-		if unit != null and x + CHIP < right_edge:
-			x = _chip(unit, Vector2(x, y + 4), 2, true) + GAP * 0.6
+	var side := size.y - 8
+	var x := 8.0
+	CombatIcons.paint(self, "turn_order", Rect2(x, 8, side - 8, side - 8))
+	x += side + 12
+	for uid in _upcoming():
+		_chip(uid, Rect2(x, 4, side, side), false)
+		x += side + 10
+	var forecast := _forecast()
+	var forecast_x := maxf(x + 32, size.x - (side + 6) * (forecast.size() + 1) - 10)
+	if not forecast.is_empty() and forecast_x + (side + 6) * 2 <= size.x:
+		draw_line(Vector2(forecast_x - 16, 8), Vector2(forecast_x - 16, size.y - 8), UITheme.BORDER)
+		CombatIcons.paint(self, "channel", Rect2(forecast_x, 8, side - 8, side - 8), Color(1, 1, 1, 0.65))
+		forecast_x += side + 6
+		for index in forecast.size():
+			var uid := forecast[index]
+			if forecast_x + (side + 6) * 2 > size.x and index < forecast.size() - 1:
+				var more := Rect2(forecast_x, 4, side, side)
+				draw_string(get_theme_default_font(), more.position + Vector2(4, side * 0.65), "+%d" % (forecast.size() - index), HORIZONTAL_ALIGNMENT_LEFT, -1, UITheme.secondary_size(), UITheme.TEXT_DIM)
+				_chips.append({"rect": more, "uid": -1, "forecast": true})
+				break
+			_chip(uid, Rect2(forecast_x, 4, side, side), true)
+			forecast_x += side + 6
 
+func _chip(uid: int, rect: Rect2, forecast: bool) -> void:
+	var unit := engine.get_unit(uid)
+	if unit == null:
+		return
+	var current := uid == acting_uid and not forecast
+	draw_rect(rect, UITheme.BG)
+	draw_rect(rect, UITheme.ACCENT if current else UITheme.DANGER if unit.is_enemy() else UITheme.HEART, false, 2 if current else 1)
+	CombatIcons.portrait(self, unit, rect.grow(-3), forecast, use_art)
+	if current:
+		draw_rect(Rect2(rect.position.x, rect.end.y - 3, rect.size.x, 3), UITheme.ACCENT)
+	if _broken(unit):
+		CombatIcons.paint(self, "state_broken", Rect2(rect.end - Vector2(18, 18), Vector2(18, 18)))
+	elif unit.is_enemy() and _channel(unit):
+		CombatIcons.paint(self, "channel", Rect2(rect.end - Vector2(16, 16), Vector2(16, 16)))
+	if unit.is_enemy():
+		var number := engine.get_state().enemies(false).find(unit) + 1
+		var small := UITheme.secondary_size()
+		draw_rect(Rect2(rect.position + Vector2(1, 1), Vector2(small * 0.7 + 4, small + 3)), Color(UITheme.BG, 0.9))
+		draw_string(get_theme_default_font(), rect.position + Vector2(2, small + 1), str(number), HORIZONTAL_ALIGNMENT_LEFT, -1, small, UITheme.TEXT)
+	_chips.append({"rect": rect, "uid": uid, "forecast": forecast})
 
-## Draws one chip; [param phase] 0 = acted, 1 = acting, 2 = upcoming. Returns the right edge.
-func _chip(unit: BattleUnit, at: Vector2, phase: int, forecast: bool) -> float:
-	var chip_size := CHIP * (0.78 if forecast else (1.15 if phase == 1 else 1.0))
-	var rect := Rect2(at - Vector2(0, (chip_size - CHIP) * 0.5), Vector2(chip_size, chip_size))
-	var base := unit.definition.color.darkened(0.45)
-	var alpha := 0.45 if phase == 0 or forecast else 1.0
-	draw_rect(rect, Color(base, alpha))
-	var border := UITheme.INFO if unit.side == Enums.Side.PLAYER else UITheme.DANGER
-	if phase == 1:
-		border = UITheme.ACCENT
-	draw_rect(rect, Color(border, alpha), false, 2.0 if phase == 1 else 1.0)
-	var initials := unit.display_name.replace("The ", "").left(2).to_upper()
-	var font_size := int(chip_size * 0.42)
-	draw_string(_font, Vector2(rect.position.x, rect.get_center().y + font_size * 0.38), initials,
-		HORIZONTAL_ALIGNMENT_CENTER, rect.size.x, font_size, Color(UITheme.TEXT, alpha))
-	if unit.is_broken() and phase != 0:
-		draw_rect(rect, Color(0.2, 0.0, 0.3, 0.55))
-		draw_string(_font, Vector2(rect.position.x, rect.end.y - 3), "SKIP", HORIZONTAL_ALIGNMENT_CENTER,
-			rect.size.x, int(chip_size * 0.28), UITheme.STAGGER)
-	elif unit.intent != null and unit.intent.is_channel() and not forecast:
-		IconPainter.draw_hourglass(self, Rect2(rect.end.x - 10, rect.position.y - 2, 8, 10), UITheme.ACCENT, null, 0)
-	_chips.append({"rect": rect, "uid": unit.uid})
-	return rect.end.x
-
-
-func _get_tooltip(at_position: Vector2) -> String:
+func _get_tooltip(point: Vector2) -> String:
 	for chip in _chips:
-		if (chip.rect as Rect2).has_point(at_position):
+		if (chip.rect as Rect2).has_point(point):
+			if chip.uid < 0:
+				return describe().get_slice(" | ", 1)
 			var unit := engine.get_unit(chip.uid)
-			return "%s — Tempo %d%s" % [unit.display_name, roundi(Stats.tempo(engine.ctx, unit)),
-				" (Broken: skips its next turn)" if unit.is_broken() else ""]
-	return ""
+			return "%s%s\nTempo %d%s" % ["Next round · forecast\n" if chip.forecast else "Acting now\n" if chip.uid == acting_uid else "", unit.display_name, roundi(Stats.tempo(engine.ctx, unit)), "\nBroken: skips its next activation." if _broken(unit) else ""]
+	return "Turn order\nGold underline: acting now. Red frame: enemy. Dim portraits: next-round forecast."

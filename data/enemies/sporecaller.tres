@@ -10,6 +10,8 @@
 [ext_resource type="Script" path="res://src/data/combatants/enemy_definition.gd" id="8_eka1p"]
 [ext_resource type="Script" path="res://src/data/rules/trait_definition.gd" id="9_3l8vi"]
 
+[ext_resource type="SpriteFrames" path="res://assets/art/enemies/briarfen/frames/sporecaller_idle.tres" id="99_frames_v02"]
+
 [sub_resource type="Resource" id="Resource_vlso0"]
 script = ExtResource("3_b3iun")
 type = 8
@@ -79,3 +81,4 @@ force = 8
 tempo = 8
 shape = 2
 color = Color(0.7, 0.6, 0.85, 1)
+sprite_frames = ExtResource("99_frames_v02")

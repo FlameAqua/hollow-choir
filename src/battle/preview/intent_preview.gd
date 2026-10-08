@@ -10,7 +10,10 @@ var action: EnemyActionDefinition
 var target_uids: Array[int] = []
 var detail_level: Enums.ResearchLevel = Enums.ResearchLevel.UNKNOWN
 var allowed: Array[Enums.ReactionType] = []
+## Activations until release as declared (EnemyIntent.turns_until_release()).
 var turns_until_release: int = 0
+## The channel has started: [member turns_until_release] counts down remaining activations.
+var channeling: bool = false
 var statuses: Array[Enums.StatusId] = []
 var unreacted: Dictionary[int, Vector2i] = {}
 var braced: Dictionary[int, Vector2i] = {}

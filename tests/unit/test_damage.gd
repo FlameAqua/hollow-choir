@@ -122,6 +122,19 @@ func test_modifiers_add_then_multiply() -> void:
 	assert_almost_eq(wet.expected, 60.0, 0.001, "conditional x2 vs Wet")
 
 
+func test_any_direct_hit_reveals_that_damage_type() -> void:
+	var neutral := Fixtures.enemy(&"neutral", 500)
+	var driver := BattleDriver.new(Fixtures.setup([neutral]))
+	driver.to_player_turn()
+	var enemy := driver.enemy()
+	var ctx := driver.engine.ctx
+	assert_false(PreviewRules.affinity_known(ctx, enemy, Enums.DamageType.SLASH), "unknown before any hit")
+	driver.act(&"strike", enemy.uid)
+	driver.next_request()
+	assert_true(PreviewRules.affinity_known(ctx, enemy, Enums.DamageType.SLASH), "a neutral Slash hit reveals Slash")
+	assert_false(PreviewRules.affinity_known(ctx, enemy, Enums.DamageType.BLUNT), "other types stay unknown")
+
+
 func test_preview_matches_resolution() -> void:
 	var driver := BattleDriver.new(Fixtures.setup([Fixtures.enemy(&"dummy", 500, 25)]))
 	var request := driver.to_player_turn()

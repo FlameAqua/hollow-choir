@@ -5,7 +5,8 @@ extends RefCounted
 
 enum Toggle { DEFAULT = 0, ON = 1, OFF = 2 }
 enum WindowMode { WINDOWED = 0, FULLSCREEN = 1, BORDERLESS = 2 }
-enum TooltipMode { HOLD = 0, ALWAYS = 1 }
+## Details (analysis layer): held, toggled by a press, or always on. Append-only (saved as ints).
+enum TooltipMode { HOLD = 0, ALWAYS = 1, TOGGLE = 2 }
 
 # Gameplay — two independent difficulty axes (GDD "Accessibility").
 var tactical_difficulty: Enums.TacticalDifficulty = Enums.TacticalDifficulty.ADVENTURER
@@ -17,9 +18,14 @@ var reaction_pause: Toggle = Toggle.DEFAULT
 
 # Display & accessibility.
 var window_mode: WindowMode = WindowMode.WINDOWED
+## Explicit window size; the 1280x720 design canvas scales to the selected resolution.
+const RESOLUTIONS: Array[Vector2i] = [Vector2i(1280, 720), Vector2i(1366, 768), Vector2i(1600, 900), Vector2i(1920, 1080), Vector2i(2560, 1440)]
+var window_resolution := Vector2i(1280, 720)
 var text_scale: float = 1.0
 var screen_shake: bool = true
 var reduce_flashing: bool = false
+## Removes decorative motion (bobbing, pulses, drifting motes). Timing cues stay.
+var reduce_motion: bool = false
 var show_damage_numbers: bool = true
 var advanced_tooltips: TooltipMode = TooltipMode.HOLD
 ## Multiplies non-interactive combat animation speed (never the reaction windows).
@@ -37,7 +43,7 @@ var bindings: Dictionary = {}
 
 const SECTION_FIELDS := {
 	"gameplay": ["tactical_difficulty", "execution_assist", "auto_brace", "reaction_pause"],
-	"display": ["window_mode", "text_scale", "screen_shake", "reduce_flashing", "show_damage_numbers",
+	"display": ["window_mode", "window_resolution", "text_scale", "screen_shake", "reduce_flashing", "reduce_motion", "show_damage_numbers",
 		"advanced_tooltips", "combat_speed", "auto_advance_text", "subtitles"],
 	"audio": ["master_volume", "music_volume", "sfx_volume"],
 }
@@ -78,7 +84,11 @@ func read_from(config: ConfigFile) -> void:
 
 
 func _clamp() -> void:
-	text_scale = clampf(text_scale, 0.75, 1.75)
+	if not RESOLUTIONS.has(window_resolution):
+		window_resolution = RESOLUTIONS[0]
+	text_scale = clampf(text_scale, 0.75, 2.0)
+	if not TooltipMode.values().has(int(advanced_tooltips)):
+		advanced_tooltips = TooltipMode.HOLD
 	combat_speed = clampf(combat_speed, 0.5, 2.0)
 	master_volume = clampf(master_volume, 0.0, 1.0)
 	music_volume = clampf(music_volume, 0.0, 1.0)

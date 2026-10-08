@@ -63,9 +63,12 @@ docs/            proposal, decision log, data contracts, testing, design questio
 
 ### Documents
 
-- [`docs/design/M1_1_COMBAT_CLARITY.md`](docs/design/M1_1_COMBAT_CLARITY.md) — approved Director specification; implementation pending
+- [`docs/design/M1_1_COMBAT_CLARITY.md`](docs/design/M1_1_COMBAT_CLARITY.md) — core combat clarity contract; layout revised by the icon-first UI contract
 - [`docs/design/visuals/combat_study.html`](docs/design/visuals/combat_study.html) — local three-state UI study (illustrative, not a game build)
-- [`assets/art/briarfen_v01/README.md`](assets/art/briarfen_v01/README.md) — staged cast/background art and idle SpriteFrames candidates
+- [`docs/art/briarfen_v01/README.md`](docs/art/briarfen_v01/README.md) — v01 source provenance and individual idle packaging
+- [`assets/art/STYLE_GUIDE.md`](assets/art/STYLE_GUIDE.md) — canonical materials, silhouettes, pixel targets and accessible UI conventions
+- [`docs/art/briarfen_v02/README.md`](docs/art/briarfen_v02/README.md) — integrated existing-enemy art and shared combat textures
+- [`docs/briefs/BRIARFEN_V02_ART_INTEGRATION.md`](docs/briefs/BRIARFEN_V02_ART_INTEGRATION.md) — bounded art resource and UI texture handoff
 - [`docs/reviews/M1_DIRECTOR_REVIEW.md`](docs/reviews/M1_DIRECTOR_REVIEW.md) — pillar review, source findings and validation limits
 - [`docs/briefs/M1_1_IMPLEMENTATION.md`](docs/briefs/M1_1_IMPLEMENTATION.md) — bounded Claude handoff
 
@@ -81,3 +84,12 @@ docs/            proposal, decision log, data contracts, testing, design questio
 Per the GDD collaboration table, ChatGPT is Game Director (design, balance models, UX specs, scope) and
 Claude is Lead Gameplay Engineer (architecture, implementation, tests, tools). All M1 content numbers
 are **provisional** and live in data so the Director can retune them without code changes.
+
+Current UI: [icon-first contract](docs/design/ICON_FIRST_COMBAT_UI.md), [runtime review](docs/reports/ui_refresh/README.md), [art library](assets/art/README.md).
+
+## Art and audio preparation
+
+[Shared frame/backdrop direction](docs/design/ENVIRONMENT_FRAME_ART.md),
+[music folder contract](assets/audio/AUDIO_CONTRACT.md), and
+[Suno requests](docs/audio/SUNO_REQUESTS.md) cover the latest asset preparation.
+Runtime assignment/music playback remain separate from this delivery.

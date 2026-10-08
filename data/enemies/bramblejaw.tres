@@ -11,6 +11,8 @@
 [ext_resource type="Script" path="res://src/data/rules/modifier_definition.gd" id="9_pkxyh"]
 [ext_resource type="Script" path="res://src/data/rules/triggered_effect_definition.gd" id="10_6yjq3"]
 
+[ext_resource type="SpriteFrames" path="res://assets/art/enemies/briarfen/frames/bramblejaw_idle.tres" id="99_frames_v02"]
+
 [sub_resource type="Resource" id="Resource_8780g"]
 script = ExtResource("3_5hl6t")
 type = 5
@@ -143,3 +145,4 @@ traits = Array[ExtResource("8_s1tia")]([SubResource("Resource_c5fs6")])
 shape = 1
 color = Color(0.35, 0.45, 0.22, 1)
 visual_scale = 1.4
+sprite_frames = ExtResource("99_frames_v02")

@@ -18,10 +18,10 @@ const RIGHT := &"hc_right"
 const LOG := &"hc_log"
 const MENU := &"hc_menu"
 
-## Menus use arrows + Z/X (JRPG convention) so A/S/D are free for the three reactions,
+## Menus use arrows + Enter/X so A/S/D are free for the three reactions,
 ## ordered left to right from safe to risky.
 const DEFAULTS := {
-	CONFIRM: ["key:Enter", "key:Z", "key:Space", "joy:0"],
+	CONFIRM: ["key:Enter", "joy:0"],
 	CANCEL: ["key:Escape", "key:X", "key:Backspace", "joy:1"],
 	COMMAND: ["key:Space", "key:Z", "joy:0", "joy:2"],
 	BRACE: ["key:A", "joy:9"],
@@ -38,13 +38,19 @@ const DEFAULTS := {
 
 const DISPLAY_NAMES := {
 	CONFIRM: "Confirm", CANCEL: "Back", COMMAND: "Action command", BRACE: "Brace", EVADE: "Evade",
-	PARRY: "Parry", INFO: "Details (hold)", UP: "Up", DOWN: "Down", LEFT: "Left", RIGHT: "Right",
-	LOG: "Battle log", MENU: "Menu",
+	PARRY: "Parry", INFO: "Details", UP: "Up", DOWN: "Down", LEFT: "Left", RIGHT: "Right",
+	LOG: "Battle log", MENU: "Pause",
 }
+
+## The device whose bindings prompts should show (M1.1: "current device bindings").
+enum Device { KEYBOARD = 0, GAMEPAD = 1 }
+
+## Last device the player used. Updated from every window input event (Settings autoload).
+static var active_device: Device = Device.KEYBOARD
 
 
 ## Godot's built-in UI actions (focus navigation, pressing buttons) also follow these bindings, so
-## menus obey rebinding and the JRPG keys (Z confirm, X back) work everywhere.
+## menus obey rebinding and explicit confirmation works everywhere.
 const UI_MIRRORS := {
 	CONFIRM: &"ui_accept", CANCEL: &"ui_cancel", UP: &"ui_up", DOWN: &"ui_down", LEFT: &"ui_left",
 	RIGHT: &"ui_right",
@@ -68,6 +74,7 @@ static func install(overrides: Dictionary = {}) -> void:
 	for action: StringName in UI_MIRRORS:
 		var ui_action: StringName = UI_MIRRORS[action]
 		if InputMap.has_action(ui_action):
+			InputMap.action_erase_events(ui_action)
 			for event in InputMap.action_get_events(action):
 				InputMap.action_add_event(ui_action, event)
 
@@ -137,19 +144,88 @@ static func code_label(code: String) -> String:
 	return parts[1]
 
 
+## Records which device produced [param event]. Returns true when the active device changed, so
+## prompts can redraw (mouse movement and weak stick noise never switch devices).
+static func note_event(event: InputEvent) -> bool:
+	var device := active_device
+	if event is InputEventJoypadButton:
+		device = Device.GAMEPAD
+	elif event is InputEventJoypadMotion and absf((event as InputEventJoypadMotion).axis_value) > 0.5:
+		device = Device.GAMEPAD
+	elif event is InputEventKey or event is InputEventMouseButton:
+		device = Device.KEYBOARD
+	if device == active_device:
+		return false
+	active_device = device
+	return true
+
+
+## Label for [param action] on the active device: "Space", "A" on a keyboard; "A", "LB" on a pad.
+## Falls back to the other device when the action has no binding on the active one.
+static func label(action: StringName) -> String:
+	if active_device == Device.GAMEPAD:
+		var pad := pad_label(action)
+		if not pad.is_empty():
+			return pad
+	var key := key_label(action)
+	if key == "?":
+		var fallback := pad_label(action)
+		return fallback if not fallback.is_empty() else key
+	return key
+
+
+## The key in brackets for prompts: "[Space] Use", "[LB] Brace".
+static func prompt(action: StringName) -> String:
+	return "[%s]" % label(action)
+
+
+## Every label of [param action] on the active device, joined ("Space / Z").
+static func labels(action: StringName, separator: String = " / ") -> String:
+	var names := PackedStringArray()
+	if not InputMap.has_action(action):
+		return "?"
+	for event in InputMap.action_get_events(action):
+		var is_pad := event is InputEventJoypadButton
+		if is_pad != (active_device == Device.GAMEPAD):
+			continue
+		var name := _pad_name((event as InputEventJoypadButton).button_index) if is_pad else _key_name(event as InputEventKey)
+		if not name.is_empty() and not names.has(name):
+			names.append(name)
+	return separator.join(names) if not names.is_empty() else label(action)
+
+
+## First gamepad binding of [param action] ("A", "LB"), or "".
+static func pad_label(action: StringName) -> String:
+	if not InputMap.has_action(action):
+		return ""
+	for event in InputMap.action_get_events(action):
+		if event is InputEventJoypadButton:
+			return _pad_name((event as InputEventJoypadButton).button_index)
+	return ""
+
+
+static func _pad_name(index: int) -> String:
+	return PAD_NAMES[index] if index >= 0 and index < PAD_NAMES.size() else "Pad %d" % index
+
+
+static func _key_name(key: InputEventKey) -> String:
+	if key == null:
+		return ""
+	if key.physical_keycode != KEY_NONE:
+		if DisplayServer.get_name() != "headless":
+			var layout_label := DisplayServer.keyboard_get_label_from_physical(key.physical_keycode)
+			if layout_label != KEY_NONE:
+				return OS.get_keycode_string(layout_label)
+		return OS.get_keycode_string(key.physical_keycode)
+	return OS.get_keycode_string(key.keycode)
+
+
 ## Human label for the first keyboard binding of [param action] on the player's own layout.
 static func key_label(action: StringName) -> String:
 	if not InputMap.has_action(action):
 		return "?"
 	for event in InputMap.action_get_events(action):
 		if event is InputEventKey:
-			var key := event as InputEventKey
-			if key.physical_keycode != KEY_NONE:
-				# Layout-aware label where the display server knows the layout (not headless).
-				if DisplayServer.get_name() != "headless":
-					var label := DisplayServer.keyboard_get_label_from_physical(key.physical_keycode)
-					if label != KEY_NONE:
-						return OS.get_keycode_string(label)
-				return OS.get_keycode_string(key.physical_keycode)
-			return OS.get_keycode_string(key.keycode)
+			# Layout-aware label where the display server knows the layout (not headless).
+			return _key_name(event as InputEventKey)
 	return "?"

@@ -1,0 +1,286 @@
+[gd_scene load_steps=5 format=3]
+[ext_resource type="Theme" path="res://assets/art/global/ui/frames/choir_v01/theme.tres" id="1"]
+[ext_resource type="StyleBox" path="res://assets/art/global/ui/frames/choir_v01/styles/panel.tres" id="style_panel"]
+[ext_resource type="StyleBox" path="res://assets/art/global/ui/frames/choir_v01/styles/selected.tres" id="style_selected"]
+[ext_resource type="StyleBox" path="res://assets/art/global/ui/frames/choir_v01/styles/enemy.tres" id="style_enemy"]
+[node name="ChoirFrameReview" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1")
+[node name="Background" type="ColorRect" parent="."]
+offset_right = 1280.0
+offset_bottom = 720.0
+mouse_filter = 2
+color = Color(0.062745, 0.098039, 0.094118, 1)
+[node name="Title" type="Label" parent="."]
+offset_left = 40.0
+offset_top = 28.0
+offset_right = 1240.0
+offset_bottom = 64.0
+theme_override_font_sizes/font_size = 26
+text = "HOLLOW CHOIR / SHARED FRAME KIT"
+[node name="Panel0" type="Panel" parent="."]
+offset_left = 40.0
+offset_top = 100.0
+offset_right = 424.0
+offset_bottom = 272.0
+theme_override_styles/panel = ExtResource("style_panel")
+[node name="PanelLabel0" type="Label" parent="."]
+offset_left = 56.0
+offset_top = 116.0
+offset_right = 406.0
+offset_bottom = 144.0
+text = "Shared panel"
+[node name="PanelDetail0" type="Label" parent="."]
+offset_left = 56.0
+offset_top = 156.0
+offset_right = 406.0
+offset_bottom = 232.0
+text = "Quiet centre
+Stepped edge
+One shared material language"
+[node name="Panel1" type="Panel" parent="."]
+offset_left = 448.0
+offset_top = 100.0
+offset_right = 832.0
+offset_bottom = 272.0
+theme_override_styles/panel = ExtResource("style_selected")
+[node name="PanelLabel1" type="Label" parent="."]
+offset_left = 464.0
+offset_top = 116.0
+offset_right = 814.0
+offset_bottom = 144.0
+text = "Selected / inspect"
+[node name="PanelDetail1" type="Label" parent="."]
+offset_left = 464.0
+offset_top = 156.0
+offset_right = 814.0
+offset_bottom = 232.0
+text = "Quiet centre
+Stepped edge
+One shared material language"
+[node name="Panel2" type="Panel" parent="."]
+offset_left = 856.0
+offset_top = 100.0
+offset_right = 1240.0
+offset_bottom = 272.0
+theme_override_styles/panel = ExtResource("style_enemy")
+[node name="PanelLabel2" type="Label" parent="."]
+offset_left = 872.0
+offset_top = 116.0
+offset_right = 1222.0
+offset_bottom = 144.0
+text = "Opponent detail"
+[node name="PanelDetail2" type="Label" parent="."]
+offset_left = 872.0
+offset_top = 156.0
+offset_right = 1222.0
+offset_bottom = 232.0
+text = "Quiet centre
+Stepped edge
+One shared material language"
+[node name="ButtonNormal" type="Button" parent="."]
+offset_left = 40.0
+offset_top = 300.0
+offset_right = 288.0
+offset_bottom = 348.0
+text = "Normal"
+
+[node name="ButtonHover" type="Button" parent="."]
+offset_left = 312.0
+offset_top = 300.0
+offset_right = 560.0
+offset_bottom = 348.0
+text = "Hover"
+theme_override_styles/normal = ExtResource("style_selected")
+[node name="ButtonDisabled" type="Button" parent="."]
+offset_left = 584.0
+offset_top = 300.0
+offset_right = 832.0
+offset_bottom = 348.0
+text = "Disabled"
+disabled = true
+[node name="BarsTitle" type="Label" parent="."]
+offset_left = 40.0
+offset_top = 380.0
+offset_right = 1240.0
+offset_bottom = 408.0
+text = "HEALTH / FOCUS / STAGGER"
+[node name="BarLabel0" type="Label" parent="."]
+offset_left = 40.0
+offset_top = 428.0
+offset_right = 350.0
+offset_bottom = 456.0
+text = "Ally HP  65 / 100"
+[node name="Bar0" type="ProgressBar" parent="."]
+offset_left = 360.0
+offset_top = 431.0
+offset_right = 940.0
+offset_bottom = 449.0
+theme_type_variation = &""
+value = 65.0
+show_percentage = false
+mouse_filter = 2
+[node name="BarLabel1" type="Label" parent="."]
+offset_left = 40.0
+offset_top = 480.0
+offset_right = 350.0
+offset_bottom = 508.0
+text = "Enemy HP  35 / 100"
+[node name="Bar1" type="ProgressBar" parent="."]
+offset_left = 360.0
+offset_top = 483.0
+offset_right = 940.0
+offset_bottom = 501.0
+theme_type_variation = &"EnemyHealthBar"
+value = 35.0
+show_percentage = false
+mouse_filter = 2
+[node name="BarLabel2" type="Label" parent="."]
+offset_left = 40.0
+offset_top = 532.0
+offset_right = 350.0
+offset_bottom = 560.0
+text = "Focus  2 / 8"
+[node name="Bar2" type="ProgressBar" parent="."]
+offset_left = 360.0
+offset_top = 535.0
+offset_right = 940.0
+offset_bottom = 553.0
+theme_type_variation = &"FocusBar"
+value = 25.0
+show_percentage = false
+mouse_filter = 2
+[node name="BarLabel3" type="Label" parent="."]
+offset_left = 40.0
+offset_top = 584.0
+offset_right = 350.0
+offset_bottom = 612.0
+text = "Stagger  80 / 100"
+[node name="Bar3" type="ProgressBar" parent="."]
+offset_left = 360.0
+offset_top = 587.0
+offset_right = 940.0
+offset_bottom = 605.0
+theme_type_variation = &"StaggerBar"
+value = 80.0
+show_percentage = false
+mouse_filter = 2
+[node name="Caption" type="Label" parent="."]
+offset_left = 40.0
+offset_top = 658.0
+offset_right = 1240.0
+offset_bottom = 690.0
+text = "RESOURCE PREVIEW / Runtime assignment pending / No layout or rule changes"
+
+[node name="ButtonFocus" type="Button" parent="."]
+offset_left = 856.0
+offset_top = 300.0
+offset_right = 1240.0
+offset_bottom = 348.0
+text = "Keyboard focus"
+
+[node name="PartialHeading" type="Label" parent="."]
+offset_left = 360.0
+offset_top = 394.0
+offset_right = 500.0
+offset_bottom = 422.0
+text = "Partial"
+
+[node name="EmptyHeading" type="Label" parent="."]
+offset_left = 960.0
+offset_top = 394.0
+offset_right = 1100.0
+offset_bottom = 422.0
+text = "Empty"
+
+[node name="FullHeading" type="Label" parent="."]
+offset_left = 1100.0
+offset_top = 394.0
+offset_right = 1240.0
+offset_bottom = 422.0
+text = "Full"
+
+[node name="BarEmpty0" type="ProgressBar" parent="."]
+offset_left = 960.0
+offset_top = 431.0
+offset_right = 1080.0
+offset_bottom = 449.0
+theme_type_variation = &""
+value = 0.0
+show_percentage = false
+mouse_filter = 2
+
+[node name="BarFull0" type="ProgressBar" parent="."]
+offset_left = 1100.0
+offset_top = 431.0
+offset_right = 1240.0
+offset_bottom = 449.0
+theme_type_variation = &""
+value = 100.0
+show_percentage = false
+mouse_filter = 2
+
+[node name="BarEmpty1" type="ProgressBar" parent="."]
+offset_left = 960.0
+offset_top = 483.0
+offset_right = 1080.0
+offset_bottom = 501.0
+theme_type_variation = &"EnemyHealthBar"
+value = 0.0
+show_percentage = false
+mouse_filter = 2
+
+[node name="BarFull1" type="ProgressBar" parent="."]
+offset_left = 1100.0
+offset_top = 483.0
+offset_right = 1240.0
+offset_bottom = 501.0
+theme_type_variation = &"EnemyHealthBar"
+value = 100.0
+show_percentage = false
+mouse_filter = 2
+
+[node name="BarEmpty2" type="ProgressBar" parent="."]
+offset_left = 960.0
+offset_top = 535.0
+offset_right = 1080.0
+offset_bottom = 553.0
+theme_type_variation = &"FocusBar"
+value = 0.0
+show_percentage = false
+mouse_filter = 2
+
+[node name="BarFull2" type="ProgressBar" parent="."]
+offset_left = 1100.0
+offset_top = 535.0
+offset_right = 1240.0
+offset_bottom = 553.0
+theme_type_variation = &"FocusBar"
+value = 100.0
+show_percentage = false
+mouse_filter = 2
+
+[node name="BarEmpty3" type="ProgressBar" parent="."]
+offset_left = 960.0
+offset_top = 587.0
+offset_right = 1080.0
+offset_bottom = 605.0
+theme_type_variation = &"StaggerBar"
+value = 0.0
+show_percentage = false
+mouse_filter = 2
+
+[node name="BarFull3" type="ProgressBar" parent="."]
+offset_left = 1100.0
+offset_top = 587.0
+offset_right = 1240.0
+offset_bottom = 605.0
+theme_type_variation = &"StaggerBar"
+value = 100.0
+show_percentage = false
+mouse_filter = 2

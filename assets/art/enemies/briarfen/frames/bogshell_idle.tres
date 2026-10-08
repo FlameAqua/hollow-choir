@@ -1,0 +1,32 @@
+[gd_resource type="SpriteFrames" load_steps=5 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/art/enemies/briarfen/sprites/bogshell_idle.png" id="1_atlas"]
+
+[ext_resource type="Texture2D" path="res://assets/art/enemies/briarfen/sprites/bogshell_dead.png" id="2_dead"]
+
+[sub_resource type="AtlasTexture" id="Atlas_idle"]
+atlas = ExtResource("1_atlas")
+region = Rect2(0, 0, 574, 391)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Atlas_dead"]
+atlas = ExtResource("2_dead")
+region = Rect2(52, 228, 1431, 663)
+filter_clip = true
+
+[resource]
+animations = [{
+"frames": [{"duration": 1.0, "texture": SubResource("Atlas_idle")}],
+"loop": true,
+"name": &"idle",
+"speed": 1.0
+}, {
+"frames": [{"duration": 1.0, "texture": SubResource("Atlas_dead")}],
+"loop": false,
+"name": &"dead",
+"speed": 1.0
+}]
+metadata/display_height = 94.0
+metadata/faces_left = true
+
+metadata/dead_display_width = 158.7

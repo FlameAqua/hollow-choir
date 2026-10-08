@@ -176,8 +176,28 @@ supplies default considerations merged into every action expressing that role (f
 - **Events:** `BattleEvent` records (type, subject/other uids, amounts, status, grade, reaction, flags,
   action, text). Field usage per type is documented on the enum in
   `src/battle/runtime/battle_event.gd`. Presentation, metrics and the log only ever read events.
+- **Presentation state (D-013):** the engine resolves a whole batch before it is shown, so while a
+  batch plays every widget reads `PresentationLedger` (per-unit HP/Stagger/Focus/effects/cover/
+  Broken/weak point/life, round, familiar readiness, announced battlefield conditions and the last
+  stable next-round forecast), advanced by each event as it plays. Live engine state is read only at
+  stable points (battle start, batch end, a pending request); a mid-batch event may refresh only what
+  it names and only while the engine still holds that same state (e.g. INSPECTED re-reads that
+  enemy's intent in the displayed round).
 - **Output:** `BattleResult` = outcome, rounds, seed, research awards (enemy id → sources), weapon uses
   and Perfects (mastery), defeated enemy ids, and the input log (seed + inputs reproduce the battle).
+
+V0.2 presentation adapters: `IntentReadout.target_names: Dictionary[int, String]` captures public
+target identities with the displayed intent. ActionMenu previews delegate target policy to
+ActionPicker. Inspector providers receive source-local pointer event coordinates. Keyboard target
+review supplies its selected UnitView when no GUI control has focus. These are transient UI data,
+not persisted battle state. See [the interaction contract](design/V02_UI_INTERACTION.md).
+The [follow-up](design/V02_UI_FOLLOWUP.md) adds transient `UnitReadout`: public identity, role,
+displayed HP/break/Focus/life/effects, filtered knowledge/affinity categories, notes and the
+already-displayed intent reference. Mutable facts come from PresentationLedger; new research
+queries are omitted outside stable planning. UnitView body providers exclude individual field
+hit regions. InspectionContent reports its 82% transformed height to ScrollContainer. ConditionArt
+reads announced condition IDs for decoration only. None of these data are saved or interpreted
+as gameplay rules. Explicit target review is required even for one legal single-target recipient.
 
 ## 6. Save and settings formats
 
@@ -200,10 +220,14 @@ milestones exist now (empty) so their arrival does not need a migration. To chan
 
 **Settings** (`user://settings.cfg`, global, not per slot, D-009): sections `gameplay`
 (tactical_difficulty, execution_assist, auto_brace, reaction_pause), `display` (window_mode,
+window_resolution (`Vector2i`, one of 1280×720 / 1366×768 / 1600×900 / 1920×1080 / 2560×1440),
 text_scale, screen_shake, reduce_flashing, show_damage_numbers, advanced_tooltips, combat_speed,
 auto_advance_text, subtitles), `audio` (master/music/sfx volume) and `bindings` (action → codes such as
 `"key:Space"`, `"joy:0"`; missing actions use the defaults in `InputBindings.DEFAULTS`).
 The CombatSandbox remembers its own form in `user://sandbox.cfg`.
+Absent/invalid window resolution falls back to 1280×720. GUI input mirrors replace their native
+defaults. Enter/gamepad A confirm by default, Space/Z remain command inputs; saved explicit rebinds
+remain authoritative. No progress-save format or migration changes are required.
 
 ## 7. Field reference
 
@@ -469,6 +493,8 @@ A familiar never takes a turn: it reacts to triggers (GDD: on_perfect_parry, on_
 | `trait_def` | `TraitDefinition` | `` |  |
 | `shape` | `Enums.VisualShape` | `Enums.VisualShape.FLYER` |  |
 | `color` | `Color` | `Color(0.6, 0.6, 0.7)` |  |
+| `portrait` | `Texture2D` | Null | Optional familiar art/AtlasTexture; no combat targeting. |
+| `display_scale` | `float` | `1.0` | Positive presentation scale over the 52×58 familiar slot; Cinder Pup uses 1.2. |
 
 ### ActionDefinition
 `src/data/combat/action_definition.gd`
@@ -817,3 +843,15 @@ What the party brings into battle: chosen at home (GDD core loop) or in the Comb
 | `familiar` | `FamiliarDefinition` | `` |  |
 | `potions` | `Array[PotionDefinition]` | `[]` |  |
 
+## V0.2 support presentation additions (transient)
+
+See [support presentation](design/V02_SUPPORT_PRESENTATION.md). ActionReadout.support_effects is an
+array of RuleNotes.SupportNote (icon, label, recipient, explanation, color), derived from direct
+action effects. Only flat amounts are numeric; conditional/chance effects carry qualified wording.
+Buff names/explanations come from BuffDefinition. This is not serialized and performs no resolver,
+RNG or research mutation. Existing descriptions remain the fallback for unrecognized effects.
+
+FamiliarDefinition.portrait remains the sole familiar art binding; AtlasTexture may crop transparent
+padding without altering its source PNG. ConditionRibbon's condition_id metadata identifies a
+current header button for announcement docking; missing IDs fall back to a stationary fade.
+ResourceBarArt's frame textures are presentation resources, with no gameplay geometry or values.

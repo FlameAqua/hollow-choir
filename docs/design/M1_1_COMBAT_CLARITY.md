@@ -1,6 +1,10 @@
 # M1.1 — Combat clarity and Briarfen art
 
-Director specification • 7 October 2026 • **Approved design; implementation pending.**
+Director specification • 7 October 2026 • **Core contract retained; UI presentation revised 8 October.**
+
+> The user-authorized [icon-first UI contract](ICON_FIRST_COMBAT_UI.md) supersedes this document's
+> four-column dock, context panels, rail reservation, font and persistent-text layout requirements.
+> Runtime integration is present; knowledge, input ownership, mechanics and human gates below remain.
 
 This is a normative supplement to [the canonical GDD](../../DESIGN_DOCUMENT.md).
 It supersedes older M1 presentation examples where they conflict. It adds no battle system,
@@ -323,13 +327,19 @@ changes difficulty/assist; Lab's existing controls remain reachable; no unexpect
 
 ## F5 — Art direction and production limit
 
+**8 October art addendum:** the user's explicit continuation request authorizes staged idle candidates
+for the remaining six **existing** enemies and shared combat UI textures. See the incorporated
+[style guide](../../assets/art/STYLE_GUIDE.md) and [v0.2 pack](../../docs/art/briarfen_v02/README.md).
+This supersedes the broader-cast *staging* hold below only. New content, full animation, production
+pixel approval and the human clarity gate remain unchanged. No runtime implementation is claimed.
+
 The Hollow is a weathered masked pilgrim; Mara's upright spear and worn ivory armour suggest her
 inquisitorial past; Bell Crow reads as a small trigger ally, not a third controlled character.
 Bogshell is a low protective crab, Thornhound a forward-leaning bramble animal, Fen Wisp a suspended
 reed cage around cold light. Bloom organisms are living neighbours as well as hazards, not demonic
 shorthand. The marsh reclaims precise Choir stonework without a “good nature / evil church” palette.
 
-[Asset manifest](../../assets/art/briarfen_v01/manifest.json) supplies the generated sheet, independent
+[Asset manifest](../../docs/art/briarfen_v01/manifest.json) supplies the generated sheet, independent
 atlas regions and single-frame SpriteFrames Resources. **These are art candidates, not final animated
 pixel assets.** The generator did not obey a uniform grid; never slice 512×512 cells. Partial alpha,
 fine detail and some edge residue require cleanup at final display size. The background is one flattened

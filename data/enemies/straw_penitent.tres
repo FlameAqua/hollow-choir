@@ -8,6 +8,8 @@
 [ext_resource type="Script" path="res://src/data/combatants/enemy_definition.gd" id="6_jnw6g"]
 [ext_resource type="Script" path="res://src/data/rules/trait_definition.gd" id="7_amrum"]
 
+[ext_resource type="SpriteFrames" path="res://assets/art/enemies/briarfen/frames/straw_penitent_idle.tres" id="99_frames_v02"]
+
 [sub_resource type="Resource" id="Resource_jh147"]
 script = ExtResource("1_6tqfh")
 telegraph_text = "Swings its stick arm. Any reaction works."
@@ -58,3 +60,4 @@ guard = 0
 tempo = 8
 shape = 7
 color = Color(0.75, 0.65, 0.35, 1)
+sprite_frames = ExtResource("99_frames_v02")

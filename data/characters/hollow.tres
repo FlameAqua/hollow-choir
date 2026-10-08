@@ -5,6 +5,7 @@
 [ext_resource type="Resource" path="res://data/actions/magic/kindle.tres" id="3_6bxw5"]
 [ext_resource type="Script" path="res://src/data/combatants/protagonist_definition.gd" id="4_33tc4"]
 [ext_resource type="Script" path="res://src/data/rules/trait_definition.gd" id="5_njfrn"]
+[ext_resource type="SpriteFrames" path="res://assets/art/global/characters/frames/hollow_idle.tres" id="99_frames"]
 
 [resource]
 script = ExtResource("4_33tc4")
@@ -15,3 +16,4 @@ description = "Survived the touch of both Choir and Bloom, and carries a little 
 max_hp = 120
 force = 12
 color = Color(0.82, 0.8, 0.72, 1)
+sprite_frames = ExtResource("99_frames")

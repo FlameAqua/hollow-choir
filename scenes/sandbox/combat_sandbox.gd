@@ -1,31 +1,58 @@
 class_name CombatSandbox
 extends Control
-## Combat lab for design and tuning (GDD "CombatSandbox"). Pick an encounter or build one, choose
-## the loadout, battlefield conditions, difficulty, assist and execution mode, then fight it,
-## restart instantly, or batch-simulate the exact same setup and read the report in-game.
-## Choices persist in user://sandbox.cfg between sessions.
+## Practice and Lab (M1.1 F4, D-022): two views of one battle setup.
+##
+## Practice is the first fight a player sees: an encounter from GameDefaults.practice_encounters
+## (each says what it tests), a starter loadout, and the player's own Tactical Difficulty and
+## Execution Assist (changing them here changes Settings). Its rules are fixed and shown: manual
+## play, Unknown bestiary knowledge, no autopilot, no debug AI, progress not recorded. It never
+## reuses Lab overrides.
+##
+## Lab is the M1 design tool (GDD "CombatSandbox"): any enemies and conditions, individual
+## equipment, knowledge override, simulated execution, autopilot, AI reasoning, progress recording,
+## seed and re-seed, and batch simulation with an in-game report. Its choices persist in
+## user://sandbox.cfg; Practice remembers only its encounter, loadout and the open view.
 
 const PREFS_PATH := "user://sandbox.cfg"
-const DRAWER_WIDTH := 470.0
 const EXECUTION_MANUAL := -1
 const KNOWLEDGE_FROM_SAVE := -1
 const SIM_BATTLES_PER_FRAME := 2
+const FORM_WIDTH := 620.0
+
+enum View { PRACTICE = 0, LAB = 1 }
 
 var _registry: DefinitionRegistry
 var _battle: BattleScene
 var _battle_host: Control
-var _drawer: PanelContainer
-var _form: VBoxContainer
-var _encounter_note: Label
+var _setup: Control
+var _view := View.PRACTICE
+var _view_tabs: Array[Button] = []
+var _practice_page: Control
+var _lab_page: Control
 var _status: Label
 var _report: PanelContainer
 var _report_text: RichTextLabel
 var _start_button: Button
+var _begin_button: Button
 var _simulate_button: Button
+var _hide_button: Button
 var _simulating := false
 var _filling := false
+## View of the battle that is running (its restart follows that view's rules).
+var _running_view := View.PRACTICE
 
+# Practice.
+var _practice_encounter: OptionButton
+var _practice_loadout: OptionButton
+var _practice_difficulty: OptionButton
+var _practice_assist: OptionButton
+var _practice_summary: RichTextLabel
+var _practice_grid: GridContainer
+
+# Lab.
+var _form: VBoxContainer
 var _encounter: OptionButton
+var _encounter_note: Label
 var _enemy_slots: Array[OptionButton] = []
 var _major: OptionButton
 var _minor: OptionButton
@@ -54,55 +81,135 @@ func _ready() -> void:
 	_registry = Database.registry
 	_build()
 	_load_prefs()
-	_show_drawer(true)
+	_show_setup(true)
+	resized.connect(_fit_setup)
+	_fit_setup()
 
 
-## Runs before the embedded battle sees the key, so Escape closes the report or the drawer instead
-## of opening the battle's pause menu. Back keys other than Escape stay free for text fields.
+## Runs before the embedded battle sees the key, so Escape closes the report or the setup instead
+## of opening the battle's pause menu.
 func _input(event: InputEvent) -> void:
 	if _report.visible and (event.is_action_pressed(InputBindings.CANCEL) or event.is_action_pressed(InputBindings.MENU)):
 		get_viewport().set_input_as_handled()
 		_report.visible = false
-	elif _drawer.visible and _battle != null and event.is_action_pressed(InputBindings.MENU):
+	elif _setup.visible and _battle != null and event.is_action_pressed(InputBindings.MENU):
 		get_viewport().set_input_as_handled()
-		_show_drawer(false)
+		_show_setup(false)
+
+
+## Current view (tests).
+func current_view() -> View:
+	return _view
+
+
+func show_view(view: View) -> void:
+	_view = view
+	_practice_page.visible = view == View.PRACTICE
+	_practice_page.get_parent_control().visible = view == View.PRACTICE
+	_lab_page.visible = view == View.LAB
+	for index in _view_tabs.size():
+		_view_tabs[index].button_pressed = index == int(view)
+	_status.text = ""
+	if view == View.PRACTICE:
+		_update_practice_summary()
+	_focus_setup_start(view)
+
+
+func _focus_setup_start(view: View) -> void:
+	# Reflow (especially the enlarged one-column grid) must finish before focus-follow scrolling.
+	await get_tree().process_frame
+	await get_tree().process_frame
+	if not _setup.visible or _view != view:
+		return
+	var first := _practice_encounter if view == View.PRACTICE else _encounter
+	first.grab_focus()
+	var scroll := _practice_page.get_parent_control() as ScrollContainer if view == View.PRACTICE else _form.get_parent_control() as ScrollContainer
+	# This runs after the ScrollContainer's focus-follow callback, at the settled geometry.
+	scroll.set_deferred("scroll_vertical", 0)
 
 
 # --- Running battles -----------------------------------------------------------------------------
 
-func _start_battle() -> void:
-	var setup := _make_setup(int(_seed.value))
-	if setup == null:
+func _begin_practice() -> void:
+	var launch := make_practice_launch(randi_range(1, 99999))
+	if launch == null:
 		return
 	_save_prefs()
+	_running_view = View.PRACTICE
+	_launch(launch, "Retry same setup", "Change setup")
+
+
+func _start_lab() -> void:
+	var launch := make_lab_launch(int(_seed.value))
+	if launch == null:
+		return
+	_save_prefs()
+	_running_view = View.LAB
+	var retry := "Retry same setup (new seed)" if _reseed.button_pressed else "Retry same setup (seed %d)" % int(_seed.value)
+	_launch(launch, retry, "Change setup")
+
+
+func _launch(launch: BattleLaunch, retry_text: String, change_text: String) -> void:
 	if _battle != null:
 		_battle.queue_free()
 	_battle = load(SceneRouter.BATTLE).instantiate() as BattleScene
 	_battle.embedded = true
+	_battle.retry_text = retry_text
+	_battle.change_text = change_text
 	_battle_host.add_child(_battle)
-	_battle.add_toolbar_button("Setup", "Open the sandbox setup", func() -> void: _show_drawer(not _drawer.visible))
-	_battle.add_toolbar_button("Restart", "Restart this battle (new seed if enabled)", _restart)
+	_battle.add_toolbar_button("Setup", "Open Practice / Lab setup", _toggle_setup)
+	_battle.add_toolbar_button("Restart", "Restart this battle", _restart)
 	_battle.restart_requested.connect(_restart)
-	_battle.setup_requested.connect(func() -> void: _show_drawer(true))
+	_battle.setup_requested.connect(func() -> void: _show_setup(true))
+	_battle.start(launch)
+	_show_setup(false)
+
+
+func _restart() -> void:
+	if _running_view == View.PRACTICE:
+		_begin_practice()
+		return
+	if _reseed.button_pressed:
+		_seed.value = randi_range(1, 99999)
+	_start_lab()
+
+
+## Practice: the chosen preset and starter loadout with fixed rules, and the player's own
+## difficulty and assist (with their auto-Brace / pause overrides).
+func make_practice_launch(battle_seed: int) -> BattleLaunch:
+	var encounter: EncounterDefinition = _practice_encounter.get_item_metadata(_practice_encounter.selected)
+	var loadout: PartyLoadout = _practice_loadout.get_item_metadata(_practice_loadout.selected)
+	if encounter == null or loadout == null:
+		_status.text = "Pick an encounter and a loadout."
+		return null
+	var setup := BattleSetup.from_encounter(loadout, encounter, Database.library, Settings.difficulty_profile(),
+		Settings.assist_profile(), battle_seed)
+	for enemy in encounter.enemies:
+		setup.research_levels[enemy.id] = Enums.ResearchLevel.UNKNOWN
+	var launch := BattleLaunch.make(setup, "")
+	launch.record_progress = false
+	launch.autoplay = false
+	launch.simulated_execution = EXECUTION_MANUAL
+	launch.show_ai_reasoning = false
+	return launch
+
+
+func make_lab_launch(battle_seed: int) -> BattleLaunch:
+	var setup := _make_lab_setup(battle_seed)
+	if setup == null:
+		return null
 	var launch := BattleLaunch.make(setup, "")
 	launch.record_progress = _record.button_pressed
 	launch.autoplay = _autoplay.button_pressed
 	launch.simulated_execution = int(_meta(_execution))
 	launch.show_ai_reasoning = _reasons.button_pressed
-	_battle.start(launch)
-	_show_drawer(false)
-
-
-func _restart() -> void:
-	if _reseed.button_pressed:
-		_seed.value = randi_range(1, 99999)
-	_start_battle()
+	return launch
 
 
 func _simulate() -> void:
 	if _simulating:
 		return
-	var setup := _make_setup(int(_seed.value))
+	var setup := _make_lab_setup(int(_seed.value))
 	if setup == null:
 		return
 	_save_prefs()
@@ -135,11 +242,11 @@ func _simulate() -> void:
 func _show_report(report: SimulationReport) -> void:
 	var text := _markdown_to_bbcode(report.to_markdown())
 	if int(_meta(_execution)) == EXECUTION_MANUAL:
-		text = "[color=#9b978b]Execution is Manual: simulated with GOOD execution.[/color]\n\n" + text
+		text = "[color=%s]Execution is Manual: simulated with GOOD execution.[/color]\n\n" % UITheme.hex(UITheme.TEXT_DIM) + text
 	_report_text.text = text
 	_report.visible = true
 	_report.reset_size()
-	_report.position = (size - _report.size) * 0.5
+	_report.position = ((size - _report.size) * 0.5).round()
 
 
 ## Tables become "Metric: value" lines; headings become bold; warnings turn red.
@@ -147,14 +254,14 @@ static func _markdown_to_bbcode(markdown: String) -> String:
 	var lines := PackedStringArray()
 	for line in markdown.split("\n"):
 		if line.begins_with("### "):
-			lines.append("[b][color=#d8b45a]%s[/color][/b]" % line.substr(4))
+			lines.append("[b][color=%s]%s[/color][/b]" % [UITheme.hex(UITheme.ACCENT), line.substr(4)])
 		elif line.begins_with("|---") or line.begins_with("| Metric"):
 			continue
 		elif line.begins_with("| "):
 			var cells := line.trim_prefix("| ").trim_suffix(" |").split(" | ")
 			lines.append("%s: [b]%s[/b]" % [cells[0], cells[1] if cells.size() > 1 else ""])
 		elif line.begins_with("- ⚠"):
-			lines.append("[color=#d65a43]%s[/color]" % line.substr(2))
+			lines.append("[color=%s]%s[/color]" % [UITheme.hex(UITheme.THREAT), line.substr(2)])
 		else:
 			lines.append(line)
 	return "\n".join(lines)
@@ -166,9 +273,9 @@ func _next_frame() -> void:
 	await tween.finished
 
 
-# --- Building the battle from the form -----------------------------------------------------------
+# --- Lab form → setup ----------------------------------------------------------------------------
 
-func _make_setup(battle_seed: int) -> BattleSetup:
+func _make_lab_setup(battle_seed: int) -> BattleSetup:
 	var encounter := _make_encounter()
 	if encounter.enemies.is_empty():
 		_status.text = "Pick at least one enemy."
@@ -198,7 +305,7 @@ func _make_encounter() -> EncounterDefinition:
 	var custom := EncounterDefinition.new()
 	custom.id = &"sandbox_custom"
 	custom.display_name = "Custom battle"
-	custom.group = "Sandbox"
+	custom.group = "Lab"
 	for slot in _enemy_slots:
 		var enemy: EnemyDefinition = _registry.enemies.get(_meta(slot))
 		if enemy != null:
@@ -270,6 +377,40 @@ func _on_loadout_selected(_index: int) -> void:
 	_filling = false
 
 
+# --- Practice -------------------------------------------------------------------------------------
+
+func _update_practice_summary() -> void:
+	if _practice_summary == null:
+		return
+	var encounter: EncounterDefinition = _practice_encounter.get_item_metadata(_practice_encounter.selected)
+	if encounter == null:
+		return
+	var count := encounter.enemies.size()
+	var enemies := "One enemy" if count == 1 else "%d enemies" % count
+	if encounter.id == &"toy_training":
+		enemies = "One training enemy"
+	var conditions := PackedStringArray()
+	for condition in encounter.conditions:
+		conditions.append(condition.display_name)
+	var facts := PackedStringArray([enemies])
+	if not conditions.is_empty():
+		facts.append(", ".join(conditions))
+	facts.append_array(["Manual play", "Unknown bestiary knowledge", "Progress not recorded"])
+	var note := encounter.practice_note if not encounter.practice_note.is_empty() else encounter.description
+	_practice_summary.text = "%s\n[color=%s]%s[/color]" % [note, UITheme.hex(UITheme.TEXT_DIM), " · ".join(facts)]
+
+
+## Practice difficulty / assist are the player's own preferences: changing them changes Settings.
+func _on_practice_difficulty(index: int) -> void:
+	if not _filling:
+		Settings.set_value("tactical_difficulty", int(_practice_difficulty.get_item_metadata(index)))
+
+
+func _on_practice_assist(index: int) -> void:
+	if not _filling:
+		Settings.set_value("execution_assist", int(_practice_assist.get_item_metadata(index)))
+
+
 # --- Layout --------------------------------------------------------------------------------------
 
 func _build() -> void:
@@ -277,54 +418,193 @@ func _build() -> void:
 	background.color = UITheme.BG
 	add_child(background)
 	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	var backdrop := Battlefield.new()
-	backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	backdrop.modulate = Color(1, 1, 1, 0.5)
-	add_child(backdrop)
-	backdrop.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	var hint := Label.new()
-	hint.text = "COMBAT SANDBOX\nConfigure a battle on the left and press Start."
-	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	hint.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	hint.add_theme_color_override("font_color", UITheme.TEXT_DIM)
-	add_child(hint)
-	hint.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	hint.offset_left = DRAWER_WIDTH
 	_battle_host = Control.new()
 	_battle_host.name = "BattleHost"
 	add_child(_battle_host)
 	_battle_host.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
-	_drawer = PanelContainer.new()
-	_drawer.name = "Drawer"
-	_drawer.add_theme_stylebox_override("panel", UITheme.box(Color(UITheme.PANEL, 0.97), UITheme.ACCENT.darkened(0.4), 1, 0, 10))
-	add_child(_drawer)
-	_drawer.set_anchors_and_offsets_preset(Control.PRESET_LEFT_WIDE)
-	_drawer.offset_right = DRAWER_WIDTH
+	_setup = Control.new()
+	_setup.name = "Setup"
+	add_child(_setup)
+	_setup.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var shade := ColorRect.new()
+	shade.color = UITheme.BG
+	shade.mouse_filter = Control.MOUSE_FILTER_STOP
+	_setup.add_child(shade)
+	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var art := TextureRect.new()
+	art.texture = Database.registry.defaults.battle_backdrop
+	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	art.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	art.modulate = Color(1, 1, 1, 0.35)
+	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_setup.add_child(art)
+	art.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var fade := ColorRect.new()
+	fade.color = Color(UITheme.BG, 0.55)
+	fade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_setup.add_child(fade)
+	fade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+
+	var margin := MarginContainer.new()
+	for side in ["left", "right"]:
+		margin.add_theme_constant_override("margin_" + side, 64)
+	margin.add_theme_constant_override("margin_top", 40)
+	margin.add_theme_constant_override("margin_bottom", 28)
+	_setup.add_child(margin)
+	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var column := VBoxContainer.new()
-	_drawer.add_child(column)
-	var title := Label.new()
-	title.text = "Combat Sandbox"
-	title.add_theme_color_override("font_color", UITheme.ACCENT)
-	title.add_theme_font_size_override("font_size", UITheme.font_size(1.35))
-	column.add_child(title)
+	column.add_theme_constant_override("separation", 10)
+	margin.add_child(column)
+	column.add_child(UITheme.label("Combat practice", UITheme.ACCENT, UITheme.body_size(), true))
+	var tabs := HBoxContainer.new()
+	tabs.add_theme_constant_override("separation", 8)
+	column.add_child(tabs)
+	for name in ["Practice", "Lab"]:
+		var tab := Button.new()
+		tab.text = name
+		tab.toggle_mode = true
+		tab.custom_minimum_size = Vector2(140, UITheme.control_height())
+		var view := View.PRACTICE if name == "Practice" else View.LAB
+		tab.pressed.connect(func() -> void: show_view(view))
+		tabs.add_child(tab)
+		_view_tabs.append(tab)
+	_practice_page = _build_practice()
+	var practice_scroll := ScrollContainer.new()
+	practice_scroll.name = "PracticeScroll"
+	practice_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	practice_scroll.follow_focus = true
+	practice_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	column.add_child(practice_scroll)
+	practice_scroll.add_child(_practice_page)
+	_practice_page.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_view_tabs[0].toggled.connect(func(on: bool) -> void: practice_scroll.visible = on)
+	_lab_page = _build_lab()
+	_lab_page.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	column.add_child(_lab_page)
+	_status = UITheme.label("", UITheme.THREAT, UITheme.secondary_size(), true)
+	column.add_child(_status)
+	var footer := HBoxContainer.new()
+	footer.name = "SetupFooter"
+	column.add_child(footer)
+	_hide_button = _button(footer, "Back to battle", func() -> void: _show_setup(false))
+	_button(footer, "Main menu", func() -> void: SceneRouter.goto(SceneRouter.MAIN_MENU))
+	_build_report_popup()
+
+
+func _build_practice() -> VBoxContainer:
+	var page := VBoxContainer.new()
+	page.name = "Practice"
+	page.add_theme_constant_override("separation", 10)
+	var grid := GridContainer.new()
+	_practice_grid = grid
+	grid.columns = 2
+	grid.add_theme_constant_override("h_separation", 16)
+	grid.add_theme_constant_override("v_separation", 12)
+	page.add_child(grid)
+	var defaults := _registry.defaults
+	_practice_encounter = _field(grid, "Encounter")
+	for encounter in defaults.practice_encounters:
+		_practice_encounter.add_item(encounter.display_name)
+		_practice_encounter.set_item_metadata(_practice_encounter.item_count - 1, encounter)
+	_practice_encounter.item_selected.connect(func(_i: int) -> void: _update_practice_summary())
+	_practice_loadout = _field(grid, "Loadout")
+	for loadout in defaults.practice_loadouts:
+		_practice_loadout.add_item(loadout.display_name)
+		_practice_loadout.set_item_metadata(_practice_loadout.item_count - 1, loadout)
+	_practice_difficulty = _field(grid, "Tactical difficulty")
+	for value in Enums.TacticalDifficulty.values():
+		_practice_difficulty.add_item(_registry.difficulty(value).display_name)
+		_practice_difficulty.set_item_metadata(_practice_difficulty.item_count - 1, value)
+	_practice_difficulty.item_selected.connect(_on_practice_difficulty)
+	_practice_assist = _field(grid, "Execution assist")
+	for value in Enums.ExecutionAssist.values():
+		_practice_assist.add_item(_registry.assist(value).display_name)
+		_practice_assist.set_item_metadata(_practice_assist.item_count - 1, value)
+	_practice_assist.item_selected.connect(_on_practice_assist)
+	var summary_panel := PanelContainer.new()
+	summary_panel.add_theme_stylebox_override("panel", UITheme.box(UITheme.PANEL_LIGHT, UITheme.BORDER, 0, 3, 16, 12))
+	page.add_child(summary_panel)
+	_practice_summary = UITheme.rich_text()
+	summary_panel.add_child(_practice_summary)
+	_begin_button = Button.new()
+	_begin_button.text = "Begin practice"
+	_begin_button.custom_minimum_size = Vector2(240, UITheme.control_height() + 8.0)
+	_begin_button.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	_begin_button.add_theme_stylebox_override("normal", UITheme.box(UITheme.ACCENT, UITheme.ACCENT, 1, 3, 20, 10))
+	_begin_button.add_theme_stylebox_override("hover", UITheme.box(UITheme.ACCENT.lightened(0.1), UITheme.ACCENT, 1, 3, 20, 10))
+	_begin_button.add_theme_stylebox_override("focus", UITheme.box(Color(0, 0, 0, 0), UITheme.TEXT, 2, 3, 20, 10))
+	_begin_button.add_theme_color_override("font_color", UITheme.BG)
+	_begin_button.add_theme_color_override("font_hover_color", UITheme.BG)
+	_begin_button.add_theme_color_override("font_focus_color", UITheme.BG)
+	_begin_button.pressed.connect(_begin_practice)
+	page.add_child(_begin_button)
+	page.add_child(UITheme.label("Practice does not record progress. Timing help is independent of enemy tactics.",
+		UITheme.TEXT_DIM, UITheme.secondary_size(), true))
+	return page
+
+
+func _field(grid: GridContainer, title: String) -> OptionButton:
+	var box := VBoxContainer.new()
+	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	box.add_theme_constant_override("separation", 2)
+	box.add_child(UITheme.heading(title))
+	var option := OptionButton.new()
+	option.fit_to_longest_item = false
+	option.clip_text = true
+	option.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	option.custom_minimum_size = Vector2(0, UITheme.control_height())
+	box.add_child(option)
+	grid.add_child(box)
+	return option
+
+
+## "Choose your next test": the practice encounters with what each tests (selecting one fills
+## Practice's encounter field).
+func _build_next_tests() -> Control:
+	var panel := PanelContainer.new()
+	panel.add_theme_stylebox_override("panel", UITheme.box(Color(UITheme.PANEL, 0.92), UITheme.BORDER, 1, 4, 22, 18))
+	panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 8)
+	panel.add_child(box)
+	box.add_child(UITheme.label("Choose your next test.", UITheme.TEXT, UITheme.font_size(1.3), true))
+	for index in _registry.defaults.practice_encounters.size():
+		var encounter := _registry.defaults.practice_encounters[index]
+		if encounter.practice_note.is_empty() or index == 0:
+			continue
+		var pick := Button.new()
+		pick.flat = true
+		pick.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		pick.text = encounter.display_name
+		pick.add_theme_color_override("font_color", UITheme.ACCENT)
+		pick.pressed.connect(func() -> void:
+			show_view(View.PRACTICE)
+			_practice_encounter.select(index)
+			_update_practice_summary())
+		box.add_child(pick)
+		box.add_child(UITheme.label(encounter.practice_note, UITheme.TEXT_DIM, UITheme.secondary_size(), true))
+	return panel
+
+
+func _build_lab() -> VBoxContainer:
+	var page := VBoxContainer.new()
+	page.name = "Lab"
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.follow_focus = true
-	column.add_child(scroll)
+	page.add_child(scroll)
 	_form = VBoxContainer.new()
 	_form.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_form.add_theme_constant_override("separation", 4)
 	scroll.add_child(_form)
 	_build_form()
-	_status = Label.new()
-	_status.add_theme_color_override("font_color", UITheme.DANGER)
-	_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	column.add_child(_status)
 	var buttons := HBoxContainer.new()
-	column.add_child(buttons)
-	_start_button = _button(buttons, "Start battle", _start_battle)
+	page.add_child(buttons)
+	_start_button = _button(buttons, "Start battle", _start_lab)
 	_start_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_simulate_button = _button(buttons, "Simulate", _simulate)
 	_runs = SpinBox.new()
@@ -334,12 +614,7 @@ func _build() -> void:
 	_runs.value = 50
 	_runs.tooltip_text = "Battles per simulation batch"
 	buttons.add_child(_runs)
-	var footer := HBoxContainer.new()
-	column.add_child(footer)
-	_button(footer, "Hide", func() -> void: _show_drawer(false)).tooltip_text = "Back to the battle"
-	_button(footer, "Main menu", func() -> void: SceneRouter.goto(SceneRouter.MAIN_MENU))
-
-	_build_report_popup()
+	return page
 
 
 func _build_form() -> void:
@@ -355,15 +630,12 @@ func _build_form() -> void:
 		encounter_entries.append(["[%s] %s" % [encounter.group, encounter.display_name], id])
 	_encounter = _option_row("Preset", encounter_entries)
 	_encounter.item_selected.connect(_on_encounter_selected)
-	_encounter_note = Label.new()
-	_encounter_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_encounter_note.add_theme_color_override("font_color", UITheme.TEXT_DIM)
-	_encounter_note.add_theme_font_size_override("font_size", UITheme.font_size(0.8))
+	_encounter_note = UITheme.label("", UITheme.TEXT_DIM, UITheme.secondary_size(), true)
 	_form.add_child(_encounter_note)
 	var enemy_entries: Array = [["—", &""]]
 	for id in _registry.sorted_ids(_registry.enemies):
 		var enemy := _registry.enemies[id]
-		var tier := "" if enemy.tier == Enums.EnemyTier.NORMAL else " (%s)" % UnitInfo.TIER_WORDS[enemy.tier]
+		var tier := "" if enemy.tier == Enums.EnemyTier.NORMAL else " (%s)" % UnitDetails.TIER_WORDS[enemy.tier]
 		enemy_entries.append([enemy.display_name + tier, id])
 	for index in 4:
 		var slot := _option_row("Enemy %d" % (index + 1), enemy_entries)
@@ -417,7 +689,7 @@ func _build_form() -> void:
 		execution_entries.append(["Simulated: %s" % EnumText.simulated_execution(value), value])
 	_execution = _option_row("Execution", execution_entries, "Who performs action commands and reactions.")
 	_autoplay = _check_row("Autopilot picks actions", "The party AI chooses actions (watch or test execution only).")
-	_reasons = _check_row("Show AI reasoning", "Enemy intent tooltips and the log explain why each move was chosen.")
+	_reasons = _check_row("Show AI reasoning (Lab debug)", "Intent details and the log explain why each move was chosen.")
 	_record = _check_row("Record progress", "Bestiary research and weapon mastery from this battle are saved to your progress (slot 1).")
 	_seed = SpinBox.new()
 	_seed.min_value = 1
@@ -425,7 +697,7 @@ func _build_form() -> void:
 	_seed.value = 1
 	_seed.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_row("Seed", _seed, "Same seed + same inputs = same battle.")
-	_reseed = _check_row("New seed on restart", "")
+	_reseed = _check_row("New seed on restart / retry", "Off: Retry replays the same seed.")
 	_reseed.button_pressed = true
 
 
@@ -433,7 +705,7 @@ func _build_report_popup() -> void:
 	_report = PanelContainer.new()
 	_report.name = "Report"
 	_report.visible = false
-	_report.custom_minimum_size = Vector2(820, 560)
+	_report.custom_minimum_size = Vector2(860, 560)
 	add_child(_report)
 	var box := VBoxContainer.new()
 	_report.add_child(box)
@@ -442,33 +714,57 @@ func _build_report_popup() -> void:
 	_report_text.scroll_active = true
 	_report_text.selection_enabled = true
 	_report_text.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_report_text.add_theme_font_size_override("normal_font_size", UITheme.font_size(0.85))
-	_report_text.add_theme_font_size_override("bold_font_size", UITheme.font_size(0.9))
 	box.add_child(_report_text)
 	var close := _button(box, "Close", func() -> void: _report.visible = false)
 	close.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	close.custom_minimum_size = Vector2(160, 32)
+	close.custom_minimum_size = Vector2(160, UITheme.control_height())
 
 
-func _show_drawer(open: bool) -> void:
-	_drawer.visible = open or _battle == null
-	if _drawer.visible:
-		_start_button.grab_focus.call_deferred()
+## The battle header's Setup button. The setup page covers the whole battle, so the battle pauses
+## first; during a timed input or playback that pause, and then this page, wait for the next safe
+## point (the battle emits setup_requested), so no clock or input runs under the page.
+func _toggle_setup() -> void:
+	if _setup.visible:
+		_show_setup(false)
+	elif _battle == null or _battle.pause_for_host():
+		_show_setup(true)
+
+
+func _show_setup(open: bool) -> void:
+	_setup.visible = open or _battle == null
+	_hide_button.visible = _battle != null
+	if _setup.visible:
+		if _battle != null:
+			_battle.cover_for_host()
+		_sync_practice_preferences()
+		show_view(_view)
+	elif _battle != null:
+		_battle.resume_from_host()
+
+
+func _fit_setup() -> void:
+	if _practice_grid != null:
+		_practice_grid.columns = 1 if size.x < 1100 or UITheme.text_scale() >= 1.5 else 2
+
+
+## Practice shows the player's current difficulty / assist (they may have changed in Settings).
+func _sync_practice_preferences() -> void:
+	_filling = true
+	_select_meta(_practice_difficulty, int(Settings.data.tactical_difficulty))
+	_select_meta(_practice_assist, int(Settings.data.execution_assist))
+	_filling = false
 
 
 func _section(title: String) -> void:
-	var label := Label.new()
-	label.text = title.to_upper()
-	label.add_theme_color_override("font_color", UITheme.ACCENT)
-	label.add_theme_font_size_override("font_size", UITheme.font_size(0.8))
+	var label := UITheme.label(title.to_upper(), UITheme.ACCENT, UITheme.secondary_size())
 	_form.add_child(label)
 
 
 func _row(label_text: String, control: Control, tooltip: String = "") -> void:
 	var row := HBoxContainer.new()
-	var label := Label.new()
-	label.text = label_text
-	label.custom_minimum_size = Vector2(150, 0)
+	var label := UITheme.label(label_text, UITheme.TEXT, UITheme.secondary_size())
+	label.custom_minimum_size = Vector2(190, 0)
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.tooltip_text = tooltip
 	label.mouse_filter = Control.MOUSE_FILTER_PASS
 	row.add_child(label)
@@ -500,7 +796,7 @@ func _check_row(label_text: String, tooltip: String) -> CheckBox:
 func _button(parent: Control, text: String, callback: Callable) -> Button:
 	var button := Button.new()
 	button.text = text
-	button.custom_minimum_size = Vector2(0, 32)
+	button.custom_minimum_size = Vector2(0, UITheme.control_height())
 	button.pressed.connect(callback)
 	parent.add_child(button)
 	return button
@@ -558,6 +854,7 @@ func _option_fields() -> Dictionary:
 
 func _save_prefs() -> void:
 	var config := ConfigFile.new()
+	config.load(PREFS_PATH)
 	var fields := _option_fields()
 	for key: String in fields:
 		config.set_value("sandbox", key, _meta(fields[key]))
@@ -567,11 +864,16 @@ func _save_prefs() -> void:
 	config.set_value("sandbox", "reseed", _reseed.button_pressed)
 	config.set_value("sandbox", "seed", int(_seed.value))
 	config.set_value("sandbox", "runs", int(_runs.value))
+	var encounter: EncounterDefinition = _practice_encounter.get_item_metadata(_practice_encounter.selected)
+	var loadout: PartyLoadout = _practice_loadout.get_item_metadata(_practice_loadout.selected)
+	config.set_value("practice", "encounter", encounter.id if encounter != null else &"")
+	config.set_value("practice", "loadout", loadout.id if loadout != null else &"")
+	config.set_value("practice", "view", int(_view))
 	config.save(PREFS_PATH)
 
 
 func _load_prefs() -> void:
-	# Defaults first: the first preset encounter and loadout, the player's own settings.
+	# Lab defaults first: the practice encounter and starter loadout, the player's own settings.
 	_select_meta(_encounter, _registry.defaults.practice_encounter.id)
 	_on_encounter_selected(_encounter.selected)
 	_select_meta(_loadout, _registry.defaults.starter_loadout.id)
@@ -580,20 +882,36 @@ func _load_prefs() -> void:
 	_select_meta(_assist, int(Settings.data.execution_assist))
 	_select_meta(_knowledge, KNOWLEDGE_FROM_SAVE)
 	_select_meta(_execution, EXECUTION_MANUAL)
+	_practice_encounter.select(0)
+	_practice_loadout.select(0)
 	var config := ConfigFile.new()
-	if config.load(PREFS_PATH) != OK:
-		return
-	_filling = true
-	var fields := _option_fields()
-	for key: String in fields:
-		if config.has_section_key("sandbox", key):
-			_select_meta(fields[key], config.get_value("sandbox", key))
-	_filling = false
-	_autoplay.button_pressed = config.get_value("sandbox", "autoplay", false)
-	_reasons.button_pressed = config.get_value("sandbox", "reasons", false)
-	_record.button_pressed = config.get_value("sandbox", "record", false)
-	_reseed.button_pressed = config.get_value("sandbox", "reseed", true)
-	_seed.value = config.get_value("sandbox", "seed", 1)
-	_runs.value = config.get_value("sandbox", "runs", 50)
+	if config.load(PREFS_PATH) == OK:
+		_filling = true
+		var fields := _option_fields()
+		for key: String in fields:
+			if config.has_section_key("sandbox", key):
+				_select_meta(fields[key], config.get_value("sandbox", key))
+		_filling = false
+		_autoplay.button_pressed = config.get_value("sandbox", "autoplay", false)
+		_reasons.button_pressed = config.get_value("sandbox", "reasons", false)
+		_record.button_pressed = config.get_value("sandbox", "record", false)
+		_reseed.button_pressed = config.get_value("sandbox", "reseed", true)
+		_seed.value = config.get_value("sandbox", "seed", 1)
+		_runs.value = config.get_value("sandbox", "runs", 50)
+		_select_practice(config.get_value("practice", "encounter", &""), config.get_value("practice", "loadout", &""))
+		_view = clampi(int(config.get_value("practice", "view", View.PRACTICE)), 0, 1) as View
 	var encounter: EncounterDefinition = _registry.encounters.get(_meta(_encounter))
 	_encounter_note.text = encounter.description if encounter != null else "Custom battle."
+	_sync_practice_preferences()
+	_update_practice_summary()
+
+
+func _select_practice(encounter_id: StringName, loadout_id: StringName) -> void:
+	for index in _practice_encounter.item_count:
+		var encounter: EncounterDefinition = _practice_encounter.get_item_metadata(index)
+		if encounter != null and encounter.id == encounter_id:
+			_practice_encounter.select(index)
+	for index in _practice_loadout.item_count:
+		var loadout: PartyLoadout = _practice_loadout.get_item_metadata(index)
+		if loadout != null and loadout.id == loadout_id:
+			_practice_loadout.select(index)

@@ -1,0 +1,321 @@
+[
+  {
+    "name": "title_200",
+    "arguments": [
+      "--rendering-method",
+      "gl_compatibility",
+      "--script",
+      "res://.godot/capture_refresh.gd",
+      "--",
+      "--size=1280x720",
+      "--state=planning",
+      "--seed=3",
+      "--reduced",
+      "--enemies=thornhound,bogshell,fen_wisp,bogwife",
+      "--out=res://docs/reports/stage_refresh/title_200.png",
+      "--review=title",
+      "--scale=2.0"
+    ],
+    "presentation_override": false
+  },
+  {
+    "name": "font",
+    "arguments": [
+      "--rendering-method",
+      "gl_compatibility",
+      "--script",
+      "res://.godot/capture_refresh.gd",
+      "--",
+      "--size=1280x720",
+      "--state=planning",
+      "--seed=3",
+      "--reduced",
+      "--enemies=thornhound,bogshell,fen_wisp,bogwife",
+      "--out=res://docs/reports/stage_refresh/font.png",
+      "--review=font"
+    ],
+    "presentation_override": false
+  },
+  {
+    "name": "day_1",
+    "arguments": [
+      "--rendering-method",
+      "gl_compatibility",
+      "--script",
+      "res://.godot/capture_refresh.gd",
+      "--",
+      "--size=1280x720",
+      "--state=planning",
+      "--seed=3",
+      "--reduced",
+      "--enemies=thornhound,bogshell,fen_wisp,bogwife",
+      "--out=res://docs/reports/stage_refresh/day_1.png",
+      "--background=res://assets/art/environments/briarfen/briarfen_marsh_day_1.png"
+    ],
+    "presentation_override": false
+  },
+  {
+    "name": "states",
+    "arguments": [
+      "--rendering-method",
+      "gl_compatibility",
+      "--script",
+      "res://.godot/capture_refresh.gd",
+      "--",
+      "--size=1280x720",
+      "--state=planning",
+      "--seed=3",
+      "--reduced",
+      "--enemies=thornhound,bogshell,fen_wisp,bogwife",
+      "--out=res://docs/reports/stage_refresh/states.png",
+      "--review=states",
+      "--enemies=rotcap_brute,mirebell_cantor"
+    ],
+    "presentation_override": true
+  },
+  {
+    "name": "dead_fungal",
+    "arguments": [
+      "--rendering-method",
+      "gl_compatibility",
+      "--script",
+      "res://.godot/capture_refresh.gd",
+      "--",
+      "--size=1280x720",
+      "--state=planning",
+      "--seed=3",
+      "--reduced",
+      "--enemies=thornhound,bogshell,fen_wisp,bogwife",
+      "--out=res://docs/reports/stage_refresh/dead_fungal.png",
+      "--review=dead",
+      "--enemies=straw_penitent,sporecaller,rotcap_brute,bogwife"
+    ],
+    "presentation_override": true
+  },
+  {
+    "name": "dead_elites",
+    "arguments": [
+      "--rendering-method",
+      "gl_compatibility",
+      "--script",
+      "res://.godot/capture_refresh.gd",
+      "--",
+      "--size=1280x720",
+      "--state=planning",
+      "--seed=3",
+      "--reduced",
+      "--enemies=thornhound,bogshell,fen_wisp,bogwife",
+      "--out=res://docs/reports/stage_refresh/dead_elites.png",
+      "--review=dead",
+      "--enemies=bogwife,bramblejaw,mirebell_cantor,thornhound"
+    ],
+    "presentation_override": true
+  },
+  {
+    "name": "reaction_200",
+    "arguments": [
+      "--rendering-method",
+      "gl_compatibility",
+      "--script",
+      "res://.godot/capture_refresh.gd",
+      "--",
+      "--size=1280x720",
+      "--state=planning",
+      "--seed=3",
+      "--reduced",
+      "--enemies=thornhound,bogshell,fen_wisp,bogwife",
+      "--out=res://docs/reports/stage_refresh/reaction_200.png",
+      "--state=reaction",
+      "--scale=2.0"
+    ],
+    "presentation_override": false
+  },
+  {
+    "name": "attack_200",
+    "arguments": [
+      "--rendering-method",
+      "gl_compatibility",
+      "--script",
+      "res://.godot/capture_refresh.gd",
+      "--",
+      "--size=1280x720",
+      "--state=planning",
+      "--seed=3",
+      "--reduced",
+      "--enemies=thornhound,bogshell,fen_wisp,bogwife",
+      "--out=res://docs/reports/stage_refresh/attack_200.png",
+      "--state=command",
+      "--scale=2.0"
+    ],
+    "presentation_override": false
+  },
+  {
+    "name": "reaction",
+    "arguments": [
+      "--rendering-method",
+      "gl_compatibility",
+      "--script",
+      "res://.godot/capture_refresh.gd",
+      "--",
+      "--size=1280x720",
+      "--state=planning",
+      "--seed=3",
+      "--reduced",
+      "--enemies=thornhound,bogshell,fen_wisp,bogwife",
+      "--out=res://docs/reports/stage_refresh/reaction.png",
+      "--state=reaction"
+    ],
+    "presentation_override": false
+  },
+  {
+    "name": "attack",
+    "arguments": [
+      "--rendering-method",
+      "gl_compatibility",
+      "--script",
+      "res://.godot/capture_refresh.gd",
+      "--",
+      "--size=1280x720",
+      "--state=planning",
+      "--seed=3",
+      "--reduced",
+      "--enemies=thornhound,bogshell,fen_wisp,bogwife",
+      "--out=res://docs/reports/stage_refresh/attack.png",
+      "--state=command"
+    ],
+    "presentation_override": false
+  },
+  {
+    "name": "reaction_flooded_200",
+    "arguments": [
+      "--rendering-method",
+      "gl_compatibility",
+      "--script",
+      "res://.godot/capture_refresh.gd",
+      "--",
+      "--size=1280x720",
+      "--state=planning",
+      "--seed=3",
+      "--reduced",
+      "--enemies=thornhound,bogshell,fen_wisp,bogwife",
+      "--out=res://docs/reports/stage_refresh/reaction_flooded_200.png",
+      "--state=reaction",
+      "--scale=2.0",
+      "--condition=flooded_ground"
+    ],
+    "presentation_override": false
+  },
+  {
+    "name": "title",
+    "arguments": [
+      "--rendering-method",
+      "gl_compatibility",
+      "--script",
+      "res://.godot/capture_refresh.gd",
+      "--",
+      "--size=1280x720",
+      "--state=planning",
+      "--seed=3",
+      "--reduced",
+      "--enemies=thornhound,bogshell,fen_wisp,bogwife",
+      "--out=res://docs/reports/stage_refresh/title.png",
+      "--review=title"
+    ],
+    "presentation_override": false
+  },
+  {
+    "name": "planning",
+    "arguments": [
+      "--rendering-method",
+      "gl_compatibility",
+      "--script",
+      "res://.godot/capture_refresh.gd",
+      "--",
+      "--size=1280x720",
+      "--state=planning",
+      "--seed=3",
+      "--reduced",
+      "--enemies=thornhound,bogshell,fen_wisp,bogwife",
+      "--out=res://docs/reports/stage_refresh/planning.png"
+    ],
+    "presentation_override": false
+  },
+  {
+    "name": "dead_fen",
+    "arguments": [
+      "--rendering-method",
+      "gl_compatibility",
+      "--script",
+      "res://.godot/capture_refresh.gd",
+      "--",
+      "--size=1280x720",
+      "--state=planning",
+      "--seed=3",
+      "--reduced",
+      "--enemies=thornhound,bogshell,fen_wisp,bogwife",
+      "--out=res://docs/reports/stage_refresh/dead_fen.png",
+      "--review=dead"
+    ],
+    "presentation_override": true
+  },
+  {
+    "name": "day_2_150",
+    "arguments": [
+      "--rendering-method",
+      "gl_compatibility",
+      "--script",
+      "res://.godot/capture_refresh.gd",
+      "--",
+      "--size=1280x720",
+      "--state=planning",
+      "--seed=3",
+      "--reduced",
+      "--enemies=thornhound,bogshell,fen_wisp,bogwife",
+      "--out=res://docs/reports/stage_refresh/day_2_150.png",
+      "--background=res://assets/art/environments/briarfen/briarfen_marsh_day_2.png",
+      "--scale=1.5",
+      "--condition=flooded_ground"
+    ],
+    "presentation_override": false
+  },
+  {
+    "name": "day_3_200",
+    "arguments": [
+      "--rendering-method",
+      "gl_compatibility",
+      "--script",
+      "res://.godot/capture_refresh.gd",
+      "--",
+      "--size=1280x720",
+      "--state=planning",
+      "--seed=3",
+      "--reduced",
+      "--enemies=thornhound,bogshell,fen_wisp,bogwife",
+      "--out=res://docs/reports/stage_refresh/day_3_200.png",
+      "--background=res://assets/art/environments/briarfen/briarfen_marsh_day_3.png",
+      "--scale=2.0",
+      "--condition=spore_fog"
+    ],
+    "presentation_override": false
+  },
+  {
+    "name": "states_both_200",
+    "arguments": [
+      "--rendering-method",
+      "gl_compatibility",
+      "--script",
+      "res://.godot/capture_refresh.gd",
+      "--",
+      "--size=1280x720",
+      "--state=planning",
+      "--seed=3",
+      "--reduced",
+      "--enemies=thornhound,bogshell,fen_wisp,bogwife",
+      "--out=res://docs/reports/stage_refresh/states_both_200.png",
+      "--review=states_both",
+      "--scale=2.0",
+      "--enemies=mirebell_cantor,rotcap_brute"
+    ],
+    "presentation_override": true
+  }
+]

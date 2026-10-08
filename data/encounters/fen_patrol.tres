@@ -13,6 +13,7 @@ script = ExtResource("7_jfjfi")
 id = &"fen_patrol"
 display_name = "Fen Patrol"
 description = "A Bogshell escort, a Thornhound and a Fen Wisp in flooded ground."
+practice_note = "What does Evading in water cost?"
 group = "Briarfen"
 enemies = Array[ExtResource("3_8dqg6")]([ExtResource("4_7bxws"), ExtResource("5_ww7id"), ExtResource("6_2j0i0")])
 conditions = Array[ExtResource("1_kb7he")]([ExtResource("2_o38vx")])

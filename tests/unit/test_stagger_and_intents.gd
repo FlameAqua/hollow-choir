@@ -128,6 +128,44 @@ func test_intercept_redirects_single_target_attack() -> void:
 	assert_eq(driver.count_of(BattleEvent.Type.INTERCEPTED), 1)
 
 
+func test_enemy_cover_redirects_party_attacks_and_the_preview_says_so() -> void:
+	var driver := BattleDriver.new(Fixtures.setup([Fixtures.enemy(&"shell", 999), Fixtures.enemy(&"wisp", 999)]))
+	var request := driver.to_player_turn()
+	var shell := driver.enemy(0)
+	var wisp := driver.enemy(1)
+	InterceptRules.cover(driver.engine.ctx, shell, wisp)
+	var preview := driver.engine.preview(ActionChoice.make(request.unit_uid, driver.hero().weapon.basic_attack, wisp.uid))
+	assert_eq(preview.target_uid, shell.uid, "the preview is computed against the interceptor")
+	assert_eq(preview.redirected_from, wisp.uid, "and remembers the chosen target")
+	var shell_hp := shell.hp
+	var wisp_hp := wisp.hp
+	driver.act(&"strike", wisp.uid)
+	driver.next_request()
+	assert_lt(shell.hp, shell_hp, "the warding enemy takes the hit")
+	assert_eq(wisp.hp, wisp_hp, "the warded enemy is untouched")
+	assert_eq(driver.count_of(BattleEvent.Type.INTERCEPTED), 1, "the redirect is announced")
+
+
+func test_cover_does_not_redirect_inspect_or_when_the_interceptor_is_broken() -> void:
+	var driver := BattleDriver.new(Fixtures.setup([Fixtures.enemy(&"shell", 999), Fixtures.enemy(&"wisp", 999)]))
+	var request := driver.to_player_turn()
+	var shell := driver.enemy(0)
+	var wisp := driver.enemy(1)
+	var ctx := driver.engine.ctx
+	InterceptRules.cover(ctx, shell, wisp)
+	var inspect: ActionDefinition = ctx.balance.default_inspect_action
+	assert_eq(driver.engine.preview(ActionChoice.make(request.unit_uid, inspect, wisp.uid)).redirected_from, -1,
+		"Inspect is not an attack")
+	StaggerRules.apply_stagger(ctx, shell, 999.0, driver.hero())
+	assert_true(shell.is_broken())
+	var preview := driver.engine.preview(ActionChoice.make(request.unit_uid, driver.hero().weapon.basic_attack, wisp.uid))
+	assert_eq(preview.target_uid, wisp.uid, "a Broken interceptor cannot cover")
+	driver.act(&"inspect", wisp.uid)
+	driver.next_request()
+	assert_true(wisp.inspected, "Inspect studies the chosen enemy")
+	assert_false(shell.inspected)
+
+
 func test_intent_preview_reports_reactions_and_threat() -> void:
 	var attack := Fixtures.enemy_attack(&"maul", 50.0)
 	attack.can_parry = false

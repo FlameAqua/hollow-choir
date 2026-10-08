@@ -5,11 +5,18 @@ extends Node
 const PATH := "user://settings.cfg"
 
 var data := GameSettings.new()
+var _applied_resolution := Vector2i.ZERO
+var _applied_window_mode := -1
 
 
 func _ready() -> void:
 	load_settings()
 	apply()
+	# Every event the window receives (before any node can consume it) tells us which device the
+	# player is using, so prompts show the right bindings.
+	get_tree().root.window_input.connect(func(event: InputEvent) -> void:
+		if InputBindings.note_event(event):
+			EventBus.input_device_changed.emit())
 
 
 func load_settings() -> void:
@@ -66,6 +73,10 @@ func assist_profile() -> ExecutionAssistProfile:
 func _apply_window() -> void:
 	if DisplayServer.get_name() == "headless":
 		return
+	if _applied_resolution == data.window_resolution and _applied_window_mode == int(data.window_mode):
+		return
+	_applied_resolution = data.window_resolution
+	_applied_window_mode = int(data.window_mode)
 	match data.window_mode:
 		GameSettings.WindowMode.FULLSCREEN:
 			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN)
@@ -74,3 +85,8 @@ func _apply_window() -> void:
 		_:
 			if DisplayServer.window_get_mode() != DisplayServer.WINDOW_MODE_WINDOWED:
 				DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+			# Keep the whole decorated window inside the current monitor's work area.
+			var usable := DisplayServer.screen_get_usable_rect(DisplayServer.window_get_current_screen())
+			var fitted := Vector2i(mini(data.window_resolution.x, usable.size.x - 24), mini(data.window_resolution.y, usable.size.y - 56))
+			DisplayServer.window_set_size(fitted)
+			DisplayServer.window_set_position(usable.position + (usable.size - fitted) / 2)

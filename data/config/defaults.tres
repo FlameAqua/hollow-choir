@@ -6,9 +6,17 @@
 [ext_resource type="Resource" path="res://data/loadouts/starter_hammer.tres" id="4_hammer"]
 [ext_resource type="Resource" path="res://data/loadouts/starter_bow.tres" id="5_bow"]
 [ext_resource type="Resource" path="res://data/encounters/toy_training.tres" id="6_toy"]
+[ext_resource type="Script" path="res://src/data/encounters/encounter_definition.gd" id="7_encounter"]
+[ext_resource type="Resource" path="res://data/encounters/fen_patrol.tres" id="8_fen"]
+[ext_resource type="Resource" path="res://data/encounters/rot_grove.tres" id="9_grove"]
+[ext_resource type="Resource" path="res://data/encounters/mirebell_cantor.tres" id="10_boss"]
+[ext_resource type="Texture2D" path="res://assets/art/environments/briarfen/briarfen_marsh_night_1.png" id="11_stage"]
 
 [resource]
 script = ExtResource("1_defaults")
 starter_loadout = ExtResource("3_sword")
 practice_encounter = ExtResource("6_toy")
 simulation_loadouts = Array[ExtResource("2_loadout")]([ExtResource("3_sword"), ExtResource("4_hammer"), ExtResource("5_bow")])
+practice_encounters = Array[ExtResource("7_encounter")]([ExtResource("6_toy"), ExtResource("8_fen"), ExtResource("9_grove"), ExtResource("10_boss")])
+practice_loadouts = Array[ExtResource("2_loadout")]([ExtResource("3_sword"), ExtResource("4_hammer"), ExtResource("5_bow")])
+battle_backdrop = ExtResource("11_stage")

@@ -12,5 +12,6 @@ script = ExtResource("6_7gp27")
 id = &"rot_grove"
 display_name = "Rot Grove"
 description = "A Rotcap Brute, its Sporecaller and a hungry Thornhound. Dry ground — for now."
+practice_note = "When does applying Burn change the fight?"
 group = "Briarfen"
 enemies = Array[ExtResource("2_kp4mo")]([ExtResource("3_j4dey"), ExtResource("4_r7f30"), ExtResource("5_m4ql7")])

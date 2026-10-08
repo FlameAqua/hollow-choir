@@ -1,0 +1,409 @@
+[gd_resource type="Resource" script_class="CombatIconMap" load_steps=58 format=3]
+
+[ext_resource type="Script" path="res://src/ui/battle/combat_icon_map.gd" id="1_map"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/action_anchor.tres" id="2_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/action_blunt.tres" id="3_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/action_cleanse.tres" id="4_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/action_counter.tres" id="5_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/action_empower.tres" id="6_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/action_fire.tres" id="7_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/action_flurry.tres" id="8_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/action_guard.tres" id="9_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/action_heal.tres" id="10_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/action_inspect.tres" id="11_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/action_intercept.tres" id="12_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/action_item.tres" id="13_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/action_mark.tres" id="14_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/action_pierce.tres" id="15_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/action_slash.tres" id="16_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/action_storm.tres" id="17_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/buff_anchored.tres" id="18_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/buff_chorus_driven.tres" id="19_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/buff_coiled.tres" id="20_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/buff_condemned.tres" id="21_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/buff_frenzy.tres" id="22_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/buff_guarding.tres" id="23_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/buff_riposte_stance.tres" id="24_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/buff_shelled.tres" id="25_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/buff_shielded.tres" id="26_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/buff_steady_aim.tres" id="27_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/buff_taking_cover.tres" id="28_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/channel.tres" id="29_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/intent_area_attack.tres" id="30_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/intent_armor_break.tres" id="31_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/intent_attack.tres" id="32_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/intent_battlefield.tres" id="33_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/intent_buff.tres" id="34_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/intent_heal.tres" id="35_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/intent_heavy_attack.tres" id="36_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/intent_hex.tres" id="37_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/intent_protect.tres" id="38_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/intent_wait.tres" id="39_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/interrupt.tres" id="40_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/reaction_brace.tres" id="41_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/reaction_evade.tres" id="42_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/reaction_parry.tres" id="43_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/state_broken.tres" id="44_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/status_bleed.tres" id="45_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/status_burn.tres" id="46_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/status_shock.tres" id="47_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/status_wet.tres" id="48_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/icons/unavailable.tres" id="49_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/navigation/focus.svg" id="50_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/navigation/heart.svg" id="51_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/navigation/log.svg" id="52_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/navigation/pause.svg" id="53_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/navigation/restart.svg" id="54_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/navigation/setup.svg" id="55_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/navigation/stagger.svg" id="56_texture"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/navigation/turn_order.svg" id="57_texture"]
+
+[resource]
+script = ExtResource("1_map")
+entries = {
+  "statuses": {
+    "1": "status_burn",
+    "2": "status_wet",
+    "3": "status_shock",
+    "5": "status_bleed"
+  },
+  "buffs": {
+    "anchored": "buff_anchored",
+    "chorus_driven": "buff_chorus_driven",
+    "coiled": "buff_coiled",
+    "condemned": "buff_condemned",
+    "frenzy": "buff_frenzy",
+    "guarding": "buff_guarding",
+    "riposte_stance": "buff_riposte_stance",
+    "shelled": "buff_shelled",
+    "shielded": "buff_shielded",
+    "steady_aim": "buff_steady_aim",
+    "taking_cover": "buff_taking_cover"
+  },
+  "stagger_states": {
+    "broken": "state_broken"
+  },
+  "player_actions": {
+    "sword_strike": "action_slash",
+    "lunge": "action_pierce",
+    "arc_cleave": "action_slash",
+    "riposte_stance": "action_counter",
+    "hammer_blow": "action_blunt",
+    "earthsplitter": "action_blunt",
+    "shockwave": "action_blunt",
+    "anchor_stance": "action_anchor",
+    "loosed_arrow": "action_pierce",
+    "heartseeker": "action_pierce",
+    "steady_aim": "action_mark",
+    "spotters_mark": "action_mark",
+    "kindle": "action_fire",
+    "spark": "action_storm",
+    "spear_flurry": "action_flurry",
+    "intercept": "action_intercept",
+    "condemn": "action_mark",
+    "guard": "action_guard",
+    "inspect": "action_inspect"
+  },
+  "enemy_actions": {
+    "clamp": {
+      "source": "data/enemies/bogshell.tres",
+      "family_icon": "action_slash",
+      "public_intent_icon": "intent_attack",
+      "intent_category_value": 0,
+      "family_visibility": "only_when_presenter_move_is_named"
+    },
+    "shell_ward": {
+      "source": "data/enemies/bogshell.tres",
+      "family_icon": "action_intercept",
+      "public_intent_icon": "intent_protect",
+      "intent_category_value": 7,
+      "family_visibility": "only_when_presenter_move_is_named"
+    },
+    "shell_slam": {
+      "source": "data/enemies/bogshell.tres",
+      "family_icon": "action_blunt",
+      "public_intent_icon": "intent_heavy_attack",
+      "intent_category_value": 1,
+      "family_visibility": "only_when_presenter_move_is_named"
+    },
+    "moss_mend": {
+      "source": "data/enemies/bogwife.tres",
+      "family_icon": "action_heal",
+      "public_intent_icon": "intent_heal",
+      "intent_category_value": 5,
+      "family_visibility": "only_when_presenter_move_is_named"
+    },
+    "cleansing_mire": {
+      "source": "data/enemies/bogwife.tres",
+      "family_icon": "action_cleanse",
+      "public_intent_icon": "intent_heal",
+      "intent_category_value": 5,
+      "family_visibility": "only_when_presenter_move_is_named"
+    },
+    "bog_spit": {
+      "source": "data/enemies/bogwife.tres",
+      "family_icon": "action_pierce",
+      "public_intent_icon": "intent_attack",
+      "intent_category_value": 0,
+      "family_visibility": "only_when_presenter_move_is_named"
+    },
+    "thornrend": {
+      "source": "data/enemies/bramblejaw.tres",
+      "family_icon": "action_slash",
+      "public_intent_icon": "intent_attack",
+      "intent_category_value": 0,
+      "family_visibility": "only_when_presenter_move_is_named"
+    },
+    "briar_lash": {
+      "source": "data/enemies/bramblejaw.tres",
+      "family_icon": "action_slash",
+      "public_intent_icon": "intent_area_attack",
+      "intent_category_value": 2,
+      "family_visibility": "only_when_presenter_move_is_named"
+    },
+    "hunts_end": {
+      "source": "data/enemies/bramblejaw.tres",
+      "family_icon": "action_pierce",
+      "public_intent_icon": "intent_heavy_attack",
+      "intent_category_value": 1,
+      "family_visibility": "only_when_presenter_move_is_named"
+    },
+    "pack_howl": {
+      "source": "data/enemies/bramblejaw.tres",
+      "family_icon": "action_empower",
+      "public_intent_icon": "intent_buff",
+      "intent_category_value": 6,
+      "family_visibility": "only_when_presenter_move_is_named"
+    },
+    "static_lash": {
+      "source": "data/enemies/fen_wisp.tres",
+      "family_icon": "action_storm",
+      "public_intent_icon": "intent_attack",
+      "intent_category_value": 0,
+      "family_visibility": "only_when_presenter_move_is_named"
+    },
+    "drench": {
+      "source": "data/enemies/fen_wisp.tres",
+      "family_icon": "status_wet",
+      "public_intent_icon": "intent_hex",
+      "intent_category_value": 3,
+      "family_visibility": "only_when_presenter_move_is_named"
+    },
+    "arc_storm": {
+      "source": "data/enemies/fen_wisp.tres",
+      "family_icon": "action_storm",
+      "public_intent_icon": "intent_area_attack",
+      "intent_category_value": 2,
+      "family_visibility": "only_when_presenter_move_is_named"
+    },
+    "toll": {
+      "source": "data/enemies/mirebell_cantor.tres",
+      "family_icon": "action_blunt",
+      "public_intent_icon": "intent_attack",
+      "intent_category_value": 0,
+      "family_visibility": "only_when_presenter_move_is_named"
+    },
+    "root_lash": {
+      "source": "data/enemies/mirebell_cantor.tres",
+      "family_icon": "action_slash",
+      "public_intent_icon": "intent_area_attack",
+      "intent_category_value": 2,
+      "family_visibility": "only_when_presenter_move_is_named"
+    },
+    "mire_spray": {
+      "source": "data/enemies/mirebell_cantor.tres",
+      "family_icon": "status_wet",
+      "public_intent_icon": "intent_hex",
+      "intent_category_value": 3,
+      "family_visibility": "only_when_presenter_move_is_named"
+    },
+    "storm_peal": {
+      "source": "data/enemies/mirebell_cantor.tres",
+      "family_icon": "action_storm",
+      "public_intent_icon": "intent_area_attack",
+      "intent_category_value": 2,
+      "family_visibility": "only_when_presenter_move_is_named"
+    },
+    "requiem": {
+      "source": "data/enemies/mirebell_cantor.tres",
+      "family_icon": "action_storm",
+      "public_intent_icon": "intent_area_attack",
+      "intent_category_value": 2,
+      "family_visibility": "only_when_presenter_move_is_named"
+    },
+    "drowning_toll": {
+      "source": "data/enemies/mirebell_cantor.tres",
+      "family_icon": "action_storm",
+      "public_intent_icon": "intent_attack",
+      "intent_category_value": 0,
+      "family_visibility": "only_when_presenter_move_is_named"
+    },
+    "final_knell": {
+      "source": "data/enemies/mirebell_cantor.tres",
+      "family_icon": "action_blunt",
+      "public_intent_icon": "intent_heavy_attack",
+      "intent_category_value": 1,
+      "family_visibility": "only_when_presenter_move_is_named"
+    },
+    "pummel": {
+      "source": "data/enemies/rotcap_brute.tres",
+      "family_icon": "action_blunt",
+      "public_intent_icon": "intent_attack",
+      "intent_category_value": 0,
+      "family_visibility": "only_when_presenter_move_is_named"
+    },
+    "overgrowth_smash": {
+      "source": "data/enemies/rotcap_brute.tres",
+      "family_icon": "action_blunt",
+      "public_intent_icon": "intent_heavy_attack",
+      "intent_category_value": 1,
+      "family_visibility": "only_when_presenter_move_is_named"
+    },
+    "spore_chorus": {
+      "source": "data/enemies/sporecaller.tres",
+      "family_icon": "action_empower",
+      "public_intent_icon": "intent_buff",
+      "intent_category_value": 6,
+      "family_visibility": "only_when_presenter_move_is_named"
+    },
+    "sporeburst": {
+      "source": "data/enemies/sporecaller.tres",
+      "family_icon": "intent_battlefield",
+      "public_intent_icon": "intent_battlefield",
+      "intent_category_value": 8,
+      "family_visibility": "only_when_presenter_move_is_named"
+    },
+    "needle_hum": {
+      "source": "data/enemies/sporecaller.tres",
+      "family_icon": "action_pierce",
+      "public_intent_icon": "intent_attack",
+      "intent_category_value": 0,
+      "family_visibility": "only_when_presenter_move_is_named"
+    },
+    "practice_swing": {
+      "source": "data/enemies/straw_penitent.tres",
+      "family_icon": "action_blunt",
+      "public_intent_icon": "intent_attack",
+      "intent_category_value": 0,
+      "family_visibility": "only_when_presenter_move_is_named"
+    },
+    "wide_sweep": {
+      "source": "data/enemies/straw_penitent.tres",
+      "family_icon": "action_blunt",
+      "public_intent_icon": "intent_area_attack",
+      "intent_category_value": 2,
+      "family_visibility": "only_when_presenter_move_is_named"
+    },
+    "slow_overhead": {
+      "source": "data/enemies/straw_penitent.tres",
+      "family_icon": "action_blunt",
+      "public_intent_icon": "intent_heavy_attack",
+      "intent_category_value": 1,
+      "family_visibility": "only_when_presenter_move_is_named"
+    },
+    "rending_bite": {
+      "source": "data/enemies/thornhound.tres",
+      "family_icon": "action_slash",
+      "public_intent_icon": "intent_attack",
+      "intent_category_value": 0,
+      "family_visibility": "only_when_presenter_move_is_named"
+    },
+    "harrying_lunge": {
+      "source": "data/enemies/thornhound.tres",
+      "family_icon": "action_pierce",
+      "public_intent_icon": "intent_attack",
+      "intent_category_value": 0,
+      "family_visibility": "only_when_presenter_move_is_named"
+    }
+  },
+  "intent_categories": {
+    "0": "intent_attack",
+    "1": "intent_heavy_attack",
+    "2": "intent_area_attack",
+    "3": "intent_hex",
+    "4": "intent_armor_break",
+    "5": "intent_heal",
+    "6": "intent_buff",
+    "7": "intent_protect",
+    "8": "intent_battlefield",
+    "9": "intent_wait"
+  },
+  "reactions": {
+    "1": "reaction_brace",
+    "2": "reaction_evade",
+    "3": "reaction_parry"
+  },
+  "channel_markers": {
+    "channel": "channel",
+    "interruptible": "interrupt",
+    "unavailable": "unavailable"
+  },
+  "potions": {
+    "clotting_salve": "action_cleanse",
+    "fen_water_flask": "status_wet",
+    "focus_tincture": "action_empower",
+    "mending_draught": "action_heal"
+  },
+  "conditions": {
+    "flooded_ground": "status_wet",
+    "spore_fog": "intent_battlefield"
+  }
+}
+textures = Dictionary[String, Texture2D]({
+"action_anchor": ExtResource("2_texture"),
+"action_blunt": ExtResource("3_texture"),
+"action_cleanse": ExtResource("4_texture"),
+"action_counter": ExtResource("5_texture"),
+"action_empower": ExtResource("6_texture"),
+"action_fire": ExtResource("7_texture"),
+"action_flurry": ExtResource("8_texture"),
+"action_guard": ExtResource("9_texture"),
+"action_heal": ExtResource("10_texture"),
+"action_inspect": ExtResource("11_texture"),
+"action_intercept": ExtResource("12_texture"),
+"action_item": ExtResource("13_texture"),
+"action_mark": ExtResource("14_texture"),
+"action_pierce": ExtResource("15_texture"),
+"action_slash": ExtResource("16_texture"),
+"action_storm": ExtResource("17_texture"),
+"buff_anchored": ExtResource("18_texture"),
+"buff_chorus_driven": ExtResource("19_texture"),
+"buff_coiled": ExtResource("20_texture"),
+"buff_condemned": ExtResource("21_texture"),
+"buff_frenzy": ExtResource("22_texture"),
+"buff_guarding": ExtResource("23_texture"),
+"buff_riposte_stance": ExtResource("24_texture"),
+"buff_shelled": ExtResource("25_texture"),
+"buff_shielded": ExtResource("26_texture"),
+"buff_steady_aim": ExtResource("27_texture"),
+"buff_taking_cover": ExtResource("28_texture"),
+"channel": ExtResource("29_texture"),
+"intent_area_attack": ExtResource("30_texture"),
+"intent_armor_break": ExtResource("31_texture"),
+"intent_attack": ExtResource("32_texture"),
+"intent_battlefield": ExtResource("33_texture"),
+"intent_buff": ExtResource("34_texture"),
+"intent_heal": ExtResource("35_texture"),
+"intent_heavy_attack": ExtResource("36_texture"),
+"intent_hex": ExtResource("37_texture"),
+"intent_protect": ExtResource("38_texture"),
+"intent_wait": ExtResource("39_texture"),
+"interrupt": ExtResource("40_texture"),
+"reaction_brace": ExtResource("41_texture"),
+"reaction_evade": ExtResource("42_texture"),
+"reaction_parry": ExtResource("43_texture"),
+"state_broken": ExtResource("44_texture"),
+"status_bleed": ExtResource("45_texture"),
+"status_burn": ExtResource("46_texture"),
+"status_shock": ExtResource("47_texture"),
+"status_wet": ExtResource("48_texture"),
+"unavailable": ExtResource("49_texture"),
+"focus": ExtResource("50_texture"),
+"heart": ExtResource("51_texture"),
+"log": ExtResource("52_texture"),
+"pause": ExtResource("53_texture"),
+"restart": ExtResource("54_texture"),
+"setup": ExtResource("55_texture"),
+"stagger": ExtResource("56_texture"),
+"turn_order": ExtResource("57_texture")
+})

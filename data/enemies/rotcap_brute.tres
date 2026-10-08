@@ -8,6 +8,8 @@
 [ext_resource type="Script" path="res://src/data/combatants/enemy_definition.gd" id="6_1qsoh"]
 [ext_resource type="Script" path="res://src/data/rules/trait_definition.gd" id="7_b4xba"]
 
+[ext_resource type="SpriteFrames" path="res://assets/art/enemies/briarfen/frames/rotcap_brute_idle.tres" id="99_frames_v02"]
+
 [sub_resource type="Resource" id="Resource_q6tu0"]
 script = ExtResource("1_bxpgf")
 telegraph_text = "Swings a fungal fist."
@@ -61,3 +63,4 @@ tempo = 7
 shape = 6
 color = Color(0.6, 0.42, 0.45, 1)
 visual_scale = 1.3
+sprite_frames = ExtResource("99_frames_v02")

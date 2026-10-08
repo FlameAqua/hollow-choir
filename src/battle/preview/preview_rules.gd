@@ -12,6 +12,11 @@ static func preview_action(ctx: BattleContext, actor: BattleUnit, action: Action
 	var preview := ActionPreview.new()
 	preview.action = action
 	preview.actor_uid = actor.uid
+	# Mirrors BattleEngine: attacks on a covered unit hit its interceptor.
+	var final_target := InterceptRules.final_target(ctx, action, target) if action.deals_damage() else target
+	if final_target != target:
+		preview.redirected_from = ctx.uid_of(target)
+		target = final_target
 	preview.target_uid = ctx.uid_of(target)
 	preview.focus_cost = action.focus_cost
 	preview.statuses = action.applied_statuses()
@@ -98,6 +103,7 @@ static func preview_intent(ctx: BattleContext, enemy: BattleUnit) -> IntentPrevi
 	preview.action = action
 	preview.detail_level = ResearchRules.detail_level(ctx, enemy)
 	preview.turns_until_release = intent.turns_until_release()
+	preview.channeling = intent.channeling
 	preview.statuses = action.applied_statuses()
 	preview.reasons = intent.reasons
 	for reaction in [Enums.ReactionType.BRACE, Enums.ReactionType.EVADE, Enums.ReactionType.PARRY]:
@@ -112,12 +118,9 @@ static func preview_intent(ctx: BattleContext, enemy: BattleUnit) -> IntentPrevi
 			if candidate != null and candidate.is_alive():
 				targets.append(candidate)
 	for target in targets:
-		var final_target := target
-		if action.target_rule == Enums.TargetRule.SINGLE_ENEMY and target.intercepted_by >= 0:
-			var cover := ctx.unit(target.intercepted_by)
-			if cover != null and cover.is_alive():
-				final_target = cover
-				preview.covered_by = cover.uid
+		var final_target := InterceptRules.final_target(ctx, action, target)
+		if final_target != target:
+			preview.covered_by = final_target.uid
 		preview.target_uids.append(final_target.uid)
 		if not action.deals_damage() or final_target.side == enemy.side:
 			continue

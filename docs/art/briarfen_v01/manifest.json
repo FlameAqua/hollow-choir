@@ -1,0 +1,180 @@
+{
+  "version": 1,
+  "date": "2026-10-07",
+  "status": "candidate_art_integrated_individual_sprites",
+  "provenance": {
+    "method": "OpenAI image generation; original art prompted for this project",
+    "cast_source": "/workspace/generated_images/exec-d968b50f-2435-44df-9b91-5ec0a454b5ff.png",
+    "stage_source": "/workspace/generated_images/exec-3de0735e-a318-4318-9f3e-0858dbe0ba31.png",
+    "reference": "Initial project-generated cast study, no third-party reference supplied"
+  },
+  "atlas": {
+    "file": "assets/art/sources/briarfen/v01/cast.png",
+    "size_px": [
+      1536,
+      1024
+    ],
+    "layout": "irregular_rectangles_not_uniform_grid",
+    "alpha": "RGBA, partial alpha; pixel cleanup required"
+  },
+  "stage": {
+    "file": "assets/art/environments/briarfen/briarfen_marsh_night_1.png",
+    "size_px": [
+      1672,
+      941
+    ],
+    "layers": 1,
+    "status": "candidate"
+  },
+  "sprites": [
+    {
+      "id": "hollow",
+      "region_xywh": [
+        0,
+        0,
+        475,
+        414
+      ],
+      "native_facing": "right",
+      "preview_display_height_px": 128,
+      "frames_resource": "assets/art/global/characters/frames/hollow_idle.tres",
+      "animation": "idle",
+      "frame_count": 1,
+      "status": "candidate_requires_pixel_cleanup",
+      "runtime_assigned": true,
+      "file": "assets/art/global/characters/sprites/hollow_idle.png",
+      "source_region_xywh": [
+        72,
+        168,
+        475,
+        414
+      ]
+    },
+    {
+      "id": "mara",
+      "region_xywh": [
+        0,
+        0,
+        464,
+        568
+      ],
+      "native_facing": "right",
+      "preview_display_height_px": 148,
+      "frames_resource": "assets/art/global/characters/frames/mara_idle.tres",
+      "animation": "idle",
+      "frame_count": 1,
+      "status": "candidate_requires_pixel_cleanup",
+      "runtime_assigned": true,
+      "file": "assets/art/global/characters/sprites/mara_idle.png",
+      "source_region_xywh": [
+        572,
+        16,
+        464,
+        568
+      ]
+    },
+    {
+      "id": "bell_crow",
+      "region_xywh": [
+        0,
+        0,
+        344,
+        294
+      ],
+      "native_facing": "right",
+      "preview_display_height_px": 56,
+      "frames_resource": "assets/art/global/familiars/frames/bell_crow_idle.tres",
+      "animation": "idle",
+      "frame_count": 1,
+      "status": "candidate_requires_pixel_cleanup",
+      "runtime_assigned": true,
+      "file": "assets/art/global/familiars/sprites/bell_crow_idle.png",
+      "source_region_xywh": [
+        1160,
+        290,
+        344,
+        294
+      ]
+    },
+    {
+      "id": "bogshell",
+      "region_xywh": [
+        0,
+        0,
+        574,
+        391
+      ],
+      "native_facing": "left",
+      "preview_display_height_px": 94,
+      "frames_resource": "assets/art/enemies/briarfen/frames/bogshell_idle.tres",
+      "animation": "idle",
+      "frame_count": 1,
+      "status": "candidate_requires_pixel_cleanup",
+      "runtime_assigned": true,
+      "file": "assets/art/enemies/briarfen/sprites/bogshell_idle.png",
+      "source_region_xywh": [
+        20,
+        605,
+        574,
+        391
+      ]
+    },
+    {
+      "id": "thornhound",
+      "region_xywh": [
+        0,
+        0,
+        601,
+        390
+      ],
+      "native_facing": "left",
+      "preview_display_height_px": 112,
+      "frames_resource": "assets/art/enemies/briarfen/frames/thornhound_idle.tres",
+      "animation": "idle",
+      "frame_count": 1,
+      "status": "candidate_requires_pixel_cleanup",
+      "runtime_assigned": true,
+      "file": "assets/art/enemies/briarfen/sprites/thornhound_idle.png",
+      "source_region_xywh": [
+        599,
+        604,
+        601,
+        390
+      ]
+    },
+    {
+      "id": "fen_wisp",
+      "region_xywh": [
+        0,
+        0,
+        315,
+        425
+      ],
+      "native_facing": "left",
+      "preview_display_height_px": 104,
+      "frames_resource": "assets/art/enemies/briarfen/frames/fen_wisp_idle.tres",
+      "animation": "idle",
+      "frame_count": 1,
+      "status": "candidate_requires_pixel_cleanup",
+      "runtime_assigned": true,
+      "file": "assets/art/enemies/briarfen/sprites/fen_wisp_idle.png",
+      "source_region_xywh": [
+        1201,
+        589,
+        315,
+        425
+      ]
+    }
+  ],
+  "import": {
+    "filter": "nearest",
+    "mipmaps": false,
+    "compression": "lossless"
+  },
+  "non_goals": [
+    "combat balance changes",
+    "sprite-driven timing",
+    "new collision or targeting geometry",
+    "production animation sheets"
+  ]
+}

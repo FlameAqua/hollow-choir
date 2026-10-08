@@ -405,6 +405,10 @@ func _reaction_resolve() -> void:
 func _action_resolve() -> void:
 	var actor := ctx.unit(_choice.unit_uid)
 	var targets := ActionRules.targets_for_choice(ctx, actor, _choice.action, _choice.target_uid)
+	# Cover works both ways: a warded enemy's interceptor takes the party's single-target attacks
+	# (not Inspect or other non-damaging actions).
+	if _choice.action.deals_damage():
+		targets = InterceptRules.redirect(ctx, _choice.action, targets)
 	ActionResolver.resolve(ctx, actor, _choice.action, targets, _grade, {}, _choice.item_slot)
 	_tally_weapon_use(actor, _choice.action, _grade)
 	_choice = null

@@ -1,0 +1,9 @@
+[gd_resource type="AtlasTexture" load_steps=2 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/combat/atlases/actions_atlas.png" id="1_atlas"]
+
+[resource]
+atlas = ExtResource("1_atlas")
+region = Rect2(44, 330, 226, 301)
+margin = Rect2(37.5, 0.0, 75, 0)
+filter_clip = true

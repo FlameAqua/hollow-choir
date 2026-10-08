@@ -19,7 +19,7 @@ the project has been imported once. Re-run it after adding new scripts.
 ## 2. Automated suites
 
 ```sh
-godot --headless --path . --script res://tests/run_tests.gd                  # everything (~15 s)
+godot --headless --path . --script res://tests/run_tests.gd                  # everything (~25 s)
 godot --headless --path . --script res://tests/run_tests.gd -- --filter=ui   # substring filter
 godot --headless --path . --script res://tools/check_scripts.gd              # compile every script
 ```
@@ -43,6 +43,20 @@ console shows those, the test counts them.)
 | `unit/test_save_and_settings.gd` | progress JSON round trip, atomic writes, migrator version guards, corrupt files, battle results → bestiary/mastery, settings persistence and assist overrides, clamping, bindings round trip, reaction key collisions, loadout from ids |
 | `content/test_content.gd` | every `.tres` validates, vertical-slice scope, readable enemy telegraphs, boss covers the required systems, rarity is not raw power, every loadout/encounter builds and finishes, random-policy fuzzing |
 | `ui/test_battle_ui.gd` | whole battles through the real `BattleScene` (autopilot + simulated execution, accelerated `Engine.time_scale`), keyboard action and target selection, every command widget's input → grade wiring, reaction locking / struck-through keys / no input, log + defeat recap, research-gated unit info, binding labels |
+| `ui/test_presentation.gd` | M1.1 knowledge filtering: unknown affinities hide every derived number, a revealing hit unlocks one damage type, Inspect reveals without changing results, per-target area previews, honest status qualifiers, previews consume no RNG/Focus, research-gated intent labels, channel countdowns, reaction readouts read the rules |
+| `ui/test_icon_ui.gd` | icon-first UI: immediate inspector with short-gap retention, icon/reaction legality from the filtered readouts, full-size cast and supply costs, every semantic icon and migrated art loads, four wide enemies keep disjoint lanes, reaction visuals share the graders' windows |
+| `ui/test_stage_art.gd` | stage refresh: the defeated pose follows the presented UNIT_DEFEATED (not the HP tween), corpses stay addressable but never living targets, nine static dead poses, shared footing and compact plates, enlarged title focus/scroll |
+| `ui/test_presentation_boundaries.gd` | playback never runs ahead of presented events (timeline, condition ribbon, forecast, intent rail including Inspect mid-batch), pinned details leave targets clickable, the sandbox setup page only covers a paused battle, the inspector reads only its own battle, unusable options explain themselves, the reaction cue appears only when a press would be read, portrait/corpse/Broken+Exposed fallbacks draw |
+| `ui/test_v02_ui.gd` | modifier/Alt hover stability, timeline-to-action hover recovery, source/card overflow scrolling, fixed Practice footer at five resolutions and three text sizes, individual health/break/reaction explanations and displayed-intent cards, deliberate confirm/rebinding mirrors, global resolution persistence/fallback |
+
+V0.2 supersedes the older pinned-inspection expectation: target review retains facts in the dock
+without automatically pinning a popup. Setup owns one overlay, disables covered battle input and
+resumes directly on close. See [current UI contract](design/V02_UI_INTERACTION.md).
+The [screenshot follow-up](design/V02_UI_FOLLOWUP.md) adds sole-target Intercept/cancellation,
+button-hover wheel ownership, Alt release over the card, native font sizes under transformed
+inspection, named threat bounds and structured ledger/knowledge isolation. Reaction glyphs are
+tested within move inspection; the stage intentionally has none. The solo keyboard test now
+requires separate action and recipient confirmation.
 
 UI tests are coroutines (`await` frames/signals); the runner awaits each test. Widget tests inject
 input at a chosen moment by back-dating the widget's start time instead of waiting in real time.

@@ -8,6 +8,9 @@ extends Resource
 @export var id: StringName = &""
 @export var display_name: String = ""
 @export var severity: Enums.ConditionSeverity = Enums.ConditionSeverity.MAJOR
+## One-line consequence for the battle's condition ribbon ("Evading makes you Wet."). Optional:
+## the ribbon falls back to [member description].
+@export var summary: String = ""
 @export_multiline var description: String = ""
 @export_multiline var details: String = ""
 @export var glyph: String = ""

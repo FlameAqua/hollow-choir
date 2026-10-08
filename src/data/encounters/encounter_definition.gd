@@ -6,6 +6,8 @@ extends Resource
 @export var id: StringName = &""
 @export var display_name: String = ""
 @export_multiline var description: String = ""
+## Practice: one sentence saying what this fight tests ("What does Evading in water cost?").
+@export var practice_note: String = ""
 ## Sandbox grouping label ("Toy", "Briarfen", "Elite", "Boss"…).
 @export var group: String = ""
 @export var enemies: Array[EnemyDefinition] = []

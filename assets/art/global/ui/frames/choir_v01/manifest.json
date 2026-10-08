@@ -1,0 +1,189 @@
+{
+  "schema_version": 1,
+  "id": "choir_frame_v01",
+  "status": "resource_ready_runtime_assignment_pending",
+  "source": "Authored native SVG pixel geometry; no generated bitmap skin.",
+  "filter": "nearest",
+  "palette": {
+    "panel": "#172321",
+    "raised": "#20332e",
+    "border": "#718277",
+    "gold": "#e2c681",
+    "enemy": "#e56d72",
+    "ally": "#94c89b",
+    "focus": "#e2c681",
+    "stagger": "#c4b5e5"
+  },
+  "entries": {
+    "panel": {
+      "texture": "assets/art/global/ui/frames/choir_v01/textures/panel.svg",
+      "style": "assets/art/global/ui/frames/choir_v01/styles/panel.tres",
+      "texture_margins_ltrb": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "content_margins_ltrb": [
+        10,
+        6,
+        10,
+        6
+      ],
+      "sha256": "3f5815c704e37fe6ac1505fb851b3180a337e666ff88e8b1fce9a50b2878b4b9"
+    },
+    "raised": {
+      "texture": "assets/art/global/ui/frames/choir_v01/textures/raised.svg",
+      "style": "assets/art/global/ui/frames/choir_v01/styles/raised.tres",
+      "texture_margins_ltrb": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "content_margins_ltrb": [
+        10,
+        6,
+        10,
+        6
+      ],
+      "sha256": "fee5a6f498b76a5e411a5d7300d2c7d98df187626c8dbec5d39c3a565fc6591f"
+    },
+    "selected": {
+      "texture": "assets/art/global/ui/frames/choir_v01/textures/selected.svg",
+      "style": "assets/art/global/ui/frames/choir_v01/styles/selected.tres",
+      "texture_margins_ltrb": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "content_margins_ltrb": [
+        10,
+        6,
+        10,
+        6
+      ],
+      "sha256": "8e8d74d7fbffa5db803338c0d34f7f79031d3c856b6bba48e952a2f9faeaf15c"
+    },
+    "enemy": {
+      "texture": "assets/art/global/ui/frames/choir_v01/textures/enemy.svg",
+      "style": "assets/art/global/ui/frames/choir_v01/styles/enemy.tres",
+      "texture_margins_ltrb": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "content_margins_ltrb": [
+        10,
+        6,
+        10,
+        6
+      ],
+      "sha256": "aeea25630ed0ccc2fc2aa44ce3b1cfd90f38514aa3627cb943d88aa52fb831b3"
+    },
+    "focus": {
+      "texture": "assets/art/global/ui/frames/choir_v01/textures/focus.svg",
+      "style": "assets/art/global/ui/frames/choir_v01/styles/focus.tres",
+      "texture_margins_ltrb": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "content_margins_ltrb": [
+        10,
+        6,
+        10,
+        6
+      ],
+      "sha256": "7697cb19a02008a4d72a82efa5cddc813e6ab485aa4415d58123603d045ce169"
+    },
+    "bar_track": {
+      "texture": "assets/art/global/ui/frames/choir_v01/textures/bar_track.svg",
+      "style": "assets/art/global/ui/frames/choir_v01/styles/bar_track.tres",
+      "texture_margins_ltrb": [
+        4,
+        3,
+        4,
+        3
+      ],
+      "content_margins_ltrb": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "sha256": "fbb70891a4adfa67ed736c2d0ed0dc6b852071b01914c08dddcb88591292fbda"
+    },
+    "hp_ally": {
+      "texture": "assets/art/global/ui/frames/choir_v01/textures/hp_ally.svg",
+      "style": "assets/art/global/ui/frames/choir_v01/styles/hp_ally.tres",
+      "texture_margins_ltrb": [
+        0,
+        1,
+        0,
+        1
+      ],
+      "content_margins_ltrb": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sha256": "f64fafac95cd2bcfee26ba06b5506e07284ed9121c9a628c015e100e0c6c047a"
+    },
+    "hp_enemy": {
+      "texture": "assets/art/global/ui/frames/choir_v01/textures/hp_enemy.svg",
+      "style": "assets/art/global/ui/frames/choir_v01/styles/hp_enemy.tres",
+      "texture_margins_ltrb": [
+        0,
+        1,
+        0,
+        1
+      ],
+      "content_margins_ltrb": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sha256": "1e87b908a75abc7d815863fb45e404e8ce3e89259f448ab058484f9a490573b6"
+    },
+    "resource_focus": {
+      "texture": "assets/art/global/ui/frames/choir_v01/textures/resource_focus.svg",
+      "style": "assets/art/global/ui/frames/choir_v01/styles/resource_focus.tres",
+      "texture_margins_ltrb": [
+        0,
+        1,
+        0,
+        1
+      ],
+      "content_margins_ltrb": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sha256": "a96b1f9e0bd5f6f136aeb19344364308e6c78d720db89aa21876e12fda98494d"
+    },
+    "resource_stagger": {
+      "texture": "assets/art/global/ui/frames/choir_v01/textures/resource_stagger.svg",
+      "style": "assets/art/global/ui/frames/choir_v01/styles/resource_stagger.tres",
+      "texture_margins_ltrb": [
+        0,
+        1,
+        0,
+        1
+      ],
+      "content_margins_ltrb": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sha256": "253b769c34c2697e3f1815eea8573c7b567d50a5d4126ee6f50b2fd4a35f35b1"
+    }
+  }
+}

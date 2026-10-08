@@ -66,7 +66,7 @@ bar ghost, comparison) until learned. Public status rules remain visible.
 
 ### New art and optional resource fields
 
-- `assets/art/briarfen_v01/manifest.json` is an **authoring manifest**, not a runtime database. Atlas
+- `docs/art/briarfen_v01/manifest.json` is an **authoring manifest**, not a runtime database. Atlas
   rectangles are irregular, in source pixels, within the 1536×1024 PNG.
 - `frames/{hollow,mara,bogshell,thornhound,fen_wisp}_idle.tres` are valid single-frame SpriteFrames
   candidates. Assign to existing combatant resources only when the renderer consumes them.

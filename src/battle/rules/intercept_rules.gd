@@ -35,17 +35,27 @@ static func clear_links(ctx: BattleContext, unit: BattleUnit) -> void:
 
 
 ## Redirects single-target attacks to living interceptors. Returns the final target list.
+## Applies to either side: enemy intents (IntentRules) and party actions (BattleEngine).
 static func redirect(ctx: BattleContext, action: ActionDefinition, targets: Array[BattleUnit]) -> Array[BattleUnit]:
 	if action.target_rule != Enums.TargetRule.SINGLE_ENEMY:
 		return targets
 	var result: Array[BattleUnit] = []
 	for target in targets:
-		var final_target := target
-		if target.intercepted_by >= 0:
-			var cover_unit := ctx.unit(target.intercepted_by)
-			if cover_unit != null and cover_unit.is_alive() and not cover_unit.is_broken():
-				final_target = cover_unit
-				ctx.emit(BattleEvent.new(BattleEvent.Type.INTERCEPTED, cover_unit.uid, target.uid))
-		if not result.has(final_target):
-			result.append(final_target)
+		var final := final_target(ctx, action, target)
+		if final != target:
+			ctx.emit(BattleEvent.new(BattleEvent.Type.INTERCEPTED, final.uid, target.uid))
+		if not result.has(final):
+			result.append(final)
 	return result
+
+
+## The unit a single-target attack aimed at [param target] would actually hit. Pure: no events,
+## no state change, so previews can call it at any time.
+static func final_target(ctx: BattleContext, action: ActionDefinition, target: BattleUnit) -> BattleUnit:
+	if target == null or action == null or action.target_rule != Enums.TargetRule.SINGLE_ENEMY \
+			or target.intercepted_by < 0:
+		return target
+	var cover_unit := ctx.unit(target.intercepted_by)
+	if cover_unit != null and cover_unit.is_alive() and not cover_unit.is_broken():
+		return cover_unit
+	return target

@@ -10,5 +10,6 @@ script = ExtResource("4_hox07")
 id = &"mirebell_cantor"
 display_name = "The Mirebell Cantor"
 description = "The vertical-slice boss in its drowned chapel."
+practice_note = "Can you interrupt a dangerous channel?"
 group = "Boss"
 enemies = Array[ExtResource("2_dfmbm")]([ExtResource("3_uoe4b")])

@@ -1,0 +1,18 @@
+[gd_resource type="SpriteFrames" load_steps=3 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/art/global/familiars/sprites/bell_crow_idle.png" id="1_atlas"]
+
+[sub_resource type="AtlasTexture" id="Atlas_idle"]
+atlas = ExtResource("1_atlas")
+region = Rect2(0, 0, 344, 294)
+filter_clip = true
+
+[resource]
+animations = [{
+"frames": [{"duration": 1.0, "texture": SubResource("Atlas_idle")}],
+"loop": true,
+"name": &"idle",
+"speed": 1.0
+}]
+metadata/display_height = 56.0
+metadata/faces_left = false

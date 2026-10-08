@@ -12,12 +12,19 @@ extends Resource
 @export var trait_def: TraitDefinition
 @export var shape: Enums.VisualShape = Enums.VisualShape.FLYER
 @export var color: Color = Color(0.6, 0.6, 0.7)
+## Optional art for the battle's familiar card (e.g. an AtlasTexture crop). The familiar is never
+## drawn as a unit on the stage: it takes no turn and cannot be targeted.
+@export var portrait: Texture2D
+## Presentation only: scales the familiar's slot, preserving proportions and floor anchoring.
+@export_range(0.5, 2.0, 0.05) var display_scale: float = 1.0
 
 
 func validate() -> PackedStringArray:
 	var problems := PackedStringArray()
 	if id == &"" or display_name.is_empty():
 		problems.append("familiar needs id and display_name")
+	if display_scale <= 0:
+		problems.append("familiar %s needs a positive display_scale" % id)
 	if trait_def == null or trait_def.triggers.is_empty():
 		problems.append("familiar %s needs a trait with at least one trigger" % id)
 	elif trait_def != null:

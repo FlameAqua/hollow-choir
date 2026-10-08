@@ -1,8 +1,12 @@
 class_name PartyCard
 extends Control
-## Bottom-left status card for one party member: HP, Focus, statuses, stance, cover, turn marker.
+## One party member in the dock's party column, in two lines: name and HP over the HP bar, then
+## Focus pips and count followed by statuses in words with their remaining turns ("Wet 2"; the rest
+## as "+N"). Reads the PresentationLedger, so values change with their events. The acting member
+## gets a bone-gold side bar and name (a shape as well as a colour).
 
 var unit: BattleUnit
+var ledger: PresentationLedger
 var active: bool = false:
 	set(value):
 		active = value
@@ -12,48 +16,87 @@ var _font: Font
 
 func _ready() -> void:
 	_font = get_theme_default_font()
-	custom_minimum_size = Vector2(290, 96)
 	mouse_filter = Control.MOUSE_FILTER_PASS
 
 
 func refresh() -> void:
+	custom_minimum_size = Vector2(0, preferred_height())
 	queue_redraw()
+
+
+func preferred_height() -> float:
+	return float(UITheme.body_size()) + 8.0 + 6.0 + float(UITheme.secondary_size()) + 8.0
 
 
 func _draw() -> void:
 	if unit == null:
 		return
-	var rect := Rect2(Vector2.ZERO, size)
-	draw_rect(rect, UITheme.PANEL_LIGHT if active else UITheme.PANEL)
-	draw_rect(rect, UITheme.ACCENT if active else UITheme.BORDER, false, 2.0 if active else 1.0)
-	var font_size := UITheme.font_size(0.95)
-	var small := UITheme.font_size(0.72)
-	var name := unit.display_name + ("" if unit.is_alive() else "  (down)")
-	draw_string(_font, Vector2(10, 6 + font_size), name, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size,
-		UITheme.TEXT if unit.is_alive() else UITheme.TEXT_DIM)
+	var display := ledger.unit(unit.uid) if ledger != null else null
+	var hp := display.hp if display != null else float(unit.hp)
+	var focus := display.focus if display != null else unit.focus
+	var max_focus := display.max_focus if display != null else unit.max_focus
+	var alive := display.alive if display != null else unit.is_alive()
+	var body := UITheme.body_size()
+	var small := UITheme.secondary_size()
 	if active:
-		draw_string(_font, Vector2(size.x - 80, 6 + font_size), "ACTING", HORIZONTAL_ALIGNMENT_RIGHT, 70, small, UITheme.ACCENT)
-	var hp_rect := Rect2(10, 32, size.x - 20, 13)
-	draw_rect(hp_rect, Color(0, 0, 0, 0.6))
-	var ratio := clampf(float(unit.hp) / maxf(1.0, unit.max_hp), 0.0, 1.0)
-	var hp_color := UITheme.BLOOM if ratio > 0.35 else UITheme.DANGER
-	draw_rect(Rect2(hp_rect.position, Vector2(hp_rect.size.x * ratio, hp_rect.size.y)), hp_color)
-	draw_string(_font, hp_rect.position + Vector2(4, 11), "HP %d / %d" % [unit.hp, unit.max_hp], HORIZONTAL_ALIGNMENT_LEFT, -1, small, Color.WHITE)
-	var pip_width := (size.x - 20) / float(maxi(1, unit.max_focus))
-	for i in unit.max_focus:
-		var pip := Rect2(10 + i * pip_width, 50, pip_width - 3, 9)
-		draw_rect(pip, UITheme.ACCENT if i < unit.focus else Color(0.22, 0.22, 0.28))
-	draw_string(_font, Vector2(10, 76), "Focus %d/%d" % [unit.focus, unit.max_focus], HORIZONTAL_ALIGNMENT_LEFT, -1, small, UITheme.ACCENT)
-	var x := 110.0
-	for status in unit.statuses:
-		IconPainter.draw_status(self, Rect2(x, 64, 16, 16), status.status)
-		draw_string(_font, Vector2(x + 18, 77), "%s %d" % [status.definition.glyph, status.remaining],
-			HORIZONTAL_ALIGNMENT_LEFT, -1, small, IconPainter.status_color(status.status))
-		x += 62.0
-	for buff in unit.buffs:
-		draw_string(_font, Vector2(x, 77), buff.definition.display_name, HORIZONTAL_ALIGNMENT_LEFT, -1, small, UITheme.INFO)
-		x += _font.get_string_size(buff.definition.display_name, HORIZONTAL_ALIGNMENT_LEFT, -1, small).x + 10
-	if unit.intercepted_by >= 0:
-		draw_string(_font, Vector2(10, 92), "Covered by an ally", HORIZONTAL_ALIGNMENT_LEFT, -1, small, UITheme.INFO)
-	elif unit.intercepting_for >= 0:
-		draw_string(_font, Vector2(10, 92), "Intercepting attacks", HORIZONTAL_ALIGNMENT_LEFT, -1, small, UITheme.INFO)
+		draw_rect(Rect2(Vector2.ZERO, size), UITheme.PANEL_LIGHT)
+		draw_rect(Rect2(0, 0, 4, size.y), UITheme.ACCENT)
+	var x := 10.0
+	var right := size.x - 6.0
+	var y := 2.0 + body
+	var name_color := UITheme.ACCENT if active else (UITheme.TEXT if alive else UITheme.TEXT_FAINT)
+	var hp_text := "Down" if not alive else "%d / %d HP" % [roundi(hp), unit.max_hp]
+	var hp_width := _width(hp_text, small)
+	draw_string(_font, Vector2(x, y), unit.display_name, HORIZONTAL_ALIGNMENT_LEFT, right - x - hp_width - 6.0, body, name_color)
+	draw_string(_font, Vector2(x, y), hp_text, HORIZONTAL_ALIGNMENT_RIGHT, right - x, small, UITheme.TEXT if alive else UITheme.THREAT)
+	y += 5.0
+	var bar := Rect2(x, y, right - x, 5.0)
+	draw_rect(bar, Color(0, 0, 0, 0.6))
+	var ratio := clampf(hp / maxf(1.0, unit.max_hp), 0.0, 1.0)
+	draw_rect(Rect2(bar.position, Vector2(bar.size.x * ratio, bar.size.y)), UITheme.HEART if ratio > 0.35 else UITheme.THREAT)
+	y += 8.0
+	var pip := clampf(small * 0.45, 6.0, 10.0)
+	for i in max_focus:
+		var center := Vector2(x + pip * (i + 0.5), y + small * 0.55)
+		if i < focus:
+			draw_circle(center, pip * 0.34, UITheme.FOCUS)
+		else:
+			draw_arc(center, pip * 0.3, 0, TAU, 12, UITheme.BORDER, 1.0)
+	var cursor := x + pip * max_focus + 8.0
+	var focus_text := "%d Focus" % focus
+	draw_string(_font, Vector2(cursor, y + small), focus_text, HORIZONTAL_ALIGNMENT_LEFT, -1, small, UITheme.FOCUS)
+	cursor += _width(focus_text, small) + 10.0
+	_draw_effects(Vector2(cursor, y), right - cursor, display)
+
+
+## "Wet 2 · Guarding · +1": the first entries in words, the rest counted.
+func _draw_effects(origin: Vector2, width: float, display: PresentationLedger.UnitDisplay) -> void:
+	if display == null or width <= 0.0:
+		return
+	var small := UITheme.secondary_size()
+	var parts: Array[Dictionary] = []
+	for entry in display.statuses:
+		var name := entry.definition.display_name if entry.definition != null else EnumText.status(entry.status)
+		parts.append({"text": "%s %d" % [name, entry.remaining], "color": IconPainter.status_color(entry.status)})
+	for buff in display.buffs:
+		parts.append({"text": buff.name, "color": UITheme.THREAT if buff.definition != null and buff.definition.is_debuff else UITheme.INFO})
+	if display.covered_by >= 0:
+		parts.append({"text": "Covered", "color": UITheme.INFO})
+	elif display.covering >= 0:
+		parts.append({"text": "Covering", "color": UITheme.INFO})
+	var cursor := origin.x
+	for index in parts.size():
+		var text: String = parts[index].text
+		var w := _width(text, small)
+		var left := parts.size() - index
+		var more := "+%d" % left
+		var reserve := 0.0 if left == 1 else _width(more, small) + 8.0
+		if cursor + w + reserve > origin.x + width:
+			draw_string(_font, Vector2(cursor, origin.y + small), more, HORIZONTAL_ALIGNMENT_LEFT, -1, small, UITheme.TEXT)
+			return
+		draw_string(_font, Vector2(cursor, origin.y + small), text, HORIZONTAL_ALIGNMENT_LEFT, -1, small, parts[index].color)
+		cursor += w + 10.0
+
+
+func _width(text: String, font_size: int) -> float:
+	return _font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x if _font != null else text.length() * font_size * 0.6
