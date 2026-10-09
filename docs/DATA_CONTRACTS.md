@@ -198,6 +198,11 @@ queries are omitted outside stable planning. UnitView body providers exclude ind
 hit regions. InspectionContent reports its 82% transformed height to ScrollContainer. ConditionArt
 reads announced condition IDs for decoration only. None of these data are saved or interpreted
 as gameplay rules. Explicit target review is required even for one legal single-target recipient.
+Third playtest: choosing another legal action or item during recipient review replaces the pending
+option inside ActionPicker (recipients and preview rebuilt; the reviewed recipient kept when still
+legal). A replacement without a recipient submits as from the menu. Unavailable rows, the pending
+action itself, hovering and Details change nothing. The engine still receives exactly one
+`ActionChoice` per request; nothing is spent before it.
 
 ## 6. Save and settings formats
 
@@ -211,8 +216,30 @@ as gameplay rules. Explicit target review is required even for one legal single-
             "inventory": {"equipment", "materials", "consumables", "quest_items"},
             "companions": {}, "familiars": [], "quests": {},
             "regions": {"pressure": {}, "events": {}}, "world_choices": {}, "home_upgrades": {},
-            "stats": {"battles_won", "battles_lost"} } }
+            "stats": {"battles_won", "battles_lost"},
+            "world": {"area", "anchor", "discovered": [id], "links": [id], "cleared": [id],
+                      "flags": {"wayside_bell_restored": bool, "return_latch_open": bool},
+                      "pending_entry": {…} | null, "last_applied_token", "entry_serial"} } }
 ```
+
+**V0.4 world section** (optional, additive to save version 1). A save without it (every V0.3 slot)
+starts at `gloamstead/town_bell` with research, mastery, loadout and stats untouched; no migration
+step is needed because no existing field changes meaning. Older builds ignore the key. On entry
+`WorldState.sanitize()` validates every ID against `data/world/first_footsteps.tres`: an unknown
+area/anchor recovers to the square, unknown landmark/link/site IDs are dropped, flags count only as
+JSON `true`, and an incomplete or unapproved `pending_entry` is discarded. `pending_entry` is one
+`EncounterEntry` = {token, site, encounter, area, approach_anchor, seed, loadout ids, research
+levels, difficulty, assist, auto_brace, reaction_pause}; it is written before a world battle starts
+and, if found on the next run, becomes the approach anchor with the encounter still available.
+`last_applied_token` makes a repeated victory commit a no-op. Exploration writes happen only at
+safe boundaries (area arrival, completed interaction, encounter entry, result commit, explicit save)
+through `WorldSession.commit()`: copy → change → atomic write → adopt only on success.
+**Reset journey** (third playtest, Menu → Reset journey, confirmed with Cancel as the default) is one
+such commit: the candidate's `world` section becomes `WorldState.fresh()` (start area/anchor; no
+discoveries, links, cleared sites, flags or pending entry) while `entry_serial` and
+`last_applied_token` carry over, so completion tokens never repeat across a reset. Every other
+section (loadout, bestiary, mastery, inventory, stats…) and the separate settings file are kept.
+A failed write leaves the live journey unchanged. No format change; save version stays 1.
 
 All references are content ids (strings); no node or Resource is serialized. Sections for later
 milestones exist now (empty) so their arrival does not need a migration. To change the format: bump
@@ -223,13 +250,32 @@ so an application version bump never requires a save-version bump.
 **Settings** (`user://settings.cfg`, global, not per slot, D-009): sections `gameplay`
 (tactical_difficulty, execution_assist, auto_brace, reaction_pause), `display` (window_mode,
 window_resolution (`Vector2i`, one of 1280×720 / 1366×768 / 1600×900 / 1920×1080 / 2560×1440),
-text_scale, screen_shake, reduce_flashing, show_damage_numbers, advanced_tooltips, combat_speed,
+screen_shake, reduce_flashing, reduce_motion, show_damage_numbers, advanced_tooltips, combat_speed,
 auto_advance_text, subtitles), `audio` (master/music/sfx volume) and `bindings` (action → codes such as
 `"key:Space"`, `"joy:0"`; missing actions use the defaults in `InputBindings.DEFAULTS`).
 The CombatSandbox remembers its own form in `user://sandbox.cfg`.
+The game uses one fixed 1280×720 canvas with 22 px body text; supported outputs scale it uniformly.
+Window resizing and the independent font preference are retired. Old `display/text_scale` values
+are ignored and removed on subsequent settings writes. See [fixed display policy](design/DISPLAY_PRESETS.md).
 Absent/invalid window resolution falls back to 1280×720. GUI input mirrors replace their native
 defaults. Enter/gamepad A confirm by default, Space/Z remain command inputs; saved explicit rebinds
 remain authoritative. No progress-save format or migration changes are required.
+
+**World definitions** (`data/world/*.tres`, loaded into `DefinitionRegistry.world`):
+`WorldDefinition` {tile_size, start_area, start_anchor, areas, portals, flags} → `AreaDefinition`
+{id, display_name, scene_path, size_tiles, default_anchor, extra_anchors, landmarks, paths,
+music_cue (empty = intentional silence)} → `LandmarkDefinition` {id, public display_name, kind
+(HOME/DIALOGUE/PREPARATION/PORTAL/LANDMARK/ENCOUNTER/RESTORATION/SHORTCUT/DISCOVERY), planning
+tile, public description, interact_radius, safe_anchor, encounter + threat_label + optional
+(ENCOUNTER), far_side (SHORTCUT), discover_radius} and `WorldPath` {id, tile points, width_tiles,
+requires_flag}. `PortalDefinition` pairs {from_area, from_landmark} with {to_area, arrival_anchor}.
+Geometry lives in the area scene: `Interactions/<landmark id>` (WorldPoint), `Anchors/<anchor id>`
+(Marker2D), `Portals/<landmark id>` (WorldPortal trigger rectangle), the painted `Collision`
+TileMapLayer and `Solids`/footprint StaticBody2Ds on physics layer 2. Prop footprints are authored ground
+shapes traced from the visible base (trunk and root flare, footings, plinths, posts), never
+runtime sprite alpha; all willows share `scenes/world/footprints/willow_roots.tres`. Canopy and
+other overhanging art stays walk-behind through the Y-sorted `DepthSorted` layer. `WorldStateView` nodes show
+art and enable collision from one typed condition (a flag or a cleared site); they never write state.
 
 ## 7. Field reference
 

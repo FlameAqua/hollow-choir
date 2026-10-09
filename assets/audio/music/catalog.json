@@ -28,7 +28,7 @@
       "playback_gain_db": null,
       "usage_status": "user_authorized",
       "approved_by": "Adrian",
-      "approval_note": "All inbox versions authorized as playlist variants, 8 October 2026.",
+      "approval_note": "User requested all inbox versions in game, 8 October 2026.",
       "prompt_reference": "docs/audio/SUNO_REQUESTS.md#briarfen-battle",
       "candidate_delivery_ids": [
         "briarfen_battle_v01",
@@ -66,7 +66,7 @@
       "playback_gain_db": null,
       "usage_status": "user_authorized",
       "approved_by": "Adrian",
-      "approval_note": "All inbox versions authorized as playlist variants, 8 October 2026.",
+      "approval_note": "User requested all inbox versions in game, 8 October 2026.",
       "prompt_reference": "docs/audio/SUNO_REQUESTS.md#briarfen-boss-mirebell",
       "candidate_delivery_ids": [
         "briarfen_boss_mirebell_v01",
@@ -102,7 +102,7 @@
       "playback_gain_db": null,
       "usage_status": "user_authorized",
       "approved_by": "Adrian",
-      "approval_note": "All inbox versions authorized as playlist variants, 8 October 2026.",
+      "approval_note": "User requested all inbox versions in game, 8 October 2026.",
       "prompt_reference": "docs/audio/SUNO_REQUESTS.md#global-title",
       "candidate_delivery_ids": [
         "global_title_v01",
@@ -119,7 +119,7 @@
       "role": "exploration",
       "working_title": "Road Through Briar",
       "priority": 4,
-      "status": "requested",
+      "status": "integrated",
       "source_file": null,
       "runtime_file": null,
       "delivery_id": null,
@@ -136,12 +136,38 @@
       "integrated_lufs": null,
       "true_peak_dbtp": null,
       "playback_gain_db": null,
-      "usage_status": "unverified",
-      "approved_by": null,
-      "approval_note": null,
+      "usage_status": "user_authorized",
+      "approved_by": "Adrian",
+      "approval_note": "User requested town and exploration inbox variants in game, 9 October 2026.",
       "prompt_reference": "docs/audio/SUNO_REQUESTS.md#briarfen-exploration",
-      "runtime_playlist": [],
-      "candidate_delivery_ids": []
+      "runtime_playlist": [
+        "briarfen_exploration_v01",
+        "briarfen_exploration_v02"
+      ],
+      "candidate_delivery_ids": [
+        "briarfen_exploration_v01",
+        "briarfen_exploration_v02"
+      ]
+    },
+    {
+      "cue_id": "gloamstead_town",
+      "region": "briarfen",
+      "role": "town",
+      "working_title": "Gloamstead",
+      "priority": 3,
+      "status": "integrated",
+      "prompt_reference": "docs/audio/FIRST_FOOTSTEPS_MUSIC_REQUESTS.md",
+      "runtime_playlist": [
+        "gloamstead_town_v01",
+        "gloamstead_town_v02"
+      ],
+      "candidate_delivery_ids": [
+        "gloamstead_town_v01",
+        "gloamstead_town_v02"
+      ],
+      "approved_by": "Adrian",
+      "usage_status": "user_authorized",
+      "approval_note": "User requested town and exploration inbox variants in game, 9 October 2026."
     }
   ],
   "received_on": "2026-10-08",
@@ -312,6 +338,70 @@
       "metadata_file": "assets/audio/source/inbox/briarfen_battle_v01_intense.delivery.json",
       "active_playlist": true,
       "runtime_file": "assets/audio/music/regions/briarfen/briarfen_battle_v01_intense_3584cae0354f.ogg",
+      "review_status": "integrated",
+      "status": "integrated",
+      "approved_by": "Adrian",
+      "usage_status": "user_authorized",
+      "loop_mode": "playlist_crossfade"
+    },
+    {
+      "delivery_id": "briarfen_exploration_v01",
+      "cue_id": "briarfen_exploration",
+      "version": 1,
+      "tone": "base",
+      "source_file": "assets/audio/source/inbox/briarfen_exploration_v01.m4a",
+      "source_sha256": "d95b6d5024d62ab8a300c5658bcc3dbfb0ff0de98d7e46f31414129e6b62f087",
+      "metadata_file": "assets/audio/source/inbox/briarfen_exploration_v01.delivery.json",
+      "active_playlist": true,
+      "runtime_file": "assets/audio/music/regions/briarfen/briarfen_exploration_v01_d95b6d5024d6.ogg",
+      "review_status": "integrated",
+      "status": "integrated",
+      "approved_by": "Adrian",
+      "usage_status": "user_authorized",
+      "loop_mode": "playlist_crossfade"
+    },
+    {
+      "delivery_id": "briarfen_exploration_v02",
+      "cue_id": "briarfen_exploration",
+      "version": 2,
+      "tone": "base",
+      "source_file": "assets/audio/source/inbox/briarfen_exploration_v02.m4a",
+      "source_sha256": "8b57d00aea7aac43755906a41a5fc6e48ea7b7cd047c4c224f9f5bcbdfd8e017",
+      "metadata_file": "assets/audio/source/inbox/briarfen_exploration_v02.delivery.json",
+      "active_playlist": true,
+      "runtime_file": "assets/audio/music/regions/briarfen/briarfen_exploration_v02_8b57d00aea7a.ogg",
+      "review_status": "integrated",
+      "status": "integrated",
+      "approved_by": "Adrian",
+      "usage_status": "user_authorized",
+      "loop_mode": "playlist_crossfade"
+    },
+    {
+      "delivery_id": "gloamstead_town_v01",
+      "cue_id": "gloamstead_town",
+      "version": 1,
+      "tone": "base",
+      "source_file": "assets/audio/source/inbox/gloamstead_town_v01.m4a",
+      "source_sha256": "02f36dfabf75053bbcc58a86364b188596f808c3a602f4811019740336c6a54e",
+      "metadata_file": "assets/audio/source/inbox/gloamstead_town_v01.delivery.json",
+      "active_playlist": true,
+      "runtime_file": "assets/audio/music/regions/briarfen/gloamstead_town_v01_02f36dfabf75.ogg",
+      "review_status": "integrated",
+      "status": "integrated",
+      "approved_by": "Adrian",
+      "usage_status": "user_authorized",
+      "loop_mode": "playlist_crossfade"
+    },
+    {
+      "delivery_id": "gloamstead_town_v02",
+      "cue_id": "gloamstead_town",
+      "version": 2,
+      "tone": "base",
+      "source_file": "assets/audio/source/inbox/gloamstead_town_v02.m4a",
+      "source_sha256": "bcffefb82341ea31df1b589c1f7733ce1844f2e11b1db8ca130db8619c281111",
+      "metadata_file": "assets/audio/source/inbox/gloamstead_town_v02.delivery.json",
+      "active_playlist": true,
+      "runtime_file": "assets/audio/music/regions/briarfen/gloamstead_town_v02_bcffefb82341.ogg",
       "review_status": "integrated",
       "status": "integrated",
       "approved_by": "Adrian",

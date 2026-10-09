@@ -1,0 +1,30 @@
+[gd_resource type="SpriteFrames" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/art/world/first_footsteps_v01/atlases/bellkeeper.png" id="1_8q7bj"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4nmq0"]
+atlas = ExtResource("1_8q7bj")
+region = Rect2(0, 0, 64, 64)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_n0itc"]
+atlas = ExtResource("1_8q7bj")
+region = Rect2(64, 0, 64, 64)
+filter_clip = true
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4nmq0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_n0itc")
+}],
+"loop": 1,
+"name": &"idle",
+"speed": 1.5
+}]
+metadata/foot_anchor = Vector2i(32, 60)
+metadata/cell_size = Vector2i(64, 64)
+metadata/art_status = "generated_candidate"

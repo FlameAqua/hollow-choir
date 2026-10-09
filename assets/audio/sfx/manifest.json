@@ -1,0 +1,217 @@
+{
+  "palette": "soft_material_v02",
+  "date": "2026-10-09",
+  "creator": "Codex / original deterministic procedural synthesis",
+  "authorization": "Adrian requested replacing arcade-style SFX with a soothing palette on 2026-10-09",
+  "recipe": "tools/generate_placeholder_sfx.py",
+  "seed": 9102026,
+  "sample_rate_hz": 44100,
+  "channels": 1,
+  "bits_per_sample": 16,
+  "loop": false,
+  "external_samples": false,
+  "human_listening_approval": "pending",
+  "measurement_note": "PCM sample peaks and whole-file RMS, not LUFS or true-peak measurements",
+  "cues": [
+    {
+      "file": "ui_move.wav",
+      "sha256": "b17c71b61963ba173da408dfe78da83053481e61f582a22b15b05cedf4eab630",
+      "frames": 3969,
+      "duration_seconds": 0.09,
+      "sample_peak_dbfs": -18.42,
+      "rms_dbfs": -33.14
+    },
+    {
+      "file": "ui_confirm.wav",
+      "sha256": "7ff1c204f74ec09ac623aee3afbaf1a8598ba51391c8cbf14c1b16d51a4a5d72",
+      "frames": 14068,
+      "duration_seconds": 0.319002,
+      "sample_peak_dbfs": -14.89,
+      "rms_dbfs": -33.02
+    },
+    {
+      "file": "ui_cancel.wav",
+      "sha256": "1c11e4aee0af2cb1c69e230743350b39e43288319f00a8df184958766c6b3211",
+      "frames": 7056,
+      "duration_seconds": 0.16,
+      "sample_peak_dbfs": -17.08,
+      "rms_dbfs": -31.91
+    },
+    {
+      "file": "hit.wav",
+      "sha256": "5305aded11dcfefd76200d1db02515d6b39533021b2e836fd5665b28639ca21e",
+      "frames": 10143,
+      "duration_seconds": 0.23,
+      "sample_peak_dbfs": -10.75,
+      "rms_dbfs": -25.86
+    },
+    {
+      "file": "hit_heavy.wav",
+      "sha256": "2b79df0863d6f2e028a0b74f2aa8e1d6d5e5ae9d5e7c049869e1a079c982b788",
+      "frames": 20683,
+      "duration_seconds": 0.469002,
+      "sample_peak_dbfs": -9.12,
+      "rms_dbfs": -26.56
+    },
+    {
+      "file": "weakness.wav",
+      "sha256": "57d048c63afd75a71a252796eaceb5c080c20e3a3bf651570cc9f4068bf9b9fe",
+      "frames": 19360,
+      "duration_seconds": 0.439002,
+      "sample_peak_dbfs": -10.17,
+      "rms_dbfs": -29.13
+    },
+    {
+      "file": "perfect.wav",
+      "sha256": "9e76c757abcc8ba2df99a7fe025e13cd028526e3928a53e1cd19ba9bc30210a4",
+      "frames": 18919,
+      "duration_seconds": 0.429002,
+      "sample_peak_dbfs": -12.77,
+      "rms_dbfs": -27.42
+    },
+    {
+      "file": "good.wav",
+      "sha256": "981a61bed7ae7ad8e6e64ac258cb6f89b46bb316392eb3448d3e4526100e279a",
+      "frames": 7497,
+      "duration_seconds": 0.17,
+      "sample_peak_dbfs": -15.39,
+      "rms_dbfs": -30.16
+    },
+    {
+      "file": "miss.wav",
+      "sha256": "1996ffc293c13fdee96b541033947b2f1d4e00a415fbdba12fb61b7c1955df26",
+      "frames": 7056,
+      "duration_seconds": 0.16,
+      "sample_peak_dbfs": -16.48,
+      "rms_dbfs": -33.55
+    },
+    {
+      "file": "parry.wav",
+      "sha256": "cc52440fbe708c390a062c4100e7803961f3798a4efc2062520a832124e39291",
+      "frames": 26857,
+      "duration_seconds": 0.609002,
+      "sample_peak_dbfs": -10.17,
+      "rms_dbfs": -27.1
+    },
+    {
+      "file": "brace.wav",
+      "sha256": "258bae95091cbd4486d5aa50987900fc9ec2c3d80d143c631cf17e78c939aab5",
+      "frames": 10143,
+      "duration_seconds": 0.23,
+      "sample_peak_dbfs": -11.37,
+      "rms_dbfs": -27.0
+    },
+    {
+      "file": "evade.wav",
+      "sha256": "f3e81712acb9fd1804ec417e3381a9bef2006ea4e0faf182519308350f5638d7",
+      "frames": 11025,
+      "duration_seconds": 0.25,
+      "sample_peak_dbfs": -14.42,
+      "rms_dbfs": -28.7
+    },
+    {
+      "file": "break.wav",
+      "sha256": "3d2526412fd8eaa352fd5d2c897f99aceadb07544ee8ee2949d45a5c47794ad9",
+      "frames": 29768,
+      "duration_seconds": 0.675011,
+      "sample_peak_dbfs": -8.64,
+      "rms_dbfs": -25.26
+    },
+    {
+      "file": "status.wav",
+      "sha256": "84e74665dbe363603c8fb623a4600b7d7c4b61c0179c3272c33e978624efe1c0",
+      "frames": 18478,
+      "duration_seconds": 0.419002,
+      "sample_peak_dbfs": -14.42,
+      "rms_dbfs": -32.33
+    },
+    {
+      "file": "heal.wav",
+      "sha256": "333f4c7de36672cea322278a48915af3e2b5a6417f2f2d78f3b5efa81e880a6f",
+      "frames": 38764,
+      "duration_seconds": 0.879002,
+      "sample_peak_dbfs": -13.56,
+      "rms_dbfs": -27.63
+    },
+    {
+      "file": "focus.wav",
+      "sha256": "6ad8ec291ebbd2bbc2a7dd2bbf564940280c1abfd67c8fc27806208f6c3e3cb4",
+      "frames": 14068,
+      "duration_seconds": 0.319002,
+      "sample_peak_dbfs": -15.92,
+      "rms_dbfs": -31.96
+    },
+    {
+      "file": "telegraph.wav",
+      "sha256": "6998da78e7973fff774ef333f2269950a86f6a346f715f40b7aa49f710885341",
+      "frames": 7276,
+      "duration_seconds": 0.164989,
+      "sample_peak_dbfs": -11.37,
+      "rms_dbfs": -27.81
+    },
+    {
+      "file": "channel.wav",
+      "sha256": "504b07807c2adc535dfe0e152be9b7f3b530875470e2a0757814e53dfd62b357",
+      "frames": 26857,
+      "duration_seconds": 0.609002,
+      "sample_peak_dbfs": -13.15,
+      "rms_dbfs": -25.31
+    },
+    {
+      "file": "beat.wav",
+      "sha256": "24e95e312063a66a4683277099e762c88a184255280106af5cafa900c05acff8",
+      "frames": 2866,
+      "duration_seconds": 0.064989,
+      "sample_peak_dbfs": -13.56,
+      "rms_dbfs": -27.17
+    },
+    {
+      "file": "charge.wav",
+      "sha256": "0c8d389505cea9d8ee322e00b1b375c0b2969b8c531986e48de83299bcb21d92",
+      "frames": 14994,
+      "duration_seconds": 0.34,
+      "sample_peak_dbfs": -14.89,
+      "rms_dbfs": -26.92
+    },
+    {
+      "file": "victory.wav",
+      "sha256": "1002933c7b32ecf5f7dfca03ca680c2eea830190a12ca4e3dfce33566d2b5f1e",
+      "frames": 68311,
+      "duration_seconds": 1.549002,
+      "sample_peak_dbfs": -12.77,
+      "rms_dbfs": -28.33
+    },
+    {
+      "file": "defeat.wav",
+      "sha256": "ea81da535cc851ba6e50a508f6774f792b633afb0a51d32c235173ffadf3a469",
+      "frames": 57727,
+      "duration_seconds": 1.309002,
+      "sample_peak_dbfs": -13.98,
+      "rms_dbfs": -29.56
+    },
+    {
+      "file": "step_peat.wav",
+      "sha256": "2cd0b3d3d9dfc2d0214b1c828b3cd702cacc47d2e3deb870935ab10b07e30936",
+      "frames": 11025,
+      "duration_seconds": 0.25,
+      "sample_peak_dbfs": -21.41,
+      "rms_dbfs": -37.08
+    },
+    {
+      "file": "step_stone.wav",
+      "sha256": "1bf214f8c56d0806e45702ac6808d59b571bcab56676134d6f45c4d51aa17686",
+      "frames": 8820,
+      "duration_seconds": 0.2,
+      "sample_peak_dbfs": -20.92,
+      "rms_dbfs": -37.07
+    },
+    {
+      "file": "step_wood.wav",
+      "sha256": "16f7f0ca500c30809fd28ef558402da042b54a760cf3404e29750cb103e3c537",
+      "frames": 9261,
+      "duration_seconds": 0.21,
+      "sample_peak_dbfs": -21.41,
+      "rms_dbfs": -37.79
+    }
+  ]
+}

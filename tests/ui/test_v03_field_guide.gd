@@ -80,7 +80,7 @@ func test_recorded_results_and_changed_thresholds_use_existing_save_data() -> vo
 	assert_eq(restored.weapon_mastery[&"pilgrims_edge"], 4)
 	assert_eq(progress.to_dict(), restored.to_dict())
 
-func test_guide_navigation_is_read_only_bounded_and_scrollable_at_all_text_scales() -> void:
+func test_guide_navigation_is_read_only_bounded_and_scrollable_on_fixed_canvas() -> void:
 	var tree := Engine.get_main_loop() as SceneTree
 	var previous := GameState.progress
 	var previous_theme := tree.root.theme
@@ -88,27 +88,26 @@ func test_guide_navigation_is_read_only_bounded_and_scrollable_at_all_text_scale
 	GameState.progress.bestiary.points[&"thornhound"] = 18
 	GameState.progress.bestiary.points[&"removed_species"] = 99
 	var before := GameState.progress.to_dict()
-	for scale in [1.0, 1.5, 2.0]:
-		tree.root.theme = UITheme.build(scale)
-		var guide: FieldGuide = load(SceneRouter.FIELD_GUIDE).instantiate()
-		tree.root.add_child(guide)
-		guide.set_anchors_preset(Control.PRESET_TOP_LEFT)
-		guide.size = Vector2(1280, 720)
-		for frame in 5:
-			await tree.process_frame
-		assert_eq(guide._readouts.size(), 1, "unknown saved ids do not disclose other creatures")
-		assert_true(guide._choices.has_focus())
-		assert_lte(guide._back.get_global_rect().end.y, 720)
-		assert_lte(guide._tabs.get_global_rect().end.x, 1280)
-		assert_gt(guide._scroll.size.y, 100)
-		guide._scroll.scroll_vertical = 100000
-		assert_gt(guide._scroll.scroll_vertical, 0, "long entry can scroll")
-		guide._tabs.current_tab = 1
-		guide._back.grab_focus()
-		assert_true(guide._back.has_focus())
-		assert_eq(GameState.progress.to_dict(), before, "reading never changes progression")
-		guide.queue_free()
+	tree.root.theme = UITheme.build()
+	var guide: FieldGuide = load(SceneRouter.FIELD_GUIDE).instantiate()
+	tree.root.add_child(guide)
+	guide.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	guide.size = Vector2(1280, 720)
+	for frame in 5:
 		await tree.process_frame
+	assert_eq(guide._readouts.size(), 1, "unknown saved ids do not disclose other creatures")
+	assert_true(guide._choices.has_focus())
+	assert_lte(guide._back.get_global_rect().end.y, 720)
+	assert_lte(guide._tabs.get_global_rect().end.x, 1280)
+	assert_gt(guide._scroll.size.y, 100)
+	guide._scroll.scroll_vertical = 100000
+	assert_gt(guide._scroll.scroll_vertical, 0, "long entry can scroll")
+	guide._tabs.current_tab = 1
+	guide._back.grab_focus()
+	assert_true(guide._back.has_focus())
+	assert_eq(GameState.progress.to_dict(), before, "reading never changes progression")
+	guide.queue_free()
+	await tree.process_frame
 	tree.root.theme = previous_theme
 	GameState.progress = previous
 
@@ -126,10 +125,10 @@ func test_empty_guide_offers_back_without_spoiling_unseen_species() -> void:
 	guide.queue_free()
 	GameState.progress = previous
 
-func test_enlarged_reaction_help_keeps_keys_and_rule_on_two_visible_lines() -> void:
+func test_fixed_reaction_help_keeps_keys_and_rule_on_one_compact_line() -> void:
 	var tree := Engine.get_main_loop() as SceneTree
 	var previous_theme := tree.root.theme
-	tree.root.theme = UITheme.build(2.0)
+	tree.root.theme = UITheme.build()
 	var scene: BattleScene = load(SceneRouter.BATTLE).instantiate()
 	scene.embedded = true
 	tree.root.add_child(scene)
@@ -143,8 +142,8 @@ func test_enlarged_reaction_help_keeps_keys_and_rule_on_two_visible_lines() -> v
 		scene._set_help(scene._reaction_help(spec))
 		scene._apply_layout()
 		await tree.process_frame
-		assert_eq(scene._help.get_line_count(), 2)
-		assert_eq(scene._help.get_visible_line_count(), 2)
+		assert_eq(scene._help.get_line_count(), 1)
+		assert_eq(scene._help.get_visible_line_count(), 1)
 		assert_true(scene._help.text.contains(InputBindings.prompt(InputBindings.PARRY)))
 		assert_true(scene._help.text.contains("First allowed press locks"))
 		assert_lte(scene._help.get_global_rect().end.y, 720)

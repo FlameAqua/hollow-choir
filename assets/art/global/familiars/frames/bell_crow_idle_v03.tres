@@ -1,0 +1,64 @@
+[gd_resource type="SpriteFrames" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/art/global/familiars/sprites/bell_crow_idle_v03.png" id="1_f7hju"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_i8chv"]
+atlas = ExtResource("1_f7hju")
+region = Rect2(128, 0, 64, 64)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_s5yes"]
+atlas = ExtResource("1_f7hju")
+region = Rect2(192, 0, 64, 64)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ovvqx"]
+atlas = ExtResource("1_f7hju")
+region = Rect2(256, 0, 64, 64)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_32jvs"]
+atlas = ExtResource("1_f7hju")
+region = Rect2(320, 0, 64, 64)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_uedhc"]
+atlas = ExtResource("1_f7hju")
+region = Rect2(0, 0, 64, 64)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1n4rx"]
+atlas = ExtResource("1_f7hju")
+region = Rect2(64, 0, 64, 64)
+filter_clip = true
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_i8chv")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_s5yes")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ovvqx")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_32jvs")
+}],
+"loop": 0,
+"name": &"fidget",
+"speed": 4.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_uedhc")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1n4rx")
+}],
+"loop": 1,
+"name": &"idle",
+"speed": 0.8
+}]

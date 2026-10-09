@@ -62,12 +62,12 @@ func _channel(unit: BattleUnit) -> bool:
 
 func _draw() -> void:
 	_chips.clear()
-	draw_rect(Rect2(Vector2.ZERO, size), UITheme.PANEL)
+	UICraft.draw(self, "header", Rect2(Vector2.ZERO, size))
 	if engine == null:
 		return
 	var side := size.y - 8
-	var x := 8.0
-	CombatIcons.paint(self, "turn_order", Rect2(x, 8, side - 8, side - 8))
+	var x := 22.0
+	CombatIcons.paint(self, "turn_order", Rect2(x, 12, side - 16, side - 16))
 	x += side + 12
 	for uid in _upcoming():
 		_chip(uid, Rect2(x, 4, side, side), false)
@@ -93,9 +93,9 @@ func _chip(uid: int, rect: Rect2, forecast: bool) -> void:
 	if unit == null:
 		return
 	var current := uid == acting_uid and not forecast
-	draw_rect(rect, UITheme.BG)
-	draw_rect(rect, UITheme.ACCENT if current else UITheme.DANGER if unit.is_enemy() else UITheme.HEART, false, 2 if current else 1)
-	CombatIcons.portrait(self, unit, rect.grow(-3), forecast, use_art)
+	var frame_tint := Color(1.3, 1.18, .85) if current else Color(1, .68, .68) if unit.is_enemy() else Color(.85, 1, .9)
+	draw_texture_rect(UICraft.texture("tooltip"), rect, false, frame_tint)
+	CombatIcons.portrait(self, unit, rect.grow(-5), forecast, use_art)
 	if current:
 		draw_rect(Rect2(rect.position.x, rect.end.y - 3, rect.size.x, 3), UITheme.ACCENT)
 	if _broken(unit):
@@ -104,9 +104,7 @@ func _chip(uid: int, rect: Rect2, forecast: bool) -> void:
 		CombatIcons.paint(self, "channel", Rect2(rect.end - Vector2(16, 16), Vector2(16, 16)))
 	if unit.is_enemy():
 		var number := engine.get_state().enemies(false).find(unit) + 1
-		var small := UITheme.secondary_size()
-		draw_rect(Rect2(rect.position + Vector2(1, 1), Vector2(small * 0.7 + 4, small + 3)), Color(UITheme.BG, 0.9))
-		draw_string(get_theme_default_font(), rect.position + Vector2(2, small + 1), str(number), HORIZONTAL_ALIGNMENT_LEFT, -1, small, UITheme.TEXT)
+		UICraft.number(self, Rect2(rect.position + Vector2(1, 1), Vector2(20, 20)), number, UITheme.TEXT)
 	_chips.append({"rect": rect, "uid": uid, "forecast": forecast})
 
 func _get_tooltip(point: Vector2) -> String:

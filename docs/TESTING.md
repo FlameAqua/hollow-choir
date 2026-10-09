@@ -3,6 +3,11 @@
 Owner: Claude (automated tests, simulation tooling). Acceptance criteria: the Director
 (`DESIGN_DOCUMENT.md`, "Acceptance criteria for the combat prototype").
 
+**Current display policy:** [fixed presets](design/DISPLAY_PRESETS.md). Qualify the canonical
+1280×720 layout and supported output presets; no independent font-size or arbitrary-width matrix.
+Older enlarged-text regressions/captures below record the V0.3 baseline and do not describe a current
+player setting. Capture tooling uses `--size=<supported preset>`; `--scale` is retired.
+
 Everything runs on stock **Godot 4.7.2** with no addons. Examples use `godot`; on Windows substitute the
 executable, e.g. `C:\Users\Adrian\Code\Games\Godot_v4.7.2-stable_win64.exe` (the `_console.exe`
 variant prints to the terminal).
@@ -49,6 +54,18 @@ It takes the same Godot arguments (`--path` is added). Choose the executable wit
 or the `GODOT` variable. Use `--home DIR` to reuse a home, or `--keep-home` to inspect one. The test
 runner and capture tool print `User data: …` first and stop with exit code 1 if the launcher asked
 for isolation that did not take effect. CI runners start clean, so CI calls Godot directly.
+The home also holds the editor/resource cache (`LOCALAPPDATA` / `XDG_CACHE_HOME` → `<home>/cache`):
+editor runs no longer write thumbnails or class-doc caches into the developer's own
+`%LOCALAPPDATA%\Godot`, and the guard refuses a run whose cache escaped the home.
+
+**Windows “Safe save failed” (editor only).** Godot's editor writes files through a temporary file
+and an atomic replace. When the replace cannot complete within its retry window (read-only or
+locked target, antivirus, a sandbox that denies replacing files) it prints this diagnostic from
+`file_access_windows.cpp`, keeps the previous file and leaves `<file><digits>.tmp` beside it.
+Imports still complete. Headless `--import` writes no tracked project file; a windowed editor
+session re-saves `project.godot`, which is kept in the editor's canonical form so its bytes do not
+change. Do not suppress the diagnostic by disabling safe save or security settings; find the
+stray `.tmp` to identify the file.
 
 ### Rendered captures
 
@@ -137,6 +154,102 @@ The `audio-lab` capture selects the supplied intense example and seeks to 45 sec
 `--preview-ending` shows the real countdown; `--audio-controls` scrolls the playhead into view.
 These fixtures do not establish audible transition quality.
 
+### V0.4 world additions
+
+`world/test_world_session.gd` guards the save boundaries: old slots without a `world` section keep
+research/mastery/loadout and start at the square, invalid anchors and unknown IDs recover without
+inventing unlocks, one entry is written before launch, victory commits once (duplicate token is a
+no-op), a failed write publishes nothing and can be retried, retry rebuilds the identical setup and
+battle fingerprint, quitting mid-battle resumes at the approach, and the bell/latch flags stay
+independent. `world/test_world_rules.gd` covers derived objectives, knowledge-filtered encounter
+cards and maps, latch sides, four-facing stability, separate world bindings and the area scene
+contract (layers, landmark points, anchors outside triggers/walls/engage radii, closed boundary).
+`world/test_world_host.gd` drives the real host and scenes: feet collision, walk-follows-displacement,
+portal round trip without bounce, unarmed triggers, modal/held-input gates, focus-loss pause,
+Cancel/Engage/Leave battle, victory/failed-write/defeat-retry/return paths, far-side latch, home
+consequence, bench → next entry, Field Guide/Settings return to the paused world and map leak checks.
+World captures (`tools/capture_world.gd`, states listed in its header) are fixtures: they seed an
+in-memory world state and open modals directly. Rebuild the editable area scenes only deliberately:
+`tools/build_world_areas.gd` refuses to overwrite authored scenes without `--force`.
+
+Director integration adds `world/test_world_presentation.gd`: modal action bounds/focus containment,
+every owned starter weapon's complete text, pointer/Confirm map selection without saving or travel,
+focus scrolling to the last charted place, physical traversal of the outside loop to the still-closed
+far-side latch without an encounter card, integer art/camera alignment with continuous feet, and
+the restored town map description. Run `--filter=world` for all world suites.
+`world/test_world_journey.gd` walks the real feet body along every authored link in both dressed
+areas (bench, Bellkeeper, gate, main approach past the patrol card, guard card and committed
+victory, bell, outside loop, overlook, far side, opened short return, home) and checks that every
+landmark and link reached the last write. `test_bench_choice_survives_a_failed_save_and_retry`
+guards the save-failure retry path. `unit/test_qa_isolation.gd` and `tests/test_qa_godot.py` cover
+the launcher's user-data/cache isolation; the guard test deliberately prints one
+`QA isolation failed: cache is …` line while proving the rejection (expected, not an error).
+The expanded world capture tool includes both encounter cards, all bench weapons, full/restored
+maps, facade/gate views and synthetic victory/defeat/save-failure cards; see its header.
+[Director evidence](reports/V0_4_DIRECTOR_ACCEPTANCE.md) separates these fixtures from human acceptance.
+
+### V0.4 third playtest additions (Claude)
+
+`world/test_world_collision.gd` checks authored prop footprints against the visible art with the
+real feet body. Ground masks come from each prop's own sprites (willow trunk/root flare, bell
+footings and roots, listening stones, lamp plinth, latch gateposts). Hollow walks at every prop
+from sixteen directions: the feet box may touch at most 8 base pixels on the way in or at rest, and
+an approach stopped by the prop must end within 6 px of the art (no invisible wall). It also checks
+that all 21 willows use `scenes/world/footprints/willow_roots.tres`, that canopy ground stays
+walkable and behind-the-trunk stops stay Y-sorted behind, that the open gateposts keep the short
+return passable while the closed gate bars it, and that every safe anchor fits Hollow in both
+states. Mutation check: against the pre-pass scenes, four of its six tests fail on the reported
+defects. `world/test_world_reset.gd` covers Menu → Reset journey: one write, journey-only reset,
+kept research/mastery/loadout/inventory/statistics/settings, failed write and Retry, Cancel as
+default and Back, repeated presses, token continuity across the reset, fresh-session reload and a
+real write to a throwaway slot only. `ui/test_target_switching.gd` drives real clicks and keys
+through recipient review: enemy → enemy, enemy → ally item, ally → one-recipient ally action,
+ally → enemy item, → self (submits), unavailable rows, the pending action itself, hover and Details,
+Back, device-specific help, a fallen remembered recipient, single submission and nothing spent
+before it, and focus returning from the battle log. `ui/test_inspection_dock_tour.gd` follows the
+pointer from a potion to an enemy, its intent and the empty stage, and scrolls an overflowing card
+both ways from its source and inside the dock.
+
+Collision evidence: `tools/capture_collision.gd` renders native 4x close-ups with debug collision
+shapes after walking the real feet body at a prop (`--shot=<name>`; shots in its runner). Run it
+against an older tree with `--path` for before/after pairs. `tools/probe_willow_footprint.gd` now
+reports polygon footprints and writes to `--out` (default: the third-pass report folder).
+`capture_battle.gd --state=target --action=<id> --then=<id>` captures an action switch during
+review; `capture_world.gd --state=reset` captures the Reset journey confirmation.
+
+Exit-time "ObjectDB instances leaked / resources still in use" in focused runs and captures came
+from audio, not game objects: a battle-music deck or cue voice still mixing when the process quit
+keeps its stream playback referenced by the audio server. The test runner and capture tools now call
+`AudioManager.silence()` and let the mixer drop those playbacks before quitting. A deliberately
+orphaned node is still reported, so real ownership leaks remain visible.
+
+### V0.4 fifth playtest additions (Claude)
+
+`ui/test_battle_pause.gd` covers Adrian's Pause rule (9 October 2026). Pause opens during
+recipient review and returns to the same review, and the reviewed action keeps its selected frame.
+Paused playback, announcements and floating text stand still, and Resume continues at once. While a
+command or reaction window is open (preparation beat included), the Pause key, controller Start,
+the toolbar button and a host's Setup are all ignored, not queued, and the window's clock never
+stops. Tab cannot reopen the log under Pause or Help. A decided or host-owned outcome cannot be
+paused into a retreat, and a frozen battle opens no new request. Its live-window fixtures simulate
+focus returning, because a real desktop focus change during a rendered run holds the preparation
+beat by design.
+`ui/test_fifth_engineering.gd` covers:
+- a pin surviving recipient review and target hover until a boundary;
+- field help naming the player's Details key/mode, conditional weak-point and engine Focus sources;
+- announcement fades at Combat Speed;
+- an enemy turn banner showing its intent-badge number (Thornhound Pack);
+- the eight-slot grid with empty, inert frames for unused slots;
+- every shipped action name fitting its grid cell (`KNOWN_CLIPPED_NAMES` lists the measured names
+  awaiting a layout fix).
+
+`unit/test_action_capacity.gd` holds every protagonist × weapon × most action-granting armor and
+every companion to `ActionMenu.CAPACITY`. `unit/test_app_icon.gd` checks that the project uses the
+v02 icon (built by `tools/prepare_icon_alpha.gd`): transparent outside the frame in the PNG and all
+seven ICO sizes, opaque inside, colours identical to v01. `world/test_world_host.gd` adds Pause
+being ignored in a world battle's reaction window followed by Leave battle, and the town → Reedway
+→ battle → return music cues.
+
 ## 3. Balance simulation (CLI)
 
 ```sh
@@ -180,6 +293,14 @@ shake off, Damage numbers off, Analysis details *Always*, rebind Brace/Evade/Par
 reaction prompt shows the new keys, Pause before reactions on.
 
 ## 6. Continuous integration
+
+Second V0.4 playtest material/standing-art integrity: run
+`python tools/qa_godot.py --headless --script res://tools/validate_material_polish.gd` after import.
+This complements `tools/validate_world_art.gd` and the full suite. It checks tracked bitmap imports,
+socket transparency, authored idle/crow frame counts and native foot baselines; it does not certify
+human art or listening acceptance. The read-only `tools/probe_willow_footprint.gd` records willow
+footprint evidence; the third-pass collision work and its tests are described above and in
+`docs/reports/V0_4_THIRD_PLAYTEST_ENGINEERING_REVIEW.md`.
 
 `.github/workflows/ci.yml` downloads Godot 4.7.2 (Linux), imports the project, compiles every script,
 runs the full suite and a short simulation smoke run on every push and pull request.

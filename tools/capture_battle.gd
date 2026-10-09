@@ -8,7 +8,8 @@ extends SceneTree
 ##
 ## States:
 ##   planning           first player turn          details    planning with Details expanded
-##   target             recipient review (--action=<id>, default the first legal targeted action)
+##   target             recipient review (--action=<id>, default the first legal targeted action;
+##                      --then=<id> then chooses that action or item during the review)
 ##   prepare-command    actual attack meter inside the 400 ms preparation beat, held for the shot
 ##   prepare-reaction   actual reaction ring/cards inside the preparation beat, held for the shot
 ##   command            a running action command   reaction   a reaction just before impact
@@ -24,7 +25,9 @@ extends SceneTree
 ##   audio-lab          intense mix at 45s; --preview-ending or --audio-controls for scrolled controls
 ## Planning options: --inspect-action=<id> hovers that action or supply button; --hover=enemy|
 ## intent|action|supply hovers a source; --expanded holds Details (Alt).
-## Common options: --size=1280x720, --scale=1.0|1.5|2.0, --encounter=<id>, --loadout=<id>,
+## --dwell=1.2 holds the pointer before capture to check delayed native tooltips.
+## --actor=<unit id> commits Guard until that actor's planning turn (capture fixture only).
+## Common options: --size=1280x720 (supported game presets only), --encounter=<id>, --loadout=<id>,
 ## --enemies=thornhound,thornhound,… (custom encounter, optional --condition=<id>), --reduced
 ## (reduce motion + flashing, no shake), --assist=ASSISTED, --knowledge=UNDERSTOOD, --seed=N,
 ## --no-art (sprites and backdrop off), --out=res://… or user://… (PNG).

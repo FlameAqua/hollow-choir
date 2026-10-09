@@ -78,7 +78,6 @@ func test_settings_persist_and_resolve_assist_overrides() -> void:
 	settings.tactical_difficulty = Enums.TacticalDifficulty.TACTICIAN
 	settings.execution_assist = Enums.ExecutionAssist.GENEROUS
 	settings.auto_brace = GameSettings.Toggle.ON
-	settings.text_scale = 1.3
 	settings.bindings[InputBindings.PARRY] = PackedStringArray(["key:K"])
 	var config := ConfigFile.new()
 	settings.write_to(config)
@@ -86,7 +85,6 @@ func test_settings_persist_and_resolve_assist_overrides() -> void:
 	restored.read_from(config)
 	assert_eq(restored.tactical_difficulty, Enums.TacticalDifficulty.TACTICIAN)
 	assert_eq(restored.execution_assist, Enums.ExecutionAssist.GENEROUS)
-	assert_almost_eq(restored.text_scale, 1.3)
 	assert_eq(restored.bindings[InputBindings.PARRY], PackedStringArray(["key:K"]))
 	var preset := ExecutionAssistProfile.new()
 	var resolved := restored.resolve_assist(preset)
@@ -100,8 +98,16 @@ func test_settings_clamp_bad_values() -> void:
 	config.set_value("display", "combat_speed", -3.0)
 	var settings := GameSettings.new()
 	settings.read_from(config)
-	assert_almost_eq(settings.text_scale, 2.0, 0.001, "200% is the largest text size")
 	assert_almost_eq(settings.combat_speed, 0.5)
+	settings.write_to(config)
+	assert_false(config.has_section_key("display", "text_scale"), "legacy font preference is ignored and retired")
+
+
+func test_windowed_size_falls_back_to_a_supported_preset_not_an_arbitrary_rectangle() -> void:
+	assert_eq(GameSettings.windowed_preset(Vector2i(1920, 1080), Vector2i(1896, 984)), Vector2i(1600, 900))
+	assert_eq(GameSettings.windowed_preset(Vector2i(1280, 720), Vector2i(2536, 1384)), Vector2i(1280, 720))
+	assert_eq(GameSettings.windowed_preset(Vector2i(1280, 720), Vector2i(1024, 712)), Vector2i.ZERO,
+		"if no window preset fits, use fullscreen with the same fixed game layout")
 
 
 func test_settings_load_absent_and_unknown_details_modes_safely() -> void:

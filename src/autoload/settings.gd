@@ -35,8 +35,8 @@ func save_settings() -> Error:
 ## Sets one field, saves, re-applies and notifies listeners.
 func set_value(field: String, value: Variant) -> void:
 	data.set(field, value)
-	save_settings()
 	apply()
+	save_settings()
 	EventBus.settings_changed.emit()
 
 
@@ -59,7 +59,7 @@ func apply() -> void:
 	AudioManager.set_bus_volume(AudioManager.BUS_MASTER, data.master_volume)
 	AudioManager.set_bus_volume(AudioManager.BUS_MUSIC, data.music_volume)
 	AudioManager.set_bus_volume(AudioManager.BUS_SFX, data.sfx_volume)
-	get_tree().root.theme = UITheme.build(data.text_scale)
+	get_tree().root.theme = UITheme.build()
 
 
 func difficulty_profile() -> TacticalDifficultyProfile:
@@ -71,8 +71,20 @@ func assist_profile() -> ExecutionAssistProfile:
 
 
 func _apply_window() -> void:
+	var window := get_tree().root
+	window.unresizable = true
+	window.content_scale_size = GameSettings.BASE_RESOLUTION
+	window.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
+	window.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
 	if DisplayServer.get_name() == "headless":
 		return
+	var usable := DisplayServer.screen_get_usable_rect(DisplayServer.window_get_current_screen())
+	if data.window_mode == GameSettings.WindowMode.WINDOWED:
+		var preset := GameSettings.windowed_preset(data.window_resolution, usable.size - Vector2i(24, 56))
+		if preset == Vector2i.ZERO:
+			data.window_mode = GameSettings.WindowMode.BORDERLESS
+		else:
+			data.window_resolution = preset
 	if _applied_resolution == data.window_resolution and _applied_window_mode == int(data.window_mode):
 		return
 	_applied_resolution = data.window_resolution
@@ -85,8 +97,5 @@ func _apply_window() -> void:
 		_:
 			if DisplayServer.window_get_mode() != DisplayServer.WINDOW_MODE_WINDOWED:
 				DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
-			# Keep the whole decorated window inside the current monitor's work area.
-			var usable := DisplayServer.screen_get_usable_rect(DisplayServer.window_get_current_screen())
-			var fitted := Vector2i(mini(data.window_resolution.x, usable.size.x - 24), mini(data.window_resolution.y, usable.size.y - 56))
-			DisplayServer.window_set_size(fitted)
-			DisplayServer.window_set_position(usable.position + (usable.size - fitted) / 2)
+			DisplayServer.window_set_size(data.window_resolution)
+			DisplayServer.window_set_position(usable.position + (usable.size - data.window_resolution) / 2)

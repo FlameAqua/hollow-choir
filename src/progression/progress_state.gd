@@ -4,8 +4,9 @@ extends RefCounted
 ## familiars, quests, regional Pressure, regional events, world-state choices, bestiary, home
 ## upgrades). Settings are stored separately (DECISION_LOG D-009).
 ##
-## M1 uses bestiary, mastery, loadout and stats for real. The remaining sections are versioned
-## placeholders so later milestones extend the format instead of breaking it.
+## M1 uses bestiary, mastery, loadout and stats for real; V0.4 adds the optional `world` section.
+## The remaining sections are versioned placeholders so later milestones extend the format
+## instead of breaking it.
 
 ## Loadout as content ids (resolved through the Database).
 var loadout_weapon: StringName = &"pilgrims_edge"
@@ -39,6 +40,8 @@ var world_choices: Dictionary[StringName, String] = {}
 var home_upgrades: Dictionary[StringName, int] = {&"forge": 0, &"stillroom": 0, &"observatory": 0}
 var battles_won: int = 0
 var battles_lost: int = 0
+## V0.4 exploration (optional `world` section; absent in older saves -> default square on entry).
+var world := WorldState.new()
 
 
 func apply_battle_result(result: BattleResult, research: ResearchConfig) -> void:
@@ -76,6 +79,7 @@ func to_dict() -> Dictionary:
 		"world_choices": _dict_to_strings(world_choices),
 		"home_upgrades": _dict_to_strings(home_upgrades),
 		"stats": {"battles_won": battles_won, "battles_lost": battles_lost},
+		"world": world.to_dict(),
 	}
 
 
@@ -120,6 +124,7 @@ static func from_dict(data: Dictionary) -> ProgressState:
 	var stats: Dictionary = data.get("stats", {})
 	state.battles_won = int(stats.get("battles_won", 0))
 	state.battles_lost = int(stats.get("battles_lost", 0))
+	state.world = WorldState.from_dict(data.get("world"))
 	return state
 
 

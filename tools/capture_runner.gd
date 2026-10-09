@@ -38,9 +38,11 @@ func _run() -> void:
 	await get_tree().process_frame
 	var dims := String(_args.get("size", "1280x720")).split("x")
 	var window_size := Vector2i(int(dims[0]), int(dims[1]))
-	DisplayServer.window_set_size(window_size)
-	get_tree().root.size = window_size
-	Settings.data.text_scale = float(_args.get("scale", "1.0"))
+	if not GameSettings.RESOLUTIONS.has(window_size):
+		push_error("Capture size must be a supported game resolution preset")
+		get_tree().quit(1)
+		return
+	Settings.data.window_resolution = window_size
 	Settings.data.advanced_tooltips = GameSettings.TooltipMode.HOLD
 	if _args.has("reduced"):
 		Settings.data.reduce_motion = true
@@ -50,8 +52,14 @@ func _run() -> void:
 	await _frames(3)
 	var state: String = _args.get("state", "planning")
 	match state:
-		"practice", "lab":
+		"practice", "practice-dropdown", "lab":
 			await _capture_sandbox(state)
+		"title":
+			var menu := load(SceneRouter.MAIN_MENU).instantiate() as MainMenu
+			get_tree().root.add_child(menu)
+			await _frames(10)
+			print("TITLE panel=", menu._menu_panel.get_global_rect(), " minimum=", menu._menu_panel.get_combined_minimum_size(), " column=", menu._column.get_combined_minimum_size())
+			_save()
 		"settings":
 			await _capture_settings()
 		"field-guide", "field-guide-empty", "weapon-practice":
@@ -64,6 +72,10 @@ func _run() -> void:
 			await _capture_opening(state == "opening-condition")
 		_:
 			await _capture_battle(state)
+	# Release every cue voice and music deck before shutdown so the audio server drops their playbacks.
+	AudioManager.silence()
+	await _frames(3)
+	await get_tree().create_timer(0.1, true, false, true).timeout
 	get_tree().quit()
 
 
@@ -115,6 +127,9 @@ func _capture_sandbox(state: String) -> void:
 	await _frames(4)
 	sandbox.show_view(CombatSandbox.View.LAB if state == "lab" else CombatSandbox.View.PRACTICE)
 	await _frames(6)
+	if state == "practice-dropdown":
+		sandbox._practice_encounter.show_popup()
+		await _frames(6)
 	_save()
 
 
@@ -186,15 +201,44 @@ func _capture_battle(state: String) -> void:
 	Engine.time_scale = 8.0
 	scene.start(_make_launch(state))
 	match state:
-		"planning", "details", "target":
+		"planning", "details", "target", "log", "reaction-help":
 			await _wait_input(scene, "planning")
+			# Capture-only navigation to a requested actor: consume Guard through real requests.
+			if _args.has("actor"):
+				for turn in 8:
+					if scene._picker.acting_unit().definition.id == StringName(_args.actor):
+						break
+					_choose(scene, "guard")
+					await _frames(3)
+					await _wait_input(scene, "planning")
 			Engine.time_scale = 1.0
 			await _frames(20)
 			if state == "details":
 				scene._set_details(true)
 			elif state == "target":
 				_choose(scene, String(_args.get("action", "")))
+				if _args.has("then"):
+					# Third playtest: choose another action while the first recipient is under review.
+					await _frames(6)
+					_choose(scene, String(_args.then))
 			await _frames(12)
+			if state == "log":
+				for i in 50:
+					scene._log.append("Round %d · The Bell Crow keeps watch." % (i + 1))
+				scene._log.show()
+				await _frames(4)
+				var point := scene._log._scroll.get_global_rect().get_center()
+				var wheel := InputEventMouseButton.new()
+				wheel.position = point
+				wheel.pressed = true
+				wheel.button_index = MOUSE_BUTTON_WHEEL_UP
+				get_viewport().push_input(wheel, true)
+				await _frames(3)
+				print("LOG history offset ", scene._log._scroll.scroll_vertical)
+			elif state == "reaction-help":
+				scene._open_pause()
+				scene._open_combat_help()
+				await _frames(8)
 			if _args.has("inspect-action"):
 				await _inspect_action(scene, StringName(_args["inspect-action"]))
 			elif _args.has("hover"):
@@ -235,6 +279,16 @@ func _capture_battle(state: String) -> void:
 			await _wait_input(scene, "planning")
 			Engine.time_scale = 1.0
 			await _hold_condition_card(scene, state == "condition-flight")
+	if _args.has("dwell"):
+		await get_tree().create_timer(float(_args.dwell)).timeout
+	if _args.has("broken"):
+		# Presentation-only fixture for the status placement, never a fabricated combat result.
+		var uid := scene.engine.get_state().enemies()[0].uid
+		scene._events.ledger.unit(uid).broken = true
+		scene._rail.slot(uid).show_state(IntentSlot.State.BROKEN)
+		scene._battlefield.view(uid).queue_redraw()
+		scene._timeline.queue_redraw()
+		await _frames(3)
 	_save()
 
 
@@ -325,8 +379,8 @@ func _inspect_action(scene: BattleScene, id: StringName) -> void:
 		var option: ActionOption = button.get_meta(&"option")
 		if option.action.id != id:
 			continue
-		var list: ScrollContainer = scene._menu._action_scroll if scene._menu._action_scroll.is_ancestor_of(button) else scene._menu._supply_scroll
-		list.ensure_control_visible(button)
+		if scene._menu._supply_scroll.is_ancestor_of(button):
+			scene._menu._supply_scroll.ensure_control_visible(button)
 		await _frames(3)
 		_move(button.get_global_rect().get_center())
 		await _frames(12)

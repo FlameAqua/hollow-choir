@@ -1,7 +1,7 @@
 class_name UITheme
 extends RefCounted
-## Builds the project Theme in code so text scaling (accessibility) is one parameter and every
-## screen shares one palette (M1.1 "Visual and layout contract"). Enemy red denotes allegiance/threat, not morality.
+## Builds the fixed 1280x720 game theme. Resolution presets scale the complete canvas; there is no
+## player font-size preference. Enemy red denotes allegiance/threat, not morality.
 ## Selection and Focus use bone-gold; symbols and inspection duplicate color meaning.
 
 const BG := Color("101918")
@@ -28,8 +28,8 @@ const WET := Color("9ad7e0")
 ## Cover, targets and other neutral information.
 const INFO := Color("a9c7d8")
 
-## Departure Mono uses its native 11 px grid at 22/33/44 px for 100/150/200%. Nothing essential is
-## smaller than SECONDARY_FONT_SIZE.
+## Departure Mono uses its native 11 px grid: 22 px body on the fixed design canvas. Resolution
+## scaling gives 33 px at 1080p and 44 px at 1440p. Nothing essential is smaller than this body size.
 const BASE_FONT_SIZE := 22
 const SECONDARY_FONT_SIZE := 22
 ## Minimum height of an interactive control at 100% text.
@@ -59,19 +59,19 @@ static func fit_text(text: String, width: float, font: Font, font_size: int) -> 
 	return ""
 
 
-static func build(text_scale: float = 1.0) -> Theme:
+static func build() -> Theme:
 	var theme := Theme.new()
-	var size := roundi(BASE_FONT_SIZE * text_scale)
+	var size := BASE_FONT_SIZE
 	theme.default_font_size = size
 	theme.default_font = PIXEL_FONT
-	var pad := 8.0 * text_scale
+	var pad := 8.0
 
-	var panel := box(PANEL, BORDER, 1, 4, 10)
+	var panel := UICraft.panel("cloth", 12, 10)
 	theme.set_stylebox("panel", "Panel", panel)
 	theme.set_stylebox("panel", "PanelContainer", panel)
-	theme.set_stylebox("panel", "TooltipPanel", box(PANEL_LIGHT, ACCENT, 1, 3, 8))
+	theme.set_stylebox("panel", "TooltipPanel", UICraft.panel("tooltip", 12, 10))
 	theme.set_color("font_color", "TooltipLabel", TEXT)
-	theme.set_font_size("font_size", "TooltipLabel", roundi(SECONDARY_FONT_SIZE * text_scale))
+	theme.set_font_size("font_size", "TooltipLabel", SECONDARY_FONT_SIZE)
 
 	theme.set_color("font_color", "Label", TEXT)
 	theme.set_color("default_color", "RichTextLabel", TEXT)
@@ -79,11 +79,11 @@ static func build(text_scale: float = 1.0) -> Theme:
 		theme.set_font_size(font, "RichTextLabel", size)
 
 	for type in ["Button", "OptionButton", "MenuButton", "CheckBox", "CheckButton"]:
-		theme.set_stylebox("normal", type, box(PANEL_LIGHT, BORDER, 1, 3, 10, pad))
-		theme.set_stylebox("hover", type, box(PANEL_LIGHT.lightened(0.06), ACCENT.darkened(0.25), 1, 3, 10, pad))
-		theme.set_stylebox("pressed", type, box(PANEL.darkened(0.2), ACCENT, 1, 3, 10, pad))
-		theme.set_stylebox("focus", type, box(Color(0, 0, 0, 0), FOCUS, 2, 3, 10, pad))
-		theme.set_stylebox("disabled", type, box(PANEL, BORDER.darkened(0.35), 1, 3, 10, pad))
+		theme.set_stylebox("normal", type, UICraft.panel("technique", 12, pad))
+		theme.set_stylebox("hover", type, UICraft.panel("selected", 12, pad))
+		theme.set_stylebox("pressed", type, UICraft.panel("selected", 12, pad, Color(0.8, 0.8, 0.8)))
+		theme.set_stylebox("focus", type, UICraft.panel("selected", 12, pad))
+		theme.set_stylebox("disabled", type, UICraft.panel("technique", 12, pad, Color(0.55, 0.55, 0.55)))
 		theme.set_color("font_color", type, TEXT)
 		theme.set_color("font_hover_color", type, ACCENT.lightened(0.2))
 		theme.set_color("font_pressed_color", type, ACCENT)
@@ -93,25 +93,46 @@ static func build(text_scale: float = 1.0) -> Theme:
 		theme.set_stylebox("normal", type, box(Color(0, 0, 0, 0), Color(0, 0, 0, 0), 0, 3, 6, pad))
 		theme.set_stylebox("hover", type, box(PANEL_LIGHT, Color(0, 0, 0, 0), 0, 3, 6, pad))
 
-	theme.set_stylebox("normal", "LineEdit", box(BG, BORDER, 1, 3, 8, pad))
-	theme.set_stylebox("focus", "LineEdit", box(BG, FOCUS, 2, 3, 8, pad))
+	theme.set_stylebox("normal", "LineEdit", UICraft.panel("inspection", 12, pad))
+	theme.set_stylebox("focus", "LineEdit", UICraft.panel("selected", 12, pad))
 	theme.set_color("font_color", "LineEdit", TEXT)
 	theme.set_stylebox("background", "ProgressBar", box(BG, BORDER, 1, 2, 0))
 	theme.set_stylebox("fill", "ProgressBar", box(BLOOM, Color(0, 0, 0, 0), 0, 2, 0))
-	theme.set_stylebox("slider", "HSlider", box(BG, BORDER, 1, 2, 2))
-	theme.set_stylebox("grabber_area", "HSlider", box(ACCENT.darkened(0.3), Color(0, 0, 0, 0), 0, 2, 2))
-	theme.set_stylebox("grabber_area_highlight", "HSlider", box(ACCENT, Color(0, 0, 0, 0), 0, 2, 2))
-	theme.set_stylebox("panel", "PopupMenu", box(PANEL_LIGHT, BORDER, 1, 3, 6))
+	theme.set_stylebox("slider", "HSlider", UICraft.panel("slider_track", 8, 8))
+	theme.set_stylebox("grabber_area", "HSlider", UICraft.panel("slider_fill", 8, 8))
+	theme.set_stylebox("grabber_area_highlight", "HSlider", UICraft.panel("slider_fill", 8, 8))
+	for icon in ["grabber", "grabber_highlight", "grabber_disabled"]:
+		theme.set_icon(icon, "HSlider", UICraft.texture("slider_knob"))
+	theme.set_stylebox("panel", "PopupMenu", UICraft.panel("inspection", 12, 10))
 	theme.set_color("font_color", "PopupMenu", TEXT)
 	theme.set_color("font_hover_color", "PopupMenu", ACCENT)
-	theme.set_stylebox("hover", "PopupMenu", box(PANEL, ACCENT.darkened(0.4), 1, 2, 4))
+	theme.set_stylebox("hover", "PopupMenu", UICraft.panel("selected", 12, 6))
 	theme.set_font_size("font_size", "PopupMenu", size)
-	theme.set_constant("separation", "VBoxContainer", roundi(6 * text_scale))
-	theme.set_constant("separation", "HBoxContainer", roundi(6 * text_scale))
-	theme.set_stylebox("panel", "TabContainer", panel)
-	theme.set_stylebox("tab_selected", "TabContainer", box(PANEL_LIGHT, ACCENT, 1, 3, 10, pad))
-	theme.set_stylebox("tab_unselected", "TabContainer", box(PANEL, BORDER, 1, 3, 10, pad))
-	theme.set_stylebox("tab_hovered", "TabContainer", box(PANEL_LIGHT, BORDER, 1, 3, 10, pad))
+	# A popup is a separate Window; explicit font/filter settings avoid its built-in UI font.
+	theme.set_font("font", "PopupMenu", PIXEL_FONT)
+	theme.set_font("font", "OptionButton", PIXEL_FONT)
+	theme.set_icon("arrow", "OptionButton", UICraft.texture("dropdown"))
+	theme.set_constant("arrow_margin", "OptionButton", 12)
+	var empty_icon := ImageTexture.create_from_image(Image.create_empty(22, 22, false, Image.FORMAT_RGBA8))
+	for icon in ["checked", "checked_disabled", "radio_checked", "radio_checked_disabled"]:
+		theme.set_icon(icon, "PopupMenu", UICraft.texture("check"))
+	for icon in ["unchecked", "unchecked_disabled", "radio_unchecked", "radio_unchecked_disabled"]:
+		theme.set_icon(icon, "PopupMenu", empty_icon)
+	for type in ["VScrollBar", "HScrollBar"]:
+		var prefix := "h_" if type == "HScrollBar" else ""
+		for style in ["scroll", "scroll_focus"]:
+			theme.set_stylebox(style, type, UICraft.scrollbar(prefix + "scroll_track"))
+		for style in ["grabber", "grabber_highlight", "grabber_pressed"]:
+			theme.set_stylebox(style, type, UICraft.scrollbar(prefix + "scroll_thumb", Color(1.18, 1.18, 1.1) if style != "grabber" else Color.WHITE))
+		# Horizontal bars are not used in player flows; remove their default engine arrows.
+		for icon in ["increment", "increment_highlight", "increment_pressed", "decrement", "decrement_highlight", "decrement_pressed"]:
+			theme.set_icon(icon, type, empty_icon if type == "HScrollBar" else UICraft.texture("scroll_up" if icon.begins_with("decrement") else "dropdown"))
+	theme.set_constant("separation", "VBoxContainer", 6)
+	theme.set_constant("separation", "HBoxContainer", 6)
+	theme.set_stylebox("panel", "TabContainer", UICraft.panel("cloth", 24, 24))
+	theme.set_stylebox("tab_selected", "TabContainer", UICraft.panel("selected", 14, pad))
+	theme.set_stylebox("tab_unselected", "TabContainer", UICraft.panel("technique", 14, pad))
+	theme.set_stylebox("tab_hovered", "TabContainer", UICraft.panel("selected", 14, pad))
 	theme.set_color("font_selected_color", "TabContainer", ACCENT)
 	theme.set_color("font_unselected_color", "TabContainer", TEXT_DIM)
 	theme.set_stylebox("panel", "ScrollContainer", StyleBoxEmpty.new())
@@ -135,7 +156,7 @@ static func box(bg: Color, border: Color, border_width: int, radius: int, margin
 	return style
 
 
-## Current text-size setting (1.0 = 100%), read from the applied theme.
+## Theme ratio for legacy internal helpers/test fixtures. The runtime theme is always 1.0.
 static func text_scale() -> float:
 	var tree := Engine.get_main_loop() as SceneTree
 	if tree != null and tree.root.theme != null:
@@ -143,7 +164,7 @@ static func text_scale() -> float:
 	return 1.0
 
 
-## Font size scaled by the current setting (for labels sized explicitly in code).
+## Fixed-design font size (for labels sized explicitly in code).
 static func font_size(multiplier: float = 1.0) -> int:
 	return roundi(BASE_FONT_SIZE * text_scale() * multiplier)
 
@@ -197,3 +218,11 @@ static func rich_text(size: int = -1) -> RichTextLabel:
 
 static func hex(color: Color) -> String:
 	return "#" + color.to_html(false)
+
+
+static func selector() -> OptionButton:
+	var option := OptionButton.new()
+	var popup := option.get_popup()
+	popup.theme = (Engine.get_main_loop() as SceneTree).root.theme
+	popup.canvas_item_default_texture_filter = Viewport.DEFAULT_CANVAS_ITEM_TEXTURE_FILTER_NEAREST
+	return option

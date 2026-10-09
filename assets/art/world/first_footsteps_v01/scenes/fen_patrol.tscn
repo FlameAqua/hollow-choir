@@ -1,0 +1,11 @@
+[gd_scene format=3]
+
+[ext_resource type="SpriteFrames" path="res://assets/art/world/first_footsteps_v01/frames/fen_patrol.tres" id="1_s7jgt"]
+
+[node name="FenPatrol" type="Node2D" unique_id=1451660483]
+
+[node name="Visual" type="AnimatedSprite2D" parent="." unique_id=1501020514]
+texture_filter = 1
+sprite_frames = ExtResource("1_s7jgt")
+animation = &"idle"
+offset = Vector2(0, -44)

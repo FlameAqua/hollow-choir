@@ -1,0 +1,518 @@
+{
+	"assets": {
+		"bank_east": {
+			"atlas": "res://assets/art/world/first_footsteps_v01/atlases/terrain_32.png",
+			"status": "candidate_manual_paint_only",
+			"tile": [
+				1,
+				1
+			],
+			"tile_size": 32
+		},
+		"bank_lower_left_candidate": {
+			"atlas": "res://assets/art/world/first_footsteps_v01/atlases/terrain_32.png",
+			"status": "rejected_corner_join",
+			"tile": [
+				2,
+				3
+			],
+			"tile_size": 32
+		},
+		"bank_lower_right_candidate": {
+			"atlas": "res://assets/art/world/first_footsteps_v01/atlases/terrain_32.png",
+			"status": "rejected_corner_join",
+			"tile": [
+				3,
+				3
+			],
+			"tile_size": 32
+		},
+		"bank_ne": {
+			"atlas": "res://assets/art/world/first_footsteps_v01/atlases/terrain_32.png",
+			"status": "candidate_manual_paint_only",
+			"tile": [
+				1,
+				3
+			],
+			"tile_size": 32
+		},
+		"bank_north": {
+			"atlas": "res://assets/art/world/first_footsteps_v01/atlases/terrain_32.png",
+			"status": "candidate_manual_paint_only",
+			"tile": [
+				0,
+				1
+			],
+			"tile_size": 32
+		},
+		"bank_nw": {
+			"atlas": "res://assets/art/world/first_footsteps_v01/atlases/terrain_32.png",
+			"status": "candidate_manual_paint_only",
+			"tile": [
+				0,
+				3
+			],
+			"tile_size": 32
+		},
+		"bank_south": {
+			"atlas": "res://assets/art/world/first_footsteps_v01/atlases/terrain_32.png",
+			"status": "candidate_manual_paint_only",
+			"tile": [
+				2,
+				1
+			],
+			"tile_size": 32
+		},
+		"bank_west": {
+			"atlas": "res://assets/art/world/first_footsteps_v01/atlases/terrain_32.png",
+			"status": "candidate_manual_paint_only",
+			"tile": [
+				3,
+				1
+			],
+			"tile_size": 32
+		},
+		"bellkeeper": {
+			"animations": [
+				"idle"
+			],
+			"atlas": "res://assets/art/world/first_footsteps_v01/atlases/bellkeeper.png",
+			"body_height": 44.0,
+			"cell": [
+				64.0,
+				64.0
+			],
+			"foot": [
+				32.0,
+				60.0
+			],
+			"frames": "res://assets/art/world/first_footsteps_v01/frames/bellkeeper.tres"
+		},
+		"boardwalk_cross": {
+			"atlas": "res://assets/art/world/first_footsteps_v01/atlases/terrain_32.png",
+			"status": "candidate_manual_paint_only",
+			"tile": [
+				3,
+				2
+			],
+			"tile_size": 32
+		},
+		"boardwalk_ew": {
+			"atlas": "res://assets/art/world/first_footsteps_v01/atlases/terrain_32.png",
+			"status": "candidate_manual_paint_only",
+			"tile": [
+				1,
+				2
+			],
+			"tile_size": 32
+		},
+		"boardwalk_ne": {
+			"atlas": "res://assets/art/world/first_footsteps_v01/atlases/terrain_32.png",
+			"status": "candidate_manual_paint_only",
+			"tile": [
+				2,
+				2
+			],
+			"tile_size": 32
+		},
+		"boardwalk_ns": {
+			"atlas": "res://assets/art/world/first_footsteps_v01/atlases/terrain_32.png",
+			"status": "candidate_manual_paint_only",
+			"tile": [
+				0,
+				2
+			],
+			"tile_size": 32
+		},
+		"boulders": {
+			"atlas": "res://assets/art/world/first_footsteps_v01/atlases/props.png",
+			"cell": [
+				128,
+				128
+			],
+			"collision": "none_art_only",
+			"foot": [
+				64,
+				124
+			],
+			"texture": "res://assets/art/world/first_footsteps_v01/atlases/boulders.tres"
+		},
+		"fallen_root": {
+			"atlas": "res://assets/art/world/first_footsteps_v01/atlases/props.png",
+			"cell": [
+				128,
+				128
+			],
+			"collision": "none_art_only",
+			"foot": [
+				64,
+				124
+			],
+			"texture": "res://assets/art/world/first_footsteps_v01/atlases/fallen_root.tres"
+		},
+		"fen_patrol": {
+			"animations": [
+				"idle"
+			],
+			"atlas": "res://assets/art/world/first_footsteps_v01/atlases/fen_patrol.png",
+			"body_height": 64.0,
+			"cell": [
+				128.0,
+				96.0
+			],
+			"foot": [
+				64.0,
+				92.0
+			],
+			"frames": "res://assets/art/world/first_footsteps_v01/frames/fen_patrol.tres"
+		},
+		"fence": {
+			"atlas": "res://assets/art/world/first_footsteps_v01/atlases/props.png",
+			"cell": [
+				128,
+				128
+			],
+			"collision": "none_art_only",
+			"foot": [
+				64,
+				124
+			],
+			"texture": "res://assets/art/world/first_footsteps_v01/atlases/fence.tres"
+		},
+		"hollow": {
+			"animations": [
+				"idle_north",
+				"idle_south",
+				"idle_west",
+				"idle_east",
+				"idle_northwest",
+				"idle_northeast",
+				"idle_southwest",
+				"idle_southeast",
+				"walk_north",
+				"walk_south",
+				"walk_west",
+				"walk_east",
+				"walk_northwest",
+				"walk_northeast",
+				"walk_southwest",
+				"walk_southeast"
+			],
+			"atlas": "res://assets/art/world/first_footsteps_v01/atlases/hollow_motion_v02.png",
+			"body_height": 48.0,
+			"cell": [
+				64.0,
+				64.0
+			],
+			"foot": [
+				32.0,
+				60.0
+			],
+			"frames": "res://assets/art/world/first_footsteps_v01/frames/hollow_motion_v02.tres",
+			"original_frames": "res://assets/art/world/first_footsteps_v01/frames/hollow.tres",
+			"fps": 5
+		},
+		"home_roof": {
+			"atlas": "res://assets/art/world/first_footsteps_v01/atlases/buildings.png",
+			"cell": [
+				192,
+				192
+			],
+			"collision": "none_art_only",
+			"foot": [
+				96,
+				188
+			],
+			"texture": "res://assets/art/world/first_footsteps_v01/atlases/home_roof.tres"
+		},
+		"home_walls": {
+			"atlas": "res://assets/art/world/first_footsteps_v01/atlases/buildings.png",
+			"cell": [
+				192,
+				192
+			],
+			"collision": "none_art_only",
+			"foot": [
+				96,
+				188
+			],
+			"texture": "res://assets/art/world/first_footsteps_v01/atlases/home_walls.tres"
+		},
+		"lamp_lit": {
+			"atlas": "res://assets/art/world/first_footsteps_v01/atlases/props.png",
+			"cell": [
+				128,
+				128
+			],
+			"collision": "none_art_only",
+			"foot": [
+				64,
+				124
+			],
+			"texture": "res://assets/art/world/first_footsteps_v01/atlases/lamp_lit.tres"
+		},
+		"lamp_unlit": {
+			"atlas": "res://assets/art/world/first_footsteps_v01/atlases/props.png",
+			"cell": [
+				128,
+				128
+			],
+			"collision": "none_art_only",
+			"foot": [
+				64,
+				124
+			],
+			"texture": "res://assets/art/world/first_footsteps_v01/atlases/lamp_unlit.tres"
+		},
+		"listening_stones": {
+			"atlas": "res://assets/art/world/first_footsteps_v01/atlases/props.png",
+			"cell": [
+				128,
+				128
+			],
+			"collision": "none_art_only",
+			"foot": [
+				64,
+				124
+			],
+			"texture": "res://assets/art/world/first_footsteps_v01/atlases/listening_stones.tres"
+		},
+		"packed_path": {
+			"atlas": "res://assets/art/world/first_footsteps_v01/atlases/terrain_32.png",
+			"status": "candidate_manual_paint_only",
+			"tile": [
+				2,
+				0
+			],
+			"tile_size": 32
+		},
+		"paving": {
+			"atlas": "res://assets/art/world/first_footsteps_v01/atlases/terrain_32.png",
+			"status": "candidate_manual_paint_only",
+			"tile": [
+				3,
+				0
+			],
+			"tile_size": 32
+		},
+		"peat": {
+			"atlas": "res://assets/art/world/first_footsteps_v01/atlases/terrain_32.png",
+			"status": "candidate_manual_paint_only",
+			"tile": [
+				0,
+				0
+			],
+			"tile_size": 32
+		},
+		"preparation_bench": {
+			"atlas": "res://assets/art/world/first_footsteps_v01/atlases/props.png",
+			"cell": [
+				128,
+				128
+			],
+			"collision": "none_art_only",
+			"foot": [
+				64,
+				124
+			],
+			"texture": "res://assets/art/world/first_footsteps_v01/atlases/preparation_bench.tres"
+		},
+		"reed_gate": {
+			"atlas": "res://assets/art/world/first_footsteps_v01/atlases/props.png",
+			"cell": [
+				128,
+				128
+			],
+			"collision": "none_art_only",
+			"foot": [
+				64,
+				124
+			],
+			"texture": "res://assets/art/world/first_footsteps_v01/atlases/reed_gate.tres"
+		},
+		"reeds": {
+			"atlas": "res://assets/art/world/first_footsteps_v01/atlases/props.png",
+			"cell": [
+				128,
+				128
+			],
+			"collision": "none_art_only",
+			"foot": [
+				64,
+				124
+			],
+			"texture": "res://assets/art/world/first_footsteps_v01/atlases/reeds.tres"
+		},
+		"return_latch_closed": {
+			"atlas": "res://assets/art/world/first_footsteps_v01/atlases/props.png",
+			"cell": [
+				128,
+				128
+			],
+			"collision": "none_art_only",
+			"foot": [
+				64,
+				124
+			],
+			"texture": "res://assets/art/world/first_footsteps_v01/atlases/return_latch_closed.tres"
+		},
+		"return_latch_open": {
+			"atlas": "res://assets/art/world/first_footsteps_v01/atlases/props.png",
+			"cell": [
+				128,
+				128
+			],
+			"collision": "none_art_only",
+			"foot": [
+				64,
+				124
+			],
+			"texture": "res://assets/art/world/first_footsteps_v01/atlases/return_latch_open.tres"
+		},
+		"rot_grove": {
+			"animations": [
+				"idle"
+			],
+			"atlas": "res://assets/art/world/first_footsteps_v01/atlases/rot_grove.png",
+			"body_height": 80.0,
+			"cell": [
+				128.0,
+				96.0
+			],
+			"foot": [
+				64.0,
+				92.0
+			],
+			"frames": "res://assets/art/world/first_footsteps_v01/frames/rot_grove.tres"
+		},
+		"stillroom_roof": {
+			"atlas": "res://assets/art/world/first_footsteps_v01/atlases/buildings.png",
+			"cell": [
+				192,
+				192
+			],
+			"collision": "none_art_only",
+			"foot": [
+				96,
+				188
+			],
+			"texture": "res://assets/art/world/first_footsteps_v01/atlases/stillroom_roof.tres"
+		},
+		"stillroom_walls": {
+			"atlas": "res://assets/art/world/first_footsteps_v01/atlases/buildings.png",
+			"cell": [
+				192,
+				192
+			],
+			"collision": "none_art_only",
+			"foot": [
+				96,
+				188
+			],
+			"texture": "res://assets/art/world/first_footsteps_v01/atlases/stillroom_walls.tres"
+		},
+		"town_bell_answering": {
+			"atlas": "res://assets/art/world/first_footsteps_v01/atlases/props.png",
+			"cell": [
+				128,
+				128
+			],
+			"collision": "none_art_only",
+			"foot": [
+				64,
+				124
+			],
+			"texture": "res://assets/art/world/first_footsteps_v01/atlases/town_bell_answering.tres"
+		},
+		"town_bell_quiet": {
+			"atlas": "res://assets/art/world/first_footsteps_v01/atlases/props.png",
+			"cell": [
+				128,
+				128
+			],
+			"collision": "none_art_only",
+			"foot": [
+				64,
+				124
+			],
+			"texture": "res://assets/art/world/first_footsteps_v01/atlases/town_bell_quiet.tres"
+		},
+		"water": {
+			"atlas": "res://assets/art/world/first_footsteps_v01/atlases/terrain_32.png",
+			"status": "candidate_manual_paint_only",
+			"tile": [
+				1,
+				0
+			],
+			"tile_size": 32
+		},
+		"wayside_bell_quiet": {
+			"atlas": "res://assets/art/world/first_footsteps_v01/atlases/props.png",
+			"cell": [
+				128,
+				128
+			],
+			"collision": "none_art_only",
+			"foot": [
+				64,
+				124
+			],
+			"texture": "res://assets/art/world/first_footsteps_v01/atlases/wayside_bell_quiet.tres"
+		},
+		"wayside_bell_restored": {
+			"atlas": "res://assets/art/world/first_footsteps_v01/atlases/props.png",
+			"cell": [
+				128,
+				128
+			],
+			"collision": "none_art_only",
+			"foot": [
+				64,
+				124
+			],
+			"texture": "res://assets/art/world/first_footsteps_v01/atlases/wayside_bell_restored.tres"
+		},
+		"willow": {
+			"atlas": "res://assets/art/world/first_footsteps_v01/atlases/props.png",
+			"cell": [
+				128,
+				128
+			],
+			"collision": "none_art_only",
+			"foot": [
+				64,
+				124
+			],
+			"texture": "res://assets/art/world/first_footsteps_v01/atlases/willow.tres"
+		},
+		"workshop_roof": {
+			"atlas": "res://assets/art/world/first_footsteps_v01/atlases/buildings.png",
+			"cell": [
+				192,
+				192
+			],
+			"collision": "none_art_only",
+			"foot": [
+				96,
+				188
+			],
+			"texture": "res://assets/art/world/first_footsteps_v01/atlases/workshop_roof.tres"
+		},
+		"workshop_walls": {
+			"atlas": "res://assets/art/world/first_footsteps_v01/atlases/buildings.png",
+			"cell": [
+				192,
+				192
+			],
+			"collision": "none_art_only",
+			"foot": [
+				96,
+				188
+			],
+			"texture": "res://assets/art/world/first_footsteps_v01/atlases/workshop_walls.tres"
+		}
+	},
+	"source_spec": "res://docs/art/first_footsteps_v01/regions.json",
+	"status": "generated_candidate_mechanical_export_not_pixel_cleanup",
+	"tile_size": 32
+}

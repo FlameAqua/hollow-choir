@@ -1,10 +1,14 @@
 class_name ActionPicker
 extends Node
 ## Planning: focus an action → review a recipient for any explicitly targeted action → commit.
-## Back from the target returns to the same action and spends nothing. The preview always shows the
-## focused action against its actual target. While target review is open, pointer hover moves the
-## reviewed recipient unless Details is on (Details never moves the target). Owns no battle state;
-## returns an ActionChoice.
+## The reviewed action keeps its selected frame in the menu while focus is released for recipient
+## keys. Back from the target returns to the same action and spends nothing. Choosing another legal action
+## or item during review replaces the pending one: a targeted replacement opens its own recipient
+## review (keeping the reviewed recipient when it is still legal), any other replacement submits as
+## it would from the menu. Unavailable rows and the pending action itself change nothing. The
+## preview always shows the focused action against its actual target. While target review is open,
+## pointer hover moves the reviewed recipient unless Details is on (Details never moves the target);
+## hovering an action only inspects it. Owns no battle state; returns an ActionChoice.
 
 signal picked(choice: ActionChoice)
 ## The planning prompt changed (help bar text).
@@ -75,6 +79,7 @@ func choose(request: ActionSelectRequest) -> ActionChoice:
 ## Abandons the selection (battle freed or restarted).
 func cancel() -> void:
 	_mode = Mode.IDLE
+	menu.mark_pending(null)
 	menu.hide_menu()
 	battlefield.set_highlight(-1)
 
@@ -138,6 +143,7 @@ func back_to_menu() -> void:
 	if _mode != Mode.TARGET:
 		return
 	_mode = Mode.MENU
+	menu.mark_pending(null)
 	menu.focus_option(_option)
 	_focused = _option
 	render()
@@ -154,10 +160,14 @@ func _on_row_focused(option: ActionOption) -> void:
 
 
 func _on_option_chosen(option: ActionOption) -> void:
-	if _mode != Mode.MENU or option == null:
+	if _mode == Mode.IDLE or option == null:
 		return
-	if not option.legal:
-		AudioManager.play(AudioManager.Cue.UI_CANCEL)
+	if not option.legal or (_mode == Mode.TARGET and option == _option):
+		if not option.legal:
+			AudioManager.play(AudioManager.Cue.UI_CANCEL)
+		if _mode == Mode.TARGET:
+			# The click focused that row; the pending review keeps the keys.
+			menu.get_viewport().gui_release_focus()
 		return
 	AudioManager.play(AudioManager.Cue.UI_CONFIRM)
 	if not option.action.needs_target_choice():
@@ -167,13 +177,15 @@ func _on_option_chosen(option: ActionOption) -> void:
 
 
 func _enter_target(option: ActionOption) -> void:
+	var reviewed := _targets[_target_index] if _mode == Mode.TARGET else -1
 	_mode = Mode.TARGET
 	_option = option
 	_targets = option.target_uids.duplicate()
 	_targets.sort_custom(func(a: int, b: int) -> bool:
 		return battlefield.view(a).position.x < battlefield.view(b).position.x)
-	_target_index = maxi(0, _targets.find(_default_target(option)))
+	_target_index = maxi(0, _targets.find(reviewed if _targets.has(reviewed) else _default_target(option)))
 	menu.get_viewport().gui_release_focus()
+	menu.mark_pending(option)
 	_update_target()
 
 
@@ -188,6 +200,7 @@ func _submit(option: ActionOption, target_uid: int) -> void:
 	if target != null and target.is_enemy():
 		_last_enemy_target = target_uid
 	_mode = Mode.IDLE
+	menu.mark_pending(null)
 	menu.hide_menu()
 	help_changed.emit("")
 	battlefield.set_highlight(-1)
@@ -233,9 +246,10 @@ func _help() -> String:
 	var details_key := InputBindings.prompt(InputBindings.INFO)
 	match _mode:
 		Mode.TARGET:
-			return "%s · [%s/%s] Choose · %s Confirm · %s Back" % [target_prompt(), InputBindings.label(InputBindings.LEFT),
+			var text := "%s · [%s/%s] Choose · %s Confirm · %s Back to actions" % [target_prompt(), InputBindings.label(InputBindings.LEFT),
 				InputBindings.label(InputBindings.RIGHT), InputBindings.prompt(InputBindings.CONFIRM),
 				InputBindings.prompt(InputBindings.CANCEL)]
+			return text + (" · Click an action to switch" if InputBindings.active_device == InputBindings.Device.KEYBOARD else "")
 		Mode.MENU:
 			return "[%s/%s] Choose · %s Select · %s Pause · %s Details" % [InputBindings.label(InputBindings.UP),
 				InputBindings.label(InputBindings.DOWN), InputBindings.prompt(InputBindings.CONFIRM),

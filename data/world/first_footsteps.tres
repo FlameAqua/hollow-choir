@@ -1,0 +1,228 @@
+[gd_resource type="Resource" script_class="WorldDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/world/landmark_definition.gd" id="1_s"]
+[ext_resource type="Script" path="res://src/world/world_path.gd" id="2_s"]
+[ext_resource type="Script" path="res://src/world/area_definition.gd" id="3_s"]
+[ext_resource type="Script" path="res://src/world/portal_definition.gd" id="4_s"]
+[ext_resource type="Script" path="res://src/world/world_definition.gd" id="5_s"]
+[ext_resource type="Resource" path="res://data/encounters/fen_patrol.tres" id="10_e"]
+[ext_resource type="Resource" path="res://data/encounters/rot_grove.tres" id="11_e"]
+
+[sub_resource type="Resource" id="L_town_bell"]
+script = ExtResource("1_s")
+id = &"town_bell"
+display_name = "Bell square"
+kind = 0
+tile = Vector2i(32, 30)
+description = "The town bell waits in the square. Its clapper hangs still."
+interact_radius = 0.0
+safe_anchor = true
+
+[sub_resource type="Resource" id="L_bellkeeper"]
+script = ExtResource("1_s")
+id = &"bellkeeper"
+display_name = "Bellkeeper"
+kind = 1
+tile = Vector2i(26, 25)
+description = "Tends the town bell and listens for an answer from the fen."
+interact_radius = 56.0
+safe_anchor = false
+
+[sub_resource type="Resource" id="L_preparation_bench"]
+script = ExtResource("1_s")
+id = &"preparation_bench"
+display_name = "Preparation bench"
+kind = 2
+tile = Vector2i(15, 31)
+description = "Choose among the weapons you already carry before setting out."
+interact_radius = 56.0
+safe_anchor = false
+
+[sub_resource type="Resource" id="L_reed_gate"]
+script = ExtResource("1_s")
+id = &"reed_gate"
+display_name = "Reed gate"
+kind = 3
+tile = Vector2i(67, 26)
+description = "A break in the reed fence. The old boards lead east into Briarfen."
+interact_radius = 0.0
+safe_anchor = true
+
+[sub_resource type="Resource" id="P_square_bench"]
+script = ExtResource("2_s")
+id = &"square_bench"
+points = PackedVector2Array(15, 31, 24, 31, 32, 30)
+width_tiles = 5
+
+[sub_resource type="Resource" id="P_square_bellkeeper"]
+script = ExtResource("2_s")
+id = &"square_bellkeeper"
+points = PackedVector2Array(32, 30, 30, 25, 26, 25)
+width_tiles = 4
+
+[sub_resource type="Resource" id="P_square_gate"]
+script = ExtResource("2_s")
+id = &"square_gate"
+points = PackedVector2Array(32, 30, 47, 30, 58, 26, 67, 26)
+width_tiles = 5
+
+[sub_resource type="Resource" id="A_gloamstead"]
+script = ExtResource("3_s")
+id = &"gloamstead"
+display_name = "Gloamstead"
+scene_path = "res://scenes/world/areas/gloamstead.tscn"
+music_cue = &"gloamstead_town"
+size_tiles = Vector2i(80, 56)
+default_anchor = &"town_bell"
+landmarks = Array[ExtResource("1_s")]([SubResource("L_town_bell"), SubResource("L_bellkeeper"), SubResource("L_preparation_bench"), SubResource("L_reed_gate")])
+paths = Array[ExtResource("2_s")]([SubResource("P_square_bench"), SubResource("P_square_bellkeeper"), SubResource("P_square_gate")])
+
+[sub_resource type="Resource" id="L_reedway_entry"]
+script = ExtResource("1_s")
+id = &"reedway_entry"
+display_name = "Gloamstead gate"
+kind = 3
+tile = Vector2i(22, 76)
+description = "The reed gate back to Gloamstead."
+interact_radius = 0.0
+safe_anchor = true
+
+[sub_resource type="Resource" id="L_reedway_fork"]
+script = ExtResource("1_s")
+id = &"reedway_fork"
+display_name = "Boardwalk fork"
+kind = 4
+tile = Vector2i(26, 59)
+description = "The boardwalk splits. One way runs straight north; the other skirts the outer reeds."
+interact_radius = 0.0
+safe_anchor = true
+
+[sub_resource type="Resource" id="L_reedway_patrol"]
+script = ExtResource("1_s")
+id = &"reedway_patrol"
+display_name = "Patrol"
+kind = 5
+tile = Vector2i(27, 39)
+description = "A group stands on the main boards. The outer path passes around it."
+interact_radius = 72.0
+safe_anchor = true
+encounter = ExtResource("10_e")
+threat_label = "Patrol"
+optional = true
+
+[sub_resource type="Resource" id="L_bell_guard"]
+script = ExtResource("1_s")
+id = &"bell_guard"
+display_name = "Bell approach"
+kind = 5
+tile = Vector2i(62, 22)
+description = "Creatures hold the ground at the foot of the bell steps."
+interact_radius = 72.0
+safe_anchor = true
+encounter = ExtResource("11_e")
+threat_label = "Guard"
+optional = false
+
+[sub_resource type="Resource" id="L_wayside_bell"]
+script = ExtResource("1_s")
+id = &"wayside_bell"
+display_name = "Wayside bell"
+kind = 6
+tile = Vector2i(65, 15)
+description = "A familiar brass bell hangs among the roots."
+interact_radius = 56.0
+safe_anchor = true
+
+[sub_resource type="Resource" id="L_return_latch"]
+script = ExtResource("1_s")
+id = &"return_latch"
+display_name = "Return latch"
+kind = 7
+tile = Vector2i(65, 62)
+description = "A gate on the short way home, barred from its northern side."
+interact_radius = 80.0
+safe_anchor = true
+far_side = Vector2i(0, -1)
+
+[sub_resource type="Resource" id="L_listening_stones"]
+script = ExtResource("1_s")
+id = &"listening_stones"
+display_name = "Listening stones"
+kind = 8
+tile = Vector2i(84, 40)
+description = "A quiet overlook above the water."
+interact_radius = 64.0
+safe_anchor = true
+
+[sub_resource type="Resource" id="P_entry_fork"]
+script = ExtResource("2_s")
+id = &"entry_fork"
+points = PackedVector2Array(22, 76, 22, 67, 26, 59)
+width_tiles = 4
+
+[sub_resource type="Resource" id="P_main_approach"]
+script = ExtResource("2_s")
+id = &"main_approach"
+points = PackedVector2Array(26, 59, 27, 39, 38, 27, 60, 25)
+width_tiles = 4
+
+[sub_resource type="Resource" id="P_outside_loop"]
+script = ExtResource("2_s")
+id = &"outside_loop"
+points = PackedVector2Array(26, 59, 10, 54, 10, 22, 38, 13, 60, 25)
+width_tiles = 4
+
+[sub_resource type="Resource" id="P_bell_steps"]
+script = ExtResource("2_s")
+id = &"bell_steps"
+points = PackedVector2Array(60, 25, 65, 20, 65, 15)
+width_tiles = 4
+
+[sub_resource type="Resource" id="P_far_side"]
+script = ExtResource("2_s")
+id = &"far_side"
+points = PackedVector2Array(60, 25, 68, 35, 65, 50, 65, 62)
+width_tiles = 4
+
+[sub_resource type="Resource" id="P_short_return"]
+script = ExtResource("2_s")
+id = &"short_return"
+points = PackedVector2Array(65, 62, 65, 72, 44, 76, 22, 76)
+width_tiles = 4
+requires_flag = &"return_latch_open"
+
+[sub_resource type="Resource" id="P_overlook"]
+script = ExtResource("2_s")
+id = &"overlook"
+points = PackedVector2Array(68, 35, 77, 33, 84, 40)
+width_tiles = 3
+
+[sub_resource type="Resource" id="A_briarfen_reedway"]
+script = ExtResource("3_s")
+id = &"briarfen_reedway"
+display_name = "Briarfen · Reedway"
+scene_path = "res://scenes/world/areas/briarfen_reedway.tscn"
+music_cue = &"briarfen_exploration"
+size_tiles = Vector2i(96, 88)
+default_anchor = &"reedway_entry"
+landmarks = Array[ExtResource("1_s")]([SubResource("L_reedway_entry"), SubResource("L_reedway_fork"), SubResource("L_reedway_patrol"), SubResource("L_bell_guard"), SubResource("L_wayside_bell"), SubResource("L_return_latch"), SubResource("L_listening_stones")])
+paths = Array[ExtResource("2_s")]([SubResource("P_entry_fork"), SubResource("P_main_approach"), SubResource("P_outside_loop"), SubResource("P_bell_steps"), SubResource("P_far_side"), SubResource("P_short_return"), SubResource("P_overlook")])
+
+[sub_resource type="Resource" id="Portal_0"]
+script = ExtResource("4_s")
+from_area = &"gloamstead"
+from_landmark = &"reed_gate"
+to_area = &"briarfen_reedway"
+arrival_anchor = &"reedway_entry"
+
+[sub_resource type="Resource" id="Portal_1"]
+script = ExtResource("4_s")
+from_area = &"briarfen_reedway"
+from_landmark = &"reedway_entry"
+to_area = &"gloamstead"
+arrival_anchor = &"reed_gate"
+
+[resource]
+script = ExtResource("5_s")
+areas = Array[ExtResource("3_s")]([SubResource("A_gloamstead"), SubResource("A_briarfen_reedway")])
+portals = Array[ExtResource("4_s")]([SubResource("Portal_0"), SubResource("Portal_1")])

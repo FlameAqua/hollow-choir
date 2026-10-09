@@ -11,54 +11,51 @@ func test_manual_controls_reach_real_intense_variant_without_changing_progress_o
 	Settings.data.write_to(config)
 	var settings := config.encode_to_text()
 	var previous_theme := tree.root.theme
-	for scale in [1.0, 1.5, 2.0]:
-		tree.root.theme = UITheme.build(scale)
-		var lab: AudioLab = load(SceneRouter.AUDIO_LAB).instantiate()
-		tree.root.add_child(lab)
-		lab.set_anchors_preset(Control.PRESET_TOP_LEFT)
-		lab.size = Vector2(1280, 720)
-		for frame in 5:
-			await tree.process_frame
-		assert_true(lab._cues.has_focus())
-		assert_eq(lab._scroll.scroll_vertical, 0, "initial page starts at the song selector")
-		assert_gte(lab._cues.get_global_rect().position.y, lab._scroll.get_global_rect().position.y)
-		assert_lte(lab._back.get_global_rect().end.y, 720)
-		assert_lte(lab._scroll.get_global_rect().end.x, 1280)
-		assert_gt(lab._scroll.size.y, 100)
-		for index in lab._playlists.size():
-			if lab._playlists[index].cue_id == &"briarfen_battle":
-				lab._cues.select(index)
-				lab._cues.item_selected.emit(index)
-		for index in lab._tracks.size():
-			if lab._tracks[index].id == &"briarfen_battle_v01":
-				lab._versions.select(index)
-				lab._versions.item_selected.emit(index)
-		AudioManager.music._update_fade(AudioManager.music._fade_start + 10000000)
-		AudioManager.music.seek(45.0)
-		for button in lab._tones.get_children():
-			if button.text == "Intense":
-				button.pressed.emit()
-		assert_eq(AudioManager.music.current_track.id, &"briarfen_battle_v01_intense")
-		assert_eq(lab._tracks[lab._versions.selected].tone, &"intense")
-		assert_almost_eq(AudioManager.music.playback_status().position, 45.0, 0.15,
-			"real prepared Ogg retains the playhead through a tone button")
-		AudioManager.music._update_fade(AudioManager.music._fade_start + 10000000)
-		lab._process(0.0)
-		assert_false(lab._loop.disabled)
-		lab._loop.pressed.emit()
-		assert_gt(AudioManager.music.playback_status().position, 110.0)
-		assert_true(lab._hint.text.contains("automatic transition in 5."))
-		assert_true(lab._status.text.contains("intense"))
-		lab._scroll.scroll_vertical = 100000
-		if scale == 2.0:
-			assert_gt(lab._scroll.scroll_vertical, 0, "enlarged controls remain reachable by scrolling")
-		lab._back.grab_focus()
-		assert_true(lab._back.has_focus())
-		assert_eq(GameState.progress.to_dict(), progress)
-		Settings.data.write_to(config)
-		assert_eq(config.encode_to_text(), settings)
-		lab.queue_free()
+	tree.root.theme = UITheme.build()
+	var lab: AudioLab = load(SceneRouter.AUDIO_LAB).instantiate()
+	tree.root.add_child(lab)
+	lab.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	lab.size = Vector2(1280, 720)
+	for frame in 5:
 		await tree.process_frame
+	assert_true(lab._cues.has_focus())
+	assert_eq(lab._scroll.scroll_vertical, 0, "initial page starts at the song selector")
+	assert_gte(lab._cues.get_global_rect().position.y, lab._scroll.get_global_rect().position.y)
+	assert_lte(lab._back.get_global_rect().end.y, 720)
+	assert_lte(lab._scroll.get_global_rect().end.x, 1280)
+	assert_gt(lab._scroll.size.y, 100)
+	for index in lab._playlists.size():
+		if lab._playlists[index].cue_id == &"briarfen_battle":
+			lab._cues.select(index)
+			lab._cues.item_selected.emit(index)
+	for index in lab._tracks.size():
+		if lab._tracks[index].id == &"briarfen_battle_v01":
+			lab._versions.select(index)
+			lab._versions.item_selected.emit(index)
+	AudioManager.music._update_fade(AudioManager.music._fade_start + 10000000)
+	AudioManager.music.seek(45.0)
+	for button in lab._tones.get_children():
+		if button.text == "Intense":
+			button.pressed.emit()
+	assert_eq(AudioManager.music.current_track.id, &"briarfen_battle_v01_intense")
+	assert_eq(lab._tracks[lab._versions.selected].tone, &"intense")
+	assert_almost_eq(AudioManager.music.playback_status().position, 45.0, 0.15,
+		"real prepared Ogg retains the playhead through a tone button")
+	AudioManager.music._update_fade(AudioManager.music._fade_start + 10000000)
+	lab._process(0.0)
+	assert_false(lab._loop.disabled)
+	lab._loop.pressed.emit()
+	assert_gt(AudioManager.music.playback_status().position, 110.0)
+	assert_true(lab._hint.text.contains("automatic transition in 5."))
+	assert_true(lab._status.text.contains("intense"))
+	lab._scroll.scroll_vertical = 100000
+	lab._back.grab_focus()
+	assert_true(lab._back.has_focus())
+	assert_eq(GameState.progress.to_dict(), progress)
+	Settings.data.write_to(config)
+	assert_eq(config.encode_to_text(), settings)
+	lab.queue_free()
+	await tree.process_frame
 	tree.root.theme = previous_theme
 
 func test_stop_ends_the_ending_preview_countdown() -> void:

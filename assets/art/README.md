@@ -14,6 +14,7 @@ global/ui/combat/icon_map.tres          semantic presentation mappings
 global/ui/navigation/                  pixel geometry: toolbar and stat symbols
 global/fonts/                          active Departure Mono and OFL; historical Pixelify
 sources/briarfen/v01/                  unchanged original cast atlas (excluded from imports)
+world/first_footsteps_v01/              exploration candidate atlases, SpriteFrames and presentation scenes
 ```
 
 The old `briarfen_v01` and `briarfen_v02` generation batches are provenance records in
@@ -39,3 +40,7 @@ tracks and compact announcement panel; remaining frame styles stay optional. Cin
 last equipped creature art gap; see [its provenance/prompt](../../docs/art/CINDER_PUP_V01.md).
 Source prompts and art data for the earlier stage refresh are in
 [the manifest](../../docs/art/stage_refresh/prompts_manifest.json).
+
+[First Footsteps](world/first_footsteps_v01/README.md) adds top-down exploration art while Claude
+builds V0.4. Its sources/provenance, generated-candidate status and isolated art workbench are separate
+from combat assets and the production world host.

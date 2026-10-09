@@ -71,9 +71,8 @@ func reaction_allowed(reaction: Enums.ReactionType) -> bool:
 	return readout != null and index >= 0 and readout.allowed[index]
 
 func _tile(icon: String, rect: Rect2, text: String, tint: Color = Color.WHITE) -> void:
-	draw_rect(rect, Color(UITheme.BG, 0.96))
-	draw_rect(rect, UITheme.BORDER.darkened(0.25), false, 1)
-	CombatIcons.paint(self, icon, rect.grow(-3), tint)
+	draw_texture_rect(UICraft.texture("intent_socket"), rect, false)
+	CombatIcons.paint(self, icon, rect.grow(-4), tint)
 	_regions.append({"rect": rect, "text": text})
 
 func _draw() -> void:
@@ -81,33 +80,18 @@ func _draw() -> void:
 	var font := get_theme_default_font()
 	var side := 30.0
 	var step := side + 6
-	var x := 26.0
-	draw_rect(Rect2(0, 0, 22, side), UITheme.BG)
-	draw_string(font, Vector2(4, 23), str(slot_number), HORIZONTAL_ALIGNMENT_LEFT, -1, 22, UITheme.DANGER)
-	_regions.append({"rect": Rect2(0, 0, 22, side), "text": enemy_name + "\nEnemy " + str(slot_number)})
+	var x := 32.0
+	UICraft.number(self, Rect2(0, 2, 26, 26), slot_number)
+	_regions.append({"rect": Rect2(0, 0, 26, side), "text": enemy_name + "\nEnemy " + str(slot_number)})
 	if readout == null:
-		_tile("state_broken" if state == State.BROKEN else "intent_wait", Rect2(x, 0, side, side), plain_text(), Color(1, 1, 1, 0.5) if state in [State.ACTED, State.DEFEATED] else Color.WHITE)
+		if state != State.BROKEN:
+			_tile("intent_wait", Rect2(x, 0, side, side), plain_text(), Color(1, 1, 1, 0.5) if state in [State.ACTED, State.DEFEATED] else Color.WHITE)
 		return
 	var move_text := UnitDetails.intent_text(engine, readout) if engine != null else plain_text()
 	_tile(CombatIcons.intent(readout), Rect2(x, 0, side, side), enemy_name + "\n" + move_text)
 	_regions[-1]["move"] = true
 	x += step
-	if engine != null:
-		for uid in readout.target_uids:
-			if x + side > size.x:
-				break
-			var target := engine.get_unit(uid)
-			if target != null:
-				var rect := Rect2(x, 0, side, side)
-				draw_rect(rect, UITheme.BG)
-				draw_rect(rect, UITheme.INFO, false, 1)
-				CombatIcons.portrait(self, target, rect.grow(-3), false, use_art)
-				if readout.target_uids.size() > 1:
-					draw_rect(Rect2(rect.end - Vector2(14, 23), Vector2(14, 23)), UITheme.BG)
-					draw_string(font, rect.end - Vector2(13, 2), str(readout.target_uids.size()), HORIZONTAL_ALIGNMENT_LEFT, -1, 22, UITheme.INFO)
-				_regions.append({"rect": rect, "text": "Targets\n" + readout.target_text})
-				x += step
-				break # One target tile, with an explicit count for group targets.
+	# Recipients are named in inspection and marked on stage while hovering the move.
 	# Public status payloads share the first row; overflow remains explicit and inspectable.
 	for i in readout.statuses.size():
 		var note := readout.statuses[i]

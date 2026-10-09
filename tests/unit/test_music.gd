@@ -306,7 +306,13 @@ func test_seek_restarts_a_deck_that_already_ended() -> void:
 
 func test_runtime_playlists_include_intense_example_and_music_mute() -> void:
 	var library: MusicLibrary = load("res://assets/audio/music/runtime_library.tres")
-	assert_eq(library.playlists.size(), 3)
+	assert_eq(library.playlists.size(), 5)
+	for cue in [&"gloamstead_town", &"briarfen_exploration"]:
+		var playlist := library.find(cue)
+		assert_not_null(playlist)
+		assert_eq(playlist.tracks.size(), 2)
+		for track in playlist.tracks:
+			assert_almost_eq(track.crossfade_seconds, 3.0, 0.01)
 	var intense := library.find(&"briarfen_battle").available(&"intense")
 	assert_true(intense.any(func(track: MusicTrack) -> bool: return track.id == &"briarfen_battle_v01_intense"))
 	for playlist in library.playlists:

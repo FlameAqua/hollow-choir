@@ -1,0 +1,58 @@
+{
+  "status": "director_blockout_specification_not_runtime_data",
+  "tile_size": 32,
+  "coordinate_space": "tile_centres_y_down",
+  "areas": [
+    {
+      "id": "gloamstead",
+      "name": "Gloamstead",
+      "size_tiles": [80, 56],
+      "landmarks": [
+        {"id": "town_bell", "name": "Bell square", "tile": [32, 30], "kind": "home", "safe_anchor": true},
+        {"id": "bellkeeper", "name": "Bellkeeper", "tile": [26, 25], "kind": "dialogue"},
+        {"id": "preparation_bench", "name": "Preparation bench", "tile": [15, 31], "kind": "preparation"},
+        {"id": "reed_gate", "name": "Reed gate", "tile": [67, 26], "kind": "portal", "safe_anchor": true}
+      ],
+      "paths": [
+        {"id": "square_bench", "points": [[15, 31], [24, 31], [32, 30]], "width_tiles": 5},
+        {"id": "square_bellkeeper", "points": [[32, 30], [30, 25], [26, 25]], "width_tiles": 4},
+        {"id": "square_gate", "points": [[32, 30], [47, 30], [58, 26], [67, 26]], "width_tiles": 5}
+      ],
+      "facades": [
+        {"name": "Stillroom", "rect_tiles": [10, 12, 14, 11]},
+        {"name": "Homes", "rect_tiles": [37, 10, 15, 12]},
+        {"name": "Workshop", "rect_tiles": [38, 38, 16, 11]}
+      ]
+    },
+    {
+      "id": "briarfen_reedway",
+      "name": "Briarfen · Reedway",
+      "size_tiles": [96, 88],
+      "landmarks": [
+        {"id": "reedway_entry", "name": "Gloamstead gate", "tile": [22, 76], "kind": "portal", "safe_anchor": true},
+        {"id": "reedway_fork", "name": "Boardwalk fork", "tile": [26, 59], "kind": "landmark", "safe_anchor": true},
+        {"id": "reedway_patrol", "name": "Patrol", "tile": [27, 39], "kind": "encounter", "encounter_id": "fen_patrol", "optional": true, "safe_anchor": true},
+        {"id": "bell_guard", "name": "Bell approach", "tile": [62, 22], "kind": "encounter", "encounter_id": "rot_grove", "safe_anchor": true},
+        {"id": "wayside_bell", "name": "Wayside bell", "tile": [65, 15], "kind": "restoration", "safe_anchor": true},
+        {"id": "return_latch", "name": "Return latch", "tile": [65, 62], "kind": "shortcut", "far_side": "north", "safe_anchor": true},
+        {"id": "listening_stones", "name": "Listening stones", "tile": [84, 40], "kind": "discovery", "safe_anchor": true}
+      ],
+      "paths": [
+        {"id": "entry_fork", "points": [[22, 76], [22, 67], [26, 59]], "width_tiles": 4},
+        {"id": "main_approach", "points": [[26, 59], [27, 39], [38, 27], [60, 25]], "width_tiles": 4},
+        {"id": "outside_loop", "points": [[26, 59], [10, 54], [10, 22], [38, 13], [60, 25]], "width_tiles": 4},
+        {"id": "bell_steps", "points": [[60, 25], [65, 20], [65, 15]], "width_tiles": 4},
+        {"id": "far_side", "points": [[60, 25], [68, 35], [65, 50], [65, 62]], "width_tiles": 4},
+        {"id": "short_return", "points": [[65, 62], [65, 72], [44, 76], [22, 76]], "width_tiles": 4, "requires_flag": "return_latch_open"},
+        {"id": "overlook", "points": [[68, 35], [77, 33], [84, 40]], "width_tiles": 3}
+      ]
+    }
+  ],
+  "portals": [
+    {"from_area": "gloamstead", "from_landmark": "reed_gate", "to_area": "briarfen_reedway", "arrival_anchor": "reedway_entry"},
+    {"from_area": "briarfen_reedway", "from_landmark": "reedway_entry", "to_area": "gloamstead", "arrival_anchor": "reed_gate"}
+  ],
+  "flags": ["return_latch_open", "wayside_bell_restored"],
+  "encounter_count": 2,
+  "resource_policy": "all_reset_per_encounter"
+}

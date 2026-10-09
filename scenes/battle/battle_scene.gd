@@ -10,9 +10,12 @@ extends Control
 ##   REACTION       -> ReactionWidget: rings on the stage, meter and cards in the dock (or simulator)
 ## Everything else arrives as BattleEvents, played back by BattleEventPlayer.
 ##
-## Pausing (M1.1 F2): immediate while planning. During a timed input or playback a pause request is
-## queued ("Pausing after this action") and opens at the next safe point, so no clock ever runs
-## under an overlay. Layout changes from settings wait for the same safe point.
+## Pausing (Adrian, 9 October 2026; supersedes M1.1 F2's queued pause): Pause opens at once while
+## choosing (recipient review included) and during playback, and freezes the battle in place
+## (playback and its waits, announcements, floating text, the stage), so nothing runs unseen under
+## an overlay; Resume continues at once. Pause requests (the Pause key, the toolbar button, a host's
+## Setup) are ignored while a command or reaction window is open, from its preparation beat to its
+## result: pausing must never help timing. Settings layout changes still wait for the window's end.
 ##
 ## Standalone: SceneRouter hands a BattleLaunch payload. Embedded: the CombatSandbox sets
 ## [member embedded] before adding the scene and calls start(), restarting by replacing the node.
@@ -20,7 +23,8 @@ extends Control
 signal finished(result: BattleResult)
 signal restart_requested
 signal setup_requested
-signal _pause_closed
+## The battle thawed (no pause or host page holds it any more).
+signal _resumed
 
 ## A real-time breathing beat before manual input. It never spends a command/reaction window.
 const PREPARATION_MS := 400.0
@@ -30,6 +34,11 @@ var embedded := false
 ## Result-screen button labels (hosts may override before start()).
 var retry_text := "Retry same setup"
 var change_text := "Change setup"
+## World host (V0.4): the host commits the result itself and shows its own outcome card, so this
+## scene emits [signal finished] without recording, showing the result panel or claiming progress.
+var host_result := false
+## Embedded pause-menu label for leaving the battle (the host handles setup_requested).
+var leave_text := "Back to setup"
 ## Show real art (sprites, backdrop, portrait). Tests turn it off to compare outcomes.
 var use_art := true
 var launch: BattleLaunch
@@ -62,6 +71,9 @@ var _modal: Control
 var _result_panel: ResultPanel
 var _pause_panel: PanelContainer
 var _pause_resume: Button
+var _pause_leave: Button
+var _combat_help: WorldModal
+var _settings_screen: SettingsScreen
 var _events: BattleEventPlayer
 var _picker: ActionPicker
 var _autopilot: PartyAutopilot
@@ -71,9 +83,12 @@ var _timed_active := false
 var _preparing := false
 var _preparation_tween: Tween
 var _window_focused := true
-var _pause_pending := false
-## The host asked to show its setup over this battle; it opens with the queued pause.
-var _host_waiting := false
+## Frozen in place: Pause (or its Settings/Help) or a host page.
+var _frozen := false
+## The outcome was handed over (result panel or host): Pause no longer opens.
+var _concluded := false
+## A standalone retreat is fading out; its frozen battle never resumes.
+var _leaving := false
 var _host_paused := false
 var _layout_dirty := false
 var _help_text := ""
@@ -125,7 +140,7 @@ func start(p_launch: BattleLaunch) -> void:
 	_ribbon.ledger = _events.ledger
 	_familiar.setup(engine.get_state().familiar, _events.ledger, use_art)
 	_picker.setup(engine, _menu, _battlefield, _info)
-	_header_title.text = "HOLLOW CHOIR  /  %s" % (launch.setup.label if not launch.setup.label.is_empty() else "Battle")
+	_header_title.text = launch.setup.label if not launch.setup.label.is_empty() else "Battle"
 	_apply_settings()
 	_apply_layout()
 	_events.refresh_rail()
@@ -140,10 +155,10 @@ func add_toolbar_button(text: String, tooltip: String, callback: Callable) -> Bu
 	var button := Button.new()
 	button.icon = CombatIcons.texture("restart" if text.to_lower().contains("restart") else "setup")
 	button.expand_icon = true
-	button.custom_minimum_size = Vector2(40, 36)
+	button.custom_minimum_size = Vector2(44, 40)
+	UICraft.style_tool_button(button)
 	button.tooltip_text = text + " · " + tooltip
 	button.focus_mode = Control.FOCUS_ALL
-	button.flat = true
 	button.pressed.connect(callback)
 	_toolbar.add_child(button)
 	_toolbar.move_child(button, 0)
@@ -159,12 +174,13 @@ func is_timed_input_active() -> bool:
 	return _timed_active
 
 
-func is_pause_pending() -> bool:
-	return _pause_pending
-
-
 func is_paused() -> bool:
-	return _pause_panel.visible or _host_paused
+	return _pause_panel.visible or is_instance_valid(_settings_screen) or is_instance_valid(_combat_help) or _host_paused
+
+
+## Paused or covered by a host page: nothing in the battle moves.
+func is_frozen() -> bool:
+	return _frozen
 
 
 # --- Battle loop ---------------------------------------------------------------------------------
@@ -199,21 +215,17 @@ func _intro() -> void:
 			lines.append("Ambushed! The enemy moves first.")
 	# Each condition is explained once by CONDITION_ADDED, then docks to its header icon.
 	await _banner.announce(setup.label if not setup.label.is_empty() else "Battle", "\n".join(lines),
-		(1.1 if lines.is_empty() else 1.8) / _events.speed)
+		(1.1 if lines.is_empty() else 1.8) / _events.speed, _events.speed)
 
 
-## Between steps: apply deferred layout, then open a queued pause and wait for it to close.
+## Between steps: apply deferred layout. A frozen battle starts no new request (menu, command or
+## reaction window) until it thaws.
 func _safe_point() -> void:
 	if _layout_dirty:
 		_layout_dirty = false
 		_apply_layout()
-	if _pause_pending and not engine.is_finished():
-		_pause_pending = false
-		_open_pause()
-		if _host_waiting:
-			_host_waiting = false
-			setup_requested.emit()
-		await _pause_closed
+	while _frozen:
+		await _resumed
 
 
 func _answer_select(request: ActionSelectRequest) -> void:
@@ -357,19 +369,32 @@ func _finish_battle() -> void:
 	_result = engine.build_result()
 	var outcome := engine.get_outcome()
 	AudioManager.play(AudioManager.Cue.VICTORY if outcome == Enums.BattleOutcome.VICTORY else AudioManager.Cue.DEFEAT)
+	if host_result:
+		await _banner.announce(EnumText.outcome(outcome), "", 0.9 / _events.speed, _events.speed)
+		_conclude()
+		finished.emit(_result)
+		return
 	var levels_before := {}
 	for enemy_id: StringName in _result.research:
 		levels_before[enemy_id] = GameState.research_level(enemy_id)
 	if launch.record_progress:
 		GameState.record_battle(_result)
-	await _banner.announce(EnumText.outcome(outcome), "", 0.9 / _events.speed)
+	await _banner.announce(EnumText.outcome(outcome), "", 0.9 / _events.speed, _events.speed)
 	var color := UITheme.HEART if outcome == Enums.BattleOutcome.VICTORY else UITheme.THREAT
 	var primary := retry_text if embedded else "Retry"
 	var secondary := change_text if embedded else "Continue"
+	_conclude()
 	_modal.visible = true
 	_result_panel.show_result(EnumText.outcome(outcome), color, _cause_text(), _details_text(levels_before), primary, secondary)
 	_set_help("%s Select" % InputBindings.prompt(InputBindings.CONFIRM))
 	finished.emit(_result)
+
+
+## The outcome now belongs to the result panel or the host: no later pause, and the log cannot keep
+## reading wheel or Page keys underneath the next card.
+func _conclude() -> void:
+	_concluded = true
+	_log.hide()
 
 
 ## What decided the battle, in plain facts from the log (no recommendation).
@@ -425,6 +450,8 @@ func _details_text(levels_before: Dictionary) -> String:
 # --- Input, Details and pause ----------------------------------------------------------------------
 
 func _input(event: InputEvent) -> void:
+	if is_instance_valid(_settings_screen):
+		return
 	if event.is_action(InputBindings.INFO) and not event.is_echo():
 		match Settings.data.advanced_tooltips:
 			GameSettings.TooltipMode.TOGGLE:
@@ -436,9 +463,20 @@ func _input(event: InputEvent) -> void:
 				_set_details(event.is_pressed())
 	elif event.is_action_pressed(InputBindings.LOG, false):
 		get_viewport().set_input_as_handled()
-		_log.toggle()
+		# Never reopen the log underneath Pause, Help or the result card (Pause → Battle log does).
+		if not _modal.visible:
+			_log.toggle()
 
 func _process(_delta: float) -> void:
+	# Only the move region reveals its already-public recipients, independently of action selection.
+	var recipients: Array[int] = []
+	if engine != null and _menu.visible and not _modal.visible and not _log.visible:
+		var hovered := get_viewport().gui_get_hovered_control() as IntentSlot
+		if hovered != null:
+			var intent: IntentReadout = hovered.get_meta(&"inspection_intent").call(_inspector._local_point(hovered))
+			if intent != null:
+				recipients = intent.target_uids
+	_battlefield.set_intent_targets(recipients)
 	# A release can be swallowed by an OS shortcut or focus change. Hold mode follows the actual
 	# action state every frame; Toggle and Always retain their explicitly selected behavior.
 	if Settings.data.advanced_tooltips == GameSettings.TooltipMode.HOLD and _details != Input.is_action_pressed(InputBindings.INFO):
@@ -465,37 +503,28 @@ func _unhandled_input(event: InputEvent) -> void:
 	request_pause()
 
 
-## Pause now when planning; otherwise queue it for the next safe point (never over a running clock).
+## Toggles Pause. It opens at once while choosing (recipient review stays exactly as it was
+## underneath; nothing is spent or submitted) and during playback, until the outcome is handed over.
+## While a command or reaction window is open the request is ignored, not queued (no timing aid).
 func request_pause() -> void:
+	if is_instance_valid(_settings_screen) or is_instance_valid(_combat_help) or _leaving:
+		return
 	if _pause_panel.visible:
 		_close_pause()
-	elif _modal.visible or engine == null or engine.is_finished():
-		return
-	elif _picker.is_active() and not _picker.is_targeting():
+	elif engine != null and not _modal.visible and not _host_paused and not _concluded and not _timed_active:
 		_open_pause()
-	elif not _picker.is_active():
-		_pause_pending = not _pause_pending
-		_host_waiting = _host_waiting and _pause_pending
-		_refresh_help()
 
 
 ## A host (the sandbox) wants to cover this battle with its own screen. A covered battle must be
-## paused: no clock, input or inspection may run under another screen. From planning the pause opens
-## now (a target under review returns to its action first; nothing is spent) and true is returned.
-## During a timed input or playback the pause is queued for the next safe point, exactly like Pause,
-## and false is returned; setup_requested is emitted once that pause has opened.
+## frozen: no clock, input or inspection may run under another screen. Like Pause, this is refused
+## (false) while a command or reaction window is open. Otherwise a target under review returns to its
+## action first (nothing is spent) and the host may cover at once (cover_for_host).
 func pause_for_host() -> bool:
-	if engine == null or engine.is_finished() or _modal.visible:
-		return true
+	if _timed_active:
+		return false
 	if _picker.is_targeting():
 		_picker.back_to_menu()
-	if _picker.is_active():
-		_open_pause()
-		return true
-	_pause_pending = true
-	_host_waiting = true
-	_refresh_help()
-	return false
+	return true
 
 
 func _set_details(on: bool) -> void:
@@ -509,30 +538,61 @@ func _set_details(on: bool) -> void:
 
 
 func _open_pause() -> void:
+	_set_frozen(true)
+	_log.hide()
 	AudioManager.play(AudioManager.Cue.UI_CANCEL)
 	get_viewport().gui_release_focus()
+	# Once the engine has decided the battle, leaving could only discard the decided outcome.
+	_pause_leave.disabled = engine.is_finished()
 	_modal.visible = true
 	_pause_panel.visible = true
 	_pause_panel.reset_size()
 	_pause_panel.position = ((_modal.size - _pause_panel.size) * 0.5).round()
 	_pause_resume.grab_focus()
+	_refresh_help()
 
 
 func _close_pause() -> void:
+	if _leaving:
+		return
 	_pause_panel.visible = false
 	_modal.visible = false
-	if _picker.is_active():
+	if _picker.is_active() and not _picker.is_targeting():
 		_menu.refocus()
-	_pause_closed.emit()
+	_refresh_help()
+	_resume_battle()
 
 
-## Embedded: open the host's setup while the battle stays paused (Resume is still there afterwards).
+## Embedded: open the host's setup over the frozen battle (closing it resumes the battle).
+## Standalone: the frozen battle fades out without resuming.
 func _retreat() -> void:
+	if _pause_leave.disabled:
+		return
 	if embedded:
 		setup_requested.emit()
 	else:
-		_close_pause()
+		_leaving = true
+		get_viewport().gui_release_focus()
 		SceneRouter.goto(launch.return_scene if not launch.return_scene.is_empty() else SceneRouter.MAIN_MENU)
+
+
+## Freezes or thaws everything that moves on its own: event playback and its waits, announcements
+## and floating text (tweens bound to these nodes, D-014), the stage and familiar animation and
+## recipient-review keys. No command or reaction window is ever open here (Pause ignores them).
+func _set_frozen(on: bool) -> void:
+	if on == _frozen:
+		return
+	_frozen = on
+	for node: Node in [_events, _overlay, _timed_host, _battlefield, _familiar, _picker]:
+		node.process_mode = Node.PROCESS_MODE_DISABLED if on else Node.PROCESS_MODE_INHERIT
+	if not on:
+		_resumed.emit()
+
+
+## Thaws once nothing covers the battle any more.
+func _resume_battle() -> void:
+	if _frozen and not is_paused():
+		_set_frozen(false)
 
 
 ## Gives keyboard focus back to the battle (the host's setup drawer closed).
@@ -545,10 +605,21 @@ func refocus() -> void:
 		_menu.refocus()
 
 
+## A click gives the log keyboard focus for scrolling; closing it hands focus back to planning, so
+## keyboard and controller navigation never strands on a hidden panel.
+func _on_log_visibility() -> void:
+	if _log.visible or not is_inside_tree():
+		return
+	var owner := get_viewport().gui_get_focus_owner()
+	if owner == null or _log.is_ancestor_of(owner):
+		refocus.call_deferred()
+
+
 ## The sandbox owns the visible page. Suspend and hide this subtree without a second pause overlay:
 ## frozen floating text or a late banner (raised z layers) must not draw over the host page.
 func cover_for_host() -> void:
 	_host_paused = true
+	_set_frozen(true)
 	_modal.visible = false
 	_pause_panel.visible = false
 	_inspector.clear()
@@ -563,8 +634,8 @@ func resume_from_host() -> void:
 	visible = true
 	process_mode = Node.PROCESS_MODE_INHERIT
 	_modal.visible = _result_panel.visible
-	_pause_closed.emit()
 	refocus()
+	_resume_battle()
 
 
 func _on_result_primary() -> void:
@@ -607,7 +678,7 @@ func _default_launch() -> BattleLaunch:
 
 func _refresh_hud() -> void:
 	_timeline.refresh()
-	_header_round.text = "%d" % maxi(1, _timeline.round_number)
+	_header_round.text = "Round: %d" % maxi(1, _timeline.round_number)
 	_header_round.tooltip_text = "Round %d" % maxi(1, _timeline.round_number)
 	_familiar.refresh()
 	if _ribbon_dirty():
@@ -636,7 +707,7 @@ func _set_idle(text: String) -> void:
 func _show_planning(on: bool) -> void:
 	_menu.visible = on
 	_supplies.visible = on
-	_info.visible = on
+	_info.visible = false
 	_idle.visible = not on and not _timed_active
 
 
@@ -649,11 +720,9 @@ func _set_help(text: String) -> void:
 func _refresh_help() -> void:
 	var text := _help_text
 	if not _picker.is_active() and not _timed_active and not _modal.visible:
-		text = "%s Log · %s Pause after this action" % [InputBindings.prompt(InputBindings.LOG), InputBindings.prompt(InputBindings.MENU)]
-	if _pause_pending:
-		text = "Pausing after this action · " + text
-	_help.text = text
-	_help.add_theme_color_override("font_color", UITheme.ACCENT if _pause_pending else UITheme.TEXT_DIM)
+		text = "%s Log · %s Pause" % [InputBindings.prompt(InputBindings.LOG), InputBindings.prompt(InputBindings.MENU)]
+	_help.text = text.replace("\n", " · ")
+	_help.add_theme_color_override("font_color", UITheme.TEXT_DIM)
 	_target_prompt.text = _picker.target_prompt()
 	_target_prompt.visible = not _target_prompt.text.is_empty() and not _modal.visible
 
@@ -670,7 +739,7 @@ func _on_device_changed() -> void:
 ## Bound keys follow the active device; the shared inspector shows these as cards.
 func _refresh_toolbar_tooltips() -> void:
 	_log_button.tooltip_text = "%s Battle log" % InputBindings.prompt(InputBindings.LOG)
-	_pause_button.tooltip_text = "%s Pause\nNow while choosing; otherwise after the current action." % InputBindings.prompt(InputBindings.MENU)
+	_pause_button.tooltip_text = "%s Pause\nFreezes the battle while choosing or watching. Ignored during timed inputs." % InputBindings.prompt(InputBindings.MENU)
 
 
 func _on_settings_changed() -> void:
@@ -706,6 +775,9 @@ func _apply_layout() -> void:
 	if _timeline == null:
 		return
 	layout = BattleLayout.compute(size, UITheme.text_scale())
+	if _inspector != null:
+		_inspector._position_card()
+		_inspector.size = layout.preview.size
 	_place(_header_title.get_parent_control(), layout.header)
 	_place(_timeline, layout.timeline)
 	_place(_battlefield, layout.stage)
@@ -714,6 +786,8 @@ func _apply_layout() -> void:
 	var prompt_height := minf(UITheme.control_height(), layout.timeline.size.y)
 	_place(_target_prompt, Rect2(Vector2(layout.timeline.get_center().x - 220, layout.timeline.get_center().y - prompt_height * 0.5), Vector2(440, prompt_height)))
 	_place(_help, layout.help)
+	_place(_header_round, Rect2(layout.help.end.x - 110, layout.help.position.y, 110, layout.help.size.y))
+	_help.size.x -= 120
 	_place(_timed_host, layout.timed)
 	_rail.arrange(layout.stage)
 	_place(_menu, layout.actions)
@@ -756,8 +830,12 @@ static func _place(node: Control, rect: Rect2) -> void:
 
 func _build() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	var background := ColorRect.new()
-	background.color = UITheme.BG
+	var background := TextureRect.new()
+	background.texture = UICraft.texture("peat")
+	background.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
+	background.stretch_mode = TextureRect.STRETCH_TILE
+	background.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	background.modulate = Color(.52, .62, .59)
 	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(background)
@@ -766,34 +844,40 @@ func _build() -> void:
 	header.name = "Header"
 	header.add_theme_constant_override("separation", 14)
 	add_child(header)
-	_header_title = UITheme.label("HOLLOW CHOIR", UITheme.TEXT, UITheme.body_size())
+	_header_title = UITheme.label("Battle", UITheme.TEXT, UITheme.body_size())
 	_header_title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_header_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_header_title.clip_text = true
 	_header_title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	_header_title.size_flags_vertical = Control.SIZE_FILL
 	header.add_child(_header_title)
-	_header_round = UITheme.label("Round 1", UITheme.TEXT, UITheme.body_size())
+	_header_round = UITheme.label("Round 1", UITheme.TEXT_DIM, 11)
 	_header_round.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_header_round.size_flags_vertical = Control.SIZE_FILL
-	header.add_child(_header_round)
+	_header_round.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_header_round.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_header_round)
+	var toolbelt := PanelContainer.new()
+	toolbelt.name = "Toolbelt"
+	toolbelt.add_theme_stylebox_override("panel", UICraft.panel("tooltip", 10, 3))
+	header.add_child(toolbelt)
 	_toolbar = HBoxContainer.new()
 	_toolbar.name = "Toolbar"
-	header.add_child(_toolbar)
+	toolbelt.add_child(_toolbar)
 	_log_button = Button.new()
 	_log_button.icon = CombatIcons.texture("log")
 	_log_button.expand_icon = true
-	_log_button.custom_minimum_size = Vector2(40, 36)
+	_log_button.custom_minimum_size = Vector2(40, 40)
 	_log_button.focus_mode = Control.FOCUS_ALL
-	_log_button.flat = true
+	UICraft.style_tool_button(_log_button)
 	_log_button.pressed.connect(func() -> void: _log.toggle())
 	_toolbar.add_child(_log_button)
 	_pause_button = Button.new()
 	_pause_button.icon = CombatIcons.texture("pause")
 	_pause_button.expand_icon = true
-	_pause_button.custom_minimum_size = Vector2(40, 36)
+	_pause_button.custom_minimum_size = Vector2(40, 40)
 	_pause_button.focus_mode = Control.FOCUS_ALL
-	_pause_button.flat = true
+	UICraft.style_tool_button(_pause_button)
 	_pause_button.pressed.connect(request_pause)
 	_toolbar.add_child(_pause_button)
 	_refresh_toolbar_tooltips()
@@ -818,17 +902,27 @@ func _build() -> void:
 	_target_prompt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_target_prompt.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_target_prompt.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_target_prompt.add_theme_stylebox_override("normal", UITheme.box(Color(UITheme.BG, 0.96), UITheme.BORDER, 1, 0, 6))
+	_target_prompt.add_theme_stylebox_override("normal", UICraft.panel("tooltip", 12, 6))
 	_target_prompt.visible = false
 	add_child(_target_prompt)
 
 	_ribbon = ConditionRibbon.new()
 	_ribbon.name = "ConditionRibbon"
 	header.add_child(_ribbon)
-	header.move_child(_ribbon, header.get_child_count() - 2)
+	header.move_child(_ribbon, 1)
+	var divider := TextureRect.new()
+	divider.texture = UICraft.texture("slider_track")
+	divider.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	divider.custom_minimum_size = Vector2(16, 3)
+	divider.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	divider.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	header.add_child(divider)
+	header.move_child(divider, 2)
 
 	_supplies = PanelContainer.new()
 	_supplies.name = "Supplies"
+	_supplies.z_index = 12
+	_supplies.add_theme_stylebox_override("panel", UICraft.panel("bag", 10, 12))
 	_supplies.visible = false
 	add_child(_supplies)
 	_menu = ActionMenu.new()
@@ -839,11 +933,12 @@ func _build() -> void:
 	_info = PreviewPanel.new()
 	_info.name = "Preview"
 	_info.summary_scale = InspectionContent.CONTENT_SCALE
+	_info.set_meta(&"inspection_readout", func(_point: Vector2) -> ActionReadout: return _info._readout)
 	_info.visible = false
 	add_child(_info)
 	_idle = PanelContainer.new()
 	_idle.name = "Idle"
-	_idle.add_theme_stylebox_override("panel", UITheme.box(UITheme.PANEL, UITheme.BORDER, 1, 4, 14, 10))
+	_idle.add_theme_stylebox_override("panel", UICraft.panel("cloth", 14, 10))
 	add_child(_idle)
 	_idle_label = UITheme.label("", UITheme.TEXT_DIM, UITheme.body_size(), true)
 	_idle_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -860,8 +955,11 @@ func _build() -> void:
 
 	_help = UITheme.label("", UITheme.TEXT_DIM, UITheme.secondary_size())
 	_help.name = "Help"
+	_help.add_theme_font_size_override("font_size", 11)
 	_help.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	# The fixed game footer has two authored lines. Wrapping at an initial zero width can leave
+	# a stale oversized minimum height; the canonical canvas already fits the complete prompts.
+	_help.autowrap_mode = TextServer.AUTOWRAP_OFF
 	_help.clip_text = false
 	_help.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
 	add_child(_help)
@@ -870,6 +968,7 @@ func _build() -> void:
 	_log.name = "Log"
 	_log.visible = false
 	add_child(_log)
+	_log.visibility_changed.connect(_on_log_visibility)
 
 	_overlay = Control.new()
 	_overlay.name = "Overlay"
@@ -913,8 +1012,10 @@ func _build() -> void:
 
 	_inspector = HoverInspector.new()
 	_inspector.name = "HoverInspector"
-	_inspector.suppressed = func() -> bool: return _modal.visible or _banner.visible
-	_inspector.bounds_provider = func() -> Rect2: return layout.stage if layout != null else Rect2(Vector2(24, 120), Vector2(size.x - 48, size.y - 360))
+	_inspector.docked = true
+	_inspector.fallback_source = func() -> Control: return _info
+	_inspector.suppressed = func() -> bool: return _modal.visible or _banner.visible or _timed_active or not _menu.visible
+	_inspector.bounds_provider = func() -> Rect2: return layout.preview if layout != null else Rect2(660, 490, 596, 186)
 	_inspector.keyboard_source = func() -> Control:
 		var uid := _picker.reviewed_target_uid()
 		return _battlefield.view(uid) if uid >= 0 else null
@@ -925,10 +1026,7 @@ func _build() -> void:
 		if _banner.visible:
 			_inspector.clear())
 	# The shared inspector replaces the native delayed tooltip within this battle.
-	var quiet := Theme.new()
-	quiet.set_color("font_color", "TooltipLabel", Color.TRANSPARENT)
-	quiet.set_stylebox("panel", "TooltipPanel", StyleBoxEmpty.new())
-	theme = quiet
+	apply_battle_theme()
 	_picker = ActionPicker.new()
 	_picker.name = "ActionPicker"
 	add_child(_picker)
@@ -941,7 +1039,7 @@ func _build_pause_panel() -> void:
 	_pause_panel = PanelContainer.new()
 	_pause_panel.name = "Pause"
 	_pause_panel.visible = false
-	_pause_panel.add_theme_stylebox_override("panel", UITheme.box(UITheme.PANEL, UITheme.ACCENT.darkened(0.3), 1, 6, 20, 14))
+	_pause_panel.add_theme_stylebox_override("panel", UICraft.panel("cloth", 20, 14))
 	_modal.add_child(_pause_panel)
 	var box := VBoxContainer.new()
 	box.custom_minimum_size = Vector2(300, 0)
@@ -961,10 +1059,19 @@ func _build_pause_panel() -> void:
 		_close_pause())
 	box.add_child(log_button)
 	var leave := Button.new()
-	leave.text = "Back to setup" if embedded else "Retreat to menu"
+	_pause_leave = leave
+	var settings_button := Button.new()
+	settings_button.text = "Settings"
+	settings_button.pressed.connect(_open_settings)
+	box.add_child(settings_button)
+	var reaction_help := Button.new()
+	reaction_help.text = "Reaction help"
+	reaction_help.pressed.connect(_open_combat_help)
+	box.add_child(reaction_help)
+	leave.text = leave_text if embedded else "Retreat to menu"
 	leave.pressed.connect(_retreat)
 	box.add_child(leave)
-	var buttons: Array[Button] = [_pause_resume, log_button, leave]
+	var buttons: Array[Button] = [_pause_resume, log_button, settings_button, reaction_help, leave]
 	for index in buttons.size():
 		var button := buttons[index]
 		button.custom_minimum_size = Vector2(0, UITheme.control_height())
@@ -972,3 +1079,50 @@ func _build_pause_panel() -> void:
 		button.focus_neighbor_bottom = button.get_path_to(buttons[wrapi(index + 1, 0, buttons.size())])
 		button.focus_neighbor_left = button.get_path_to(button)
 		button.focus_neighbor_right = button.get_path_to(button)
+
+
+## CanvasLayer hosts must preserve this local theme when applying the game theme.
+func apply_battle_theme() -> void:
+	theme = UITheme.build()
+	theme.set_color("font_color", "TooltipLabel", Color.TRANSPARENT)
+	theme.set_color("font_shadow_color", "TooltipLabel", Color.TRANSPARENT)
+	theme.set_stylebox("panel", "TooltipPanel", StyleBoxEmpty.new())
+
+
+func _open_combat_help() -> void:
+	if is_instance_valid(_combat_help):
+		return
+	var balance := engine.ctx.balance
+	var paragraphs := PackedStringArray([
+		"Press a reaction key as the moving ring reaches the inner ring and the marker reaches Impact. The first allowed press locks your choice. Release any held reaction key before the next window. Unavailable reactions do nothing.",
+		"%s Brace — A successful brace reduces damage. Status effects can still land. Its wider timing window makes it the safer response." % InputBindings.prompt(InputBindings.BRACE),
+		"%s Evade — A successful evade avoids the hit and its status effects. A failed attempt takes %d%% extra damage. Check battlefield conditions: evading on flooded ground makes you Wet." % [InputBindings.prompt(InputBindings.EVADE), roundi((balance.evade_fail_multiplier - 1) * 100)],
+		"%s Parry — The narrowest window. Success avoids the hit, staggers the attacker and grants %d Focus. A failed attempt takes %d%% extra damage. Some attacks cannot be parried." % [InputBindings.prompt(InputBindings.PARRY), balance.parry_focus, roundi((balance.parry_fail_multiplier - 1) * 100)],
+		"Hover an enemy's intended move before it acts to check the permitted reactions and battlefield effects. Settings offers reaction assists and a pause before each window."
+	])
+	_combat_help = WorldModal.make(&"help", "Defensive reactions", paragraphs, [WorldDialogueReadout.action(&"back", "Back")])
+	_combat_help.cancel_id = &"back"
+	_pause_panel.hide()
+	_modal.add_child(_combat_help)
+	_combat_help.chosen.connect(func(_id: StringName) -> void:
+		_combat_help.queue_free()
+		_combat_help = null
+		_pause_panel.show()
+		_pause_resume.grab_focus())
+
+
+func _open_settings() -> void:
+	if is_instance_valid(_settings_screen):
+		return
+	var screen := load(SceneRouter.SETTINGS).instantiate() as SettingsScreen
+	_settings_screen = screen
+	screen.embedded = true
+	screen.theme = UITheme.build()
+	_pause_panel.hide()
+	_modal.add_child(screen)
+	screen.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	screen.closed.connect(func() -> void:
+		_settings_screen = null
+		screen.queue_free()
+		_pause_panel.show()
+		_pause_resume.grab_focus())

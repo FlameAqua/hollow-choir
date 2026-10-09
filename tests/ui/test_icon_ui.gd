@@ -52,6 +52,8 @@ func test_full_size_cast_and_supply_selection_reuse_existing_costs() -> void:
 	launch.simulated_execution = Enums.SimulatedExecution.GOOD
 	scene.start(launch)
 	assert_true(await _until(func() -> bool: return scene._picker.is_active()))
+	# The pointer now clears idle hover content. Deliberate keyboard inspection shows the action.
+	scene._inspector.follow_keyboard()
 	for i in 3:
 		await _tree.process_frame
 	# The party stands on stage only; the dock holds exactly Actions, the preview and Supplies.
@@ -59,7 +61,7 @@ func test_full_size_cast_and_supply_selection_reuse_existing_costs() -> void:
 	var dock_panels := scene.find_children("*", "PanelContainer", true, false).filter(func(node: Node) -> bool:
 		return (node as Control).is_visible_in_tree() and (node as Control).get_global_rect().intersects(dock))
 	assert_eq(dock_panels.size(), 3, "no duplicate party card in the dock")
-	for panel in [scene._menu, scene._info, scene._supplies]:
+	for panel in [scene._menu, scene._inspector, scene._inspector._card]:
 		assert_true(dock_panels.has(panel))
 	for member in scene.engine.get_state().party():
 		assert_true(scene._battlefield.view(member.uid).is_visible_in_tree(), "each party member is shown on stage")

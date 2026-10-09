@@ -1,0 +1,9 @@
+[gd_resource type="ConvexPolygonShape2D" format=3]
+
+; Shared ground footprint of the willow (atlases/willow.tres, foot origin at the trunk base).
+; Traced from the visible trunk and root flare: the convex hull of the opaque pixels connected to
+; the trunk in the 26 rows above the foot. Hanging canopy strands are excluded, so the canopy
+; stays walk-behind. Authored geometry: never derived from sprite alpha at runtime.
+
+[resource]
+points = PackedVector2Array(-22, -26, 29, -26, 34, -21, 39, -15, 39, -13, 32, -6, 18, 0, 12, 0, -16, -1, -27, -5, -34, -12, -34, -14, -28, -23)

@@ -42,7 +42,7 @@ func _ready() -> void:
 	_scroll.add_child(content)
 	content.add_child(UITheme.label("Choose a song. Switch its version or tone at the same point in the music.", UITheme.TEXT, -1, true))
 	content.add_child(UITheme.label("Song", UITheme.ACCENT))
-	_cues = OptionButton.new()
+	_cues = UITheme.selector()
 	_cues.fit_to_longest_item = false
 	_cues.custom_minimum_size.y = UITheme.control_height()
 	content.add_child(_cues)
@@ -53,7 +53,7 @@ func _ready() -> void:
 				_cues.add_item(String(playlist.cue_id).replace("_", " ").capitalize())
 	_cues.item_selected.connect(_select_cue)
 	content.add_child(UITheme.label("Version / tone", UITheme.ACCENT))
-	_versions = OptionButton.new()
+	_versions = UITheme.selector()
 	_versions.fit_to_longest_item = false
 	_versions.custom_minimum_size.y = UITheme.control_height()
 	content.add_child(_versions)

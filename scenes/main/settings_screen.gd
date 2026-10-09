@@ -3,7 +3,6 @@ extends Control
 ## Settings (GDD "Accessibility"): the two independent difficulty axes, assist overrides, display
 ## and accessibility options, volumes and input rebinding. Every change applies and saves at once.
 
-const TEXT_SCALES := [0.75, 0.9, 1.0, 1.15, 1.3, 1.5, 1.75, 2.0]
 const COMBAT_SPEEDS := [0.5, 0.75, 1.0, 1.25, 1.5, 2.0]
 const TOGGLE_ENTRIES := [["Use assist preset", GameSettings.Toggle.DEFAULT], ["On", GameSettings.Toggle.ON],
 	["Off", GameSettings.Toggle.OFF]]
@@ -14,12 +13,18 @@ var _assist_note: Label
 var _binding_buttons: Dictionary[StringName, Button] = {}
 var _capturing: StringName = &""
 var _first_control: Control
+## Set by a host before the node enters the tree: keep the host's music and return via [signal closed].
+var embedded := false
+
+## Emitted instead of routing to the title when a host (the paused world) embedded this screen.
+signal closed
 
 
 func _ready() -> void:
-	AudioManager.request_music(&"global_title")
-	var background := ColorRect.new()
-	background.color = UITheme.BG
+	if not embedded:
+		AudioManager.request_music(&"global_title")
+	var background := Panel.new()
+	background.add_theme_stylebox_override("panel", UICraft.panel("cloth", 0, 0))
 	add_child(background)
 	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var margin := MarginContainer.new()
@@ -77,7 +82,10 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _leave() -> void:
 	AudioManager.play(AudioManager.Cue.UI_CANCEL)
-	SceneRouter.goto(SceneRouter.MAIN_MENU)
+	if embedded:
+		closed.emit()
+	else:
+		SceneRouter.goto(SceneRouter.MAIN_MENU)
 
 
 # --- Pages ---------------------------------------------------------------------------------------
@@ -112,20 +120,22 @@ func _build_display(page: VBoxContainer) -> void:
 	var data := Settings.data
 	_option(page, "Window", [["Windowed", GameSettings.WindowMode.WINDOWED], ["Fullscreen", GameSettings.WindowMode.FULLSCREEN],
 		["Borderless", GameSettings.WindowMode.BORDERLESS]], int(data.window_mode), func(value: int) -> void:
-		Settings.set_value("window_mode", value))
+		Settings.set_value("window_mode", value)
+		_rebuild.call_deferred())
 	var resolution_entries: Array = []
 	for index in GameSettings.RESOLUTIONS.size():
 		var resolution := GameSettings.RESOLUTIONS[index]
 		resolution_entries.append(["%d × %d" % [resolution.x, resolution.y], index])
-	_option(page, "Window resolution", resolution_entries, maxi(0, GameSettings.RESOLUTIONS.find(data.window_resolution)), func(index: int) -> void:
-		Settings.set_value("window_resolution", GameSettings.RESOLUTIONS[index]))
-	_note(page, "The interface scales with the window. Fullscreen uses your desktop resolution; windowed sizes fit your monitor.")
-	var scale_entries: Array = []
-	for index in TEXT_SCALES.size():
-		scale_entries.append(["%d%%" % roundi(TEXT_SCALES[index] * 100.0), index])
-	_option(page, "Text size", scale_entries, _closest(TEXT_SCALES, data.text_scale), func(index: int) -> void:
-		Settings.set_value("text_scale", TEXT_SCALES[index])
+	var resolution_option := _option(page, "Window resolution", resolution_entries, maxi(0, GameSettings.RESOLUTIONS.find(data.window_resolution)), func(index: int) -> void:
+		Settings.set_value("window_resolution", GameSettings.RESOLUTIONS[index])
 		_rebuild.call_deferred())
+	resolution_option.disabled = data.window_mode != GameSettings.WindowMode.WINDOWED
+	if DisplayServer.get_name() != "headless":
+		var available := DisplayServer.screen_get_usable_rect(DisplayServer.window_get_current_screen()).size - Vector2i(24, 56)
+		for index in GameSettings.RESOLUTIONS.size():
+			var preset := GameSettings.RESOLUTIONS[index]
+			resolution_option.set_item_disabled(index, preset.x > available.x or preset.y > available.y)
+	_note(page, "Windowed uses a fixed preset. Fullscreen uses your display. The game keeps the same layout and text proportions in every mode.")
 	var speed_entries: Array = []
 	for index in COMBAT_SPEEDS.size():
 		speed_entries.append(["%sx" % str(COMBAT_SPEEDS[index]), index])
@@ -235,7 +245,7 @@ func _row(page: VBoxContainer, label_text: String, control: Control) -> void:
 
 
 func _option(page: VBoxContainer, label_text: String, entries: Array, selected_value: int, on_change: Callable) -> OptionButton:
-	var option := OptionButton.new()
+	var option := UITheme.selector()
 	option.fit_to_longest_item = false
 	option.clip_text = true
 	for entry: Array in entries:
@@ -271,15 +281,27 @@ func _rebuild() -> void:
 
 
 func _slider(page: VBoxContainer, label_text: String, value: float, field: String) -> HSlider:
+	var row := HBoxContainer.new()
 	var slider := HSlider.new()
+	slider.name = field
 	slider.min_value = 0.0
 	slider.max_value = 1.0
 	slider.step = 0.05
 	slider.value = value
-	slider.custom_minimum_size = Vector2(320, 24)
-	slider.value_changed.connect(func(new_value: float) -> void: Settings.set_value(field, new_value))
+	slider.custom_minimum_size = Vector2(240, 40)
+	slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(slider)
+	var percentage := UITheme.label("%d%%" % roundi(value * 100), UITheme.ACCENT)
+	percentage.name = "Percentage"
+	percentage.custom_minimum_size.x = 60
+	percentage.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	percentage.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	row.add_child(percentage)
+	slider.value_changed.connect(func(new_value: float) -> void:
+		percentage.text = "%d%%" % roundi(new_value * 100)
+		Settings.set_value(field, new_value))
 	slider.drag_ended.connect(func(_changed: bool) -> void: AudioManager.play(AudioManager.Cue.UI_CONFIRM))
-	_row(page, label_text, slider)
+	_row(page, label_text, row)
 	return slider
 
 

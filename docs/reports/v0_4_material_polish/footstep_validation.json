@@ -1,0 +1,34 @@
+{
+  "original_22_unchanged": true,
+  "changed_cues": [
+    "step_peat.wav",
+    "step_stone.wav",
+    "step_wood.wav"
+  ],
+  "footstep_measurements": [
+    {
+      "file": "step_peat.wav",
+      "sha256": "2cd0b3d3d9dfc2d0214b1c828b3cd702cacc47d2e3deb870935ab10b07e30936",
+      "frames": 11025,
+      "duration_seconds": 0.25,
+      "sample_peak_dbfs": -21.41,
+      "rms_dbfs": -37.08
+    },
+    {
+      "file": "step_stone.wav",
+      "sha256": "1bf214f8c56d0806e45702ac6808d59b571bcab56676134d6f45c4d51aa17686",
+      "frames": 8820,
+      "duration_seconds": 0.2,
+      "sample_peak_dbfs": -20.92,
+      "rms_dbfs": -37.07
+    },
+    {
+      "file": "step_wood.wav",
+      "sha256": "16f7f0ca500c30809fd28ef558402da042b54a760cf3404e29750cb103e3c537",
+      "frames": 9261,
+      "duration_seconds": 0.21,
+      "sample_peak_dbfs": -21.41,
+      "rms_dbfs": -37.79
+    }
+  ]
+}

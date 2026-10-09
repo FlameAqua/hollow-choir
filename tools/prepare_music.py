@@ -19,7 +19,8 @@ ROOT = Path(__file__).resolve().parent.parent
 INBOX = ROOT / "assets/audio/source/inbox"
 MUSIC = ROOT / "assets/audio/music"
 CUES = {"global_title": "global", "briarfen_battle": "regions/briarfen",
-        "briarfen_boss_mirebell": "regions/briarfen"}
+        "briarfen_boss_mirebell": "regions/briarfen", "gloamstead_town": "regions/briarfen",
+        "briarfen_exploration": "regions/briarfen"}
 NAME = re.compile(r"(.+)_v(\d+)(?:_([a-z][a-z0-9_]*))?$", re.I)
 FORMATS = {".m4a", ".wav", ".flac", ".mp3", ".ogg"}
 
@@ -122,7 +123,7 @@ def prepare(item, ffmpeg, ffprobe, cached):
             "trim_start_seconds": begin, "trim_end_seconds": end, "duration_seconds": length,
             "export_gain_db": gain, "playback_gain_db": -12.0, "crossfade_seconds": 3.0,
             "input_lufs": float(measurements["input_i"]), "input_true_peak_dbtp": float(measurements["input_tp"]),
-            "approved_by": "Adrian", "approval_note": "User requested all inbox versions in game, 8 October 2026.",
+            "approved_by": "Adrian", "approval_note": "User requested town and exploration inbox variants in game, 9 October 2026." if cue in {"gloamstead_town", "briarfen_exploration"} else "User requested all inbox versions in game, 8 October 2026.",
             "usage_status": "user_authorized", "loop_mode": "playlist_crossfade",
             "beat_alignment": "unmeasured", "sync_group": None, "loop_joins_auditioned": 0,
             "decode_check": "passed"}
@@ -159,6 +160,10 @@ def update_delivery_records(records):
     catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
     catalog["integration_status"] = "playlist_playback"
     catalog["purpose"] = "Delivery ledger; runtime playlists are separate typed Resources."
+    known_cues = {track["cue_id"] for track in catalog["tracks"]}
+    for cue in dict.fromkeys(record["cue_id"] for record in records):
+        if cue not in known_cues:
+            catalog["tracks"].append({"cue_id": cue, "region": "briarfen", "role": "town" if cue == "gloamstead_town" else "exploration", "working_title": "Gloamstead", "priority": 3, "status": "unassigned", "prompt_reference": "docs/audio/FIRST_FOOTSTEPS_MUSIC_REQUESTS.md"})
     by_id = {record["id"]: record for record in records}
     for record in records:
         source = ROOT / record["source_file"]
@@ -188,7 +193,7 @@ def update_delivery_records(records):
         if selected:
             track.update(status="integrated", approved_by="Adrian",
                          usage_status="user_authorized",
-                         approval_note="All inbox versions authorized as playlist variants, 8 October 2026.")
+                         approval_note=selected[0]["approval_note"])
         elif track.get("status") == "integrated":
             track["status"] = "unassigned"
     candidates = catalog.setdefault("candidates", [])

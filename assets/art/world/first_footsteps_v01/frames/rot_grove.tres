@@ -1,0 +1,46 @@
+[gd_resource type="SpriteFrames" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/art/world/first_footsteps_v01/atlases/rot_grove.png" id="1_pos8h"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p7hpr"]
+atlas = ExtResource("1_pos8h")
+region = Rect2(0, 0, 128, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_poelg"]
+atlas = ExtResource("1_pos8h")
+region = Rect2(128, 0, 128, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7jifu"]
+atlas = ExtResource("1_pos8h")
+region = Rect2(256, 0, 128, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wm1j8"]
+atlas = ExtResource("1_pos8h")
+region = Rect2(384, 0, 128, 96)
+filter_clip = true
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_p7hpr")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_poelg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_7jifu")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wm1j8")
+}],
+"loop": 1,
+"name": &"idle",
+"speed": 2.0
+}]
+metadata/foot_anchor = Vector2i(64, 92)
+metadata/cell_size = Vector2i(128, 96)
+metadata/art_status = "generated_candidate"

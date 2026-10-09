@@ -1,12 +1,13 @@
 extends Node
 ## Plays music playlists through two streaming decks and short cues through a pool on the SFX bus.
 ## Every battle mechanic maps to
-## a cue (GDD: "Every battle mechanic must have audiovisual feedback"). Placeholder sounds are
-## synthesised by tools/generate_placeholder_sfx.py and live in assets/audio/sfx/.
+## a cue (GDD: "Every battle mechanic must have audiovisual feedback"). Soft material sounds are
+## synthesised by tools/generate_placeholder_sfx.py; see assets/audio/sfx/README.md.
 
 enum Cue {
 	UI_MOVE, UI_CONFIRM, UI_CANCEL, HIT, HIT_HEAVY, WEAKNESS, PERFECT, GOOD, MISS, PARRY, BRACE,
 	EVADE, BREAK, STATUS, HEAL, FOCUS, TELEGRAPH, CHANNEL, BEAT, CHARGE, VICTORY, DEFEAT,
+	STEP_PEAT, STEP_STONE, STEP_WOOD,
 }
 
 const BUS_MASTER := &"Master"
@@ -50,6 +51,16 @@ func play(cue: Cue, pitch_variation: float = 0.0, volume_db: float = 0.0) -> voi
 	if pitch_variation > 0.0:
 		player.pitch_scale += randf_range(-pitch_variation, pitch_variation)
 	player.play()
+
+
+## Stops every cue voice and cuts the music at once (test and capture teardown). The audio server
+## drops a stopped playback on its next mix, so callers that exit afterwards should let a few
+## frames pass; a voice still mixing at process exit is otherwise reported as a leaked instance.
+func silence() -> void:
+	for player in _players:
+		player.stop()
+		player.stream = null
+	music.cut()
 
 
 func set_bus_volume(bus: StringName, linear: float) -> void:

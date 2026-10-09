@@ -8,28 +8,37 @@ in real time. Design canon lives in [`docs/DESIGN_DOCUMENT.md`](docs/DESIGN_DOCU
 foundation: a deterministic battle engine, data-driven content, utility AI with three tactical
 difficulties, four execution assists, the V0.2 combat UI, Practice/Lab and headless balance
 simulation, a saved-knowledge Field Guide and randomized music playlists. The M1.1 human clarity
-gate (fresh-player READ/REACT sessions) is still open. The
-overworld, hub, quests and progression UIs are later milestones.
+gate (fresh-player READ/REACT sessions) is still open. The uncommitted **V0.4 First Footsteps** working tree adds
+walkable Gloamstead and Briarfen Reedway, two encounter groups, a discovered local map, a bell
+restoration and a return shortcut. [Director review](docs/reports/V0_4_DIRECTOR_ACCEPTANCE.md)
+records integration and the still-open human/controller/listening gates.
 
 ## Running it
 
 Requires **Godot 4.7.2** (standard build; no addons, no C#).
 
 1. Open the folder in the Godot editor (or run the executable with `--path <repo>`); press **Play**.
-2. Title → **Combat Sandbox**. **Practice** offers curated encounters with fixed, honest rules.
+2. Title → **Continue journey** for First Footsteps. Speak to the Bellkeeper, choose an owned
+   starter weapon at the bench, then follow the old boards beyond the reed gate. Journey victories
+   save research and weapon practice. Progress resumes at the last saved safe place; quitting
+   during battle returns to its approach without recording that attempt.
+3. Title → **Combat Sandbox**. **Practice** offers curated encounters with fixed, honest rules.
    **Lab** builds any fight (enemies, conditions, equipment, knowledge, simulated execution,
    autopilot) and **Simulate** runs it 10–500 times. Inside a battle, **Setup** returns to these
    pages and **Restart** replays the fight.
-3. **Settings** covers Tactical Difficulty and Execution Assist (independent, changeable any time),
-   window size, text size (75–200%), accessibility options, volumes and rebinding.
-4. **Field Guide** shows saved species research and weapon practice. Practice remains unrecorded;
-   use Lab's **Record progress** opt-in to populate the guide. Opening it never grants progress.
+4. **Settings** covers Tactical Difficulty and Execution Assist (independent, changeable any time),
+   fixed window-resolution presets, motion/flashing options, volumes and rebinding. The game uses
+   one fixed layout and text proportions; the whole canvas scales to the output resolution.
+5. **Field Guide** shows saved species research and weapon practice from journey victories or
+   Lab's **Record progress** opt-in. Practice remains unrecorded. Opening the guide grants no progress.
 
 ### Default controls
 
 | Action | Keyboard | Gamepad |
 |---|---|---|
 | Menus / targets | Arrows; Enter confirms; Escape, X or Backspace go back | D-pad; A confirms, B goes back |
+| Walk · Interact (world) | WASD / arrows · E | Left stick / D-pad · A |
+| Local map · World menu | M · Escape | Back · Start |
 | Action command | Space or Z | A / X |
 | Brace · Evade · Parry | A · S · D | LB · X · RB |
 | Details (hold by default; Toggle/Always in Settings) | Alt | Y |
@@ -65,6 +74,7 @@ src/core/        enums, display text, input bindings, settings data, content reg
 src/data/        Resource definitions (the data contracts)
 src/battle/      pure, deterministic combat: engine, rules, AI, previews, simulation (no Nodes)
 src/progression/ save-facing progress models (bestiary, mastery, loadout)
+src/world/       exploration host, pure rules, transactional session and filtered readouts
 src/save/        save migration
 src/autoload/    EventBus, Database, AudioManager, Settings, GameState, SaveManager, SceneRouter
 src/audio/       typed playlists and two-deck, real-time music mixer

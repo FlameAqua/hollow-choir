@@ -1,0 +1,43 @@
+[gd_resource type="SpriteFrames" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/art/global/familiars/sprites/bell_crow_idle_v02.png" id="1_k6h8g"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_uqxyd"]
+atlas = ExtResource("1_k6h8g")
+region = Rect2(0, 0, 64, 64)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_weldr"]
+atlas = ExtResource("1_k6h8g")
+region = Rect2(64, 0, 64, 64)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ijj2j"]
+atlas = ExtResource("1_k6h8g")
+region = Rect2(128, 0, 64, 64)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tix13"]
+atlas = ExtResource("1_k6h8g")
+region = Rect2(192, 0, 64, 64)
+filter_clip = true
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_uqxyd")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_weldr")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ijj2j")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_tix13")
+}],
+"loop": 1,
+"name": &"idle",
+"speed": 2.0
+}]

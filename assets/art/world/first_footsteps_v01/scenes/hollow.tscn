@@ -1,0 +1,11 @@
+[gd_scene format=3]
+
+[ext_resource type="SpriteFrames" path="res://assets/art/world/first_footsteps_v01/frames/hollow_motion_v05.tres" id="1_x5b2g"]
+
+[node name="Hollow" type="Node2D" unique_id=1849908240]
+
+[node name="Visual" type="AnimatedSprite2D" parent="." unique_id=751243546]
+texture_filter = 1
+sprite_frames = ExtResource("1_x5b2g")
+animation = &"idle_south"
+offset = Vector2(0, -28)

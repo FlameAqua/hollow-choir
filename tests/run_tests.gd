@@ -84,7 +84,20 @@ func _run() -> void:
 	print("")
 	print("Tests: %d passed, %d failed, %d assertions (%.2fs)" % [passed, failed, assertions, elapsed])
 	OS.remove_logger(_logger)
+	await _release_audio()
 	quit(1 if failed > 0 or passed == 0 else 0)
+
+
+## A cue or music deck still mixing when the process exits keeps its stream playback referenced by
+## the audio server, which Godot then reports as leaked instances. Silence everything and let the
+## mixer drop those playbacks, so an exit report only ever names real ownership problems.
+func _release_audio() -> void:
+	var audio := root.get_node_or_null("AudioManager")
+	if audio != null and audio.has_method("silence"):
+		audio.call("silence")
+	for frame in 3:
+		await process_frame
+	await create_timer(0.1, true, false, true).timeout
 
 
 func _test_methods(test_case: TestCase) -> PackedStringArray:

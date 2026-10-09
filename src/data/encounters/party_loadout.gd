@@ -17,6 +17,28 @@ const MAX_POTION_SLOTS := 2
 @export var potions: Array[PotionDefinition] = []
 
 
+## Resolves a saved loadout dictionary ({weapon, garb, charm, relic, companion, familiar, potions}).
+## Unknown ids fall back to the starter weapon/protagonist or an empty slot. Shared by the saved
+## loadout and captured world encounter entries.
+static func from_ids(registry: DefinitionRegistry, ids: Dictionary) -> PartyLoadout:
+	var fallback := registry.defaults.starter_loadout
+	var loadout := PartyLoadout.new()
+	loadout.id = &"saved"
+	loadout.display_name = "Current loadout"
+	loadout.protagonist = fallback.protagonist
+	loadout.weapon = registry.weapons.get(StringName(ids.get("weapon", "")), fallback.weapon)
+	loadout.garb = registry.armor.get(StringName(ids.get("garb", "")))
+	loadout.charm = registry.armor.get(StringName(ids.get("charm", "")))
+	loadout.relic = registry.armor.get(StringName(ids.get("relic", "")))
+	loadout.companion = registry.companions.get(StringName(ids.get("companion", "")))
+	loadout.familiar = registry.familiars.get(StringName(ids.get("familiar", "")))
+	for potion_id in ids.get("potions", []):
+		var potion: PotionDefinition = registry.potions.get(StringName(potion_id))
+		if potion != null and loadout.potions.size() < MAX_POTION_SLOTS:
+			loadout.potions.append(potion)
+	return loadout
+
+
 func equipped_armor() -> Array[ArmorDefinition]:
 	var result: Array[ArmorDefinition] = []
 	for item in [garb, charm, relic]:

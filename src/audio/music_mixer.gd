@@ -285,6 +285,16 @@ func _on_finished(index: int) -> void:
 	if next != null:
 		_start_track(next, SCENE_FADE)
 
+## Ends playback now, without a fade (teardown). A later request() starts afresh.
+func cut() -> void:
+	cue_id = &""
+	current_track = null
+	transition_reason = &"stop"
+	_active = -1
+	_fading = false
+	for index in _players.size():
+		_release(index)
+
 func playing_count() -> int:
 	var count := 0
 	for player in _players:

@@ -1,12 +1,33 @@
 # Hollow Choir — Canonical Game Design Document
 
-## Current design authority — 8 October 2026
+## Current design authority — 9 October 2026
 
 **Owner:** Game Director (ChatGPT). **Current milestone:** M1 combat foundation implemented;
 M1.1 combat clarity and icon-first UI/art integration implemented. V0.3 adds a Field Guide for
 existing saved research/practice and user-approved music playlists. Engineering review is complete
 and [V0.3 is accepted for the user-authorized push](reports/V0_3_DIRECTOR_ACCEPTANCE.md).
 Human combat validation remains open.
+
+**Current next stage:** Adrian explicitly authorized exploration and towns after the V0.3 return.
+Adopt [V0.4 First Footsteps](design/V04_FIRST_FOOTSTEPS.md) and its
+[Claude backend handoff](briefs/V0_4_CLAUDE_HANDOFF_PROMPT.md): one Gloamstead area, one Briarfen
+route, existing encounters, one shortcut and a visible bell restoration. This bounded authorization
+supersedes the earlier world hold without declaring the human clarity gate passed. V0.4 backend
+and Director presentation integration now exist in the uncommitted working tree on `dev`.
+[Director acceptance](reports/V0_4_DIRECTOR_ACCEPTANCE.md) records decisions, automated evidence,
+candidate-art limits and the human walkthrough still required. Application stays 0.3.0; save version 1.
+
+**Backend planning update:** Adrian requested a fresh-Claude continuation after the previous
+instance exhausted its usage. The [GDD-based roadmap](design/V05_BACKEND_ROADMAP.md) and
+[bounded V0.5A assignment](briefs/V0_5A_BACKEND_HANDOFF.md) are ready to pass on: finish the partial
+fifth engineering review, then connect persistent salvage to validated equipment preparation.
+The assignment permits those defined reward/inventory systems beyond V0.4's historical hold;
+Forge/alchemy, puzzle frameworks, Pressure and narrative follow in separate stages. These are
+planning/assignment documents, not implemented features, release changes or human acceptance.
+
+**Latest display direction:** [fixed display presets](design/DISPLAY_PRESETS.md). Adrian removed
+independent text resizing and arbitrary window resizing: one 1280×720 layout, 22 px body, uniform
+whole-canvas scaling. This supersedes older accessibility font-size matrices throughout the docs.
 
 Current V0.3 authority: [Field Guide and audio contract](design/V03_FIELD_GUIDE_AND_AUDIO.md),
 [implementation evidence](reports/V0_3_FIELD_GUIDE_AND_AUDIO.md) and
@@ -16,8 +37,9 @@ single-selected-mix and runtime-audio holds. Current tracks crossfade as indepen
 simultaneous layers require verified alignment and a later adapter. Progression and combat rules
 are unchanged. Field Guide is read only; Practice still records no progress.
 
-Protect **READ · REACT · ADAPT · EXPERIMENT · AFFECT THE WORLD**. Do not begin the world slice or
-expand enemy/weapon/system counts until the combat clarity gate passes. Keep the existing deterministic
+Protect **READ · REACT · ADAPT · EXPERIMENT · AFFECT THE WORLD**. The bounded V0.4 world stage above
+is authorized; the bounded V0.5A backend assignment above defines the next system exception.
+Broader enemy/weapon/system expansion stays held. Keep the existing deterministic
 engine, trait composition, two controlled party members and trigger-only familiar.
 
 Canonical requirements comprise this document and the explicitly incorporated

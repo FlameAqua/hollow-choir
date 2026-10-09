@@ -2,7 +2,8 @@ class_name InputBindings
 extends RefCounted
 ## Game input actions and default bindings, registered at runtime (DECISION_LOG D-010).
 ## Bindings are strings so settings files stay readable: "key:Space" (physical key, so reaction
-## keys keep their position on any keyboard layout), "joy:9" (joypad button), "mouse:1".
+## keys keep their position on any keyboard layout), "joy:9" (joypad button), "mouse:1",
+## "axis:0:-1" (joypad axis and direction, used by the world movement defaults).
 
 const CONFIRM := &"hc_confirm"
 const CANCEL := &"hc_cancel"
@@ -17,6 +18,18 @@ const LEFT := &"hc_left"
 const RIGHT := &"hc_right"
 const LOG := &"hc_log"
 const MENU := &"hc_menu"
+## World context (V0.4). Read only by the exploration host, so sharing physical keys with combat
+## actions (WASD vs the A/S/D reactions) never makes one context act on the other's input.
+const WORLD_UP := &"hc_world_up"
+const WORLD_DOWN := &"hc_world_down"
+const WORLD_LEFT := &"hc_world_left"
+const WORLD_RIGHT := &"hc_world_right"
+const WORLD_INTERACT := &"hc_world_interact"
+const WORLD_MAP := &"hc_world_map"
+const WORLD_MENU := &"hc_world_menu"
+const WORLD_MOVES: Array[StringName] = [WORLD_UP, WORLD_DOWN, WORLD_LEFT, WORLD_RIGHT]
+const WORLD_ACTIONS: Array[StringName] = [WORLD_UP, WORLD_DOWN, WORLD_LEFT, WORLD_RIGHT, WORLD_INTERACT, WORLD_MAP,
+	WORLD_MENU]
 
 ## Menus use arrows + Enter/X so A/S/D are free for the three reactions,
 ## ordered left to right from safe to risky.
@@ -34,12 +47,25 @@ const DEFAULTS := {
 	RIGHT: ["key:Right", "joy:14"],
 	LOG: ["key:Tab", "joy:4"],
 	MENU: ["key:Escape", "joy:6"],
+	WORLD_UP: ["key:W", "key:Up", "joy:11", "axis:1:-1"],
+	WORLD_DOWN: ["key:S", "key:Down", "joy:12", "axis:1:1"],
+	WORLD_LEFT: ["key:A", "key:Left", "joy:13", "axis:0:-1"],
+	WORLD_RIGHT: ["key:D", "key:Right", "joy:14", "axis:0:1"],
+	WORLD_INTERACT: ["key:E", "key:Enter", "key:Space", "joy:0"],
+	WORLD_MAP: ["key:M", "joy:4"],
+	WORLD_MENU: ["key:Escape", "joy:6"],
 }
+
+## Analog world movement reads small stick deflections; every other action keeps the 0.5 default.
+const DEADZONES := {WORLD_UP: 0.25, WORLD_DOWN: 0.25, WORLD_LEFT: 0.25, WORLD_RIGHT: 0.25}
 
 const DISPLAY_NAMES := {
 	CONFIRM: "Confirm", CANCEL: "Back", COMMAND: "Action command", BRACE: "Brace", EVADE: "Evade",
 	PARRY: "Parry", INFO: "Details", UP: "Up", DOWN: "Down", LEFT: "Left", RIGHT: "Right",
 	LOG: "Battle log", MENU: "Pause",
+	WORLD_UP: "World: move up", WORLD_DOWN: "World: move down", WORLD_LEFT: "World: move left",
+	WORLD_RIGHT: "World: move right", WORLD_INTERACT: "World: interact", WORLD_MAP: "World: map",
+	WORLD_MENU: "World: menu",
 }
 
 ## The device whose bindings prompts should show (M1.1: "current device bindings").
@@ -65,7 +91,7 @@ static func install(overrides: Dictionary = {}) -> void:
 		if InputMap.has_action(action):
 			InputMap.action_erase_events(action)
 		else:
-			InputMap.add_action(action, 0.5)
+			InputMap.add_action(action, DEADZONES.get(action, 0.5))
 		var codes: Array = overrides.get(action, DEFAULTS[action])
 		for code in codes:
 			var event := event_from_code(String(code))
@@ -110,6 +136,14 @@ static func event_from_code(code: String) -> InputEvent:
 			var mouse := InputEventMouseButton.new()
 			mouse.button_index = int(parts[1]) as MouseButton
 			return mouse
+		"axis":
+			var axis_parts := parts[1].split(":")
+			if axis_parts.size() != 2:
+				return null
+			var motion := InputEventJoypadMotion.new()
+			motion.axis = int(axis_parts[0]) as JoyAxis
+			motion.axis_value = 1.0 if int(axis_parts[1]) > 0 else -1.0
+			return motion
 	return null
 
 
@@ -122,12 +156,18 @@ static func code_from_event(event: InputEvent) -> String:
 		return "joy:%d" % (event as InputEventJoypadButton).button_index
 	if event is InputEventMouseButton:
 		return "mouse:%d" % (event as InputEventMouseButton).button_index
+	if event is InputEventJoypadMotion:
+		var motion := event as InputEventJoypadMotion
+		return "axis:%d:%d" % [motion.axis, 1 if motion.axis_value > 0.0 else -1]
 	return ""
 
 
 ## Gamepad button names (SDL / Xbox layout) for JoyButton indices 0..14.
 const PAD_NAMES := ["A", "B", "X", "Y", "Back", "Guide", "Start", "L-Stick", "R-Stick", "LB", "RB",
 	"D-Up", "D-Down", "D-Left", "D-Right"]
+
+
+const AXIS_NAMES := {"0:-1": "L-Stick Left", "0:1": "L-Stick Right", "1:-1": "L-Stick Up", "1:1": "L-Stick Down"}
 
 
 ## Readable name for one binding code ("key:Space" -> "Space", "joy:9" -> "Pad LB").
@@ -141,6 +181,8 @@ static func code_label(code: String) -> String:
 			return "Pad %s" % (PAD_NAMES[index] if index >= 0 and index < PAD_NAMES.size() else parts[1])
 		"mouse":
 			return "Mouse %s" % parts[1]
+		"axis":
+			return "Pad %s" % AXIS_NAMES.get(parts[1], "Axis " + parts[1])
 	return parts[1]
 
 

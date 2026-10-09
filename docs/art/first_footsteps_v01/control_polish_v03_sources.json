@@ -1,0 +1,25 @@
+{
+  "generator": "Built-in image_gen",
+  "date": "2026-10-09",
+  "immutable_sources": [
+    {
+      "path": "assets/art/global/ui/material_v03/sources/controls.png",
+      "sha256": "dd1155f308354b29ef2ab97174c0d10c7611bc8a4108959a1cbd9e5b08ca04a2"
+    },
+    {
+      "path": "assets/art/global/ui/material_v03/sources/wordmark.png",
+      "sha256": "2b5ffbd47351e00b840135eb55ca1d371d0bd7578a60e3e1d9b0b015ed333266"
+    },
+    {
+      "path": "assets/art/global/familiars/sources/bell_crow_idle_v03.png",
+      "sha256": "3812bb5d0adf8c20e7e32217b3a2c7bd2ad1a75b5c778fd4a47273de981c6557"
+    },
+    {
+      "path": "assets/art/global/familiars/sources/bell_crow_idle_v03_clean.png",
+      "sha256": "c50f803d134675d7a04dd2368f33a12ec10bc0ccff02d63693fa005693f10aa4"
+    }
+  ],
+  "native_export": "tools/prepare_control_polish.gd",
+  "alpha": "Generated alpha preserved. Mechanical crop, nearest resize and rail rotation/arrow flip only.",
+  "prior_assets": "v02 materials/reactions, crow atlas and all earlier sources preserved."
+}

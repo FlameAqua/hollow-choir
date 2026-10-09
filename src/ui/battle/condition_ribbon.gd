@@ -15,9 +15,13 @@ func refresh() -> void:
 		var button := Button.new()
 		button.icon = CombatIcons.texture(CombatIcons.mapping("conditions", definition.id, "intent_battlefield"))
 		button.expand_icon = true
-		button.custom_minimum_size = Vector2(40, 36)
+		button.custom_minimum_size = Vector2(40, 40)
+		UICraft.style_icon_button(button)
 		button.tooltip_text = "%s\n%s\n%s" % [definition.display_name, RuleNotes.condition_summary(definition), definition.description]
-		button.focus_mode = Control.FOCUS_ALL
+		# Conditions can be inspected on hover, but never selected or activated.
+		button.focus_mode = Control.FOCUS_NONE
+		button.mouse_default_cursor_shape = Control.CURSOR_ARROW
+		button.button_mask = 0
 		button.set_meta(&"condition_id", definition.id)
 		add_child(button)
 
@@ -32,9 +36,9 @@ func highlight(id: StringName, active: bool) -> void:
 	if button == null:
 		return
 	if active:
-		button.add_theme_stylebox_override("normal", UITheme.box(UITheme.PANEL, UITheme.ACCENT, 2, 2, 4, 4))
+		button.add_theme_stylebox_override("normal", UICraft.icon_frame(Color(1.35, 1.2, .85)))
 	else:
-		button.remove_theme_stylebox_override("normal")
+		button.add_theme_stylebox_override("normal", UICraft.icon_frame())
 
 func shown_conditions() -> Array[BattlefieldConditionDefinition]:
 	if ledger != null:

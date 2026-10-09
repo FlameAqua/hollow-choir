@@ -142,7 +142,7 @@ func _play_one(event: BattleEvent) -> void:
 					if _shown_alive(unit.uid) and not _channeling.get(unit.uid, false):
 						rail.show_state(unit.uid, IntentSlot.State.WAITING)
 			hud_changed.emit()
-			await banner.announce("Round %d" % int(event.amount), "", 0.3 / speed)
+			await banner.announce("Round %d" % int(event.amount), "", 0.3 / speed, speed)
 		T.TURN_ORDER:
 			timeline.order = event.uids.duplicate()
 			timeline.refresh()
@@ -154,7 +154,10 @@ func _play_one(event: BattleEvent) -> void:
 			timeline.acting_uid = event.subject
 			battlefield.set_active(event.subject)
 			hud_changed.emit()
-			await _wait(0.1)
+			var unit := engine.get_unit(event.subject)
+			if unit != null:
+				var number := engine.get_state().enemies(false).find(unit) + 1
+				await banner.announce_turn(unit, number, 0.4 / speed, speed)
 		T.TURN_SKIPPED:
 			_float(event.subject, "Skips (Broken)", UITheme.STAGGER, 0.95)
 			await _wait(0.5)
@@ -270,10 +273,14 @@ func _play_one(event: BattleEvent) -> void:
 				_float(event.subject, event.text, UITheme.TEXT_DIM.lightened(0.2), 0.9)
 			await _wait(0.16)
 		T.BUFF_APPLIED:
-			_float(event.subject, event.text, UITheme.INFO, 0.9)
+			_float(event.subject, event.text, UITheme.INFO, 1.05, 1.1)
+			var recipient := battlefield.view(event.subject)
+			if recipient != null:
+				recipient.pulse_support()
+			AudioManager.play(AudioManager.Cue.FOCUS, 0.03, -3.0)
 			battlefield.refresh_units()
 			hud_changed.emit()
-			await _wait(0.12)
+			await _wait(0.28)
 		T.BUFF_EXPIRED:
 			battlefield.refresh_units()
 			hud_changed.emit()
@@ -282,7 +289,7 @@ func _play_one(event: BattleEvent) -> void:
 		T.PHASE_CHANGED:
 			_flash(event.subject, 1.0)
 			battlefield.shake(6.0)
-			await banner.announce(event.text, event.text2, 1.4 / speed)
+			await banner.announce(event.text, event.text2, 1.4 / speed, speed)
 		T.CONDITION_ADDED:
 			hud_changed.emit()
 			for definition in ledger.conditions:

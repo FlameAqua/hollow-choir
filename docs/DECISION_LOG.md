@@ -443,3 +443,59 @@ tooling repairs preserve media bytes. No combat or save-format expansion is need
 **CONSEQUENCES:** Engineering acceptance does not pass fresh-player clarity, controller or listening
 review. Adrian separately authorized moving toward exploration and towns; the next stage requires
 its own bounded Director contract and Claude backend handoff. V0.3 contains no overworld runtime.
+
+## D-038 — First Footsteps starts one bounded spatial journey
+
+**Owner:** Director. **Status:** Authorized by Adrian's post-V0.3 request, 8 October 2026.
+**DECISION:** Adopt [V0.4 First Footsteps](design/V04_FIRST_FOOTSTEPS.md): walkable Gloamstead and
+one Briarfen route, two existing encounter groups, a bypass, a return shortcut and a bell restoration
+with a visible home consequence. Choose all-reset battles for this stage; potion-only attrition stays
+a paper candidate. [Claude's handoff](briefs/V0_4_CLAUDE_HANDOFF_PROMPT.md) defines backend work.
+**WHY:** Advance from a combat harness into a coherent place without adding an economy, new combat
+content or a generalized quest framework. Persistent cleared encounters/landmarks provide consequence.
+**CONSEQUENCES:** Explicitly supersedes the earlier world hold only for this scope. Human clarity
+remains open. The HUD/readout shell and layout study are preparation; actual world runtime is pending.
+
+## D-039 — Fixed game layouts and resolution presets; retire independent font sizing
+
+**Owner:** Director/UI integrator. **Status:** Explicit user correction, 8 October 2026.
+**DECISION:** Adopt [the fixed display contract](design/DISPLAY_PRESETS.md): one 1280×720 game
+canvas and 22 px body text, uniformly scaled; the five supported window presets; no manual window
+resize or independent text-size option. Fullscreen keeps the same canvas with letterboxing.
+**WHY:** Adrian wants a deliberately designed game interface, not ongoing responsive-app work.
+**CONSEQUENCES:** Supersedes earlier independently enlarged-text and arbitrary-width requirements.
+Legacy font preferences are ignored/retired without changing progress or other settings. An oversized
+window preference falls back to another supported preset. This correction follows the pushed V0.3
+commit and remains separate working-tree work for engineering review.
+
+## D-040 — Connected areas, editable layers and parallel exploration art
+
+**Owner:** Director. **Status:** Adrian's asset/design continuation, 9 October 2026.
+**DECISION:** Use connected continuous areas with a following bounded camera, named exits and
+separate ground, decoration, depth-sorted actors/props, overhead, lighting/effects and UI layers.
+Prepare the [first exploration pack](../assets/art/world/first_footsteps_v01/README.md) while Claude
+implements the world host. [Map production](design/V04_MAP_PRODUCTION.md) defines the graybox,
+collision and asset seam. Bodies and scenery use simple foot/base collision independent of alpha.
+**WHY:** A larger-than-screen place supports exploration while keeping each authored area manageable.
+Separate assets/layers support later lighting and editable state without repainting a giant map.
+**CONSEQUENCES:** Supersedes the artwork-preparation wait; final dressing still follows traversal.
+The pack and F6 art workbench are candidates/fixtures, not playable world progression or final art
+approval. Enemy groups remain stationary. Two bank corners are rejected. Readable paths and an exit
+visible before its trigger replace the incompatible requirement to show town square and distant gate
+within one following-camera frame. No seamless continent, screen-flip grid or lighting framework.
+
+## D-041 — First Footsteps integration preserves free exploration and save truth
+
+**Owner:** Director. **Status:** Integrated for human acceptance, 9 October 2026; uncommitted.
+**DECISION:** Move the guard from the three-way junction onto the bell approach near tile (62,22).
+Keep Patrol/Guard categories, unrecorded defeats (including `battles_lost`), separate Save and
+Save and return to title, and a non-interactive town bell. Finalize world copy and the fixed-canvas
+dialogue/card/bench/map/menu views. Keep exploration silent and application/save versions at 0.3.0/1.
+**WHY:** The player can scout the outside loop and reach the far-side latch freely; only the
+deliberate bell restoration depends on guard victory. Readable public facts and saved-state wording
+make each boundary understandable without adding progression rules.
+**CONSEQUENCES:** No combat, reward, save-schema or eligibility change. Encounter spatial reach moves
+with its group/point; existing safe anchors, physics tiles and portals remain intact. The map's home
+description now reflects the existing bell flag. Pixel alignment affects art/camera only.
+[Acceptance](reports/V0_4_DIRECTOR_ACCEPTANCE.md) and [follow-up](briefs/V0_4_POST_INTEGRATION.md)
+record evidence and the open human/controller/listening gates; no release or human approval is inferred.

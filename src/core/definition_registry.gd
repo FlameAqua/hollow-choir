@@ -28,6 +28,8 @@ var skill_profiles: Dictionary[int, ExecutionSkillProfile] = {}
 var balance: BalanceConfig
 var research: ResearchConfig
 var defaults: GameDefaults
+## V0.4 authored journey (data/world). Optional for combat-only tools.
+var world: WorldDefinition
 ## Problems found while loading (unknown files, duplicate ids). See also validate().
 var load_problems: PackedStringArray = PackedStringArray()
 var _paths: Dictionary[String, String] = {}
@@ -94,6 +96,8 @@ func validate() -> PackedStringArray:
 		problems.append("no GameDefaults in %s" % DATA_ROOT)
 	else:
 		problems.append_array(defaults.validate())
+	if world != null:
+		problems.append_array(world.validate())
 	for collection: Dictionary in [weapons, armor, enemies, companions, protagonists, familiars, potions,
 			encounters, loadouts, conditions, actions, buffs, traits, statuses, roles, resonances,
 			difficulty_profiles, assist_profiles, skill_profiles]:
@@ -183,6 +187,8 @@ func _register(resource: Resource, path: String) -> void:
 		_put_enum(assist_profiles, resource.assist, resource, path)
 	elif resource is ExecutionSkillProfile:
 		_put_enum(skill_profiles, resource.mode, resource, path)
+	elif resource is WorldDefinition:
+		world = resource
 	else:
 		load_problems.append("unrecognised resource type in %s" % path)
 

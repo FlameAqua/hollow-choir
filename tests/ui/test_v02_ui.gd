@@ -35,7 +35,7 @@ func test_modifiers_do_not_replace_pointer_details_and_alt_uses_one_card() -> vo
 		assert_true(scene._inspector.follows_pointer(), "modifier keeps the pointer source")
 		if key == KEY_ALT:
 			assert_true(scene._inspector.expanded, "Alt expands the current inspector")
-			assert_eq(_stage_panels(scene), [scene._inspector], "Alt never stacks a second details window over the stage")
+			assert_eq(_stage_panels(scene), [scene._supplies], "Alt leaves only the compact supply tray on stage")
 		assert_true(scene._inspector.shown_text().contains(enemy.display_name), "modifier cannot replace enemy with keyboard-focused action")
 		event.pressed = false
 		Input.parse_input_event(event)
@@ -149,29 +149,28 @@ func test_long_inspection_scrolls_from_source_and_inside_card() -> void:
 	assert_true(inspector.visible, "entering the card preserves it for scrollbar interaction")
 	host.queue_free()
 
-func test_practice_footer_and_scrolling_fit_supported_resolutions_and_text_sizes() -> void:
-	for scale in [1.0, 1.5, 2.0]:
-		_tree.root.theme = UITheme.build(scale)
-		for resolution in GameSettings.RESOLUTIONS:
-			var sandbox: CombatSandbox = load("res://scenes/sandbox/combat_sandbox.tscn").instantiate()
-			_tree.root.add_child(sandbox)
-			sandbox.set_anchors_preset(Control.PRESET_TOP_LEFT)
-			sandbox.size = Vector2(resolution)
-			sandbox.show_view(CombatSandbox.View.PRACTICE)
-			await _frames(5)
-			var footer := sandbox._hide_button.get_parent_control()
-			assert_lte(footer.get_global_rect().end.y, sandbox.size.y, "footer stays on screen")
-			assert_lte(footer.get_global_rect().end.x, sandbox.size.x, "footer fits horizontally")
-			var scroll := sandbox._practice_page.get_parent_control() as ScrollContainer
-			assert_not_null(scroll, "practice content has a bounded scroll area")
-			assert_gte(sandbox._practice_encounter.global_position.y, scroll.global_position.y, "Practice opens at the encounter selector, never partway down")
-			assert_lte(sandbox._practice_encounter.get_global_rect().end.y, scroll.get_global_rect().end.y, "initial selector is fully visible")
-			assert_lte(scroll.get_global_rect().end.y, footer.global_position.y, "scroll never pushes footer off-screen")
-			sandbox.show_view(CombatSandbox.View.LAB)
-			await _frames(3)
-			assert_false(scroll.visible, "Lab never inherits an empty practice scroll area")
-			sandbox.queue_free()
-			await _frames(1)
+func test_practice_footer_and_scrolling_fit_fixed_game_canvas() -> void:
+	_tree.root.theme = UITheme.build()
+	var resolution := GameSettings.BASE_RESOLUTION
+	var sandbox: CombatSandbox = load("res://scenes/sandbox/combat_sandbox.tscn").instantiate()
+	_tree.root.add_child(sandbox)
+	sandbox.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	sandbox.size = Vector2(resolution)
+	sandbox.show_view(CombatSandbox.View.PRACTICE)
+	await _frames(5)
+	var footer := sandbox._hide_button.get_parent_control()
+	assert_lte(footer.get_global_rect().end.y, sandbox.size.y, "footer stays on screen")
+	assert_lte(footer.get_global_rect().end.x, sandbox.size.x, "footer fits horizontally")
+	var scroll := sandbox._practice_page.get_parent_control() as ScrollContainer
+	assert_not_null(scroll, "practice content has a bounded scroll area")
+	assert_gte(sandbox._practice_encounter.global_position.y, scroll.global_position.y, "Practice opens at the encounter selector, never partway down")
+	assert_lte(sandbox._practice_encounter.get_global_rect().end.y, scroll.get_global_rect().end.y, "initial selector is fully visible")
+	assert_lte(scroll.get_global_rect().end.y, footer.global_position.y, "scroll never pushes footer off-screen")
+	sandbox.show_view(CombatSandbox.View.LAB)
+	await _frames(3)
+	assert_false(scroll.visible, "Lab never inherits an empty practice scroll area")
+	sandbox.queue_free()
+	await _frames(1)
 
 func test_health_break_and_move_card_reactions_have_individual_explanations() -> void:
 	var scene := await _battle()
@@ -193,7 +192,7 @@ func test_health_break_and_move_card_reactions_have_individual_explanations() ->
 	assert_not_null(scene._inspector._card._intent_readout, "enemy move uses the shared structured card")
 	assert_eq(scene._inspector._card._intent_readout, slot.readout, "card reads the displayed intent, never resolves a future one")
 	assert_false(scene._inspector.get_global_rect().intersects(scene._menu.get_global_rect()))
-	assert_lt(scene._inspector.position.x, scene.size.x / 2, "enemy inspection stays opposite the enemy source")
+	assert_eq(scene._inspector.position, scene.layout.preview.position, "enemy inspection stays in the shared dock")
 	var card := scene._inspector._card
 	var reactions := 0
 	for region in card._regions:
@@ -206,23 +205,21 @@ func test_health_break_and_move_card_reactions_have_individual_explanations() ->
 	var threat := (card._regions[0].rect as Rect2).get_center()
 	_move(card._summary.get_global_transform_with_canvas() * threat)
 	await _frames(5)
-	assert_true(scene._inspector._hint.text.contains("Threat"), "a field inside a card explains itself without a second popup")
+	assert_true(scene._inspector._field_help.visible, "a field has a local explanation beside the card")
+	assert_true(scene._inspector._field_text.text.contains("Threat"))
 	assert_eq(scene._inspector._card._intent_readout, slot.readout, "field hover retains its parent move")
 	scene.queue_free()
 
-func test_action_list_owns_wheel_over_buttons_and_plain_fields_have_no_false_alt_hint() -> void:
+func test_fixed_actions_stay_still_and_plain_fields_have_no_false_alt_hint() -> void:
 	var scene := await _battle()
-	# Exercise a constrained dock with the actual buttons, independent of current loadout count.
-	scene._menu.size.y = 120
 	await _frames(4)
-	var scroll := scene._menu._action_scroll
-	assert_gt(scroll.get_v_scroll_bar().max_value, scroll.size.y, "real action list overflows")
-	scroll.scroll_vertical = 0
+	var position := scene._menu._buttons[0].global_position
 	_move(scene._menu._buttons[0].get_global_rect().get_center())
 	await _frames(8)
 	_wheel(scene._menu._buttons[0].get_global_rect().get_center())
 	await _frames(4)
-	assert_gt(scroll.scroll_vertical, 0, "hovering a button still scrolls its action list")
+	assert_eq(scene._menu._buttons[0].global_position, position, "wheel never moves the fixed action grid")
+	assert_true(scene._menu.find_children("*", "ScrollContainer", true, false).is_empty())
 	var enemy := scene.engine.get_state().enemies()[0]
 	var view := scene._battlefield.view(enemy.uid)
 	_move(view.global_position + (view._regions[0].rect as Rect2).get_center())
@@ -233,7 +230,6 @@ func test_action_list_owns_wheel_over_buttons_and_plain_fields_have_no_false_alt
 
 func test_expanded_action_details_own_wheel_over_the_action_source() -> void:
 	var scene := await _battle()
-	scene._menu.size.y = 120
 	var actor := scene._picker.acting_unit()
 	scene._menu.preview_provider = func(option: ActionOption) -> ActionReadout:
 		var readout := ActionReadout.build(scene.engine, actor.uid, option)
@@ -248,15 +244,13 @@ func test_expanded_action_details_own_wheel_over_the_action_source() -> void:
 	await _frames(5)
 	assert_true(scene._inspector.expanded)
 	var detail_scroll := scene._inspector._scroll
-	var list_scroll := scene._menu._action_scroll
+	var source_position := source.global_position
 	assert_gt(detail_scroll.get_v_scroll_bar().max_value, detail_scroll.size.y)
-	assert_gt(list_scroll.get_v_scroll_bar().max_value, list_scroll.size.y)
-	list_scroll.scroll_vertical = 0
 	detail_scroll.scroll_vertical = 0
 	_wheel(point)
 	await _frames(3)
 	assert_gt(detail_scroll.scroll_vertical, 0, "Alt details scroll while the pointer stays on the action")
-	assert_eq(list_scroll.scroll_vertical, 0, "the same wheel event cannot move both views")
+	assert_eq(source.global_position, source_position, "the action grid remains fixed")
 	var up := InputEventMouseButton.new()
 	up.position = point
 	up.button_index = MOUSE_BUTTON_WHEEL_UP
@@ -268,7 +262,7 @@ func test_expanded_action_details_own_wheel_over_the_action_source() -> void:
 	await _frames(4)
 	_wheel(point)
 	await _frames(3)
-	assert_gt(list_scroll.scroll_vertical, 0, "releasing Alt restores normal list scrolling")
+	assert_eq(source.global_position, source_position, "releasing Alt never enables action scrolling")
 	scene.queue_free()
 
 func test_wheel_ownership_ignores_handler_order_and_covers_supplies_and_enemy_sources() -> void:
@@ -278,6 +272,7 @@ func test_wheel_ownership_ignores_handler_order_and_covers_supplies_and_enemy_so
 	scene.move_child(scene._inspector, scene._menu.get_index())
 	scene._menu.size.y = 120
 	scene._supplies.size.y = 64
+	scene._menu._supply_list.columns = 1 # Force overflow in the compact tray fixture.
 	var actor := scene._picker.acting_unit()
 	scene._menu.preview_provider = func(option: ActionOption) -> ActionReadout:
 		var readout := ActionReadout.build(scene.engine, actor.uid, option)
@@ -285,7 +280,7 @@ func test_wheel_ownership_ignores_handler_order_and_covers_supplies_and_enemy_so
 		return readout
 	await _frames(4)
 	var details := scene._inspector._scroll
-	for list: ScrollContainer in [scene._menu._action_scroll, scene._menu._supply_scroll]:
+	for list: ScrollContainer in [scene._menu._supply_scroll]:
 		var source: Button
 		for button in scene._menu._buttons:
 			if list.is_ancestor_of(button):
@@ -547,7 +542,7 @@ func test_condition_announcements_dock_and_reduced_motion_stays_still() -> void:
 		assert_eq(seen_compression, not reduced, "only the motion-enabled card compresses")
 		if not reduced:
 			assert_true(banner.position.distance_to(ribbon.icon_for(condition.id).get_global_rect().get_center()) < 50, "card arrives at the matching header icon")
-		assert_false(ribbon.icon_for(condition.id).has_theme_stylebox_override("normal"), "arrival highlight clears")
+		assert_eq(ribbon.icon_for(condition.id).get_theme_stylebox("normal").modulate_color, Color.WHITE, "arrival highlight restores the neutral painted frame")
 	# A condition disappearing while its card is held falls back to a fade, never a freed target.
 	ledger.conditions.clear()
 	ribbon.refresh()
@@ -570,7 +565,7 @@ func test_existing_cast_has_art_and_familiar_footing_preserves_proportions() -> 
 		var rect := card.art_rect()
 		assert_true(Rect2(Vector2.ZERO, card.size).encloses(rect) and rect.size.x > 0, "familiar fits inside its actual stage slot")
 		assert_true(is_equal_approx(rect.end.y, card.size.y - 8), "paws share the slot baseline")
-		assert_true(is_equal_approx(rect.size.aspect(), familiar.portrait.get_size().aspect()), "pet artwork is never stretched")
+		assert_true(is_equal_approx(rect.size.aspect(), card.idle_texture().get_size().aspect()), "current pet frame is never stretched")
 		card.queue_free()
 	var track := Rect2(0, 0, 200, 12)
 	assert_eq(ResourceBarArt.fill_rect(track, 0).size.x, 0.0, "zero health is truly empty")
@@ -582,7 +577,7 @@ func test_existing_cast_has_art_and_familiar_footing_preserves_proportions() -> 
 func test_compact_terrain_feedback_stays_below_header() -> void:
 	var overlay := Control.new()
 	_tree.root.add_child(overlay)
-	_tree.root.theme = UITheme.build(2.0)
+	_tree.root.theme = UITheme.build()
 	var bounds := Rect2(24, 156, 1232, 220)
 	var text := FloatingText.spawn(overlay, Vector2(160, 160), "Wet · Flooded Ground", UITheme.WET, 0.9, 1.0, InspectionContent.CONTENT_SCALE, bounds)
 	assert_eq(text.scale, Vector2.ONE * InspectionContent.CONTENT_SCALE)
@@ -742,36 +737,35 @@ func test_restart_during_preparation_cancels_its_wait() -> void:
 	assert_false(tween.is_valid(), "preparation tween belongs to the replaced battle")
 
 func test_banner_fits_settled_text_and_shrinks_between_announcements() -> void:
-	for text_scale in [1.0, 1.5, 2.0]:
-		_tree.root.theme = UITheme.build(text_scale)
-		for dimensions in [Vector2(1280, 720), Vector2(1920, 1080)]:
-			var host := Control.new()
-			host.size = dimensions
-			_tree.root.add_child(host)
-			var banner := Banner.new()
-			host.add_child(banner)
-			var title_height := 0.0
-			for body in ["", "The enemy moves first. Read its declared move before reacting.", ""]:
-				banner.announce("Custom" if body.is_empty() else "Ambushed!", body, 0.01)
-				await _frames(6)
-				assert_true(banner.visible)
-				assert_lte(banner._panel.size.y, banner._panel.get_combined_minimum_size().y + 1, "temporary narrow wrapping cannot leave a tall empty panel")
-				assert_true(Rect2(Vector2.ZERO, dimensions).encloses(banner._panel.get_global_rect()), "the full announcement remains on screen")
-				assert_true(banner._panel.get_global_rect().encloses(banner._title.get_global_rect()))
-				assert_eq(banner._body.visible, not body.is_empty())
-				if body.is_empty():
-					if title_height == 0:
-						title_height = banner.size.y
-					else:
-						assert_eq(banner.size.y, title_height, "a later title-only card sheds the previous body height")
-					assert_lt(banner.size.y, 80, "an encounter title never becomes a full-height box")
-				banner._tween.custom_step(2.0)
-				await _frames(2)
-				assert_false(banner.visible)
-			await banner.announce("", "", 0.0)
-			assert_false(banner.visible, "empty content never opens a card")
-			host.queue_free()
-			await _frames(2)
+	_tree.root.theme = UITheme.build()
+	var dimensions := Vector2(GameSettings.BASE_RESOLUTION)
+	var host := Control.new()
+	host.size = dimensions
+	_tree.root.add_child(host)
+	var banner := Banner.new()
+	host.add_child(banner)
+	var title_height := 0.0
+	for body in ["", "The enemy moves first. Read its declared move before reacting.", ""]:
+		banner.announce("Custom" if body.is_empty() else "Ambushed!", body, 0.01)
+		await _frames(6)
+		assert_true(banner.visible)
+		assert_lte(banner._panel.size.y, banner._panel.get_combined_minimum_size().y + 1, "temporary narrow wrapping cannot leave a tall empty panel")
+		assert_true(Rect2(Vector2.ZERO, dimensions).encloses(banner._panel.get_global_rect()), "the full announcement remains on screen")
+		assert_true(banner._panel.get_global_rect().encloses(banner._title.get_global_rect()))
+		assert_eq(banner._body.visible, not body.is_empty())
+		if body.is_empty():
+			if title_height == 0:
+				title_height = banner.size.y
+			else:
+				assert_eq(banner.size.y, title_height, "a later title-only card sheds the previous body height")
+			assert_lt(banner.size.y, 80, "an encounter title never becomes a full-height box")
+		banner._tween.custom_step(2.0)
+		await _frames(2)
+		assert_false(banner.visible)
+	await banner.announce("", "", 0.0)
+	assert_false(banner.visible, "empty content never opens a card")
+	host.queue_free()
+	await _frames(2)
 
 func test_opening_and_condition_announcements_suppress_then_restore_hover() -> void:
 	var registry := Database.registry
@@ -904,10 +898,172 @@ func test_reaction_preview_preserves_pause_assist_and_latches_held_confirm() -> 
 	assert_true(widget._success)
 	widget.queue_free()
 
-func _battle() -> BattleScene:
+func test_shared_dock_replaces_floating_preview_and_survives_theme_refresh() -> void:
+	var scene := await _battle()
+	_move(scene._menu._buttons[0].get_global_rect().get_center())
+	await _frames(8)
+	assert_false(scene._info.visible, "the former preview is only a readout source")
+	assert_true(scene._inspector.docked and scene._inspector.visible)
+	assert_false(scene._inspector.get_global_rect().intersects(scene._battlefield.get_global_rect()), "inspection cannot cover combatants")
+	assert_false(scene._inspector.get_global_rect().intersects(scene._menu.get_global_rect()), "inspection cannot cover actions")
+	assert_false(scene._inspector._text.text.is_empty(), "action descriptions are in the shared dock")
+	scene.apply_battle_theme()
+	assert_eq(scene.theme.get_color("font_color", "TooltipLabel").a, 0.0, "native tooltip text cannot repeat the dock with literal BBCode")
+	assert_true(scene.theme.get_stylebox("panel", "TooltipPanel") is StyleBoxEmpty)
+	scene.queue_free()
+
+
+func test_combat_settings_keeps_battle_paused_and_returns_to_resume() -> void:
+	var scene := await _battle()
+	scene.request_pause()
+	assert_true(scene.is_paused())
+	var before := scene.engine.input_log.size()
+	scene._open_settings()
+	await _frames(4)
+	assert_not_null(scene._settings_screen)
+	assert_true(scene.is_paused(), "settings owns a paused battle even with the pause card hidden")
+	scene.request_pause()
+	assert_not_null(scene._settings_screen, "the pause shortcut cannot resume underneath Settings")
+	assert_true(scene.is_paused())
+	assert_eq(scene.engine.input_log.size(), before, "settings cannot submit a battle action")
+	scene._settings_screen.closed.emit()
+	await _frames(4)
+	assert_true(scene._pause_panel.visible)
+	assert_eq(_tree.root.gui_get_focus_owner(), scene._pause_resume)
+	scene._close_pause()
+	assert_false(scene.is_paused())
+	scene.queue_free()
+
+
+func test_second_playtest_collapsed_details_scroll_without_alt_and_hover_exit_clears() -> void:
+	var scene := await _battle()
+	var actor := scene._picker.acting_unit()
+	scene._menu.preview_provider = func(option: ActionOption) -> ActionReadout:
+		var readout := ActionReadout.build(scene.engine, actor.uid, option)
+		readout.description = "A long item or action description.\n".repeat(30)
+		return readout
+	var source := scene._menu._buttons[0]
+	var point := source.get_global_rect().get_center()
+	_move(point)
+	assert_true(await _inspecting(scene, source))
+	await _frames(5)
+	assert_false(scene._inspector.expanded)
+	var scroll := scene._inspector._scroll
+	assert_gt(scroll.get_v_scroll_bar().max_value, scroll.size.y)
+	var source_position := source.global_position
+	_wheel(point)
+	await _frames(3)
+	assert_gt(scroll.scroll_vertical, 0, "overflowing description scrolls from its source without Alt")
+	assert_eq(source.global_position, source_position, "the action grid stays still")
+	var enemy := scene.engine.get_state().enemies()[0]
+	_move(scene._battlefield.body_point(enemy.uid))
+	assert_true(await _inspecting(scene, scene._battlefield.view(enemy.uid)))
+	_move(Vector2(600, 200))
+	await _tree.create_timer(0.25).timeout
+	assert_eq(scene._inspector.shown_text(), "", "leaving both sources never restores a previous item")
+	assert_eq(scene._inspector._payload, null)
+	assert_false(scene._inspector._card.visible)
+	scene.queue_free()
+
+
+func test_second_playtest_expanded_description_once_target_scope_and_crow_idle() -> void:
+	var scene := await _battle()
+	var source := scene._menu._buttons[0]
+	_move(source.get_global_rect().get_center())
+	assert_true(await _inspecting(scene, source))
+	Input.action_press(InputBindings.INFO)
+	await _frames(5)
+	var readout := scene._inspector._payload as ActionReadout
+	assert_not_null(readout)
+	assert_eq(scene._inspector._text.text.count(readout.description), 1, "Alt adds rules without repeating the description")
+	assert_eq(PreviewPanel.target_scope(readout), "1 enemy")
+	var card := FamiliarCard.new()
+	scene.add_child(card)
+	card.setup(Database.registry.familiars[&"bell_crow"], null)
+	var neutral := card.idle_texture()
+	card._process(1.3)
+	assert_true(card.idle_texture() != neutral, "combat crow advances its quiet breathing pose")
+	assert_eq(card._fidget_time, -1.0, "quiet breathing does not replay the fidget")
+	card._next_fidget = .1
+	card._process(.11)
+	assert_eq(card._fidget_time, 0.0, "fidget starts after its independent quiet interval")
+	card._process(1.1)
+	assert_eq(card._fidget_time, -1.0, "fidget plays once then returns to breathing")
+	assert_true(card._next_fidget >= 8 and card._next_fidget <= 18)
+	var reduced := Settings.data.reduce_motion
+	Settings.data.reduce_motion = true
+	card._process(.6)
+	assert_eq(card.idle_texture(), neutral, "Reduce Motion holds the planted first pose")
+	Settings.data.reduce_motion = reduced
+	readout.scope = ActionReadout.Scope.PER_TARGET
+	assert_eq(PreviewPanel.target_scope(readout), "All enemies")
+	scene.queue_free()
+
+
+func test_second_playtest_audio_percentages_follow_slider_changes() -> void:
+	var settings := SettingsScreen.new()
+	settings.embedded = true
+	_tree.root.add_child(settings)
+	var page := VBoxContainer.new()
+	settings.add_child(page)
+	var previous := Settings.data.master_volume
+	var slider := settings._slider(page, "Master", .8, "master_volume")
+	var percentage := slider.get_parent().get_node("Percentage") as Label
+	assert_eq(percentage.text, "80%")
+	slider.value = .35
+	assert_eq(percentage.text, "35%")
+	assert_true(is_equal_approx(Settings.data.master_volume, .35))
+	Settings.set_value("master_volume", previous)
+	settings.queue_free()
+
+
+func test_third_playtest_log_wheel_and_intent_recipients_do_not_change_selection() -> void:
+	var scene := await _battle()
+	for i in 80:
+		scene._log.append("Recorded event %03d: The party holds the reedway." % i)
+	scene._log.show()
+	await _frames(5)
+	var bar := scene._log._scroll.get_v_scroll_bar()
+	var bottom := bar.value
+	assert_gt(bottom, 0, "long battle log opens at its latest event")
+	var point := scene._log._scroll.get_global_rect().get_center()
+	_move(point)
+	await _frames(3)
+	_wheel(point, MOUSE_BUTTON_WHEEL_UP)
+	await _frames(3)
+	assert_lt(bar.value, bottom, "wheel up scrolls actual log history")
+	var history := bar.value
+	scene._log.append("A new event arrives while reading history.")
+	await _frames(3)
+	assert_eq(bar.value, history, "new events do not pull the reader out of history")
+	_wheel(point)
+	await _frames(3)
+	assert_gt(bar.value, history, "wheel down scrolls back towards recent events")
+	scene._log.hide()
+	var enemy := scene.engine.get_state().enemies()[0]
+	var slot := scene._rail.slot(enemy.uid)
+	assert_not_null(slot.readout)
+	var move: Dictionary
+	for region in slot._regions:
+		if region.get("move", false): move = region
+	assert_false(move.is_empty())
+	var selected := scene._picker._focused
+	_move(slot.global_position + (move.rect as Rect2).get_center())
+	await _frames(4)
+	for uid in scene._battlefield.views:
+		assert_eq(scene._battlefield.view(uid).intent_targeted, slot.readout.target_uids.has(uid))
+	assert_eq(scene._picker._focused, selected, "intent inspection never switches the action")
+	_move(Vector2(600, 200))
+	await _frames(3)
+	for view: UnitView in scene._battlefield.views.values():
+		assert_false(view.intent_targeted, "recipient markers leave with the pointer")
+	scene.queue_free()
+
+
+func _battle(loadout: StringName = &"starter_sword") -> BattleScene:
 	Engine.time_scale = 20
 	var registry := Database.registry
-	var setup := BattleSetup.from_encounter(registry.loadouts[&"starter_sword"], registry.encounters[&"fen_patrol"], Database.library, registry.difficulty(Enums.TacticalDifficulty.ADVENTURER), registry.assist(Enums.ExecutionAssist.STANDARD), 3)
+	var setup := BattleSetup.from_encounter(registry.loadouts[loadout], registry.encounters[&"fen_patrol"], Database.library, registry.difficulty(Enums.TacticalDifficulty.ADVENTURER), registry.assist(Enums.ExecutionAssist.STANDARD), 3)
 	var scene: BattleScene = load("res://scenes/battle/battle_scene.tscn").instantiate()
 	scene.embedded = true
 	_tree.root.add_child(scene)
@@ -950,9 +1106,9 @@ func _move(point: Vector2) -> void:
 	motion.relative = Vector2(2, 0)
 	_tree.root.push_input(motion, true)
 
-func _wheel(point: Vector2) -> void:
+func _wheel(point: Vector2, button: int = MOUSE_BUTTON_WHEEL_DOWN) -> void:
 	var event := InputEventMouseButton.new()
 	event.position = point
-	event.button_index = MOUSE_BUTTON_WHEEL_DOWN
+	event.button_index = button
 	event.pressed = true
 	_tree.root.push_input(event, true)

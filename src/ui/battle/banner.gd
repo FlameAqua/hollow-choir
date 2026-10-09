@@ -4,11 +4,17 @@ extends Control
 ## gameplay clocks and battle state are owned elsewhere.
 const PANEL = preload("res://assets/art/global/ui/frames/choir_v01/styles/panel.tres")
 const CONTENT_SCALE := 0.82
+## An enemy's turn shows its absolute encounter number in the same badge as its intent above the
+## stage (Adrian, 9 October 2026). Sized so that, after CONTENT_SCALE, it matches that badge.
+const BADGE_SIZE := 34.0
+const BADGE_FONT_SIZE := 14
 var ribbon: ConditionRibbon
 var _panel: PanelContainer
 var _title: Label
 var _body: Label
 var _icon: TextureRect
+var _badge: Control
+var _number := 0
 var _tween: Tween
 var flying: bool = false
 
@@ -29,6 +35,15 @@ func _ready() -> void:
 	box.add_child(row)
 	_icon = CombatIcons.image("intent_battlefield", 28)
 	row.add_child(_icon)
+	_badge = Control.new()
+	_badge.name = "EnemyNumber"
+	_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_badge.custom_minimum_size = Vector2.ONE * BADGE_SIZE
+	_badge.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_badge.visible = false
+	_badge.draw.connect(func() -> void:
+		UICraft.number(_badge, Rect2(Vector2.ZERO, _badge.size), _number, UITheme.DANGER, BADGE_FONT_SIZE))
+	row.add_child(_badge)
 	_title = Label.new()
 	_title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_title.add_theme_color_override("font_color", UITheme.ACCENT)
@@ -45,12 +60,20 @@ func _ready() -> void:
 	box.add_child(_body)
 	visible = false
 
-func _show(title: String, body: String, icon_id: String = "") -> void:
+func _show(title: String, body: String, icon_id: String = "", frame: String = "", number: int = 0) -> void:
 	if _tween != null and _tween.is_valid():
 		_tween.kill()
 	flying = false
+	_panel.add_theme_stylebox_override("panel", PANEL if frame.is_empty() else UICraft.panel(frame, 24, 12))
+	_title.add_theme_color_override("font_color", UITheme.DANGER if frame == "attack" else UITheme.HEART if frame == "utility" else UITheme.ACCENT)
 	scale = Vector2.ONE
 	modulate = Color(1, 1, 1, 0)
+	_number = number
+	_badge.visible = number > 0
+	_badge.queue_redraw()
+	# A numbered name stays on one line, centred together with its badge.
+	_title.autowrap_mode = TextServer.AUTOWRAP_OFF if number > 0 else TextServer.AUTOWRAP_WORD_SMART
+	_title.size_flags_horizontal = Control.SIZE_SHRINK_CENTER if number > 0 else Control.SIZE_EXPAND_FILL
 	_title.text = title
 	_body.text = body
 	_body.visible = not body.is_empty()
@@ -71,14 +94,24 @@ func _show(title: String, body: String, icon_id: String = "") -> void:
 	size = _panel.size * CONTENT_SCALE
 	position = Vector2((area.x - size.x) * 0.5, clampf(area.y * 0.24, 16, maxf(16, area.y - size.y - 16)))
 
-func announce(title: String, body: String = "", hold: float = 0.8) -> void:
+## [param speed]: Combat Speed. Callers already scale [param hold]; the fades scale here.
+func announce(title: String, body: String = "", hold: float = 0.8, speed: float = 1.0) -> void:
 	if title.strip_edges().is_empty() and body.strip_edges().is_empty():
 		return
 	await _show(title, body)
+	await _fade(hold, speed)
+
+## [param number]: the enemy's absolute encounter number (intent badge order); allies have none.
+func announce_turn(unit: BattleUnit, number: int, hold: float, speed: float = 1.0) -> void:
+	var enemy := unit.is_enemy()
+	await _show(unit.display_name + "'s Turn", "", "", "attack" if enemy else "utility", number if enemy else 0)
+	await _fade(hold, speed)
+
+func _fade(hold: float, speed: float = 1.0) -> void:
 	_tween = create_tween()
-	_tween.tween_property(self, "modulate:a", 1.0, 0.15)
+	_tween.tween_property(self, "modulate:a", 1.0, 0.15 / speed)
 	_tween.tween_interval(hold)
-	_tween.tween_property(self, "modulate:a", 0.0, 0.2)
+	_tween.tween_property(self, "modulate:a", 0.0, 0.2 / speed)
 	await _tween.finished
 	visible = false
 

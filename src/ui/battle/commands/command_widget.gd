@@ -5,9 +5,10 @@ extends Control
 ##
 ## Input ownership: the press that confirmed the action never counts (a command key still held when
 ## the widget opens is latched until released); key repeat never counts; while the window has no
-## focus the clock freezes, and it resumes only after every command key is released. A manual pause
-## is queued by the battle scene until this widget finishes. Feedback waits are tweens bound to this
-## node, so freeing the battle mid-feedback drops them instead of resuming on a freed node (D-014).
+## focus the clock freezes, and it resumes only after every command key is released. The battle
+## scene ignores Pause while this widget is open (pausing must never help timing). Feedback waits are
+## tweens bound to this node, so freeing the battle mid-feedback drops them instead of resuming on a
+## freed node (D-014).
 
 signal finished(grade: Enums.ExecutionGrade)
 

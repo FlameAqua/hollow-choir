@@ -1,6 +1,12 @@
 class_name FieldGuide
 extends Control
 ## Read-only view of existing saved knowledge and weapon practice. Footer stays outside scrolling.
+
+## Emitted instead of routing to the title when a host (the paused world) embedded this screen.
+signal closed
+
+## Set by a host before the node enters the tree: keep the host's music and return via [signal closed].
+var embedded := false
 var _tabs: TabContainer
 var _choices: OptionButton
 var _scroll: ScrollContainer
@@ -9,8 +15,9 @@ var _back: Button
 var _readouts: Array[FieldGuideReadout] = []
 
 func _ready() -> void:
-	GameState.resume_session()
-	AudioManager.request_music(&"global_title")
+	if not embedded:
+		GameState.resume_session()
+		AudioManager.request_music(&"global_title")
 	var background := ColorRect.new()
 	background.color = UITheme.BG
 	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -47,7 +54,7 @@ func _build_bestiary() -> void:
 	var page := VBoxContainer.new()
 	page.name = "Bestiary"
 	_tabs.add_child(page)
-	_choices = OptionButton.new()
+	_choices = UITheme.selector()
 	_choices.custom_minimum_size.y = UITheme.control_height()
 	_choices.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_choices.fit_to_longest_item = false
@@ -70,7 +77,7 @@ func _build_bestiary() -> void:
 	if _readouts.is_empty():
 		_details.add_child(UITheme.label("No field notes yet", UITheme.ACCENT, -1, true))
 		_details.add_child(UITheme.label("Read an intent. Inspect a creature. Learn what changes your plan.", UITheme.TEXT, -1, true))
-		_details.add_child(UITheme.label("To keep a record in this build, open Combat Sandbox → Lab and enable Record progress before fighting. Practice is always unrecorded.", UITheme.TEXT_DIM, -1, true))
+		_details.add_child(UITheme.label("Win encounters on your journey to save research here. You can also record battles in Combat Sandbox → Lab. Practice is always unrecorded.", UITheme.TEXT_DIM, -1, true))
 	else:
 		_select(0)
 
@@ -143,4 +150,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _leave() -> void:
 	AudioManager.play(AudioManager.Cue.UI_CANCEL)
-	SceneRouter.goto(SceneRouter.MAIN_MENU)
+	if embedded:
+		closed.emit()
+	else:
+		SceneRouter.goto(SceneRouter.MAIN_MENU)

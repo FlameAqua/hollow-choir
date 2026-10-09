@@ -47,7 +47,7 @@ func show_readout(value: UnitReadout, expanded: bool) -> void:
 			var explanation := "No damage bonus or reduction." if category == "Normal damage" else "Strike with this type to learn, or Inspect." if category == "Unknown" else "Takes increased damage from these types." if category == "Weakness" else "Takes reduced damage from these types."
 			add_child(UITheme.label(explanation, UITheme.TEXT_FAINT, -1, true))
 	for effect in value.effects:
-		_field(effect.name, effect.value, UITheme.INFO, effect.icon)
+		_field(effect.name, effect.value, UITheme.INFO, effect.icon, null, effect.text)
 		if expanded and not effect.text.is_empty():
 			add_child(UITheme.label(effect.text, UITheme.TEXT_DIM, -1, true))
 	for note in value.notes:
@@ -65,10 +65,22 @@ func show_readout(value: UnitReadout, expanded: bool) -> void:
 	# Children pass pointer events to the single inspector; there is never a second tooltip.
 	mouse_filter = Control.MOUSE_FILTER_PASS
 
-func _field(label: String, value: String, color: Color, icon: String = "", host: Container = null) -> void:
+func _field(label: String, value: String, color: Color, icon: String = "", host: Container = null, explanation: String = "") -> void:
 	var row := VBoxContainer.new()
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.tooltip_text = label + "\n" + value
+	if explanation.is_empty():
+		match label:
+			"Health": explanation = "Remaining health. Reaching zero defeats this combatant."
+			"Focus": explanation = "Spent on techniques and spells. " + PreviewPanel.FOCUS_SOURCES
+			# StaggerRules.break_unit: only enemies with a weak point expose one, and an
+			# uninterruptible channel survives the Break.
+			"Break remaining": explanation = "Reduce this to zero to break the enemy: it loses its declared move (an uninterruptible channel continues) and its next activation, and takes more damage until it recovers." \
+				+ (" Breaking also exposes its weak point." if readout != null and not readout.weak_point.is_empty() else "")
+			"Weak point": explanation = "An exposed weak point enables bonuses from precision attacks."
+			"Knowledge": explanation = "Research unlocks reliable damage estimates, affinities and move details."
+	if not explanation.is_empty():
+		row.tooltip_text += "\n" + explanation
 	(host if host != null else self).add_child(row)
 	row.add_child(UITheme.label(label, UITheme.TEXT_DIM, -1, true))
 	var content := HBoxContainer.new()

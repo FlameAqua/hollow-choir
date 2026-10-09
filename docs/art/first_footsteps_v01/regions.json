@@ -1,0 +1,973 @@
+{
+  "status": "measured_alpha_128_bounds_not_requested_grid_dimensions",
+  "actors": [
+    {
+      "id": "hollow",
+      "source": "hollow_walk.png",
+      "cell": [
+        64,
+        64
+      ],
+      "foot": [
+        32,
+        60
+      ],
+      "body_height": 48,
+      "fps": 7,
+      "directional": true,
+      "rows": [
+        {
+          "name": "walk_south",
+          "frames": [
+            {
+              "region": [
+                71,
+                38,
+                206,
+                275
+              ],
+              "pivot": [
+                174,
+                311
+              ]
+            },
+            {
+              "region": [
+                386,
+                38,
+                203,
+                275
+              ],
+              "pivot": [
+                488,
+                311
+              ]
+            },
+            {
+              "region": [
+                692,
+                35,
+                208,
+                278
+              ],
+              "pivot": [
+                796,
+                311
+              ]
+            },
+            {
+              "region": [
+                1012,
+                35,
+                189,
+                278
+              ],
+              "pivot": [
+                1106,
+                311
+              ]
+            }
+          ]
+        },
+        {
+          "name": "walk_west",
+          "frames": [
+            {
+              "region": [
+                71,
+                340,
+                216,
+                277
+              ],
+              "pivot": [
+                179,
+                615
+              ]
+            },
+            {
+              "region": [
+                379,
+                340,
+                219,
+                276
+              ],
+              "pivot": [
+                488,
+                614
+              ]
+            },
+            {
+              "region": [
+                685,
+                340,
+                227,
+                276
+              ],
+              "pivot": [
+                799,
+                614
+              ]
+            },
+            {
+              "region": [
+                1004,
+                341,
+                214,
+                272
+              ],
+              "pivot": [
+                1111,
+                611
+              ]
+            }
+          ]
+        },
+        {
+          "name": "walk_east",
+          "frames": [
+            {
+              "region": [
+                38,
+                647,
+                219,
+                277
+              ],
+              "pivot": [
+                148,
+                922
+              ]
+            },
+            {
+              "region": [
+                353,
+                647,
+                211,
+                277
+              ],
+              "pivot": [
+                458,
+                922
+              ]
+            },
+            {
+              "region": [
+                653,
+                645,
+                233,
+                280
+              ],
+              "pivot": [
+                769,
+                923
+              ]
+            },
+            {
+              "region": [
+                985,
+                646,
+                212,
+                277
+              ],
+              "pivot": [
+                1091,
+                921
+              ]
+            }
+          ]
+        },
+        {
+          "name": "walk_north",
+          "frames": [
+            {
+              "region": [
+                47,
+                951,
+                206,
+                275
+              ],
+              "pivot": [
+                150,
+                1224
+              ]
+            },
+            {
+              "region": [
+                366,
+                950,
+                198,
+                276
+              ],
+              "pivot": [
+                465,
+                1224
+              ]
+            },
+            {
+              "region": [
+                665,
+                951,
+                199,
+                275
+              ],
+              "pivot": [
+                765,
+                1224
+              ]
+            },
+            {
+              "region": [
+                989,
+                951,
+                202,
+                275
+              ],
+              "pivot": [
+                1090,
+                1224
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fen_patrol",
+      "source": "encounter_groups_cutout_attempt.png",
+      "cell": [
+        128,
+        96
+      ],
+      "foot": [
+        64,
+        92
+      ],
+      "body_height": 64,
+      "fps": 2,
+      "rows": [
+        {
+          "name": "idle",
+          "frames": [
+            {
+              "region": [
+                16,
+                103,
+                356,
+                369
+              ],
+              "pivot": [
+                194,
+                470
+              ]
+            },
+            {
+              "region": [
+                399,
+                103,
+                361,
+                369
+              ],
+              "pivot": [
+                580,
+                470
+              ]
+            },
+            {
+              "region": [
+                783,
+                101,
+                356,
+                371
+              ],
+              "pivot": [
+                961,
+                470
+              ]
+            },
+            {
+              "region": [
+                1165,
+                103,
+                358,
+                369
+              ],
+              "pivot": [
+                1344,
+                470
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rot_grove",
+      "source": "encounter_groups_cutout_attempt.png",
+      "cell": [
+        128,
+        96
+      ],
+      "foot": [
+        64,
+        92
+      ],
+      "body_height": 80,
+      "fps": 2,
+      "rows": [
+        {
+          "name": "idle",
+          "frames": [
+            {
+              "region": [
+                10,
+                547,
+                374,
+                397
+              ],
+              "pivot": [
+                198,
+                942
+              ]
+            },
+            {
+              "region": [
+                392,
+                546,
+                376,
+                398
+              ],
+              "pivot": [
+                581,
+                942
+              ]
+            },
+            {
+              "region": [
+                774,
+                547,
+                378,
+                397
+              ],
+              "pivot": [
+                963,
+                942
+              ]
+            },
+            {
+              "region": [
+                1160,
+                549,
+                374,
+                395
+              ],
+              "pivot": [
+                1347,
+                942
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bellkeeper",
+      "source": "town_modules.png",
+      "cell": [
+        64,
+        64
+      ],
+      "foot": [
+        32,
+        60
+      ],
+      "body_height": 44,
+      "fps": 1.5,
+      "rows": [
+        {
+          "name": "idle",
+          "frames": [
+            {
+              "region": [
+                1322,
+                126,
+                161,
+                363
+              ],
+              "pivot": [
+                1402,
+                489
+              ]
+            },
+            {
+              "region": [
+                1322,
+                583,
+                161,
+                354
+              ],
+              "pivot": [
+                1402,
+                937
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "props": [
+    {
+      "region": [
+        38,
+        31,
+        257,
+        276
+      ],
+      "pivot": [
+        166,
+        305
+      ],
+      "id": "town_bell_quiet",
+      "source": "props.png",
+      "scale": 0.34782608695652173
+    },
+    {
+      "region": [
+        351,
+        31,
+        258,
+        276
+      ],
+      "pivot": [
+        480,
+        305
+      ],
+      "id": "town_bell_answering",
+      "source": "props.png",
+      "scale": 0.34782608695652173
+    },
+    {
+      "region": [
+        649,
+        21,
+        283,
+        291
+      ],
+      "pivot": [
+        791,
+        310
+      ],
+      "id": "wayside_bell_quiet",
+      "source": "props.png",
+      "scale": 0.32989690721649484
+    },
+    {
+      "region": [
+        962,
+        21,
+        284,
+        291
+      ],
+      "pivot": [
+        1104,
+        310
+      ],
+      "id": "wayside_bell_restored",
+      "source": "props.png",
+      "scale": 0.32989690721649484
+    },
+    {
+      "region": [
+        10,
+        397,
+        294,
+        208
+      ],
+      "pivot": [
+        157,
+        603
+      ],
+      "id": "preparation_bench",
+      "source": "props.png",
+      "scale": 0.15384615384615385
+    },
+    {
+      "region": [
+        317,
+        360,
+        308,
+        233
+      ],
+      "pivot": [
+        471,
+        591
+      ],
+      "id": "return_latch_closed",
+      "source": "props.png",
+      "scale": 0.1927710843373494
+    },
+    {
+      "region": [
+        630,
+        360,
+        308,
+        249
+      ],
+      "pivot": [
+        784,
+        607
+      ],
+      "id": "return_latch_open",
+      "source": "props.png",
+      "scale": 0.1927710843373494
+    },
+    {
+      "region": [
+        955,
+        341,
+        290,
+        275
+      ],
+      "pivot": [
+        1100,
+        614
+      ],
+      "id": "listening_stones",
+      "source": "props.png",
+      "scale": 0.23272727272727273
+    },
+    {
+      "region": [
+        67,
+        637,
+        179,
+        289
+      ],
+      "pivot": [
+        156,
+        924
+      ],
+      "id": "lamp_unlit",
+      "source": "props.png",
+      "scale": 0.22145328719723184
+    },
+    {
+      "region": [
+        380,
+        637,
+        180,
+        289
+      ],
+      "pivot": [
+        470,
+        924
+      ],
+      "id": "lamp_lit",
+      "source": "props.png",
+      "scale": 0.22145328719723184
+    },
+    {
+      "region": [
+        648,
+        635,
+        274,
+        305
+      ],
+      "pivot": [
+        785,
+        940
+      ],
+      "id": "reeds",
+      "source": "props.png",
+      "scale": 0.15737704918032788
+    },
+    {
+      "region": [
+        947,
+        690,
+        297,
+        208
+      ],
+      "pivot": [
+        1096,
+        896
+      ],
+      "id": "fallen_root",
+      "source": "props.png",
+      "scale": 0.15384615384615385
+    },
+    {
+      "region": [
+        17,
+        1005,
+        293,
+        198
+      ],
+      "pivot": [
+        164,
+        1201
+      ],
+      "id": "fence",
+      "source": "props.png",
+      "scale": 0.16161616161616163
+    },
+    {
+      "region": [
+        26,
+        139,
+        1485,
+        704
+      ],
+      "pivot": [
+        768,
+        843
+      ],
+      "id": "reed_gate",
+      "source": "open_reed_gate.png",
+      "scale": 0.07954545454545454
+    },
+    {
+      "region": [
+        627,
+        940,
+        313,
+        302
+      ],
+      "pivot": [
+        783,
+        1240
+      ],
+      "id": "willow",
+      "source": "props.png",
+      "scale": 0.3708609271523179
+    },
+    {
+      "region": [
+        944,
+        1013,
+        301,
+        209
+      ],
+      "pivot": [
+        1094,
+        1220
+      ],
+      "id": "boulders",
+      "source": "props.png",
+      "scale": 0.15311004784688995
+    }
+  ],
+  "buildings": [
+    {
+      "region": [
+        32,
+        215,
+        357,
+        264
+      ],
+      "pivot": [
+        210,
+        479
+      ],
+      "id": "stillroom_walls",
+      "source": "town_modules.png",
+      "scale": 0.3413333333333333
+    },
+    {
+      "region": [
+        440,
+        219,
+        305,
+        262
+      ],
+      "pivot": [
+        592,
+        481
+      ],
+      "id": "home_walls",
+      "source": "town_modules.png",
+      "scale": 0.3425076452599388
+    },
+    {
+      "region": [
+        783,
+        212,
+        485,
+        268
+      ],
+      "pivot": [
+        1026,
+        480
+      ],
+      "id": "workshop_walls",
+      "source": "town_modules.png",
+      "scale": 0.31496062992125984
+    },
+    {
+      "region": [
+        27,
+        599,
+        375,
+        299
+      ],
+      "pivot": [
+        214,
+        898
+      ],
+      "id": "stillroom_roof",
+      "source": "town_modules.png",
+      "scale": 0.3413333333333333
+    },
+    {
+      "region": [
+        429,
+        628,
+        327,
+        270
+      ],
+      "pivot": [
+        592,
+        898
+      ],
+      "id": "home_roof",
+      "source": "town_modules.png",
+      "scale": 0.3425076452599388
+    },
+    {
+      "region": [
+        776,
+        618,
+        508,
+        284
+      ],
+      "pivot": [
+        1030,
+        902
+      ],
+      "id": "workshop_roof",
+      "source": "town_modules.png",
+      "scale": 0.31496062992125984
+    }
+  ],
+  "terrain": [
+    {
+      "id": "peat",
+      "region": [
+        2,
+        2,
+        310,
+        310
+      ],
+      "status": "candidate_manual_paint_only"
+    },
+    {
+      "id": "water",
+      "region": [
+        316,
+        2,
+        309,
+        310
+      ],
+      "status": "candidate_manual_paint_only"
+    },
+    {
+      "id": "packed_path",
+      "region": [
+        629,
+        2,
+        309,
+        310
+      ],
+      "status": "candidate_manual_paint_only"
+    },
+    {
+      "id": "paving",
+      "region": [
+        942,
+        2,
+        310,
+        310
+      ],
+      "status": "candidate_manual_paint_only"
+    },
+    {
+      "id": "bank_north",
+      "region": [
+        2,
+        316,
+        310,
+        309
+      ],
+      "status": "candidate_manual_paint_only"
+    },
+    {
+      "id": "bank_east",
+      "region": [
+        316,
+        316,
+        309,
+        309
+      ],
+      "status": "candidate_manual_paint_only"
+    },
+    {
+      "id": "bank_south",
+      "region": [
+        629,
+        316,
+        309,
+        309
+      ],
+      "status": "candidate_manual_paint_only"
+    },
+    {
+      "id": "bank_west",
+      "region": [
+        942,
+        316,
+        310,
+        309
+      ],
+      "status": "candidate_manual_paint_only"
+    },
+    {
+      "id": "boardwalk_ns",
+      "region": [
+        2,
+        629,
+        310,
+        309
+      ],
+      "status": "candidate_manual_paint_only"
+    },
+    {
+      "id": "boardwalk_ew",
+      "region": [
+        316,
+        629,
+        309,
+        309
+      ],
+      "status": "candidate_manual_paint_only"
+    },
+    {
+      "id": "boardwalk_ne",
+      "region": [
+        629,
+        629,
+        309,
+        309
+      ],
+      "status": "candidate_manual_paint_only"
+    },
+    {
+      "id": "boardwalk_cross",
+      "region": [
+        942,
+        629,
+        310,
+        309
+      ],
+      "status": "candidate_manual_paint_only"
+    },
+    {
+      "id": "bank_nw",
+      "region": [
+        2,
+        942,
+        310,
+        310
+      ],
+      "status": "candidate_manual_paint_only"
+    },
+    {
+      "id": "bank_ne",
+      "region": [
+        316,
+        942,
+        309,
+        310
+      ],
+      "status": "candidate_manual_paint_only"
+    },
+    {
+      "id": "bank_lower_left_candidate",
+      "region": [
+        629,
+        942,
+        309,
+        310
+      ],
+      "status": "rejected_corner_join"
+    },
+    {
+      "id": "bank_lower_right_candidate",
+      "region": [
+        942,
+        942,
+        310,
+        310
+      ],
+      "status": "rejected_corner_join"
+    }
+  ],
+  "sources": {
+    "encounter_groups_cutout_attempt.png": {
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "d90a4cdc8eb2cf9db05d3eea49c4028ed60c5701d99cb1d981799823fff7f2fd"
+    },
+    "encounter_groups_generated.png": {
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "b048e070a9d8083768ca63db3aa4ae015c6228e003e65ad86042f76d3d84b639"
+    },
+    "hollow_walk.png": {
+      "size": [
+        1254,
+        1254
+      ],
+      "sha256": "f876187e36bb561e2a2cbdd1322eee4bc6c2baf1377640bf11b9a9f621c100b5"
+    },
+    "props.png": {
+      "size": [
+        1254,
+        1254
+      ],
+      "sha256": "c2cc4b73362366861f1bce972be64480084cfcf5c1f5705871d0d03c1dc5c1e8"
+    },
+    "terrain.png": {
+      "size": [
+        1254,
+        1254
+      ],
+      "sha256": "f34a08ad493d364d7baa65c621b93dcdb7d8100845f31bdc6743e3c0926b6f73"
+    },
+    "town_modules.png": {
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "eaa052bd1c36bd3feceaeee24cdfdf1587f6bb4eb1d445e81f9ae1d07340190c"
+    },
+    "open_reed_gate.png": {
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "d44c991ec355bc7693b10692853ca08f6bc045fbc1d79b136c0959e338432f6e"
+    },
+    "hollow_motion_v02.png": {
+      "sha256": "3ab56d5d7cafe7690d5068e5784fc5555f5ed9598ffaa0bdc573bbb17666330b",
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "built-in image_gen; transparent RGBA; mechanical native export",
+      "prompt": "docs/art/first_footsteps_v01/hollow_motion_v02_prompt.md"
+    }
+  }
+}

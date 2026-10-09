@@ -71,14 +71,14 @@ func test_footing_is_shared_and_compact_plate_retains_full_size_mixed_enemies() 
 			assert_almost_eq(feet, foot, 1)
 		foot = feet
 		assert_almost_eq(view._sprite_size.y, view.natural_height(), 1)
-		assert_lt(view.plate_height(), 60, "compact plate returns space to the standing plane at normal scale")
+		assert_lte(view.plate_height(), 64, "compact plate reserves its status outline without a large extra HUD row")
 	field.queue_free()
 
 
-func test_title_menu_has_focus_and_a_scrollable_enlarged_layout() -> void:
+func test_title_menu_has_focus_and_a_bounded_fixed_layout() -> void:
 	var tree := Engine.get_main_loop() as SceneTree
 	var old_theme := tree.root.theme
-	tree.root.theme = UITheme.build(2.0)
+	tree.root.theme = UITheme.build()
 	var menu: MainMenu = load("res://scenes/main/main_menu.tscn").instantiate()
 	tree.root.add_child(menu)
 	menu.set_anchors_preset(Control.PRESET_TOP_LEFT)
@@ -87,7 +87,11 @@ func test_title_menu_has_focus_and_a_scrollable_enlarged_layout() -> void:
 	for frame in 3:
 		await tree.process_frame
 	assert_true(menu._first_button.has_focus())
-	assert_true(menu._column.get_parent() is ScrollContainer)
+	assert_eq(menu.find_children("*", "ScrollContainer", true, false).size(), 0, "title options never need a scrollbar")
+	var buttons := menu._column.get_children().filter(func(node: Node) -> bool: return node is Button)
+	assert_eq(buttons.size(), 6)
+	for button: Button in buttons:
+		assert_true(Rect2(Vector2.ZERO, Vector2(1280, 720)).encloses(button.get_global_rect()), "every title option is visible")
 	assert_lte(menu._menu_panel.position.x + menu._menu_panel.size.x, 1280)
 	assert_lte(menu._menu_panel.position.y + menu._menu_panel.size.y, 720)
 	menu.queue_free()

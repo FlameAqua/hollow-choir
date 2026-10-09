@@ -15,12 +15,17 @@ func has_slot(slot: int) -> bool:
 
 
 func save_slot(slot: int) -> Error:
-	var envelope := SaveMigrator.wrap(GameState.progress.to_dict(), slot)
-	var err := write_json_atomic(slot_path(slot), envelope)
+	var err := write_progress(slot, GameState.progress)
 	if err == OK:
 		GameState.active_slot = slot
 	EventBus.game_saved.emit(slot, err == OK)
 	return err
+
+
+## Writes [param progress] to [param slot] atomically without publishing it into GameState. World
+## transactions write a candidate first and adopt it only when this returns OK.
+func write_progress(slot: int, progress: ProgressState) -> Error:
+	return write_json_atomic(slot_path(slot), SaveMigrator.wrap(progress.to_dict(), slot))
 
 
 func load_slot(slot: int) -> Error:

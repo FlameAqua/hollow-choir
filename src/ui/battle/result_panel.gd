@@ -16,7 +16,7 @@ var _secondary: Button
 
 func _ready() -> void:
 	custom_minimum_size = Vector2(640, 0)
-	add_theme_stylebox_override("panel", UITheme.box(UITheme.PANEL, UITheme.ACCENT.darkened(0.3), 1, 6, 22, 16))
+	add_theme_stylebox_override("panel", UICraft.panel("cloth", 22, 16))
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 12)
 	add_child(box)

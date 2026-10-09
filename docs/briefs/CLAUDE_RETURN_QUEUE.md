@@ -1,4 +1,42 @@
-# Claude return queue — 8 October 2026
+# Claude return queue — 9 October 2026
+
+**Latest assignment prepared — fresh Claude / V0.5A:** Adrian requested a backend continuation plan after the previous Claude instance exhausted its usage. Read [the fresh-instance implementation brief](V0_5A_BACKEND_HANDOFF.md) and [GDD-based staged roadmap](../design/V05_BACKEND_ROADMAP.md) first. Recover the partial fifth engineering pass (new tests and corresponding fixes exist; its review report is still absent), then implement the bounded Salvage and Preparation backend: deterministic persistent rewards, claim receipts, ownership-aware equipment commands and typed readouts. Later Forge/alchemy, exploration frameworks and regional Pressure stages remain separate assignments. This is a prepared handoff, not an implementation or a claim that a new Claude instance has run. Keep the shared uncommitted dev tree, application 0.3.0/save 1, authored presentation and all-reset battle policy.
+
+**9 October fifth playtest return:** Start with the [fifth continuation brief](V0_4_FIFTH_PLAYTEST_ENGINEERING.md) and [fifth presentation results](../reports/V0_4_FIFTH_PLAYTEST_POLISH.md), extending the fourth brief below. Fixed eight-action capacity, larger docks, separate ally/enemy turn banners, right-click inspection pinning with local field help, spacing/alignment/status fixes and localized idle-mask repair are complete. Full suite **304/0**, 4,117 assertions; rendered fifth pass **5/0**. Test integration boundaries and fix concrete engineering issues while preserving completed backend and art work.
+
+**9 October fourth playtest return:** The [third engineering review](../reports/V0_4_THIRD_PLAYTEST_ENGINEERING_REVIEW.md) is acknowledged and its requested fixes are complete. Start with the [fourth continuation brief](V0_4_FOURTH_PLAYTEST_ENGINEERING.md) and [fourth presentation results](../reports/V0_4_FOURTH_PLAYTEST_POLISH.md). The requests below are historical; preserve completed action switching, reset, collision and backend fixes. Review the new integrated presentation and fix concrete engineering defects found.
+
+**9 October third playtest return:** Start with
+[third playtest engineering continuation](V0_4_THIRD_PLAYTEST_ENGINEERING.md) and
+[third presentation results](../reports/V0_4_THIRD_PLAYTEST_POLISH.md). Adrian explicitly delegates
+action switching during recipient selection and a player-facing exploration reset to Claude.
+Implement these, finish the previous willow/root collision correction, and fix integration issues
+found. Preserve the new controls/wordmark, quiet crow with occasional fidgets, public-recipient
+hover markers and scrolling log. Final full suite: 272/0, 2,843 assertions; scripts 235/0;
+material checks 264/0. Existing uncommitted `dev`, application 0.3.0 / save 1.
+
+**9 October second playtest return:** Start with
+[second playtest engineering continuation](V0_4_SECOND_PLAYTEST_ENGINEERING.md) and
+[presentation results](../reports/V0_4_SECOND_PLAYTEST_POLISH.md). Implement the remaining willow
+root collision correction and integration fixes, then test. The earlier generic willow expansion
+was insufficient. Preserve the new bitmap UI, standing/crow idles, one inspection dock and revised
+footsteps. Full behavior suite: 271/0; application 0.3.0 / save 1; shared work uncommitted.
+
+**9 October first playtest return:** Adrian has tested the initial journey. Presentation polish is
+in the working tree; Claude owns the backend bug/collision follow-up. Start with
+[playtest engineering continuation](V0_4_PLAYTEST_ENGINEERING.md) and
+[polish evidence](../reports/V0_4_PLAYTEST_POLISH.md), which supersede the older presentation
+details below. All work remains uncommitted at application 0.3.0 / save 1.
+
+**9 October integration return:** First Footsteps backend and Director presentation are implemented
+in the uncommitted `dev` tree after `6d8401d`. Read [Director acceptance](../reports/V0_4_DIRECTOR_ACCEPTANCE.md)
+and [post-integration brief](V0_4_POST_INTEGRATION.md) first. Earlier implementation requests below
+are historical. Preserve the authored scenes and transactional boundaries; human gates remain open.
+
+**Latest:** V0.3 is pushed as `6d8401d`. Adrian now authorizes
+[V0.4 First Footsteps](V0_4_CLAUDE_HANDOFF_PROMPT.md), superseding the historical world hold below
+for that bounded journey. Follow [fixed display presets](../design/DISPLAY_PRESETS.md); independent
+text-size and arbitrary-window qualification are retired. Read the latest handoff before this older queue.
 
 **Current:** [icon-first UI integration](ICON_FIRST_UI_INTEGRATION.md) is implemented in the working tree; ChatGPT owns UI integration.
 The new UI contract supersedes historical layout/pending-art statements below. **Ready:** M1.1 engineering review. **Prepared:** policy evidence and human test protocol.

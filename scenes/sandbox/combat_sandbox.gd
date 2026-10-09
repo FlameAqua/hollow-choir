@@ -518,7 +518,7 @@ func _build_practice() -> VBoxContainer:
 		_practice_assist.set_item_metadata(_practice_assist.item_count - 1, value)
 	_practice_assist.item_selected.connect(_on_practice_assist)
 	var summary_panel := PanelContainer.new()
-	summary_panel.add_theme_stylebox_override("panel", UITheme.box(UITheme.PANEL_LIGHT, UITheme.BORDER, 0, 3, 16, 12))
+	summary_panel.add_theme_stylebox_override("panel", UICraft.panel("inspection", 16, 12))
 	page.add_child(summary_panel)
 	_practice_summary = UITheme.rich_text()
 	summary_panel.add_child(_practice_summary)
@@ -526,12 +526,10 @@ func _build_practice() -> VBoxContainer:
 	_begin_button.text = "Begin practice"
 	_begin_button.custom_minimum_size = Vector2(240, UITheme.control_height() + 8.0)
 	_begin_button.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-	_begin_button.add_theme_stylebox_override("normal", UITheme.box(UITheme.ACCENT, UITheme.ACCENT, 1, 3, 20, 10))
-	_begin_button.add_theme_stylebox_override("hover", UITheme.box(UITheme.ACCENT.lightened(0.1), UITheme.ACCENT, 1, 3, 20, 10))
-	_begin_button.add_theme_stylebox_override("focus", UITheme.box(Color(0, 0, 0, 0), UITheme.TEXT, 2, 3, 20, 10))
-	_begin_button.add_theme_color_override("font_color", UITheme.BG)
-	_begin_button.add_theme_color_override("font_hover_color", UITheme.BG)
-	_begin_button.add_theme_color_override("font_focus_color", UITheme.BG)
+	_begin_button.add_theme_stylebox_override("normal", UICraft.panel("selected", 20, 10))
+	_begin_button.add_theme_stylebox_override("hover", UICraft.panel("selected", 20, 10, Color(1.15, 1.15, 1.1)))
+	_begin_button.add_theme_stylebox_override("focus", UICraft.panel("selected", 20, 10))
+	_begin_button.add_theme_color_override("font_color", UITheme.ACCENT)
 	_begin_button.pressed.connect(_begin_practice)
 	page.add_child(_begin_button)
 	page.add_child(UITheme.label("Practice does not record progress. Timing help is independent of enemy tactics.",
@@ -544,7 +542,7 @@ func _field(grid: GridContainer, title: String) -> OptionButton:
 	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	box.add_theme_constant_override("separation", 2)
 	box.add_child(UITheme.heading(title))
-	var option := OptionButton.new()
+	var option := UITheme.selector()
 	option.fit_to_longest_item = false
 	option.clip_text = true
 	option.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -685,9 +683,9 @@ func _build_report_popup() -> void:
 	close.custom_minimum_size = Vector2(160, UITheme.control_height())
 
 
-## The battle header's Setup button. The setup page covers the whole battle, so the battle pauses
-## first; during a timed input or playback that pause, and then this page, wait for the next safe
-## point (the battle emits setup_requested), so no clock or input runs under the page.
+## The battle header's Setup button. The setup page covers the whole battle, which freezes under it
+## (no clock or input runs under the page). Like Pause, the request is ignored while a command or
+## reaction window is open (pause_for_host() returns false).
 func _toggle_setup() -> void:
 	if _setup.visible:
 		_show_setup(false)
@@ -740,7 +738,7 @@ func _row(label_text: String, control: Control, tooltip: String = "") -> void:
 
 
 func _option_row(label_text: String, entries: Array, tooltip: String = "") -> OptionButton:
-	var option := OptionButton.new()
+	var option := UITheme.selector()
 	option.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	option.clip_text = true
 	option.fit_to_longest_item = false

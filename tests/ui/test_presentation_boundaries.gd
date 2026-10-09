@@ -192,7 +192,8 @@ func test_target_review_does_not_pin_a_popup_over_controls() -> void:
 	potion.pressed.emit()
 	await _frames(3)
 	assert_true(scene._picker.is_targeting())
-	assert_false(scene._inspector.visible, "target review alone pins no popup; its facts stay in the dock")
+	assert_true(scene._inspector.docked, "target facts stay in the shared dock without a popup")
+	assert_false(scene._inspector.get_global_rect().intersects(scene._menu.get_global_rect()))
 	var other := -1
 	for uid in scene._picker._targets:
 		if uid != scene._picker._targets[scene._picker._target_index]:
@@ -228,24 +229,29 @@ func test_host_setup_covers_only_a_paused_battle() -> void:
 	sandbox.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	sandbox.size = Vector2(1280, 720)
 	await _frames(2)
-	# During a live reaction: the pause (and the page) wait for the next safe point.
+	# During a live reaction (Adrian, 9 October 2026): Setup is ignored like Pause, so it can never
+	# help timing. The window keeps running and resolves, and nothing is queued for later.
 	Engine.time_scale = 20.0
 	var battle := _sandbox_battle(sandbox, true)
-	assert_true(await _until(func() -> bool: return _reaction(battle) != null), "a reaction window opened")
+	assert_true(await _until(func() -> bool: return _reaction(battle) != null and not _reaction(battle).is_preparing()), "a live reaction window opened")
 	Engine.time_scale = 1.0
 	var widget := _reaction(battle)
 	widget._focus_lost = false
 	widget.clock.resume()
+	var started := widget.elapsed_ms()
 	sandbox._toggle_setup()
-	assert_false(sandbox._setup.visible, "the setup page never covers a running clock")
-	assert_true(battle.is_pause_pending())
-	assert_true(await _until(func() -> bool: return sandbox._setup.visible), "it opens at the next safe point")
-	assert_true(not is_instance_valid(widget) or widget.is_done(), "the reaction resolved on screen first")
-	assert_true(battle.is_paused(), "and the covered battle is paused")
-	assert_false(battle._modal.visible, "Setup owns the only visible overlay")
-	assert_false(battle._pause_panel.visible, "no stranded pause box over Setup")
-	sandbox._show_setup(false)
-	assert_false(battle.is_paused(), "closing Setup resumes directly")
+	assert_false(sandbox._setup.visible, "Setup does not cover a live reaction window")
+	assert_false(battle.is_paused() or battle.is_frozen(), "and the battle keeps running")
+	assert_false(battle._modal.visible, "no pause box either")
+	await _frames(10)
+	assert_true(not is_instance_valid(widget) or widget.is_done() or widget.elapsed_ms() > started, "the reaction clock never stops")
+	assert_true(await _until(func() -> bool:
+		# A real desktop focus change freezes the window by design; simulate the player returning.
+		if is_instance_valid(widget) and widget._focus_lost:
+			widget._notification(Node.NOTIFICATION_APPLICATION_FOCUS_IN)
+		return not is_instance_valid(widget) or widget.is_done()), "the window resolves normally")
+	await _frames(5)
+	assert_false(sandbox._setup.visible, "the ignored request was not queued")
 	# During target review: back to the same action (nothing spent), paused, no pinned card.
 	Engine.time_scale = 20.0
 	battle = _sandbox_battle(sandbox, false)

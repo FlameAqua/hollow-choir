@@ -1,0 +1,57 @@
+{
+	"art_spans": [
+		{
+			"left": -34.0,
+			"local_y": -24.0,
+			"right": 44.0
+		},
+		{
+			"left": -32.0,
+			"local_y": -16.0,
+			"right": 37.0
+		},
+		{
+			"left": -28.0,
+			"local_y": -8.0,
+			"right": 32.0
+		},
+		{
+			"left": -17.0,
+			"local_y": -4.0,
+			"right": 17.0
+		},
+		{
+			"left": 12.0,
+			"local_y": -1.0,
+			"right": 17.0
+		}
+	],
+	"feet_queries": [
+		{
+			"feet_local": "(0.0, -6.0)",
+			"willow_collision": true
+		},
+		{
+			"feet_local": "(34.0, -6.0)",
+			"willow_collision": true
+		},
+		{
+			"feet_local": "(40.0, -6.0)",
+			"willow_collision": true
+		},
+		{
+			"feet_local": "(44.0, -12.0)",
+			"willow_collision": true
+		},
+		{
+			"feet_local": "(-40.0, -6.0)",
+			"willow_collision": true
+		}
+	],
+	"footprint_polygon": "[(-22.0, -26.0), (29.0, -26.0), (34.0, -21.0), (39.0, -15.0), (39.0, -13.0), (32.0, -6.0), (18.0, 0.0), (12.0, 0.0), (-16.0, -1.0), (-27.0, -5.0), (-34.0, -12.0), (-34.0, -14.0), (-28.0, -23.0)]",
+	"footprint_position": "(0.0, 0.0)",
+	"footprint_size": null,
+	"node": "/root/Gloamstead/DepthSorted/Willow8_46",
+	"position": "(272.0, 1504.0)",
+	"sprite_offset": "(-64.0, -124.0)"
+}

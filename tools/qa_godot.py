@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Run Godot for this project with isolated user data.
 
-Every run gets a fresh user:// home (settings, saves, sandbox preferences, shader cache), so the
-player's own text size, bindings, window mode and Lab choices never leak into tests or captures,
-and nothing is written to their real user data. Godot arguments follow the launcher options.
+Every run gets a fresh user:// home (settings, saves, sandbox preferences, shader cache) and its own
+editor/resource cache, so the player's own bindings, window mode and Lab choices never leak into
+tests or captures, nothing is written to their real user data and no QA run shares a cache file
+with the developer's editor. Godot arguments follow the launcher options.
 
   python tools/qa_godot.py --headless --script res://tools/check_scripts.gd
   python tools/qa_godot.py --headless --script res://tests/run_tests.gd -- --filter=test_v02_ui
@@ -27,6 +28,21 @@ PROJECT = Path(__file__).resolve().parent.parent
 HOME_ENV = "HOLLOW_CHOIR_QA_HOME"
 
 
+def isolated_environment(home: Path, base=None) -> dict:
+    """Environment for one isolated run: user data and caches both live inside [home]."""
+    env = dict(os.environ if base is None else base)
+    cache = home / "cache"
+    cache.mkdir(parents=True, exist_ok=True)
+    # Godot derives user:// and editor data from APPDATA (Windows) or XDG_DATA_HOME (Linux, macOS),
+    # and its editor/resource cache (thumbnails, class docs) from LOCALAPPDATA or XDG_CACHE_HOME.
+    env["APPDATA"] = str(home)
+    env["LOCALAPPDATA"] = str(cache)
+    env["XDG_DATA_HOME"] = str(home)
+    env["XDG_CACHE_HOME"] = str(cache)
+    env[HOME_ENV] = str(home)
+    return env
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0], allow_abbrev=False)
     parser.add_argument("--godot", default=os.environ.get("GODOT", "godot"), help="Godot 4.7.2 executable")
@@ -38,11 +54,7 @@ def main() -> int:
 
     home = Path(options.home).resolve() if options.home else Path(tempfile.mkdtemp(prefix="hollow_choir_qa_"))
     home.mkdir(parents=True, exist_ok=True)
-    env = dict(os.environ)
-    # Godot derives user:// from APPDATA (Windows) or XDG_DATA_HOME (Linux, macOS).
-    env["APPDATA"] = str(home)
-    env["XDG_DATA_HOME"] = str(home)
-    env[HOME_ENV] = str(home)
+    env = isolated_environment(home)
     command = [options.godot]
     if "--path" not in godot_args:
         command += ["--path", str(PROJECT)]

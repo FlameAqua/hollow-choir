@@ -8,7 +8,8 @@ extends Control
 ## The first allowed fresh press locks type and timing (D-008). Unavailable reactions are inert and
 ## labelled. A key held when the window opens (pad X is also the command key) must be released first.
 ## Pause-before-reaction waits for Confirm, which never counts as a reaction. While the window has no
-## focus the clock freezes; it resumes after every reaction key is released.
+## focus the clock freezes; it resumes after every reaction key is released. The battle scene
+## ignores Pause while this window is open (pausing must never help timing).
 
 signal finished(result: ReactionResult)
 ## The real-time sequence began (immediately, or after the assist pause): start the wind-up visuals.
@@ -56,6 +57,9 @@ func begin(p_spec: ReactionSpec, p_readout: ReactionReadout, p_targets: Array[Ve
 	readout = p_readout
 	target_points = p_targets
 	dock_rect = p_dock_rect
+	var compact_height := minf(dock_rect.size.y, 170 * UITheme.text_scale())
+	dock_rect.position.y = dock_rect.end.y - compact_height
+	dock_rect.size.y = compact_height
 	_font = get_theme_default_font()
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_build_cards()
@@ -232,8 +236,7 @@ func _draw() -> void:
 		return
 	var t := clampf(elapsed_ms() / maxf(1.0, impact_ms()), 0.0, 1.2)
 	for point in target_points:
-		# Three distinct arc segments encode legality and the actual active windows.
-		# No flashing; brightness and thickness change only when crossing a boundary.
+		# Painted medallions brighten at the grader's actual boundaries.
 		for index in REACTIONS.size():
 			var reaction: Enums.ReactionType = REACTIONS[index]
 			var allowed := spec.is_allowed(reaction)
@@ -241,16 +244,15 @@ func _draw() -> void:
 			var angle := -PI * 0.5 + index * TAU / 3
 			var radius := IMPACT_RADIUS + 9
 			var color := IconPainter.reaction_color(reaction) if allowed else UITheme.TEXT_FAINT
-			draw_arc(point, radius, angle + 0.12, angle + TAU / 3 - 0.12, 18, Color(color, 1.0 if open else 0.32), 6 if open else 2)
 			var center := point + Vector2.from_angle(angle + PI / 3) * (radius + 22)
-			CombatIcons.paint(self, CombatIcons.mapping("reactions", reaction), Rect2(center - Vector2(12, 12), Vector2(24, 24)), Color.WHITE if allowed else Color(0.35, 0.35, 0.35))
-			if not allowed:
-				draw_line(center + Vector2(-11, 11), center + Vector2(11, -11), UITheme.DANGER, 2)
-		draw_arc(point, IMPACT_RADIUS, 0, TAU, 32, UITheme.TEXT, 1.0)
+			CombatIcons.paint(self, CombatIcons.mapping("reactions", reaction), Rect2(center - Vector2(16, 16), Vector2(32, 32)), Color.WHITE if allowed else Color(0.35, 0.35, 0.35))
+			if open:
+				draw_texture_rect(UICraft.texture("reaction_selected"), Rect2(center - Vector2(19, 19), Vector2(38, 38)), false, color)
+		draw_texture_rect(UICraft.texture("ring_open"), Rect2(point - Vector2.ONE * IMPACT_RADIUS, Vector2.ONE * IMPACT_RADIUS * 2), false)
 		if _running or _preparing or _waiting_for_start:
 			var radius := lerpf(START_RADIUS, IMPACT_RADIUS, minf(t, 1.0))
 			var color := UITheme.TEXT if t < 1.0 else UITheme.THREAT
-			draw_arc(point, radius, 0, TAU, 40, color, 3.0)
+			draw_texture_rect(UICraft.texture("ring"), Rect2(point - Vector2.ONE * radius, Vector2.ONE * radius * 2), false, color)
 
 
 ## The grader's own test (ReactionRules.is_success at this instant), so the cue cannot drift from
@@ -279,22 +281,21 @@ func _draw_meter() -> void:
 	var largest := maxf(spec.brace_window_ms, maxf(spec.evade_window_ms, spec.parry_window_ms))
 	var span := impact_ms() + largest * 0.5 + 120.0
 	var impact_x := meter.position.x + meter.size.x * impact_ms() / span
-	_meter_space.draw_rect(meter, UITheme.BG)
+	UICraft.draw(_meter_space, "timing_track", meter.grow(4))
 	for reaction in REACTIONS:
 		if not spec.is_allowed(reaction):
 			continue
 		var width := spec.window_for(reaction) / span * meter.size.x
 		var alpha: float = {Enums.ReactionType.BRACE: 0.22, Enums.ReactionType.EVADE: 0.4, Enums.ReactionType.PARRY: 0.7}[reaction]
-		_meter_space.draw_rect(Rect2(impact_x - width * 0.5, meter.position.y, width, meter.size.y),
+		_meter_space.draw_texture_rect(UICraft.texture("timing_fill"), Rect2(impact_x - width * 0.5, meter.position.y, width, meter.size.y), false,
 			Color(IconPainter.reaction_color(reaction), alpha))
-	_meter_space.draw_rect(meter, UITheme.BORDER, false, 1.0)
-	_meter_space.draw_line(Vector2(impact_x, meter.position.y - 6.0), Vector2(impact_x, meter.end.y + 4.0), UITheme.TEXT, 2.0)
+	_meter_space.draw_texture_rect(UICraft.texture("needle"), Rect2(impact_x - 5, meter.position.y - 10, 10, 30), false)
 	var small := UITheme.secondary_size()
 	_meter_space.draw_string(_font, Vector2(impact_x + 6.0, meter.position.y - 4.0), "Impact", HORIZONTAL_ALIGNMENT_LEFT, -1,
 		small, UITheme.TEXT_DIM)
 	if _running or _preparing or _waiting_for_start:
 		var x := meter.position.x + meter.size.x * clampf(elapsed_ms() / span, 0.0, 1.0)
-		_meter_space.draw_rect(Rect2(x - 3.0, meter.position.y - 4.0, 6.0, meter.size.y + 8.0), UITheme.ACCENT)
+		_meter_space.draw_texture_rect(UICraft.texture("cursor"), Rect2(x - 6, meter.position.y - 9, 12, 28), false)
 
 
 # --- Dock cards ---------------------------------------------------------------------------------
@@ -303,7 +304,7 @@ func _build_cards() -> void:
 	var panel := PanelContainer.new()
 	panel.name = "ReactionDock"
 	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	panel.add_theme_stylebox_override("panel", UITheme.box(UITheme.PANEL, UITheme.ACCENT.darkened(0.25), 2, 4, 14, 10))
+	panel.add_theme_stylebox_override("panel", UICraft.panel("cloth", 14, 10))
 	add_child(panel)
 	panel.position = dock_rect.position
 	panel.size = dock_rect.size
@@ -354,8 +355,6 @@ func _make_card(reaction_row: ReactionReadout.Row) -> PanelContainer:
 	card.size_flags_stretch_ratio = 1.0
 	card.mouse_filter = Control.MOUSE_FILTER_PASS
 	card.focus_mode = Control.FOCUS_ALL
-	card.tooltip_text = "%s\n%s\n%s\n%s" % [reaction_row.name, reaction_row.effect if reaction_row.allowed else reaction_row.unavailable_text,
-		reaction_row.risk, "\n".join(reaction_row.caveats)]
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 2)
 	card.add_child(box)
@@ -363,26 +362,21 @@ func _make_card(reaction_row: ReactionReadout.Row) -> PanelContainer:
 	box.add_child(title_row)
 	title_row.add_child(CombatIcons.image(CombatIcons.mapping("reactions", reaction_row.reaction), 28))
 	var key := UITheme.label(reaction_row.key_text(), UITheme.TEXT, UITheme.secondary_size())
-	key.add_theme_stylebox_override("normal", UITheme.box(UITheme.BG, UITheme.BORDER, 1, 2, 6, 1))
+	key.add_theme_stylebox_override("normal", UICraft.icon_frame())
+	key.custom_minimum_size = Vector2(34, 34)
+	key.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	key.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	title_row.add_child(key)
 	var name := UITheme.label(reaction_row.name, UITheme.TEXT if reaction_row.allowed else UITheme.TEXT_FAINT, UITheme.body_size())
 	title_row.add_child(name)
 	var status := UITheme.label("", UITheme.ACCENT, UITheme.secondary_size())
 	status.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	status.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	title_row.add_child(status)
-	if reaction_row.allowed:
-		var effect := reaction_row.effect
-		var risk := reaction_row.risk
-		if UITheme.text_scale() >= 1.3:
-			# Shorten words only; all values and legality still come from the same readout.
-			effect = effect.replace(" · ", "\n").replace("less damage", "less dmg").replace("blocks statuses", "Blocks status")
-			risk = risk.replace("Statuses still land", "Status lands").replace("Fails:", "Fail:").replace("damage", "dmg")
-		box.add_child(UITheme.label(effect, UITheme.TEXT, UITheme.secondary_size(), true))
-		box.add_child(UITheme.label(risk, UITheme.TEXT_DIM, UITheme.secondary_size(), true))
-		for caveat in reaction_row.caveats:
-			box.add_child(UITheme.label(caveat, UITheme.WET, UITheme.secondary_size(), true))
+	if UITheme.text_scale() >= 1.3:
+		box.add_child(status)
 	else:
+		title_row.add_child(status)
+	if not reaction_row.allowed:
 		# Struck through and labelled in words: never colour alone.
 		name.text = reaction_row.name
 		name.add_theme_color_override("font_color", UITheme.TEXT_FAINT)
@@ -392,8 +386,6 @@ func _make_card(reaction_row: ReactionReadout.Row) -> PanelContainer:
 		strike.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		name.add_child(strike)
 		strike.set_anchors_and_offsets_preset(Control.PRESET_HCENTER_WIDE)
-		box.add_child(UITheme.label("Unavailable", UITheme.THREAT, UITheme.secondary_size()))
-		box.add_child(UITheme.label(reaction_row.unavailable_text, UITheme.TEXT_DIM, UITheme.secondary_size(), true))
 	_cards.append(card)
 	_card_status.append(status)
 	return card
@@ -405,19 +397,17 @@ func _refresh_cards() -> void:
 	for index in _cards.size():
 		var reaction: Enums.ReactionType = REACTIONS[index]
 		var allowed := spec.is_allowed(reaction)
-		var border := UITheme.BORDER if allowed else UITheme.BORDER.darkened(0.4)
-		var background := UITheme.PANEL_LIGHT if allowed else UITheme.PANEL
-		var status := ""
+		var selected := false
+		var status := "" if allowed else "Unavailable"
 		if allowed and invites_press(reaction):
-			border = IconPainter.reaction_color(reaction)
-			background = UITheme.PANEL_LIGHT.lightened(0.08)
+			selected = true
 			status = "NOW"
 		elif not allowed and Time.get_ticks_msec() < _unavailable_until.get(int(reaction), 0):
 			status = "Unavailable"
 		if reaction == _chosen:
-			border = UITheme.ACCENT
+			selected = true
 			status = result_word() if _done else "Locked"
-		_cards[index].add_theme_stylebox_override("panel", UITheme.box(background, border, 2 if reaction == _chosen else 1, 4, 10, 6))
+		_cards[index].add_theme_stylebox_override("panel", UICraft.panel("selected" if selected else "technique", 12, 8, Color.WHITE if allowed else Color(0.6, 0.6, 0.6)))
 		_card_status[index].text = status
 		_card_status[index].add_theme_color_override("font_color",
 			UITheme.HEART if status == "Success" else (UITheme.THREAT if status in ["Early", "Late", "Unavailable"] else UITheme.ACCENT))

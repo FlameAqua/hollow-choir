@@ -5,6 +5,12 @@ var familiar: FamiliarDefinition
 var ledger: PresentationLedger
 var _show_art := true
 var _pulse: Tween
+var _idle: SpriteFrames
+var _idle_time := 0.0
+## A private presentation clock/RNG never consumes the battle's random stream.
+var _fidget_rng := RandomNumberGenerator.new()
+var _next_fidget := 12.0
+var _fidget_time := -1.0
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
@@ -15,7 +21,38 @@ func setup(value: FamiliarDefinition, display: PresentationLedger, show_art: boo
 	familiar = value
 	ledger = display
 	_show_art = show_art
+	_idle = preload("res://assets/art/global/familiars/frames/bell_crow_idle_v03.tres") if familiar != null and familiar.id == &"bell_crow" else null
+	_idle_time = 0.0
+	_fidget_rng.randomize()
+	_next_fidget = _fidget_rng.randf_range(8, 18)
+	_fidget_time = -1
 	refresh()
+
+func _process(delta: float) -> void:
+	if _idle != null and visible and _show_art:
+		if Settings.data.reduce_motion:
+			_idle_time = 0
+			_fidget_time = -1
+		else:
+			_idle_time += delta
+			if _fidget_time >= 0:
+				_fidget_time += delta
+				if _fidget_time >= _idle.get_frame_count(&"fidget") / _idle.get_animation_speed(&"fidget"):
+					_fidget_time = -1
+					_next_fidget = _fidget_rng.randf_range(8, 18)
+			else:
+				_next_fidget -= delta
+				if _next_fidget <= 0:
+					_fidget_time = 0
+		queue_redraw()
+
+func idle_texture() -> Texture2D:
+	if _idle != null:
+		var animation := &"fidget" if _fidget_time >= 0 else &"idle"
+		var elapsed := _fidget_time if _fidget_time >= 0 else _idle_time
+		var index := int(elapsed * _idle.get_animation_speed(animation)) % _idle.get_frame_count(animation)
+		return _idle.get_frame_texture(animation, index)
+	return familiar.portrait if familiar != null else null
 
 func refresh() -> void:
 	visible = familiar != null
@@ -54,7 +91,7 @@ func _draw() -> void:
 		draw_rect(Rect2(Vector2.ZERO, size), UITheme.ACCENT, false, 2)
 	draw_ellipse_shadow()
 	if familiar.portrait != null and _show_art:
-		draw_texture_rect(familiar.portrait, art_rect(), false)
+		draw_texture_rect(idle_texture(), art_rect(), false)
 	else:
 		# Explicit procedural fallback for familiars without painted art.
 		draw_rect(Rect2(9, 22, 31, 19), UITheme.ACCENT)
@@ -68,7 +105,7 @@ func draw_ellipse_shadow() -> void:
 	draw_rect(Rect2(5, size.y - 7, size.x - 10, 4), Color(0, 0, 0, 0.3))
 
 func art_rect() -> Rect2:
-	var source := familiar.portrait.get_size()
+	var source := idle_texture().get_size()
 	var floor_y := maxf(0, size.y - 8)
 	var drawn := source * maxf(0, minf(size.x / source.x, floor_y / source.y))
 	return Rect2(Vector2((size.x - drawn.x) * 0.5, floor_y - drawn.y), drawn)

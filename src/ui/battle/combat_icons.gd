@@ -11,6 +11,12 @@ static func mapping(group: String, key: Variant, fallback: String = "unavailable
 	return str(_map.get(group, {}).get(str(key), fallback))
 
 static func texture(id: String) -> Texture2D:
+	if id in ["log", "pause", "setup", "restart", "turn_order"]:
+		return UICraft.texture(id)
+	if id in ["stagger", "state_broken"]:
+		return UICraft.texture("broken")
+	if id in ["reaction_brace", "reaction_evade", "reaction_parry"]:
+		return UICraft.texture(id.trim_prefix("reaction_"))
 	if not _textures.has(id):
 		_textures[id] = DATA.textures.get(id, DATA.textures.get("unavailable"))
 	return _textures[id]

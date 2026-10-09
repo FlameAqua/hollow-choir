@@ -45,6 +45,8 @@ const SHAPES := {
 }
 
 var uid: int = -1
+## Hovered enemy move recipients. Presentation only; never changes action eligibility.
+var intent_targeted := false
 var unit: BattleUnit
 var ledger: PresentationLedger
 ## Selection brackets (action or reaction targets).
@@ -96,6 +98,24 @@ var _natural_size: Vector2
 var _sprite_size: Vector2
 var _plate_width: float = 150.0
 var _shrink: float = 1.0
+var _idle_time := 0.0
+var _breath_scale := 1.0
+var support_glow := 0.0
+
+
+func _process(delta: float) -> void:
+	if unit == null:
+		return
+	_idle_time += delta
+	var alive := presentation_animation() == IDLE
+	_breath_scale = 1.0 + (sin(_idle_time * 1.7 + uid * .61) * .009 if alive and not reduce_motion else 0.0)
+	support_glow = maxf(0, support_glow - delta * 1.4)
+	if alive or support_glow > 0:
+		queue_redraw()
+
+
+func pulse_support() -> void:
+	support_glow = 1.0
 
 
 func setup(battle_unit: BattleUnit, p_ledger: PresentationLedger) -> void:
@@ -140,7 +160,8 @@ func fit(shrink: float, plate_width: float) -> void:
 
 ## Constant for a given text size, so selecting, hitting or adding a status never moves the sprite.
 func plate_height() -> float:
-	return maxf(float(UITheme.secondary_size()) + 28.0, 52.0)
+	# The bottom status cell starts 32px below the sprite and includes its outline.
+	return float(UITheme.secondary_size()) + 42.0
 
 
 ## Point where effects / floating text should appear (above the sprite).
@@ -203,8 +224,14 @@ func _draw() -> void:
 	var broken := display.broken if display != null else unit.is_broken()
 	var sprite_origin := Vector2((size.x - _sprite_size.x) * 0.5, 0.0) + body_offset
 	var center := sprite_origin + _sprite_size * 0.5
+	if support_glow > 0:
+		var pulse_rect := Rect2(sprite_origin + Vector2(4, 4), _sprite_size - Vector2(8, 8))
+		draw_rect(pulse_rect, Color(UITheme.INFO, support_glow * .30), false, 3.0)
+		CombatIcons.paint(self, "action_empower", Rect2(sprite_origin + Vector2(_sprite_size.x * .5 - 14, 0), Vector2(28, 28)), Color(UITheme.INFO, support_glow))
 	# Shadow.
 	_draw_ellipse(Vector2(size.x * 0.5, _sprite_size.y - 2.0), Vector2(_sprite_size.x * 0.4, 5.0), Color(0, 0, 0, 0.35))
+	if alive and intent_targeted:
+		draw_texture_rect(UICraft.texture("target_rim"), Rect2(size.x * .5 - 32, _sprite_size.y - 18, 64, 22), false)
 	# Selection uses corner brackets; turn ownership also appears in the portrait timeline.
 	var small := UITheme.secondary_size()
 	if alive and highlighted:
@@ -217,7 +244,7 @@ func _draw() -> void:
 		return
 	var tilt := 0.18 if broken else 0.0
 	var pivot := Vector2(center.x, sprite_origin.y + _sprite_size.y)
-	var body := Transform2D(tilt, Vector2(body_scale, body_scale), 0.0, pivot)
+	var body := Transform2D(tilt, Vector2(body_scale, body_scale * _breath_scale), 0.0, pivot)
 	draw_set_transform_matrix(body)
 	var local_origin := sprite_origin - pivot
 	if _texture != null:
@@ -228,18 +255,11 @@ func _draw() -> void:
 	var weak_point := display.weak_point if display != null else unit.is_weak_point_exposed()
 	if weak_point:
 		_draw_weak_point(center + Vector2(0, _sprite_size.y * 0.05))
-	if broken:
-		_draw_cracks(center)
 	# State tags sit inside the lower body, clear of the intent strip and target label.
 	var state_y := sprite_origin.y + _sprite_size.y - 8
 	if weak_point and UITheme.text_scale() < 1.3:
 		_draw_tag(Vector2(size.x * 0.5, state_y), "EXPOSED", UITheme.FOCUS, small)
 		state_y -= small + 10
-	if broken:
-		if UITheme.text_scale() < 1.3:
-			_draw_tag(Vector2(size.x * 0.5, state_y), "BROKEN", UITheme.STAGGER, small)
-		else:
-			CombatIcons.paint(self, "state_broken", Rect2(size.x * 0.5 - 16, sprite_origin.y + _sprite_size.y - 34, 32, 32), UITheme.STAGGER)
 	_draw_plate(Vector2(0.0, _sprite_size.y + 4.0), display, broken)
 	# Brackets carry selection; turn order carries the active turn. No repeated text over sprites.
 
@@ -313,12 +333,6 @@ func _draw_defeated(origin: Vector2) -> void:
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
-func _draw_cracks(at: Vector2) -> void:
-	var color := Color(UITheme.STAGGER, 0.9)
-	draw_polyline(PackedVector2Array([at + Vector2(-18, -20), at + Vector2(-6, -6), at + Vector2(-12, 6), at + Vector2(2, 18)]), color, 2.0)
-	draw_polyline(PackedVector2Array([at + Vector2(14, -16), at + Vector2(4, -4), at + Vector2(16, 8)]), color, 2.0)
-
-
 ## Compact team-colored HP and icon/number resources. Effects move above the plate when enlarged
 ## HP digits leave too little room. Full identity/maxima are in immediate details.
 func _draw_plate(origin: Vector2, display: PresentationLedger.UnitDisplay, broken: bool) -> void:
@@ -366,6 +380,8 @@ func _draw_effects(origin: Vector2, width: float, display: PresentationLedger.Un
 		return
 	var side := float(UITheme.secondary_size() + 4)
 	var entries: Array[Dictionary] = []
+	if display.broken:
+		entries.append({"icon": "state_broken", "count": "", "text": "Broken\nLoses its next activation. Any channel was interrupted."})
 	for status in display.statuses:
 		entries.append({"icon": CombatIcons.mapping("statuses", status.status), "count": str(status.remaining), "text": "%s · %s\n%s" % [EnumText.status(status.status), UnitDetails.remaining_text(status.definition, status.remaining), status.definition.description if status.definition != null else ""]})
 	for buff in display.buffs:
@@ -373,6 +389,11 @@ func _draw_effects(origin: Vector2, width: float, display: PresentationLedger.Un
 	if display.covered_by >= 0 or display.covering >= 0:
 		entries.append({"icon": "action_intercept", "count": "", "text": "Intercept\nCovered by an ally" if display.covered_by >= 0 else "Intercept\nCovering an ally"})
 	var cursor := origin.x
+	if unit.is_enemy():
+		var total_width := 0.0
+		for entry in entries:
+			total_width += side + _text_width(entry.count, UITheme.secondary_size()) + 12
+		cursor += maxf(0, width - total_width)
 	for i in entries.size():
 		var entry := entries[i]
 		var cell_width := side + _text_width(entry.count, UITheme.secondary_size()) + 12
@@ -403,8 +424,7 @@ func _text_width(text: String, font_size: int) -> float:
 func _draw_tag(at: Vector2, text: String, color: Color, font_size: int) -> void:
 	var width := _font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x + 12.0
 	var rect := Rect2(at.x - width * 0.5, at.y - font_size - 6.0, width, font_size + 6.0)
-	draw_rect(rect, Color(UITheme.BG, 0.9))
-	draw_rect(rect, color, false, 1.0)
+	UICraft.draw(self, "broken_plaque" if text == "BROKEN" else "number", rect)
 	draw_string(_font, Vector2(rect.position.x + 6.0, rect.end.y - 4.0), text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, color)
 
 

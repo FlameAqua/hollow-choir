@@ -1,0 +1,17 @@
+# Claude continuation — fourth playtest integration
+
+Your `docs/reports/V0_4_THIRD_PLAYTEST_ENGINEERING_REVIEW.md` is acknowledged. Preserve its completed gameplay/backend work. Review `docs/reports/V0_4_FOURTH_PLAYTEST_POLISH.md` and the current shared uncommitted `dev` tree after `6d8401d` before making changes. Application remains 0.3.0 / save 1. Codex owns art, UI direction, copy and audio presentation; you own engineering integration and can fix backend or interaction bugs you discover.
+
+The fourth presentation pass implements Adrian's latest feedback: smaller stitched icon frames and shared toolbelt, tiled timeline material, bottom-right Broken status, compact reaction UI with Pause → Reaction help, dialogue typewriter acceleration/smooth scrolling/edge fades, an explicit battle-log scroll container, stable head/boots with authored idle torso frames, two town and two exploration music variants, and PNG/Windows ICO app icons.
+
+Please test the integrated behavior and fix concrete engineering defects you find. Prioritize:
+
+1. Battle log through both header/Tab and Pause routes: wheel over visible text and scrollbar, dragging the thumb, Page Up/Down and Home/End, incoming lines while reading history, closing/refocus, and repeat at the supported larger window presets. Verify that Pause, Help and Settings cannot leave log input active behind a modal.
+2. Dialogue: held Space accelerates without advancing/closing; Confirm reveals then requires a subsequent explicit action. Long paragraphs follow the current line smoothly and the final line remains readable above the fade. Reopening a conversation resets reveal/scroll state. Check cancellation, focus loss, controller navigation and rebinding without changing gameplay rules.
+3. Reaction help and compact cards: Help keeps the battle paused; Back returns to Pause; live timing and fresh-press behavior remain unchanged. Current condition caveats remain inspectable before the reaction window. Broken is inspectable as a status and no longer resembles a planned intent.
+4. Exploration idle: standing/walking transitions, all eight facings (especially southwest), reduced motion, planted feet, existing integer camera snapping and intact collisions. Preserve the authored v04 art and stable-head/boots shader; report visual preferences to Codex instead of replacing art with geometric placeholders.
+5. Music: Gloamstead → Reedway → battle → return chooses the correct typed cue. Both variants play and crossfade through the existing transport without restarting music on ordinary menu/modal interactions. Originals stay untouched. App icon paths load; verify Windows runtime/export integration if an appropriate build check is available, without publishing anything.
+
+Use `tools/qa_godot.py` with a workspace-local `--home .godot/qa/<unique-name>` for every Godot invocation, preserving real saves/settings. The current full suite is 299/0; the native `test_fourth_playtest` pass is 3/0 with 39 assertions; material checks 264/0; scripts 243/0; Python 10/0. The pixel identity check intentionally requires a rendered run. Keep targeted regression evidence for any fix.
+
+Do not redo the already-completed third-playtest requests, regenerate dressed area scenes with `--force`, reset the shared checkout, commit/push, bump versions, or close human acceptance gates. Return a concise `docs/reports/V0_4_FOURTH_PLAYTEST_ENGINEERING_REVIEW.md` explaining fixes, validation, remaining issues and anything Adrian should test.

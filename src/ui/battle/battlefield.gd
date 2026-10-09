@@ -109,6 +109,14 @@ func set_highlights(uids: Array[int]) -> void:
 		views[key].highlighted = uids.has(key)
 
 
+func set_intent_targets(uids: Array[int]) -> void:
+	for key: int in views:
+		var targeted := uids.has(key)
+		if views[key].intent_targeted != targeted:
+			views[key].intent_targeted = targeted
+			views[key].queue_redraw()
+
+
 func refresh_units() -> void:
 	for key: int in views:
 		views[key].queue_redraw()

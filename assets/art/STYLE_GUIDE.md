@@ -233,3 +233,15 @@ belongs under global/familiars; regional enemy/environment art stays in its regi
 Final pre-push scale tuning: Cinder Pup uses FamiliarDefinition.display_scale = 1.2, with a rounded
 62×70 slot. Preserve its existing source PNG, aspect fit and paw baseline; clamp placement to the
 stage's left edge. Bell Crow retains 1.0. This is display tuning, not a new art variant or hit area.
+
+## V0.4 exploration continuation — 9 October 2026
+
+Adrian authorized exploration sprite sheets/atlases in parallel with the backend. Follow
+[map production](../../docs/design/V04_MAP_PRODUCTION.md) and the
+[First Footsteps pack](world/first_footsteps_v01/README.md). Overworld Hollow gains eight-direction
+walk/idle animations; stationary encounter groups and Bellkeeper gain optional breathing idles.
+These do not expand the combat animation contract, add pursuit AI or alter battle timing.
+Native exports are mechanical candidate crops/reductions with unchanged sources, not artist pixel
+cleanup. Runtime assets, shadows, movement collision and interaction geometry remain separate.
+The current [fixed display policy](../../docs/design/DISPLAY_PRESETS.md) supersedes historical
+independent text-scale checks in this guide.

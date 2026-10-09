@@ -7,6 +7,10 @@ extends PanelContainer
 ## ActionReadout or IntentReadout; this widget never reads research itself.
 
 const BIG := 1.5
+## The engine's general party Focus sources (ActionResolver timing/weakness/parry, StaggerRules Break,
+## GAIN_FOCUS on Inspect and Guard-category actions). Each weapon replaces plain Guard with its own
+## Guard action (a stance or Steady Aim), so no single action name is promised.
+const FOCUS_SOURCES := "Basic attacks on Good or Perfect, other timed actions on Perfect, weakness hits, parries, Breaks, Inspect and each weapon's Guard action restore it. Traits, gear and supplies can add more."
 
 var _summary: Control
 var _readout: ActionReadout
@@ -16,10 +20,12 @@ var _regions: Array[Dictionary] = []
 var _plain := ""
 ## The dock uses the same native-font transform as inspection. Nested inspector cards stay at 1.
 var summary_scale: float = 1.0
+## The shared dock removes the spare title row used by larger floating cards.
+var compact := false
 
 
 func _ready() -> void:
-	add_theme_stylebox_override("panel", UITheme.box(UITheme.PANEL, UITheme.BORDER, 1, 4, 14, 10))
+	add_theme_stylebox_override("panel", StyleBoxEmpty.new() if compact else UICraft.panel("inspection", 14, 10))
 
 
 func show_readout(readout: ActionReadout) -> void:
@@ -61,8 +67,11 @@ func _draw_summary() -> void:
 	_summary.draw_string(font, Vector2(0, small), UITheme.fit_text(r.label, cost_x - 12, font, small), HORIZONTAL_ALIGNMENT_LEFT, -1, small, UITheme.ACCENT)
 	CombatIcons.paint(_summary, "action_item" if r.item_charges >= 0 else "focus", Rect2(cost_x, 0, side, side))
 	_summary.draw_string(font, Vector2(cost_x + 32, small), count, HORIZONTAL_ALIGNMENT_LEFT, -1, small, UITheme.FOCUS)
-	_regions.append({"rect": Rect2(cost_x, 0, cost_width, line), "text": "%s\n%s" % ["Charges" if r.item_charges >= 0 else "Focus cost", count]})
+	_regions.append({"rect": Rect2(cost_x, 0, cost_width, line), "text": "%s\n%s\n%s" % ["Charges" if r.item_charges >= 0 else "Focus cost", count, "Remaining uses of this equipped supply." if r.item_charges >= 0 else "Focus spent when this action is used. " + FOCUS_SOURCES]})
 	var y := line
+	var scope := target_scope(r) + " · " + ("No timing" if r.command_type == Enums.ActionCommandType.NONE else "Good timing")
+	_summary.draw_string(font, Vector2(0, available.y - 3), UITheme.fit_text(scope, available.x, font, small), HORIZONTAL_ALIGNMENT_LEFT, -1, small, UITheme.TEXT_DIM)
+	_regions.append({"rect": Rect2(0, available.y - small - 5, available.x, small + 5), "text": target_scope(r) + "\n" + ("This action has no timing input." if r.command_type == Enums.ActionCommandType.NONE else "The displayed outcome assumes Good timing. " + grades_hint())})
 	if not r.legal:
 		_summary.draw_string(font, Vector2(0, y + small), UITheme.fit_text(r.reason, available.x, font, small), HORIZONTAL_ALIGNMENT_LEFT, -1, small, UITheme.DANGER)
 		return
@@ -127,10 +136,6 @@ func _draw_summary() -> void:
 		_summary.draw_string(font, Vector2(available.x - recipient_width, y + small), UITheme.fit_text(recipient, recipient_width, font, small), HORIZONTAL_ALIGNMENT_LEFT, -1, small, UITheme.TEXT_DIM)
 		_regions.append({"rect": rect, "text": "%s · %s\n%s" % [note.label, recipient, note.explanation]})
 		y += line
-	var scope := "Good · each" if r.scope == ActionReadout.Scope.PER_TARGET else "Good · hit" if r.deals_damage() else "Support"
-	if r.command_type == Enums.ActionCommandType.NONE:
-		scope = "Each · no timing" if r.scope == ActionReadout.Scope.PER_TARGET else "No timing"
-	_summary.draw_string(font, Vector2(0, available.y - 3), UITheme.fit_text(scope, available.x, font, small), HORIZONTAL_ALIGNMENT_LEFT, -1, small, UITheme.TEXT_DIM)
 
 
 func _get_tooltip(point: Vector2) -> String:
@@ -170,7 +175,7 @@ func _draw_intent_summary() -> void:
 	# Keep a stable top-right badge and wrap the move title onto its own row when necessary.
 	var title_y := 0.0 if font.get_string_size(r.label, HORIZONTAL_ALIGNMENT_LEFT, -1, small).x + threat_width + 18 <= width else line
 	_summary.draw_string(font, Vector2(0, title_y + small), UITheme.fit_text(r.label, width if title_y > 0 else badge.position.x - 12, font, small), HORIZONTAL_ALIGNMENT_LEFT, -1, small, UITheme.DANGER)
-	var y := line * 2
+	var y := line * (1 if compact and title_y == 0.0 else 2)
 	var x := width - r.statuses.size() * 38
 	for note in r.statuses:
 		var rect := Rect2(maxf(0, x), y, 32, 32)
@@ -182,7 +187,7 @@ func _draw_intent_summary() -> void:
 		x += 38
 	if not r.statuses.is_empty():
 		y += 38
-	y = maxf(y, _summary.size.y / summary_scale - (38 if r.targets_party or r.is_channel else 0) - maxi(1, r.target_uids.size()) * line - 10)
+	y = maxf(y, _summary.size.y / summary_scale - (50 if r.targets_party or r.is_channel else 0) - maxi(1, r.target_uids.size()) * line - 10)
 	for uid in r.target_uids:
 		var amount := r.damage_text(uid)
 		if amount.is_empty():
@@ -201,23 +206,31 @@ func _draw_intent_summary() -> void:
 	if r.targets_party:
 		for i in ReactionReadout.REACTIONS.size():
 			var reaction := ReactionReadout.REACTIONS[i]
-			var rect := Rect2(x, y, 30, 30)
-			_summary.draw_rect(rect, UITheme.BG)
-			CombatIcons.paint(_summary, CombatIcons.mapping("reactions", reaction), rect.grow(-2), Color.WHITE if r.allowed[i] else Color(0.4, 0.4, 0.4, 0.7))
+			var rect := Rect2(x, y, 44, 44)
+			CombatIcons.paint(_summary, CombatIcons.mapping("reactions", reaction), rect, Color.WHITE if r.allowed[i] else Color(0.45, 0.45, 0.45, 0.75))
 			if not r.allowed[i]:
 				_summary.draw_line(rect.position, rect.end, UITheme.DANGER, 2)
 			_regions.append({"rect": rect, "text": EnumText.reaction(reaction) + ("\nAvailable" if r.allowed[i] else "\nUnavailable")})
-			x += 38
+			x += 54
 	if r.is_channel:
 		CombatIcons.paint(_summary, "channel", Rect2(width - 70, y, 30, 30))
 		_summary.draw_string(font, Vector2(width - 34, y + small), str(r.activations_to_release), HORIZONTAL_ALIGNMENT_LEFT, -1, small, UITheme.ACCENT)
 		_regions.append({"rect": Rect2(width - 70, y, 70, line), "text": r.channel_text() + "\n" + r.interrupt_text()})
 
+## Where the other timing grades are, for the player's actual Details key and mode.
+static func grades_hint() -> String:
+	match Settings.data.advanced_tooltips:
+		GameSettings.TooltipMode.TOGGLE:
+			return "%s shows the other timing grades." % InputBindings.prompt(InputBindings.INFO)
+		GameSettings.TooltipMode.ALWAYS:
+			return "Details below list the other timing grades."
+	return "Hold %s for the other timing grades." % InputBindings.prompt(InputBindings.INFO)
+
 static func threat_label(readout: IntentReadout) -> String:
 	return "No threat" if readout.threat == IntentPreview.Threat.NONE else readout.threat_word + " threat"
 
-static func intent_height(readout: IntentReadout) -> float:
-	return 44 + 2 * (UITheme.secondary_size() + 12) + maxi(1, readout.target_uids.size()) * (UITheme.secondary_size() + 12) + (38 if not readout.statuses.is_empty() else 0) + (38 if readout.targets_party or readout.is_channel else 0)
+static func intent_height(readout: IntentReadout, compact: bool = false) -> float:
+	return 44 + (1 if compact else 2) * (UITheme.secondary_size() + 12) + maxi(1, readout.target_uids.size()) * (UITheme.secondary_size() + 12) + (38 if not readout.statuses.is_empty() else 0) + (50 if readout.targets_party or readout.is_channel else 0)
 
 static func intent_details(readout: IntentReadout) -> String:
 	var lines := PackedStringArray()
@@ -286,25 +299,38 @@ static func describe(readout: ActionReadout, details: bool) -> String:
 
 ## The analysis layer alone (expanded inspection beneath the card): authored rules, named support
 ## effects, per-grade numbers, formula and windows.
-static func describe_details(readout: ActionReadout) -> String:
+static func describe_details(readout: ActionReadout, include_description: bool = true) -> String:
 	var lines := PackedStringArray()
 	lines.append("[color=%s]%s[/color]" % [UITheme.hex(UITheme.INFO), readout.category_text])
-	if not readout.description.is_empty():
-		lines.append(readout.description)
+	if include_description and not readout.description.is_empty():
+		lines.append(_dim(readout.description))
 	for note in readout.support_effects:
 		lines.append("[color=%s]%s · %s[/color]\n%s" % [UITheme.hex(note.color), note.label, readout.actor_name if note.recipient == "self" else note.recipient, note.explanation])
 	_details_block(readout, lines)
 	return "\n\n".join(lines)
 
+
+static func target_scope(readout: ActionReadout) -> String:
+	match readout.scope:
+		ActionReadout.Scope.DIRECT_HIT: return "1 enemy"
+		ActionReadout.Scope.PER_TARGET:
+			return "All enemies" if readout.action.targets_enemies() else "All allies"
+		ActionReadout.Scope.ALLY: return "1 ally"
+		ActionReadout.Scope.SELF: return "Self"
+		ActionReadout.Scope.BATTLEFIELD: return "Battlefield"
+	return "No target"
+
 static func action_height(readout: ActionReadout) -> float:
+	if not readout.legal:
+		return 80 + UITheme.secondary_size() + 12
 	return 80 + (UITheme.secondary_size() + 12) * (maxi(1, readout.targets.size()) + readout.support_effects.size()) + (38 if not readout.statuses.is_empty() else 0)
 
 
 ## Native (unscaled) height a nested card needs for [param readout]: its rows are drawn bottom-up,
 ## so callers size the card with this rather than with their own row arithmetic.
-static func card_height(readout: RefCounted) -> float:
+static func card_height(readout: RefCounted, compact: bool = false) -> float:
 	if readout is IntentReadout:
-		return intent_height(readout)
+		return intent_height(readout, compact)
 	if readout is ActionReadout:
 		return action_height(readout)
 	return 0.0
@@ -492,7 +518,7 @@ static func _details_block(readout: ActionReadout, lines: PackedStringArray) -> 
 		lines.append(_dim("Tags: " + ", ".join(readout.tags)))
 	if readout.deals_damage():
 		lines.append(_dim("Not included: effects triggered by equipment, your familiar or the battlefield."))
-	if not readout.details.is_empty():
+	if not readout.details.is_empty() and readout.details.strip_edges() != readout.description.strip_edges():
 		lines.append(_dim(readout.details))
 
 

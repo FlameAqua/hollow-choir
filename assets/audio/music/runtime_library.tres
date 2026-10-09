@@ -8,8 +8,12 @@
 [ext_resource type="AudioStream" path="res://assets/audio/music/regions/briarfen/briarfen_battle_v02_57ff4be5c9fd.ogg" id="audio2"]
 [ext_resource type="AudioStream" path="res://assets/audio/music/regions/briarfen/briarfen_boss_mirebell_v01_86441a73241e.ogg" id="audio3"]
 [ext_resource type="AudioStream" path="res://assets/audio/music/regions/briarfen/briarfen_boss_mirebell_v02_5528e45354be.ogg" id="audio4"]
-[ext_resource type="AudioStream" path="res://assets/audio/music/global/global_title_v01_8e49eff01674.ogg" id="audio5"]
-[ext_resource type="AudioStream" path="res://assets/audio/music/global/global_title_v02_dc1da6c08aa5.ogg" id="audio6"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/regions/briarfen/briarfen_exploration_v01_d95b6d5024d6.ogg" id="audio5"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/regions/briarfen/briarfen_exploration_v02_8b57d00aea7a.ogg" id="audio6"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/regions/briarfen/gloamstead_town_v01_02f36dfabf75.ogg" id="audio7"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/regions/briarfen/gloamstead_town_v02_bcffefb82341.ogg" id="audio8"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/global/global_title_v01_8e49eff01674.ogg" id="audio9"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/global/global_title_v02_dc1da6c08aa5.ogg" id="audio10"]
 
 [sub_resource type="Resource" id="track0"]
 script = ExtResource("track")
@@ -63,7 +67,7 @@ crossfade_seconds = 3.0
 
 [sub_resource type="Resource" id="track5"]
 script = ExtResource("track")
-id = &"global_title_v01"
+id = &"briarfen_exploration_v01"
 version = 1
 tone = &"base"
 stream = ExtResource("audio5")
@@ -73,7 +77,7 @@ crossfade_seconds = 3.0
 
 [sub_resource type="Resource" id="track6"]
 script = ExtResource("track")
-id = &"global_title_v02"
+id = &"briarfen_exploration_v02"
 version = 2
 tone = &"base"
 stream = ExtResource("audio6")
@@ -81,10 +85,50 @@ source_offset_seconds = 0.000000
 gain_db = -12.0
 crossfade_seconds = 3.0
 
+[sub_resource type="Resource" id="track7"]
+script = ExtResource("track")
+id = &"gloamstead_town_v01"
+version = 1
+tone = &"base"
+stream = ExtResource("audio7")
+source_offset_seconds = 0.000000
+gain_db = -12.0
+crossfade_seconds = 3.0
+
+[sub_resource type="Resource" id="track8"]
+script = ExtResource("track")
+id = &"gloamstead_town_v02"
+version = 2
+tone = &"base"
+stream = ExtResource("audio8")
+source_offset_seconds = 0.000000
+gain_db = -12.0
+crossfade_seconds = 3.0
+
+[sub_resource type="Resource" id="track9"]
+script = ExtResource("track")
+id = &"global_title_v01"
+version = 1
+tone = &"base"
+stream = ExtResource("audio9")
+source_offset_seconds = 0.000000
+gain_db = -12.0
+crossfade_seconds = 3.0
+
+[sub_resource type="Resource" id="track10"]
+script = ExtResource("track")
+id = &"global_title_v02"
+version = 2
+tone = &"base"
+stream = ExtResource("audio10")
+source_offset_seconds = 0.000000
+gain_db = -12.0
+crossfade_seconds = 3.0
+
 [sub_resource type="Resource" id="playlist0"]
 script = ExtResource("playlist")
 cue_id = &"global_title"
-tracks = Array[ExtResource("track")]([SubResource("track5"), SubResource("track6")])
+tracks = Array[ExtResource("track")]([SubResource("track9"), SubResource("track10")])
 
 [sub_resource type="Resource" id="playlist1"]
 script = ExtResource("playlist")
@@ -96,6 +140,16 @@ script = ExtResource("playlist")
 cue_id = &"briarfen_boss_mirebell"
 tracks = Array[ExtResource("track")]([SubResource("track3"), SubResource("track4")])
 
+[sub_resource type="Resource" id="playlist3"]
+script = ExtResource("playlist")
+cue_id = &"gloamstead_town"
+tracks = Array[ExtResource("track")]([SubResource("track7"), SubResource("track8")])
+
+[sub_resource type="Resource" id="playlist4"]
+script = ExtResource("playlist")
+cue_id = &"briarfen_exploration"
+tracks = Array[ExtResource("track")]([SubResource("track5"), SubResource("track6")])
+
 [resource]
 script = ExtResource("library")
-playlists = Array[ExtResource("playlist")]([SubResource("playlist0"), SubResource("playlist1"), SubResource("playlist2")])
+playlists = Array[ExtResource("playlist")]([SubResource("playlist0"), SubResource("playlist1"), SubResource("playlist2"), SubResource("playlist3"), SubResource("playlist4")])

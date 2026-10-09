@@ -40,7 +40,8 @@ func place_slots() -> void:
 			continue
 		entry.engine = battlefield.engine
 		entry.use_art = battlefield.use_art
-		entry.size = Vector2(width, 68 if entry.readout != null and entry.readout.is_channel else 30)
+		var content_width := 62.0 + (entry.readout.statuses.size() * 36 if entry.readout != null else 0)
+		entry.size = Vector2(minf(width, maxf(94 if entry.readout != null and entry.readout.is_channel else 62, content_width)), 68 if entry.readout != null and entry.readout.is_channel else 30)
 		entry.position = Vector2(view.position.x + view.size.x * 0.5 - width * 0.5, maxf(4, view.position.y - entry.size.y - 12))
 
 func slot(uid: int) -> IntentSlot:

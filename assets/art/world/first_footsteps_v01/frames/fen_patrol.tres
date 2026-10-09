@@ -1,0 +1,46 @@
+[gd_resource type="SpriteFrames" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/art/world/first_footsteps_v01/atlases/fen_patrol.png" id="1_1fdet"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_l8v3s"]
+atlas = ExtResource("1_1fdet")
+region = Rect2(0, 0, 128, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3du81"]
+atlas = ExtResource("1_1fdet")
+region = Rect2(128, 0, 128, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1crhb"]
+atlas = ExtResource("1_1fdet")
+region = Rect2(256, 0, 128, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6q2y4"]
+atlas = ExtResource("1_1fdet")
+region = Rect2(384, 0, 128, 96)
+filter_clip = true
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_l8v3s")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3du81")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1crhb")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6q2y4")
+}],
+"loop": 1,
+"name": &"idle",
+"speed": 2.0
+}]
+metadata/foot_anchor = Vector2i(64, 92)
+metadata/cell_size = Vector2i(128, 96)
+metadata/art_status = "generated_candidate"

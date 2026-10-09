@@ -1,0 +1,38 @@
+{
+  "date": "2026-10-09",
+  "generator": "Built-in image_gen",
+  "jobs": [
+    {
+      "id": "controls_v03",
+      "args": {
+        "transparent_background": true,
+        "referenced_image_paths": [
+          "C:/Users/Adrian/Code/Games/hollow-choir/assets/art/global/ui/material_v02/sources/materials.png"
+        ],
+        "prompt": "Create a NEW matching game UI asset atlas for Hollow Choir, keeping the reference's subdued peat charcoal, worn bone, tarnished brass and forest leather, painterly pixel art. Exact regular 4 columns by 4 rows, equal square cells, transparent gutters and background; each asset fully inside its cell. No labels, no text. Designed for readability at 24-44 pixels: thin rims, large strong central emblems, crisp edges, no tiny decoration. Row 1: large bone-gold tick checkmark without circular button; carved bone downward dropdown chevron; narrow VERTICAL dark stitched leather scrollbar rail centered in cell; narrow VERTICAL tarnished-brass scrollbar thumb centered in cell. Row 2: folded parchment map icon; leather-bound menu book icon; unfurled battle log scroll icon; two worn brass pause bars. Row 3: crossed tools setup icon; circular leaf-and-brass restart arrow; turn-order icon as three staggered bone portrait tablets connected by winding golden thread (NOT three flat bars); round dark leather intent socket with a very thin brass rim and OPAQUE charcoal center. Row 4: brace medallion, very thin brass rim with HUGE light bone shield filling most of center; evade medallion, very thin brass rim with HUGE ivory feather filling center; parry medallion, very thin brass rim with HUGE crossed ivory blades filling center; opaque seamless square texture of very dark moss-green peat parchment, fine subtle organic grain, NO frame, NO symbols, NO objects. All icons painted actual assets, never flat vector geometry. Uniform neat grid. Preserve visual family but optimize for small rendered size."
+      }
+    },
+    {
+      "id": "wordmark_v01",
+      "args": {
+        "transparent_background": true,
+        "prompt": "Finished transparent-background game title wordmark for the atmospheric melancholic woodland RPG HOLLOW CHOIR. EXACT readable text on two centered lines: HOLLOW on first line, CHOIR on second. Large elegant hand-carved medieval serif lettering in warm weathered bone ivory and subtly tarnished gold, small moss roots at lower edges and a tiny antique bell suspended within the letter O, understated fine botanical engraving. Rich painterly pixel-art finish matching a dark mossy marsh RPG, crisp stepped contours, no neon, no glows, no backdrop, no box, no additional words. Wide compact lockup, letter area fills most of canvas with small clear margins. It must remain readable at 340 by 112 pixels."
+      }
+    },
+    {
+      "id": "crow_v03",
+      "args": {
+        "transparent_background": true,
+        "referenced_image_paths": [
+          "C:/Users/Adrian/Code/Games/hollow-choir/assets/art/global/familiars/sources/bell_crow_idle_v02.png"
+        ],
+        "prompt": "Edit the supplied Bell Crow sprite into a CLEAN consistent 3-column by 2-row animation sheet, all six equal square cells, transparent background and clean fully transparent gutters. Same right-facing navy-blue crow, gray blue beak, small bright eye, antique brass neck bell, matching anatomy and feather palette. Feet planted on exactly same baseline and body same position and scale in every cell. First row: 1 neutral standing with relaxed head, 2 SAME neutral standing pose with only a very subtle one-pixel chest breathing expansion (do NOT lengthen body, move feet or head), 3 neutral pose blinking closed eye. Second row: 4 brief gentle head tilt up, 5 brief gentle head tuck down, 6 return to EXACT neutral pose from frame1. The first two are the quiet breathing loop; last four occasional fidget. No flying or walking. Fix edge artifacts: absolutely no isolated black pixels, no opaque black fringes, no dark matte halo, no noisy speckles outside silhouette. Silhouette dark outlines should be continuous dark desaturated navy feather color, never pure black. True clean alpha transparency, crisp coherent pixel art, sharp edges, no cast shadow. Preserve reference character identity."
+      }
+    }
+  ],
+  "alpha_repair": {
+    "transparent_background": true,
+    "reference": "assets/art/global/familiars/sources/bell_crow_idle_v03.png",
+    "prompt": "Remove ALL background, ALL blue glow, ALL shadow, ALL matte and ALL semi-transparent haze surrounding each of these six crow sprites. Preserve exactly this six-cell 3x2 layout and the six sprite poses, feet positions, scale, colors, bell and feathers. This is a production sprite alpha-channel repair, NOT a redesign. Every pixel outside each bird silhouette must have ALPHA ZERO. Flat clean opaque bird with sharp navy silhouette edges, no surrounding pixels, no ghost pixels or isolated black specks. True transparent PNG background, clean gutters. First two neutral frames remain subtle breathing, third blink, bottom three head-up, head-down, neutral. No gradients, no halos, no backdrops."
+  }
+}

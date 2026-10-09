@@ -3,6 +3,7 @@ extends Control
 ## Render the existing native pixel-font sizes at a compact presentation scale. Containers still
 ## lay out at their native size; this wrapper reports their transformed height to scrolling.
 const CONTENT_SCALE := 0.82
+const INSET := 6.0
 var body: VBoxContainer
 
 func _ready() -> void:
@@ -19,5 +20,6 @@ func _ready() -> void:
 func _layout() -> void:
 	if body == null:
 		return
-	body.size = Vector2(size.x / CONTENT_SCALE, body.get_combined_minimum_size().y)
-	custom_minimum_size.y = ceilf(body.get_combined_minimum_size().y * CONTENT_SCALE)
+	body.position = Vector2.ONE * INSET
+	body.size = Vector2(maxf(1, size.x - INSET * 2) / CONTENT_SCALE, body.get_combined_minimum_size().y)
+	custom_minimum_size.y = ceilf(body.get_combined_minimum_size().y * CONTENT_SCALE + INSET * 2)

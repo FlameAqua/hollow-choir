@@ -8,6 +8,7 @@ const SANDBOX := "res://scenes/sandbox/combat_sandbox.tscn"
 const SETTINGS := "res://scenes/main/settings_screen.tscn"
 const FIELD_GUIDE := "res://scenes/main/field_guide.tscn"
 const AUDIO_LAB := "res://scenes/main/audio_lab.tscn"
+const WORLD := "res://scenes/world/world_host.tscn"
 const FADE_TIME := 0.18
 
 var _payload: RefCounted

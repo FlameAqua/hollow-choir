@@ -33,23 +33,7 @@ func research_level(enemy_id: StringName) -> Enums.ResearchLevel:
 
 ## Builds a PartyLoadout from the saved ids (unknown ids fall back to the starter loadout).
 func build_loadout() -> PartyLoadout:
-	var registry := Database.registry
-	var fallback := registry.defaults.starter_loadout
-	var loadout := PartyLoadout.new()
-	loadout.id = &"saved"
-	loadout.display_name = "Current loadout"
-	loadout.protagonist = fallback.protagonist
-	loadout.weapon = registry.weapons.get(progress.loadout_weapon, fallback.weapon)
-	loadout.garb = registry.armor.get(progress.loadout_garb)
-	loadout.charm = registry.armor.get(progress.loadout_charm)
-	loadout.relic = registry.armor.get(progress.loadout_relic)
-	loadout.companion = registry.companions.get(progress.loadout_companion)
-	loadout.familiar = registry.familiars.get(progress.loadout_familiar)
-	for potion_id in progress.loadout_potions:
-		var potion: PotionDefinition = registry.potions.get(potion_id)
-		if potion != null and loadout.potions.size() < PartyLoadout.MAX_POTION_SLOTS:
-			loadout.potions.append(potion)
-	return loadout
+	return PartyLoadout.from_ids(Database.registry, progress.to_dict().loadout)
 
 
 func store_loadout(loadout: PartyLoadout) -> void:

@@ -1,0 +1,18 @@
+{
+  "assets/art/global/familiars/sprites/bell_crow_idle_v02.png": {
+    "size": [
+      256,
+      64
+    ],
+    "isolated_opaque_pixels": 0,
+    "corner_alpha": 0
+  },
+  "assets/art/global/familiars/sprites/bell_crow_idle_v03.png": {
+    "size": [
+      384,
+      64
+    ],
+    "isolated_opaque_pixels": 0,
+    "corner_alpha": 0
+  }
+}
