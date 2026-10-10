@@ -4,10 +4,25 @@ extends CharacterBody2D
 ## feet box (16×9, immediately above the foot origin). The eight-facing art follows the input
 ## direction; walking plays only while the body actually moves, never while pushing into a wall.
 ## The host owns input: it calls step() with an already-gated direction.
+##
+## Playtest revision (repeated taps into a wall flashed a walking frame): a resting body is held a
+## safe margin (0.08 px) away from what it touches. The engine re-opens that gap while the feet
+## stand still, and a new push closes it within one physics frame: 0.08 px in 1/60 s is 4.8 px/s,
+## just above MOVING_EPSILON, so every tap read as one frame of walking. Movement is now judged by
+## what the input achieved: no input is never walking, and travel along the normal of a surface the
+## feet collided with this step (closing or re-opening the margin) does not count. Sliding along a
+## wall, turning to face it and real footsteps are unchanged.
+##
+## V0.5 sprint: holding the sprint input moves at SPRINT_MULTIPLIER × SPEED while stamina lasts
+## (Stamina: about five seconds from full, refilled in proportion over up to five more); the meter
+## under the feet shows it. Only travel actually achieved at sprint speed spends stamina.
 
 const VISUAL := preload("res://assets/art/world/first_footsteps_v01/scenes/hollow.tscn")
 const FEET := Vector2(16, 9)
 const SPEED := 128.0
+const SPRINT_MULTIPLIER := 1.6
+## The walk cycle plays this much faster while sprinting.
+const SPRINT_ANIMATION := 1.45
 ## Below this displacement per second the body counts as standing still.
 const MOVING_EPSILON := 4.0
 ## Screen angle (y down) of each facing, and the hold band past a sector edge (see facing_for).
@@ -17,6 +32,9 @@ const FACING_HOLD := 7.5
 
 var facing := &"south"
 var moving := false
+## Sprint stamina; reset whenever Hollow is placed (an area load, a return from battle).
+var stamina := Stamina.new()
+var _meter: StaminaMeter
 var _sprite: AnimatedSprite2D
 var _camera: Camera2D
 var _visual: Node2D
@@ -42,6 +60,9 @@ func _init() -> void:
 	var idle_material := ShaderMaterial.new()
 	idle_material.shader = preload("res://src/ui/world/hollow_idle.gdshader")
 	_sprite.material = idle_material
+	_meter = StaminaMeter.new()
+	_meter.stamina = stamina
+	_visual.add_child(_meter)
 	_camera = Camera2D.new()
 	_camera.name = "Camera"
 	_camera.zoom = Vector2(2, 2)
@@ -69,6 +90,8 @@ func place(at: Vector2, face: StringName = &"") -> void:
 	velocity = Vector2.ZERO
 	moving = false
 	_step_distance = 0.0
+	stamina.reset()
+	_meter.snap(false)
 	if face != &"":
 		facing = face
 	_play()
@@ -76,16 +99,20 @@ func place(at: Vector2, face: StringName = &"") -> void:
 	_camera.reset_smoothing()
 
 
-## One physics step. [param direction] is already limited to the unit circle.
-func step(direction: Vector2, delta: float) -> void:
+## One physics step. [param direction] is already limited to the unit circle. [param sprint]: the
+## sprint input is held (it only speeds Hollow up while stamina lasts).
+func step(direction: Vector2, delta: float, sprint: bool = false) -> void:
 	if direction.length() > 1.0:
 		direction = direction.normalized()
 	if direction != Vector2.ZERO:
 		facing = facing_for(direction, facing)
+	var sprinting := stamina.can_sprint(sprint) and direction != Vector2.ZERO
 	var before := position
-	velocity = direction * SPEED
+	velocity = direction * SPEED * (SPRINT_MULTIPLIER if sprinting else 1.0)
 	move_and_slide()
-	moving = delta > 0.0 and (position - before).length() / delta > MOVING_EPSILON
+	moving = delta > 0.0 and direction != Vector2.ZERO and walked(position - before).length() / delta > MOVING_EPSILON
+	stamina.update(delta, sprinting and moving)
+	_sprite.speed_scale = SPRINT_ANIMATION if stamina.sprinting else 1.0
 	if moving:
 		_step_distance += position.distance_to(before)
 		if _step_distance >= 34.0:
@@ -104,9 +131,22 @@ func _snap_presentation() -> void:
 	_camera.position = correction
 
 
+## The part of this step's [param travel] that is walking: what is left after removing the travel
+## along the normal of every surface the feet collided with in this step. Pushing straight into a
+## wall or a corner leaves nothing; sliding along a wall keeps the slide.
+func walked(travel: Vector2) -> Vector2:
+	var result := travel
+	for index in get_slide_collision_count():
+		var normal := get_slide_collision(index).get_normal()
+		result -= normal * result.dot(normal)
+	return result
+
+
 func stop() -> void:
 	velocity = Vector2.ZERO
 	moving = false
+	stamina.sprinting = false
+	_sprite.speed_scale = 1.0
 	_play()
 
 

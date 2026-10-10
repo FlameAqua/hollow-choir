@@ -8,17 +8,33 @@ extends Node
 ## BATTLE (an embedded BattleScene owns input), BUSY (a transition or write is in progress).
 ## Any return to EXPLORE first blocks every world/confirm/cancel input still held, so the press
 ## that closed a modal, crossed a portal or ended a battle cannot act again until released.
+##
+## Playtest revision: walking into a threat starts a three-second move-away countdown instead of an
+## Engage card (EncounterCountdown; only its expiry calls engage()). The host also routes the quest
+## journal, the familiar commands, brewing and crafting, and the victory's Bestiary Learnings. New
+## view hooks are detected by the methods and signals a view defines, so an older view keeps working.
+## The host plays no success sound: the session's adopted operation facts drive that elsewhere.
 
 signal area_loaded(area_id: StringName)
 signal mode_changed(mode: Mode)
 signal modal_opened(modal: WorldModal)
+## V0.5C: a rune strike was saved (presentation hook for feedback; the outcome is already true).
+signal rune_struck(result: ExplorationResult)
+## Playtest revision: the move-away countdown changed state (started, held, resumed, cancelled or
+## expired). encounter_countdown() is current every physics frame for the remaining time.
+signal encounter_countdown_changed(readout: EncounterCountdownReadout)
 
 enum Mode { EXPLORE, MODAL, BATTLE, BUSY }
 
-const ENCOUNTER_REARM := 24.0
+const ENCOUNTER_REARM := EncounterCountdown.REARM
+## V0.5 shortcuts and the view each toggles (toggle_view).
+const SHORTCUTS := {InputBindings.WORLD_MAP: &"map", InputBindings.WORLD_LOADOUT: &"loadout",
+	InputBindings.WORLD_INVENTORY: &"inventory", InputBindings.WORLD_JOURNAL: &"journal",
+	InputBindings.WORLD_FIELD_GUIDE: &"field_guide"}
 const GATED_ACTIONS: Array[StringName] = [InputBindings.WORLD_UP, InputBindings.WORLD_DOWN, InputBindings.WORLD_LEFT,
-	InputBindings.WORLD_RIGHT, InputBindings.WORLD_INTERACT, InputBindings.WORLD_MAP, InputBindings.WORLD_MENU,
-	InputBindings.CONFIRM, InputBindings.CANCEL, InputBindings.MENU]
+	InputBindings.WORLD_RIGHT, InputBindings.WORLD_INTERACT, InputBindings.WORLD_SPRINT, InputBindings.WORLD_MAP,
+	InputBindings.WORLD_LOADOUT, InputBindings.WORLD_INVENTORY, InputBindings.WORLD_JOURNAL, InputBindings.WORLD_FIELD_GUIDE,
+	InputBindings.WORLD_MENU, InputBindings.CONFIRM, InputBindings.CANCEL, InputBindings.MENU]
 
 ## Set before the node enters the tree to inject a session (tests use a failing or in-memory writer).
 var session: WorldSession
@@ -32,23 +48,36 @@ var modal: WorldModal
 var battle: BattleScene
 ## Tests drive movement through this instead of the input map when set (Vector2.INF = off).
 var scripted_move := Vector2.INF
+## With scripted_move set, whether the sprint input counts as held.
+var scripted_sprint := false
 var show_collision := false
 ## Capture fixtures run in a hidden window that never has OS focus; they turn this off.
 var pause_on_focus_loss := true
+## Save and Quit runs this only after the save succeeded (tests replace it; default: quit the game).
+var quit_game := func() -> void: get_tree().quit()
+## Save and return to title runs this only after the save succeeded (tests replace it).
+var leave_to_title := func() -> void: SceneRouter.goto(SceneRouter.MAIN_MENU)
 
 var _world_root: Node2D
 var _hud_layer: CanvasLayer
 var _battle_layer: CanvasLayer
 var _modal_layer: CanvasLayer
 var _modal_root: Control
+## The full-screen view opened over the world (Settings, the Field Guide), or null.
+var _screen: Control
 var _overlay: Control
 var _held_block: Dictionary = {}
 var _portals_armed := false
-var _armed_sites: Dictionary = {}
+## The move-away countdown for this area's threats (pure state; the host only ticks it).
+var countdown := EncounterCountdown.new()
+var _countdown_readout := EncounterCountdownReadout.new()
+## Bestiary Learnings of the victory card on screen (the session's own facts; empty otherwise).
+var victory_learnings: Array[LearningReadout] = []
 var _prompt_target: StringName = &""
 var _readout := ExplorationReadout.new()
 var _encounter_position := Vector2.INF
 var _encounter_facing: StringName = &"south"
+var notices: JourneyNotices
 
 
 func _ready() -> void:
@@ -60,14 +89,45 @@ func _ready() -> void:
 		if arg == "--world-collision":
 			show_collision = true
 	_build()
+	var notice_layer := CanvasLayer.new()
+	notice_layer.layer = 80
+	add_child(notice_layer)
+	notices = JourneyNotices.new()
+	notice_layer.add_child(notices)
+	rune_struck.connect(_present_rune_strike)
 	EventBus.settings_changed.connect(_apply_theme)
 	EventBus.settings_changed.connect(_refresh_hud)
 	# Reduce Motion changed in the paused menu's Settings applies at once, not at the next area.
 	EventBus.settings_changed.connect(_apply_motion_setting)
+	# D-009: a Tactical Difficulty change in Settings becomes the journey's at once (saved next commit).
+	EventBus.settings_changed.connect(_follow_difficulty)
 	EventBus.input_device_changed.connect(_refresh_hud)
+	area_loaded.connect(func(area_id: StringName) -> void:
+		SessionLog.event("world", "area %s at %s" % [area_id, player.position.round()]))
+	modal_opened.connect(func(view: WorldModal) -> void: SessionLog.event("world", "opened %s" % view.kind))
 	session.open()
 	AudioManager.request_music(&"")
 	load_area(session.world().area, session.world().anchor)
+	_reconcile()
+
+
+func _follow_difficulty() -> void:
+	session.follow_difficulty(int(Settings.data.tactical_difficulty))
+
+
+## World entry (V0.5A): catch-up rewards and loadout repair for an older save, in one write through
+## the usual save-failure card (Retry save / Return to title). Usually there is nothing to write.
+func _reconcile() -> void:
+	_commit(session.reconcile, func() -> void:
+		# A journey created this session announces its quest once, here; loading never does.
+		if GameState.take_fresh_journey():
+			session.announce_new_journey()
+		if not _has_received(session.last_receipts):
+			if modal == null and mode == Mode.MODAL:
+				_set_mode(Mode.EXPLORE)
+			return
+		_show_rewards(&"catch_up", "Rewards from your journey", WorldCopy.REWARD_CATCH_UP, session.last_receipts,
+			WorldCopy.REWARD_INVENTORY_NEXT))
 
 
 # --- Areas ---------------------------------------------------------------------------------------
@@ -104,14 +164,66 @@ func load_area(area_id: StringName, anchor_id: StringName) -> void:
 	area_loaded.emit(next.id)
 
 
-## Portals and encounter cards fire only once the feet have left them; arm them from where the
-## feet stand now (after a load, or after victory returns Hollow to the engagement spot).
+## Portals and threat countdowns fire only once the feet have left them; arm them from where the
+## feet stand now (after a load, or after victory returns Hollow to the engagement spot). Any
+## running countdown is dropped: an area load never carries one over.
 func _arm_triggers() -> void:
 	_portals_armed = area.portal_at(player.position) == &""
-	_armed_sites.clear()
+	countdown.arm(_encounter_sites())
+	_publish_countdown(true)
+
+
+## Every uncleared encounter site of the current area with the feet's distance to it.
+func _encounter_sites() -> Array[Dictionary]:
+	var sites: Array[Dictionary] = []
+	if area == null or area_def == null or player == null:
+		return sites
 	for site in area_def.landmarks:
-		if site.kind == LandmarkDefinition.Kind.ENCOUNTER:
-			_armed_sites[site.id] = player.position.distance_to(area.point(site.id)) > site.interact_radius
+		if site.kind == LandmarkDefinition.Kind.ENCOUNTER and not session.world().is_cleared(site.id):
+			sites.append({"id": site.id, "distance": player.position.distance_to(area.point(site.id)),
+				"radius": site.interact_radius})
+	return sites
+
+
+## The move-away countdown as the world indicator shows it (current every physics frame).
+func encounter_countdown() -> EncounterCountdownReadout:
+	return _countdown_readout
+
+
+## Advances the countdown one frame. [param frozen]: exploration is not running (a modal, a pause,
+## a lost focus, a transition), so the remaining time is held, never reset. Expiry calls engage(),
+## as Interact at the threat does without waiting.
+func _tick_countdown(delta: float, frozen: bool) -> void:
+	var state := countdown.state
+	var owner_id := countdown.site_id
+	var expired := countdown.update(delta, _encounter_sites(), frozen)
+	_publish_countdown(countdown.state != state or countdown.site_id != owner_id)
+	if expired == &"":
+		return
+	var found := definition.find_landmark(expired)
+	if not found.is_empty():
+		engage(found[1])
+
+
+## Rebuilds the public readout. [param changed]: the state changed, so listeners are told; while a
+## countdown is active the HUD also receives every frame for a smooth indicator.
+func _publish_countdown(changed: bool) -> void:
+	if not changed and not countdown.active():
+		return
+	var readout := EncounterCountdownReadout.new()
+	readout.state = countdown.state
+	readout.active = countdown.active()
+	readout.frozen = countdown.state == EncounterCountdown.State.FROZEN
+	readout.threat_id = countdown.site_id
+	readout.remaining = countdown.remaining
+	readout.duration = countdown.duration
+	var site := area_def.landmark(countdown.site_id) if area_def != null and countdown.site_id != &"" else null
+	readout.threat_label = site.threat_label if site != null else ""
+	_countdown_readout = readout
+	if changed:
+		encounter_countdown_changed.emit(readout)
+	if hud != null:
+		hud.present_countdown(readout)
 
 
 func _apply_motion_setting() -> void:
@@ -131,10 +243,15 @@ func _apply_motion_setting() -> void:
 
 func _physics_process(delta: float) -> void:
 	_release_held()
-	if mode != Mode.EXPLORE or player == null:
+	if player == null or area == null:
 		return
-	player.step(move_vector(), delta)
-	_after_move()
+	if mode != Mode.EXPLORE:
+		# A modal, a pause or a transition holds the countdown where it is.
+		if countdown.active():
+			_tick_countdown(delta, true)
+		return
+	player.step(move_vector(), delta, sprint_held())
+	_after_move(delta)
 
 
 ## The gated eight-direction input (held inputs from a previous context read as zero).
@@ -146,11 +263,18 @@ func move_vector() -> Vector2:
 	return Vector2(x, y).limit_length(1.0)
 
 
+## The gated sprint input (held from a previous context, it reads as released).
+func sprint_held() -> bool:
+	if scripted_move != Vector2.INF:
+		return scripted_sprint
+	return _strength(InputBindings.WORLD_SPRINT) > 0.5
+
+
 func _strength(action: StringName) -> float:
 	return 0.0 if _held_block.has(action) else Input.get_action_strength(action)
 
 
-func _after_move() -> void:
+func _after_move(delta: float = 0.0) -> void:
 	var feet := player.position
 	var portal_id := area.portal_at(feet)
 	if portal_id == &"":
@@ -159,18 +283,10 @@ func _after_move() -> void:
 		take_portal(portal_id)
 		return
 	_discover()
-	for site in area_def.landmarks:
-		if site.kind != LandmarkDefinition.Kind.ENCOUNTER or session.world().is_cleared(site.id):
-			continue
-		var distance := feet.distance_to(area.point(site.id))
-		if distance <= site.interact_radius:
-			if _armed_sites.get(site.id, false):
-				_armed_sites[site.id] = false
-				open_encounter_card(site)
-				return
-		elif distance > site.interact_radius + ENCOUNTER_REARM:
-			_armed_sites[site.id] = true
-	_refresh_hud()
+	# Entering an armed threat's radius starts its countdown; leaving cancels it; expiry engages.
+	_tick_countdown(delta, false)
+	if mode == Mode.EXPLORE:
+		_refresh_hud()
 
 
 ## Approaching a landmark discovers it; walking a link records it (map knowledge, saved at the
@@ -179,7 +295,8 @@ func _discover() -> void:
 	var world := session.world()
 	var feet := player.position
 	for landmark in area_def.landmarks:
-		if not world.is_discovered(landmark.id) and feet.distance_to(area.point(landmark.id)) <= landmark.discover_radius:
+		if not world.is_discovered(landmark.id) and feet.distance_to(area.point(landmark.id)) <= landmark.discover_radius \
+				and WorldRules.perceivable(landmark, world, definition):
 			world.discover(landmark.id)
 	for path in area_def.paths:
 		if world.links.has(path.id) or (path.requires_flag != &"" and not world.flag(path.requires_flag)):
@@ -189,21 +306,78 @@ func _discover() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if mode == Mode.MODAL and modal != null and modal.kind == &"map" and _fresh(event, InputBindings.WORLD_MAP):
-		get_viewport().set_input_as_handled()
-		_close_modal()
-		return
+	for action: StringName in SHORTCUTS:
+		if _fresh(event, action):
+			if toggle_view(SHORTCUTS[action]):
+				get_viewport().set_input_as_handled()
+			return
 	if mode != Mode.EXPLORE:
 		return
 	if _fresh(event, InputBindings.WORLD_INTERACT):
 		get_viewport().set_input_as_handled()
 		interact()
-	elif _fresh(event, InputBindings.WORLD_MAP):
-		get_viewport().set_input_as_handled()
-		open_map()
 	elif _fresh(event, InputBindings.WORLD_MENU):
 		get_viewport().set_input_as_handled()
 		open_menu()
+
+
+## The shortcut view on screen: &"map", &"loadout", &"inventory", &"journal" or &"field_guide";
+## &"" while exploring with nothing open; &"other" for anything else (a station, dialogue, the menu,
+## a reward or save-failure card, a battle, a transition), which shortcuts leave alone.
+func shortcut_view() -> StringName:
+	if mode == Mode.EXPLORE:
+		return &""
+	if mode != Mode.MODAL:
+		return &"other"
+	if is_instance_valid(_screen):
+		return &"field_guide" if _screen is FieldGuide else &"other"
+	if modal == null:
+		return &"other"
+	match modal.kind:
+		&"map", &"journal":
+			return modal.kind
+		&"character", &"inventory":
+			var character := modal.find_child("Character", true, false) as WorldCharacterView
+			if character != null and session.station() == &"":
+				return &"inventory" if character.selected_tab == &"inventory" else &"loadout"
+	return &"other"
+
+
+## A shortcut for [param view]: opens it from exploration, closes it when it is already on screen
+## (through the view's own Back, so a view opened from the menu returns there), and switches to it
+## from another shortcut view (the Character card just changes tab). Returns false when ignored.
+func toggle_view(view: StringName) -> bool:
+	var current := shortcut_view()
+	if current == &"other":
+		return false
+	if current == view:
+		if is_instance_valid(_screen):
+			(_screen as FieldGuide).close()
+		else:
+			modal.chosen.emit(modal.cancel_id)
+		return true
+	if current in [&"loadout", &"inventory"] and view in [&"loadout", &"inventory"]:
+		(modal.find_child("Character", true, false) as WorldCharacterView).select_tab(
+			&"inventory" if view == &"inventory" else &"equipment")
+		return true
+	if current != &"":
+		if is_instance_valid(_screen):
+			_modal_root.remove_child(_screen)
+			_screen.queue_free()
+			_screen = null
+		_close_modal()
+	match view:
+		&"map":
+			open_map()
+		&"loadout":
+			open_character_menu()
+		&"inventory":
+			_open_character(&"character", null, Enums.EquipSlot.WEAPON, false, &"inventory")
+		&"journal":
+			open_journal(_close_modal)
+		&"field_guide":
+			_open_screen(load(SceneRouter.FIELD_GUIDE).instantiate(), _close_modal)
+	return true
 
 
 func _fresh(event: InputEvent, action: StringName) -> bool:
@@ -232,6 +406,12 @@ func is_blocked(action: StringName) -> bool:
 
 
 func _set_mode(next: Mode) -> void:
+	# Walking, a battle or a transition always ends a preparation station interaction.
+	if next != Mode.MODAL and session != null:
+		session.leave_station()
+	# Save and pickup cards never cover a battle; cards created meanwhile show once it closes.
+	if notices != null:
+		notices.visible = next != Mode.BATTLE
 	if next == Mode.EXPLORE:
 		_block_held()
 		# A focused HUD button would take Confirm before the world can read it.
@@ -257,7 +437,7 @@ func interaction_target() -> LandmarkDefinition:
 		var distance := player.position.distance_to(at)
 		if distance > landmark.interact_radius:
 			continue
-		if WorldRules.interaction_label(landmark, session.world(), _far_side(landmark)).is_empty():
+		if WorldRules.interaction_label(landmark, session.world(), _far_side(landmark), definition).is_empty():
 			continue
 		if distance < best_distance - 0.01 or (absf(distance - best_distance) <= 0.01 and String(landmark.id) < String(best.id)):
 			best = landmark
@@ -275,19 +455,27 @@ func interact() -> void:
 		return
 	match target.kind:
 		LandmarkDefinition.Kind.ENCOUNTER:
-			open_encounter_card(target)
+			# Interact skips the wait (Adrian, V0.5): the same single entry write and launch as expiry;
+			# engage() drops a running countdown first, so nothing can launch twice.
+			engage(target)
 		LandmarkDefinition.Kind.PREPARATION:
-			open_bench(target)
+			open_crafting(target)
+		LandmarkDefinition.Kind.RUNE:
+			strike(target)
 		_:
 			open_dialogue(target)
 
 
-func open_dialogue(landmark: LandmarkDefinition) -> void:
+## [param note]: an optional extra paragraph (a reward receipt) shown when the readout has room.
+func open_dialogue(landmark: LandmarkDefinition, note: String = "") -> void:
 	var far := _far_side(landmark)
-	var readout := WorldRules.dialogue(landmark, session.world(), far)
+	var readout := WorldRules.dialogue(landmark, session.world(), far, definition)
 	if readout == null:
 		return
-	var view := _open_modal(WorldModal.make(&"dialogue", readout.speaker, readout.paragraphs, readout.actions))
+	var paragraphs := readout.paragraphs.duplicate()
+	if not note.is_empty() and paragraphs.size() < WorldDialogueReadout.MAX_PARAGRAPHS:
+		paragraphs.append(note)
+	var view := _open_modal(WorldModal.make(&"dialogue", readout.speaker, paragraphs, readout.actions))
 	view.cancel_id = WorldRules.ACT_LEAVE
 	view.chosen.connect(func(id: StringName) -> void: _on_dialogue_action(landmark, id))
 
@@ -297,7 +485,11 @@ func _on_dialogue_action(landmark: LandmarkDefinition, id: StringName) -> void:
 		WorldRules.ACT_RING:
 			_commit(func() -> Error: return session.restore_bell(area_def.id), func() -> void:
 				area.apply_state(session.world())
-				open_dialogue(landmark))
+				if _has_received(session.last_receipts):
+					_show_rewards(&"reward", WorldCopy.WAYSIDE_BELL, WorldCopy.BELL_RESTORED,
+						session.last_receipts, WorldCopy.REWARD_CHARM_NEXT)
+				else:
+					open_dialogue(landmark))
 		WorldRules.ACT_OPEN_LATCH:
 			if not _far_side(landmark):
 				_close_modal()
@@ -305,10 +497,48 @@ func _on_dialogue_action(landmark: LandmarkDefinition, id: StringName) -> void:
 			_commit(func() -> Error: return session.open_latch(area_def.id, &"short_return"), func() -> void:
 				area.apply_state(session.world())
 				_close_modal())
+		WorldRules.ACT_GATHER:
+			_commit(func() -> Error: return session.gather(area_def.id, landmark.id), func() -> void:
+				area.apply_state(session.world())
+				if _has_received(session.last_receipts):
+					_show_rewards(&"reward", landmark.display_name, WorldCopy.GATHER_DONE, session.last_receipts)
+				else:
+					open_dialogue(landmark))
+		WorldRules.ACT_SEARCH:
+			_commit(func() -> Error: return session.find_secret(area_def.id, landmark.id), func() -> void:
+				area.apply_state(session.world())
+				if _has_received(session.last_receipts):
+					_show_rewards(&"reward", landmark.display_name, WorldCopy.SECRET_FOUND_BODY, session.last_receipts)
+				else:
+					open_dialogue(landmark, WorldCopy.SECRET_EMPTY))
 		_:
 			_commit(func() -> Error: return session.complete_interaction(area_def.id, landmark.id), _close_modal)
 
 
+## V0.5C: Confirm at a rune strikes it at once (no dialogue). The session saves the outcome; the
+## area re-applies the scene views and rune_struck lets presentation add feedback. Solving shows a
+## card (with any receipts); a rejected strike (a solved puzzle) changes nothing.
+func strike(rune: LandmarkDefinition) -> void:
+	_commit(func() -> Error: return session.strike_rune(area_def.id, rune.id), func() -> void:
+		area.apply_state(session.world())
+		var result := session.last_exploration
+		rune_struck.emit(result)
+		if result.strike != ExplorationResult.Strike.SOLVED:
+			_refresh_hud()
+			return
+		var entry := ExplorationRules.puzzle(definition, result.puzzle_id)
+		if _has_received(session.last_receipts):
+			_show_rewards(&"reward", entry.display_name, WorldCopy.PUZZLE_SOLVED_TEXT, session.last_receipts)
+		else:
+			var view := _open_modal(WorldModal.make(&"dialogue", entry.display_name,
+				PackedStringArray([_puzzle_solved_copy(result)]),
+				[WorldDialogueReadout.action(WorldRules.ACT_LEAVE, WorldCopy.ACTION_CLOSE)]))
+			view.cancel_id = WorldRules.ACT_LEAVE
+			view.chosen.connect(func(_id: StringName) -> void: _close_modal()), _refresh_hud)
+
+
+## The V0.4 Engage / Leave card. No longer opened by the world (playtest revision: the move-away
+## countdown replaced it); kept as a working API for its tests and for tools.
 func open_encounter_card(site: LandmarkDefinition) -> void:
 	var card := WorldRules.encounter_card(site, GameState.progress)
 	var view := _open_modal(WorldEncounterView.make(card))
@@ -320,177 +550,289 @@ func open_encounter_card(site: LandmarkDefinition) -> void:
 			_close_modal())
 
 
-func open_bench(landmark: LandmarkDefinition) -> void:
-	var content := HBoxContainer.new()
-	content.add_theme_constant_override("separation", 24)
-	var list := VBoxContainer.new()
-	list.custom_minimum_size.x = 310
-	list.add_theme_constant_override("separation", 10)
-	content.add_child(list)
-	var detail_panel := PanelContainer.new()
-	detail_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	detail_panel.add_theme_stylebox_override("panel", UITheme.box(UITheme.BG, UITheme.BORDER, 1, 0, 16))
-	content.add_child(detail_panel)
-	var detail_scroll := ScrollContainer.new()
-	detail_scroll.name = "WeaponScroll"
-	detail_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	detail_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	detail_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	detail_panel.add_child(detail_scroll)
-	var details := WorldWeaponDetails.new()
-	details.name = "WeaponDetails"
-	details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	detail_scroll.add_child(details)
-	var actions: Array[Dictionary] = [WorldDialogueReadout.action(WorldRules.ACT_LEAVE, WorldCopy.ACTION_CLOSE)]
-	var view := WorldModal.make(&"bench", landmark.display_name, PackedStringArray(), actions, content)
-	var weapons := WorldRules.bench_weapons(GameState.progress)
-	for weapon in weapons:
-		var button := Button.new()
-		button.name = "Weapon_" + String(weapon.id)
-		button.custom_minimum_size = Vector2(0, 52)
-		button.expand_icon = true
-		button.add_theme_constant_override("icon_max_width", 28)
-		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		list.add_child(button)
-		button.focus_entered.connect(func() -> void:
-			details.present(weapon, GameState.progress.loadout_weapon == weapon.id)
-			detail_scroll.scroll_vertical = 0)
-		button.mouse_entered.connect(func() -> void:
-			details.present(weapon, GameState.progress.loadout_weapon == weapon.id)
-			detail_scroll.scroll_vertical = 0)
-		button.pressed.connect(func() -> void:
-			details.present(weapon, GameState.progress.loadout_weapon == weapon.id)
-			_commit(func() -> Error: return session.choose_weapon(weapon.id), func() -> void:
-				_show_bench_choice(landmark, weapon)))
-	var rule_row := HBoxContainer.new()
-	rule_row.add_theme_constant_override("separation", 10)
-	rule_row.add_child(CombatIcons.image("heart", 28))
-	var recovery := UITheme.label("Party restored\nbetween encounters", UITheme.TEXT_DIM, 22, true)
-	recovery.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	rule_row.add_child(recovery)
-	list.add_child(rule_row)
-	_label_bench(view)
-	for weapon in weapons:
-		if weapon.id == GameState.progress.loadout_weapon:
-			details.present(weapon, true)
-	_open_modal(view)
+## The bench interaction owns the session's preparation context (V0.5A): it opens here and ends when
+## the bench closes or the host returns to exploration (see _set_mode).
+func open_bench(landmark: LandmarkDefinition, slot: Enums.EquipSlot = Enums.EquipSlot.WEAPON,
+		focus_id: StringName = &"", status: String = "") -> void:
+	session.enter_station(landmark.id)
+	var content := WorldPreparationView.new()
+	content.name = "Preparation"
+	content.present(session.preparation(), slot)
+	# Legacy V0.5A equipment view (no longer reached from the world: equipment lives in Character).
+	# It never jumps to a station service; each service opens only from its own landmark.
+	var actions: Array[Dictionary] = [WorldDialogueReadout.action(&"inventory", "Inventory"),
+		WorldDialogueReadout.action(WorldRules.ACT_LEAVE, WorldCopy.ACTION_CLOSE)]
+	var view := _open_modal(WorldModal.make(&"bench", landmark.display_name, PackedStringArray(), actions, content))
 	view.cancel_id = WorldRules.ACT_LEAVE
-	view.chosen.connect(func(_id: StringName) -> void:
-		_commit(func() -> Error: return session.complete_interaction(area_def.id, landmark.id), _close_modal))
-	WorldModal.focus_later(view.find_child("Weapon_" + String(GameState.progress.loadout_weapon), true, false) as Button)
+	content.show_notice(status)
+	content.equip_requested.connect(func(chosen_slot: Enums.EquipSlot, item_id: StringName) -> void:
+		_prepare(landmark, chosen_slot, item_id))
+	content.unequip_requested.connect(func(chosen_slot: Enums.EquipSlot) -> void:
+		_prepare(landmark, chosen_slot, &""))
+	view.chosen.connect(func(id: StringName) -> void:
+		if id == &"inventory":
+			open_inventory(landmark, content.selected_slot)
+		else:
+			session.leave_station()
+			_commit(func() -> Error: return session.complete_interaction(area_def.id, landmark.id), _close_modal))
+	content.focus_choice(focus_id)
 
 
-## After a saved bench choice. A failed write replaced the bench with the save-failure card, so a
-## later successful retry reopens it; the callback holds only resources, never freed controls.
-func _show_bench_choice(landmark: LandmarkDefinition, weapon: WeaponDefinition) -> void:
-	if modal == null or modal.kind != &"bench":
-		open_bench(landmark)
-	_label_bench(modal)
-	(modal.find_child("WeaponDetails", true, false) as WorldWeaponDetails).present(weapon, true)
-	WorldModal.focus_later(modal.find_child("Weapon_" + String(weapon.id), true, false) as Button)
+## Opens the station service of PREPARATION [param landmark] (V0.5 UI: its typed service, the Forge
+## anvil or the Stillroom). The session context names that exact service, so the other station's
+## work is rejected there; closing, walking, transitions and battles end it.
+## [param adopted]: the changed result of the station command that reopened this card (playtest
+## revision); the view shows it concisely (present_operation) instead of the long [param notice]. A
+## rejection or a no-op never passes one.
+func open_crafting(landmark: LandmarkDefinition, selection: StringName = &"", notice: String = "",
+		adopted: CraftingResult = null) -> void:
+	if session.enter_station(landmark.id) != OK:
+		_close_modal()
+		return
+	var service := station_service(landmark)
+	var content := WorldCraftingView.new()
+	content.name = "Crafting"
+	content.present(session.crafting(), service, selection, "" if adopted != null else notice, session.inventory())
+	if adopted != null:
+		content.present_operation(adopted)
+	var actions: Array[Dictionary] = [WorldDialogueReadout.action(&"preparation", "Equipment"),
+		WorldDialogueReadout.action(WorldRules.ACT_LEAVE, WorldCopy.ACTION_CLOSE)]
+	var view := _open_modal(WorldModal.make(&"crafting", landmark.display_name, PackedStringArray(), actions, content))
+	view.cancel_id = WorldRules.ACT_LEAVE
+	content.command_requested.connect(func(command: StringName, id: StringName, slot: int) -> void:
+		_craft(landmark, content.selection, command, id, slot))
+	view.chosen.connect(func(id: StringName) -> void:
+		if id == &"preparation":
+			_open_character(&"character", landmark, Enums.EquipSlot.WEAPON, false, &"equipment")
+		else:
+			session.leave_station()
+			_commit(func() -> Error: return session.complete_interaction(area_def.id, landmark.id), _close_modal))
+	content.focus_selection()
 
 
-func _label_bench(view: Control) -> void:
-	for weapon in WorldRules.bench_weapons(GameState.progress):
-		var button := view.find_child("Weapon_" + String(weapon.id), true, false) as Button
-		if button != null:
-			var equipped := GameState.progress.loadout_weapon == weapon.id
-			button.text = weapon.display_name
-			button.icon = load("res://assets/art/global/ui/world/equipped.svg") if equipped else CombatIcons.texture(CombatIcons.mapping("player_actions", weapon.basic_attack.id, "action_slash"))
-			button.toggle_mode = true
-			button.set_pressed_no_signal(equipped)
+## The crafting view's section for a station landmark's typed service.
+static func station_service(landmark: LandmarkDefinition) -> StringName:
+	return &"stillroom" if landmark.service == LandmarkDefinition.Service.STILLROOM else &"forge"
 
 
-## Static weapon facts: family, damage type and the actions it brings (shared definitions).
-func _weapon_text(weapon: WeaponDefinition) -> String:
-	var lines := PackedStringArray(["%s · %s" % [Enums.WeaponFamily.keys()[weapon.family].capitalize(),
-		EnumText.damage_type(weapon.damage_type)]])
-	if not weapon.description.is_empty():
-		lines.append(weapon.description)
-	var actions: Array[ActionDefinition] = []
-	if weapon.basic_attack != null:
-		actions.append(weapon.basic_attack)
-	actions.append_array(weapon.techniques)
-	for action in actions:
-		lines.append("%s — %s" % [action.display_name, action.description])
+## One station command from the view's command_requested(command, id, slot): &"brew" (recipe id),
+## &"craft" (fitting id), &"fit" (fitting id, socket), &"remove" (weapon id, socket), &"potion"
+## (potion id, supply position), and the older &"purchase" / &"refund" (recipe id). The session
+## validates everything; success and rejection reopen the station from saved truth, and a failed
+## write offers Retry save for the exact command. Sound follows the session's adopted fact
+## (EventBus.crafting_completed), never this handler.
+func _craft(landmark: LandmarkDefinition, selection: StringName, command: StringName, id: StringName,
+		slot: int) -> void:
+	var write := func() -> Error:
+		match command:
+			&"brew": return session.brew(id)
+			&"craft": return session.craft_fitting(id)
+			&"purchase": return session.purchase(id)
+			&"refund": return session.refund(id)
+			&"fit": return session.fit(_fitting_weapon(id), id, maxi(slot, 0))
+			&"remove": return session.remove_fitting(id, maxi(slot, 0))
+			&"potion": return session.prepare_potion(slot, id)
+		return ERR_INVALID_PARAMETER
+	_commit(write, func() -> void:
+		var result := session.last_crafting
+		open_crafting(landmark, selection, _crafting_notice(result), result if result.changed else null), func() -> void:
+		open_crafting(landmark, selection, session.last_crafting.text()))
+
+
+## The older station card's receipt lines for an accepted command.
+static func _crafting_notice(result: CraftingResult) -> String:
+	var lines := PackedStringArray([WorldCopy.CRAFT_SAVED if result.changed else "Already set. Nothing changed."])
+	for spent in result.spent:
+		lines.append("Spent %d %s · Carried %d" % [spent.count, spent.name, spent.total])
+	for made in result.produced:
+		lines.append("Made %d %s · Held %d" % [made.count, made.name, made.total])
+	for refunded in result.refunded:
+		lines.append("Returned %d %s · Carried %d" % [refunded.count, refunded.name, refunded.total])
+	if result.cleared_fitting != &"":
+		lines.append("Installed fitting removed with the kit.")
 	return "\n".join(lines)
 
 
+## The fitting-capable weapon that offers [param fitting_id] (&"" when none does).
+func _fitting_weapon(fitting_id: StringName) -> StringName:
+	for weapon in CraftingRules.fitting_weapons(session.registry):
+		for fitting in CraftingRules.weapon_fittings(session.registry, weapon.id):
+			if fitting.id == fitting_id:
+				return weapon.id
+	return &""
+
+
+## Outcome and progress are saved facts; sound is optional and has matching visible text.
+func _present_rune_strike(result: ExplorationResult) -> void:
+	var puzzle := session.puzzle(result.puzzle_id)
+	match result.strike:
+		ExplorationResult.Strike.ADVANCED:
+			hud.show_feedback("%s · %d / %d stones answer" % [puzzle.name, result.progress, result.length])
+		ExplorationResult.Strike.MISTAKE:
+			hud.show_feedback("The rhythm breaks · %d / %d · Try again" % [result.progress, result.length])
+		ExplorationResult.Strike.SOLVED:
+			hud.show_feedback(_puzzle_solved_copy(result))
+	# Scene-authored tone; no timing, puzzle truth or solution comes from sound.
+	var point := area.get_node_or_null("Interactions/" + String(result.landmark_id))
+	var cue := String(point.get_meta(&"strike_cue", &"step_stone")) if point != null else "step_stone"
+	AudioManager.play(AudioManager.Cue.get(cue.to_upper(), AudioManager.Cue.STEP_STONE), 0.0, -3.0)
+
+
+func _puzzle_solved_copy(result: ExplorationResult) -> String:
+	var labels := PackedStringArray()
+	for id in result.revealed:
+		var found := definition.find_landmark(id)
+		if not found.is_empty():
+			labels.append(found[1].display_name)
+	return WorldCopy.PUZZLE_SOLVED_TEXT + (" Revealed: " + ", ".join(labels) + ". Look beside the boards."
+		if not labels.is_empty() else "")
+
+
+## The host sends the command, then refreshes from saved truth. Retry captures IDs/resources only.
+func _prepare(landmark: LandmarkDefinition, slot: Enums.EquipSlot, item_id: StringName) -> void:
+	var write := func() -> Error:
+		return session.unequip(slot) if item_id == &"" else session.equip(slot, item_id)
+	_commit(write, func() -> void:
+		open_bench(landmark, slot, item_id, "Equipment saved."), func() -> void:
+		open_bench(landmark, slot, &"", session.last_preparation.text()))
+
+
+func open_inventory(bench: LandmarkDefinition = null, slot: Enums.EquipSlot = Enums.EquipSlot.WEAPON) -> void:
+	_open_character(&"inventory", bench, slot, true)
+
+
+func open_character_menu() -> void:
+	_open_character(&"character")
+
+
+## Character: the unified Loadout (gear, pet, supplies, the saved combat arrangement) and the
+## Inventory. Equipment, supplies, arrangement and familiar choices are field commands through the
+## session (rejected during an encounter); a rejection or a no-op reopens the same tab with the typed
+## reason, a failed write offers Retry save for the exact command, and success rebuilds from adopted
+## state (the save notice comes from the session's one save event). [param status]: a line shown on
+## the reopened card. [param adopted] (the changed result of the command that reopened the card)
+## goes to the view's concise hook (present_preparation / present_combat).
+func _open_character(kind: StringName, bench: LandmarkDefinition = null,
+		slot: Enums.EquipSlot = Enums.EquipSlot.WEAPON, return_to_menu: bool = false, tab: StringName = &"",
+		status: String = "", combat_position: int = 0, adopted: RefCounted = null) -> void:
+	var content := WorldCharacterView.new()
+	content.combat_position = combat_position
+	content.present(session.inventory(), session.loadout())
+	content.selected_slot = slot
+	content.select_tab(tab if tab != &"" else (&"inventory" if kind == &"inventory" else &"equipment"))
+	if adopted is PreparationResult:
+		content.present_preparation(adopted)
+	elif adopted is CombatResult:
+		content.present_combat(adopted)
+	var reopen := func(next_status: String, next_tab: StringName, next_slot: Enums.EquipSlot, position: int,
+			result: RefCounted) -> void:
+		_open_character(kind, bench, next_slot, return_to_menu, next_tab, next_status, position, result)
+	content.equip_requested.connect(func(chosen_slot: Enums.EquipSlot, item: StringName) -> void:
+		_character_command(func() -> Error: return session.equip(chosen_slot, item),
+			func() -> RefCounted: return session.last_preparation, reopen, &"equipment", chosen_slot,
+			content.combat_position, true))
+	content.unequip_requested.connect(func(chosen_slot: Enums.EquipSlot) -> void:
+		_character_command(func() -> Error: return session.unequip(chosen_slot),
+			func() -> RefCounted: return session.last_preparation, reopen, &"equipment", chosen_slot,
+			content.combat_position, true))
+	content.potion_requested.connect(func(index: int, potion: StringName) -> void:
+		_character_command(func() -> Error: return session.prepare_potion(index, potion),
+			func() -> RefCounted: return session.last_crafting, reopen, &"equipment", content.selected_slot,
+			content.combat_position, false))
+	content.combat_requested.connect(func(command: StringName, position: int, action_id: StringName, other: int) -> void:
+		var write := func() -> Error:
+			match command:
+				&"swap": return session.swap_actions(position, other)
+				&"move": return session.move_action(action_id, position)
+			return session.arrange_action(position, action_id)
+		_character_command(write, func() -> RefCounted: return session.last_combat, reopen,
+			content.selected_tab_id(), content.selected_slot, position, false))
+	content.familiar_requested.connect(func(familiar_id: StringName) -> void:
+		_character_command(func() -> Error: return session.choose_familiar(familiar_id),
+			func() -> RefCounted: return session.last_familiar, reopen, content.selected_tab_id(),
+			content.selected_slot, content.combat_position, false))
+	content.familiar_passive_requested.connect(func(passive_id: StringName) -> void:
+		_character_command(func() -> Error: return session.choose_familiar_passive(passive_id),
+			func() -> RefCounted: return session.last_familiar, reopen, content.selected_tab_id(),
+			content.selected_slot, content.combat_position, false))
+	content.journal_requested.connect(func() -> void:
+		var journal_slot := content.selected_slot
+		var journal_tab := content.selected_tab_id()
+		var journal_position := content.combat_position
+		open_journal(func() -> void:
+			_open_character(kind, bench, journal_slot, return_to_menu, journal_tab, "", journal_position)))
+	content.field_guide_requested.connect(func() -> void:
+		var back_slot := content.selected_slot
+		var back_tab := content.selected_tab_id()
+		var back_position := content.combat_position
+		_open_screen(load(SceneRouter.FIELD_GUIDE).instantiate(), func() -> void:
+			_open_character(kind, bench, back_slot, return_to_menu, back_tab, "", back_position)))
+	var view := _open_modal(WorldModal.make(kind, "Hollow", PackedStringArray(),
+		[WorldDialogueReadout.action(&"back", "Back to station" if bench != null else "Back")],
+		content))
+	if not status.is_empty():
+		view.set_status(status)
+	content._relink.call_deferred()
+	WorldModal.focus_later(content.first_item)
+	view.cancel_id = &"back"
+	view.chosen.connect(func(_id: StringName) -> void:
+		if bench != null:
+			open_crafting(bench)
+		elif return_to_menu:
+			open_menu()
+		else:
+			_close_modal())
+
+
+## One Character command. [param result_of] returns the session's typed result for it. Success and
+## rejection both reopen [param tab] from saved truth; a failed write keeps everything and offers
+## Retry save, which repeats exactly [param write]. A changed result is handed to the reopened view;
+## with [param concise] (a view that shows it itself) the long status line is left out.
+func _character_command(write: Callable, result_of: Callable, reopen: Callable, tab: StringName,
+		slot: Enums.EquipSlot, position: int, concise: bool) -> void:
+	_commit(write, func() -> void:
+		var result: RefCounted = result_of.call()
+		var changed: bool = result.get(&"changed")
+		reopen.call("" if concise and changed else _result_text(result), tab, slot, position,
+			result if changed else null), func() -> void:
+		reopen.call(_result_text(result_of.call()), tab, slot, position, null))
+
+
+## The status line of a typed command result: an equipment result's summary (its rejection, its
+## no-op line or the older card's prose), otherwise the result's reason text ("" on success).
+static func _result_text(result: RefCounted) -> String:
+	if result is PreparationResult:
+		return (result as PreparationResult).summary()
+	return String(result.call(&"text"))
+
+
 func open_map() -> void:
-	var content := HBoxContainer.new()
-	content.add_theme_constant_override("separation", 24)
-	var chart := VBoxContainer.new()
-	chart.add_theme_constant_override("separation", 10)
-	content.add_child(chart)
 	var view := WorldMapView.new()
 	view.name = "MapView"
-	view.custom_minimum_size = Vector2(600, 340)
+	view.custom_minimum_size = Vector2(1000, 420)
 	view.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	chart.add_child(view)
-	chart.add_child(UITheme.label(WorldCopy.MAP_LEGEND, UITheme.TEXT_DIM, -1, true))
-	var side := VBoxContainer.new()
-	side.custom_minimum_size.x = 384
-	side.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	side.add_theme_constant_override("separation", 12)
-	content.add_child(side)
-	side.add_child(UITheme.heading("Discovered places"))
-	var places_scroll := ScrollContainer.new()
-	places_scroll.name = "PlacesScroll"
-	places_scroll.custom_minimum_size.y = 224
-	places_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	places_scroll.follow_focus = true
-	side.add_child(places_scroll)
-	var places := VBoxContainer.new()
-	places.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	places.add_theme_constant_override("separation", 6)
-	places_scroll.add_child(places)
-	var readout := map_readout()
-	view.show_readout(readout)
-	var description := UITheme.label("", UITheme.TEXT, UITheme.secondary_size(), true)
-	description.name = "PlaceDescription"
-	description.custom_minimum_size.y = 96
-	var first: Button
-	for index in readout.landmarks.size():
-		var landmark: Dictionary = readout.landmarks[index]
-		var button := Button.new()
-		button.name = "Place%d" % index
-		button.text = "%d  %s" % [index + 1, landmark.label]
-		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		button.custom_minimum_size.y = UITheme.control_height()
-		button.focus_entered.connect(func() -> void:
-			view.select(index)
-			description.text = String(landmark.description))
-		button.pressed.connect(func() -> void:
-			view.select(index)
-			description.text = String(landmark.description))
-		places.add_child(button)
-		first = first if first != null else button
-	if readout.landmarks.is_empty():
-		description.text = WorldCopy.MAP_EMPTY
-	side.add_child(description)
-	var actions: Array[Dictionary] = [WorldDialogueReadout.action(WorldRules.ACT_LEAVE, "Back")]
-	var modal_view := _open_modal(WorldModal.make(&"map", readout.area_name, PackedStringArray(), actions, content, 940))
+	view.show_readout(map_readout())
+	var modal_view := _open_modal(WorldModal.make(&"map", area_def.display_name, PackedStringArray(),
+		[WorldDialogueReadout.action(WorldRules.ACT_LEAVE, "Back")], view, 1120))
 	modal_view.cancel_id = WorldRules.ACT_LEAVE
 	modal_view.toggle_action = InputBindings.WORLD_MAP
 	modal_view.chosen.connect(func(_id: StringName) -> void: _close_modal())
-	if first != null:
-		WorldModal.focus_later(first)
 
 
 func map_readout() -> WorldMapReadout:
-	return WorldRules.map_readout(area_def, session.world(), definition.tile_size, player.position, area.landmark_positions())
+	return WorldRules.map_readout(area_def, session.world(), definition.tile_size, player.position, area.landmark_positions(),
+		definition)
 
 
 func open_menu() -> void:
 	var actions: Array[Dictionary] = [
 		WorldDialogueReadout.action(&"resume", "Resume"),
-		WorldDialogueReadout.action(&"field_guide", "Field Guide"),
+		WorldDialogueReadout.action(&"journal", WorldCopy.JOURNAL_TITLE),
 		WorldDialogueReadout.action(&"settings", "Settings"),
 		WorldDialogueReadout.action(&"help", "Help"),
 		WorldDialogueReadout.action(&"save", "Save"),
-		WorldDialogueReadout.action(&"reset", WorldCopy.ACTION_RESET),
 		WorldDialogueReadout.action(&"title", "Save and return to title"),
+		WorldDialogueReadout.action(&"quit", "Save and Quit"),
 	]
 	var view := _open_modal(WorldModal.make(&"menu", "Paused", PackedStringArray(), actions))
 	view.cancel_id = &"resume"
@@ -500,25 +842,48 @@ func open_menu() -> void:
 
 func _on_menu_action(id: StringName) -> void:
 	match id:
+		&"journal":
+			open_journal()
+		&"inventory":
+			open_inventory()
 		&"field_guide":
 			_open_screen(load(SceneRouter.FIELD_GUIDE).instantiate())
 		&"settings":
 			_open_screen(load(SceneRouter.SETTINGS).instantiate())
 		&"help":
-			var help_view := _open_modal(WorldModal.make(&"help", "Journey help", WorldCopy.SAVE_NOTE.split("\n\n"),
+			var help := WorldCopy.SAVE_NOTE.split("\n\n")
+			help.append(WorldCopy.CONTROLS_NOTE % [InputBindings.prompt(InputBindings.WORLD_SPRINT),
+				InputBindings.prompt(InputBindings.WORLD_LOADOUT), InputBindings.prompt(InputBindings.WORLD_INVENTORY),
+				InputBindings.prompt(InputBindings.WORLD_JOURNAL), InputBindings.prompt(InputBindings.WORLD_FIELD_GUIDE),
+				InputBindings.prompt(InputBindings.WORLD_MAP)])
+			var help_view := _open_modal(WorldModal.make(&"help", "Journey help", help,
 				[WorldDialogueReadout.action(&"back", "Back")]))
 			help_view.cancel_id = &"back"
 			help_view.chosen.connect(func(_action: StringName) -> void: open_menu())
 		&"save":
-			_commit(session.save, func() -> void:
-				open_menu()
-				modal.set_status("Saved."))
+			_commit(session.save, open_menu)
+		&"quit":
+			_commit(session.save, func() -> void: quit_game.call())
 		&"reset":
 			_confirm_reset()
 		&"title":
-			_commit(session.save, func() -> void: SceneRouter.goto(SceneRouter.MAIN_MENU))
+			_commit(session.save, func() -> void: leave_to_title.call())
 		_:
 			_close_modal()
+
+
+## The quest journal (playtest revision): the session's typed journal in a paused-world card.
+## Opening it reads the saved stage and announces nothing. [param returned]: where Back goes
+## (default: the paused menu).
+func open_journal(returned: Callable = Callable()) -> void:
+	var view := _open_modal(WorldModal.make(&"journal", WorldCopy.JOURNAL_TITLE, PackedStringArray(),
+		[WorldDialogueReadout.action(&"back", "Back")], WorldJournalView.make(session.quests())))
+	view.cancel_id = &"back"
+	view.chosen.connect(func(_id: StringName) -> void:
+		if returned.is_valid():
+			returned.call()
+		else:
+			open_menu())
 
 
 ## Menu → Reset journey asks first, with Cancel focused. Only a confirmation made on this live card,
@@ -544,15 +909,20 @@ func _restart_journey() -> void:
 
 
 ## Field Guide / Settings over the paused world; closing returns to the menu, not the title.
-func _open_screen(screen: Control) -> void:
+func _open_screen(screen: Control, returned: Callable = Callable()) -> void:
 	_dismiss_modal()
 	screen.set("embedded", true)
 	_modal_root.add_child(screen)
+	_screen = screen
+	SessionLog.event("world", "opened %s" % screen.name)
 	screen.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_set_mode(Mode.MODAL)
 	screen.connect(&"closed", func() -> void:
+		if _screen == screen:
+			_screen = null
 		screen.queue_free()
-		open_menu())
+		if returned.is_valid(): returned.call()
+		else: open_menu())
 
 
 # --- Portals -------------------------------------------------------------------------------------
@@ -561,6 +931,8 @@ func take_portal(landmark_id: StringName) -> void:
 	var portal := definition.portal_from(area_def.id, landmark_id)
 	if portal == null:
 		return
+	# Leaving the area drops any running countdown.
+	_publish_countdown(countdown.cancel())
 	_set_mode(Mode.BUSY)
 	_commit(func() -> Error: return session.arrive(portal.to_area, portal.arrival_anchor), func() -> void:
 		_fade()
@@ -578,9 +950,14 @@ func _fade() -> void:
 # --- Battles -------------------------------------------------------------------------------------
 
 ## Engage: capture and save exactly one entry, then hand input to the battle. Never twice.
+## Playtest revision: called by the countdown's expiry (and by the save-failure Retry, which repeats
+## the same site). Any countdown still running is dropped first, so nothing can launch a second
+## battle behind this one.
 func engage(site: LandmarkDefinition) -> void:
 	if mode == Mode.BATTLE or battle != null:
 		return
+	SessionLog.event("world", "engage %s" % site.id)
+	_publish_countdown(countdown.cancel())
 	_encounter_position = player.position
 	_encounter_facing = player.facing
 	_dismiss_modal()
@@ -638,20 +1015,19 @@ func _on_battle_finished(entry: EncounterEntry, result: BattleResult) -> void:
 				load_area(definition.start_area, definition.start_anchor)))
 
 
+## Playtest revision: the victory card shows the session's own saved facts: Bestiary Learnings (each
+## enemy whose tier rose, old tier -> new tier, captured before adoption) and salvage receipts. A
+## failed write shows the Retry card and nothing else; a repeated result shows neither again.
 func _commit_victory(entry: EncounterEntry, result: BattleResult) -> void:
-	var before := {}
-	for enemy_id: StringName in result.research:
-		before[enemy_id] = GameState.research_level(enemy_id)
 	var err := session.commit_victory(entry, result)
 	if err != OK and err != ERR_ALREADY_EXISTS:
 		_show_save_failure(func() -> void: _commit_victory(entry, result))
 		return
-	var lines := PackedStringArray([WorldCopy.VICTORY_BODY])
-	for enemy_id: StringName in before:
-		var after := GameState.research_level(enemy_id)
-		if after > before[enemy_id]:
-			var enemy: EnemyDefinition = Database.registry.enemies.get(enemy_id)
-			lines.append("Bestiary: %s → %s" % [enemy.display_name if enemy != null else "?", EnumText.research_level(after)])
+	var receipts: Array[RewardReadout] = []
+	victory_learnings = []
+	if err == OK:
+		receipts.assign(session.last_receipts)
+		victory_learnings.assign(session.last_learnings)
 	_close_battle()
 	area.apply_state(session.world())
 	load_area(entry.area_id(), entry.approach_anchor())
@@ -659,12 +1035,33 @@ func _commit_victory(entry: EncounterEntry, result: BattleResult) -> void:
 		player.place(_encounter_position, _encounter_facing)
 		_arm_triggers()
 	var actions: Array[Dictionary] = [WorldDialogueReadout.action(&"continue", WorldCopy.ACTION_CONTINUE)]
-	var view := _open_modal(WorldModal.make(&"victory", "Victory", lines, actions))
+	# Bestiary Learnings and Salvage only: no explanatory prose.
+	var content := WorldRewardView.make(receipts)
+	content.present_learnings(victory_learnings)
+	var view := _open_modal(WorldModal.make(&"victory", "Victory", PackedStringArray(), actions, content))
+	view.cancel_id = &"continue"
+	view.chosen.connect(func(_id: StringName) -> void:
+		victory_learnings = []
+		_close_modal())
+
+
+## Receipts exist only after a successful write. Each caller consumes only that command's result.
+func _has_received(receipts: Array[RewardReadout]) -> bool:
+	return receipts.any(func(receipt: RewardReadout) -> bool: return not receipt.summary().is_empty())
+
+
+func _show_rewards(kind: StringName, title: String, body: String, receipts: Array[RewardReadout],
+		next_step: String = "") -> void:
+	var content := WorldRewardView.make(receipts)
+	if not next_step.is_empty():
+		content.add_child(UITheme.label(next_step, UITheme.INFO, 22, true))
+	var view := _open_modal(WorldModal.make(kind, title, PackedStringArray([body]),
+		[WorldDialogueReadout.action(&"continue", WorldCopy.ACTION_CONTINUE)], content))
 	view.cancel_id = &"continue"
 	view.chosen.connect(func(_id: StringName) -> void: _close_modal())
 
 
-## Pause → Leave battle: back at the approach, encounter available, no attempt recorded.
+## Leave battle returns to the approach without recording an attempt.
 func _on_battle_left(entry: EncounterEntry) -> void:
 	_commit(func() -> Error: return session.leave_entry(entry), func() -> void:
 		_dismiss_modal()
@@ -686,17 +1083,21 @@ func _close_battle() -> void:
 
 ## Runs a session write; on success calls [param then], on failure keeps everything unpublished and
 ## offers Retry save / Return to title.
-func _commit(write: Callable, then: Callable) -> void:
+func _commit(write: Callable, then: Callable, rejected: Callable = Callable()) -> void:
 	var err: Error = write.call()
 	if err == OK:
 		then.call()
 	elif err in [ERR_UNAVAILABLE, ERR_INVALID_PARAMETER, ERR_ALREADY_EXISTS]:
-		_close_modal()
+		if rejected.is_valid():
+			rejected.call()
+		else:
+			_close_modal()
 	else:
-		_show_save_failure(func() -> void: _commit(write, then))
+		_show_save_failure(func() -> void: _commit(write, then, rejected))
 
 
 func _show_save_failure(retry: Callable) -> void:
+	SessionLog.event("save", "write failed: %s" % error_string(session.last_error))
 	var actions: Array[Dictionary] = [
 		WorldDialogueReadout.action(&"retry", WorldCopy.ACTION_RETRY_SAVE),
 		WorldDialogueReadout.action(&"title", WorldCopy.ACTION_TITLE)]
@@ -714,12 +1115,16 @@ func _open_modal(view: WorldModal) -> WorldModal:
 	_dismiss_modal()
 	modal = view
 	_modal_root.add_child(view)
+	if notices != null:
+		notices.save_dock = view.notice_dock
 	_set_mode(Mode.MODAL)
 	modal_opened.emit(view)
 	return view
 
 
 func _dismiss_modal() -> void:
+	if notices != null:
+		notices.save_dock = null
 	if modal != null:
 		_modal_root.remove_child(modal)
 		modal.queue_free()
@@ -745,7 +1150,13 @@ func _refresh_hud() -> void:
 	_readout.objective = WorldRules.objective(session.world(), definition, area_def.id)
 	var target := interaction_target() if mode == Mode.EXPLORE else null
 	_prompt_target = target.id if target != null else &""
-	_readout.interaction = WorldRules.interaction_label(target, session.world(), _far_side(target)) if target != null else ""
+	_readout.interaction = WorldRules.interaction_label(target, session.world(), _far_side(target), definition) \
+		if target != null else ""
+	if target != null and target.kind == LandmarkDefinition.Kind.RUNE:
+		var sequence := ExplorationRules.puzzle_of(definition, target.id)
+		if sequence != null:
+			var state := session.puzzle(sequence.id)
+			_readout.interaction += " · %d / %d" % [state.entered, state.length]
 	_readout.interaction_binding = InputBindings.prompt(InputBindings.WORLD_INTERACT)
 	hud.present(_readout)
 
@@ -780,6 +1191,12 @@ func _build() -> void:
 	hud.menu_requested.connect(func() -> void:
 		if mode == Mode.EXPLORE:
 			open_menu())
+	hud.character_requested.connect(func() -> void:
+		if mode == Mode.EXPLORE:
+			open_character_menu())
+	hud.journal_requested.connect(func() -> void:
+		if mode == Mode.EXPLORE:
+			open_journal(_close_modal))
 	_battle_layer = CanvasLayer.new()
 	_battle_layer.name = "Battle"
 	_battle_layer.layer = 10

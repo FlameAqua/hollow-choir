@@ -3,7 +3,14 @@ extends Resource
 ## One authored place in an area (V0.4 layout): a stable ID, a public map label and the explicit
 ## interaction kind. Eligibility is decided by WorldRules from typed state, never by expressions.
 
-enum Kind { HOME, DIALOGUE, PREPARATION, PORTAL, LANDMARK, ENCOUNTER, RESTORATION, SHORTCUT, DISCOVERY }
+## V0.5C appends GATHERING (a node yielding once per save), SECRET (imperceptible until revealed)
+## and RUNE (one switch of a rune-sequence puzzle); their rules live in ExplorationRules.
+enum Kind { HOME, DIALOGUE, PREPARATION, PORTAL, LANDMARK, ENCOUNTER, RESTORATION, SHORTCUT, DISCOVERY,
+	GATHERING, SECRET, RUNE }
+
+## V0.5 UI: the station service a PREPARATION landmark authorizes. Only an open FORGE context accepts
+## Forge purchases, fittings and refunds; only an open STILLROOM context accepts Stillroom purchases.
+enum Service { NONE = 0, FORGE = 1, STILLROOM = 2 }
 
 @export var id: StringName = &""
 ## Public label for the HUD prompt and the discovered map. Never an encounter or species name.
@@ -27,6 +34,8 @@ enum Kind { HOME, DIALOGUE, PREPARATION, PORTAL, LANDMARK, ENCOUNTER, RESTORATIO
 @export var far_side: Vector2i = Vector2i.ZERO
 ## Distance (pixels) at which the landmark becomes discovered when the player approaches.
 @export var discover_radius: float = 192.0
+## PREPARATION only: the station service it opens (V0.5 UI); NONE for every other kind.
+@export var service: Service = Service.NONE
 
 
 func validate(area_id: StringName) -> PackedStringArray:
@@ -43,4 +52,10 @@ func validate(area_id: StringName) -> PackedStringArray:
 			problems.append("%s: encounter landmark without a public threat category" % where)
 		if interact_radius <= 0.0:
 			problems.append("%s: encounter landmark needs an engage radius" % where)
+	if kind in [Kind.GATHERING, Kind.SECRET, Kind.RUNE] and interact_radius <= 0.0:
+		problems.append("%s: an exploration landmark needs an interaction radius" % where)
+	if kind == Kind.PREPARATION and service == Service.NONE:
+		problems.append("%s: a preparation landmark needs a station service" % where)
+	if kind != Kind.PREPARATION and service != Service.NONE:
+		problems.append("%s: only a preparation landmark offers a station service" % where)
 	return problems

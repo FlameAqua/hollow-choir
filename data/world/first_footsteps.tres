@@ -7,6 +7,9 @@
 [ext_resource type="Script" path="res://src/world/world_definition.gd" id="5_s"]
 [ext_resource type="Resource" path="res://data/encounters/fen_patrol.tres" id="10_e"]
 [ext_resource type="Resource" path="res://data/encounters/rot_grove.tres" id="11_e"]
+[ext_resource type="Script" path="res://src/world/exploration/gathering_definition.gd" id="12_gather"]
+[ext_resource type="Script" path="res://src/world/exploration/secret_definition.gd" id="13_secret"]
+[ext_resource type="Script" path="res://src/world/exploration/rune_sequence_definition.gd" id="14_puzzle"]
 
 [sub_resource type="Resource" id="L_town_bell"]
 script = ExtResource("1_s")
@@ -31,12 +34,24 @@ safe_anchor = false
 [sub_resource type="Resource" id="L_preparation_bench"]
 script = ExtResource("1_s")
 id = &"preparation_bench"
-display_name = "Preparation bench"
+display_name = "Forge"
 kind = 2
 tile = Vector2i(15, 31)
-description = "Choose among the weapons you already carry before setting out."
+description = "An iron anvil for fitting weapons."
 interact_radius = 56.0
 safe_anchor = false
+service = 1
+
+[sub_resource type="Resource" id="L_stillroom_table"]
+script = ExtResource("1_s")
+id = &"stillroom_table"
+display_name = "Stillroom"
+kind = 2
+tile = Vector2i(18, 24)
+description = "Copper, glass and reusable home supplies for preparing potions."
+interact_radius = 56.0
+safe_anchor = false
+service = 2
 
 [sub_resource type="Resource" id="L_reed_gate"]
 script = ExtResource("1_s")
@@ -74,7 +89,7 @@ scene_path = "res://scenes/world/areas/gloamstead.tscn"
 music_cue = &"gloamstead_town"
 size_tiles = Vector2i(80, 56)
 default_anchor = &"town_bell"
-landmarks = Array[ExtResource("1_s")]([SubResource("L_town_bell"), SubResource("L_bellkeeper"), SubResource("L_preparation_bench"), SubResource("L_reed_gate")])
+landmarks = Array[ExtResource("1_s")]([SubResource("L_town_bell"), SubResource("L_bellkeeper"), SubResource("L_preparation_bench"), SubResource("L_stillroom_table"), SubResource("L_reed_gate")])
 paths = Array[ExtResource("2_s")]([SubResource("P_square_bench"), SubResource("P_square_bellkeeper"), SubResource("P_square_gate")])
 
 [sub_resource type="Resource" id="L_reedway_entry"]
@@ -197,6 +212,78 @@ id = &"overlook"
 points = PackedVector2Array(68, 35, 77, 33, 84, 40)
 width_tiles = 3
 
+[sub_resource type="Resource" id="L_iron_seam"]
+script = ExtResource("1_s")
+id = &"iron_seam"
+display_name = "Iron seam"
+kind = 9
+tile = Vector2i(11, 38)
+description = "Rust-dark iron shows through the peat beside the outer boards. Loosen one sound piece from the seam."
+interact_radius = 48.0
+discover_radius = 96.0
+safe_anchor = false
+
+[sub_resource type="Resource" id="L_rhythm_stone_low"]
+script = ExtResource("1_s")
+id = &"rhythm_stone_low"
+display_name = "Low stone"
+kind = 11
+tile = Vector2i(82, 40)
+description = "A low, broad stone. One notch marks its face."
+interact_radius = 36.0
+discover_radius = 96.0
+safe_anchor = false
+
+[sub_resource type="Resource" id="L_rhythm_stone_mid"]
+script = ExtResource("1_s")
+id = &"rhythm_stone_mid"
+display_name = "Middle stone"
+kind = 11
+tile = Vector2i(84, 42)
+description = "A worn stone with two notches."
+interact_radius = 36.0
+discover_radius = 96.0
+safe_anchor = false
+
+[sub_resource type="Resource" id="L_rhythm_stone_high"]
+script = ExtResource("1_s")
+id = &"rhythm_stone_high"
+display_name = "High stone"
+kind = 11
+tile = Vector2i(86, 40)
+description = "A narrow stone with three notches."
+interact_radius = 36.0
+discover_radius = 96.0
+safe_anchor = false
+
+[sub_resource type="Resource" id="L_drowned_niche"]
+script = ExtResource("1_s")
+id = &"drowned_niche"
+display_name = "Drowned niche"
+kind = 10
+tile = Vector2i(86, 42)
+description = "Roots have loosened beside the boards. A dry wrapping waits in the hollow beneath them."
+interact_radius = 36.0
+discover_radius = 96.0
+safe_anchor = false
+
+[sub_resource type="Resource" id="Gather_iron"]
+script = ExtResource("12_gather")
+landmark = &"iron_seam"
+
+[sub_resource type="Resource" id="Puzzle_listening"]
+script = ExtResource("14_puzzle")
+id = &"listening_rhythm"
+display_name = "Listening stones"
+runes = Array[StringName]([&"rhythm_stone_low", &"rhythm_stone_mid", &"rhythm_stone_high"])
+solution = Array[StringName]([&"rhythm_stone_low", &"rhythm_stone_high", &"rhythm_stone_mid"])
+
+[sub_resource type="Resource" id="Secret_niche"]
+script = ExtResource("13_secret")
+landmark = &"drowned_niche"
+reveal = 1
+reveal_key = &"listening_rhythm"
+
 [sub_resource type="Resource" id="A_briarfen_reedway"]
 script = ExtResource("3_s")
 id = &"briarfen_reedway"
@@ -205,7 +292,7 @@ scene_path = "res://scenes/world/areas/briarfen_reedway.tscn"
 music_cue = &"briarfen_exploration"
 size_tiles = Vector2i(96, 88)
 default_anchor = &"reedway_entry"
-landmarks = Array[ExtResource("1_s")]([SubResource("L_reedway_entry"), SubResource("L_reedway_fork"), SubResource("L_reedway_patrol"), SubResource("L_bell_guard"), SubResource("L_wayside_bell"), SubResource("L_return_latch"), SubResource("L_listening_stones")])
+landmarks = Array[ExtResource("1_s")]([SubResource("L_reedway_entry"), SubResource("L_reedway_fork"), SubResource("L_reedway_patrol"), SubResource("L_bell_guard"), SubResource("L_wayside_bell"), SubResource("L_return_latch"), SubResource("L_listening_stones"), SubResource("L_iron_seam"), SubResource("L_rhythm_stone_low"), SubResource("L_rhythm_stone_mid"), SubResource("L_rhythm_stone_high"), SubResource("L_drowned_niche")])
 paths = Array[ExtResource("2_s")]([SubResource("P_entry_fork"), SubResource("P_main_approach"), SubResource("P_outside_loop"), SubResource("P_bell_steps"), SubResource("P_far_side"), SubResource("P_short_return"), SubResource("P_overlook")])
 
 [sub_resource type="Resource" id="Portal_0"]
@@ -226,3 +313,6 @@ arrival_anchor = &"reed_gate"
 script = ExtResource("5_s")
 areas = Array[ExtResource("3_s")]([SubResource("A_gloamstead"), SubResource("A_briarfen_reedway")])
 portals = Array[ExtResource("4_s")]([SubResource("Portal_0"), SubResource("Portal_1")])
+gathering = Array[ExtResource("12_gather")]([SubResource("Gather_iron")])
+secrets = Array[ExtResource("13_secret")]([SubResource("Secret_niche")])
+puzzles = Array[ExtResource("14_puzzle")]([SubResource("Puzzle_listening")])

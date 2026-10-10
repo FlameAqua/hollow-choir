@@ -13,6 +13,10 @@ const FLAG_LATCH := &"return_latch_open"
 @export var areas: Array[AreaDefinition] = []
 @export var portals: Array[PortalDefinition] = []
 @export var flags: Array[StringName] = [FLAG_BELL, FLAG_LATCH]
+## V0.5C exploration vocabulary placed in these areas (rules and persistence: ExplorationRules).
+@export var gathering: Array[GatheringDefinition] = []
+@export var secrets: Array[SecretDefinition] = []
+@export var puzzles: Array[RuneSequenceDefinition] = []
 
 static var _cached: WorldDefinition
 
@@ -79,4 +83,5 @@ func validate() -> PackedStringArray:
 			problems.append("portal arrives at unknown anchor %s/%s" % [portal.to_area, portal.arrival_anchor])
 		if portal_from(portal.to_area, portal.arrival_anchor) == null:
 			problems.append("portal %s/%s has no return pair" % [portal.from_area, portal.from_landmark])
+	problems.append_array(ExplorationRules.validate(self))
 	return problems

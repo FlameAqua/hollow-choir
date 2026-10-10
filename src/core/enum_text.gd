@@ -117,6 +117,41 @@ static func rarity(value: Enums.Rarity) -> String:
 	return "Common"
 
 
+static func equip_slot(value: Enums.EquipSlot) -> String:
+	match value:
+		Enums.EquipSlot.GARB:
+			return "Garb"
+		Enums.EquipSlot.CHARM:
+			return "Charm"
+		Enums.EquipSlot.RELIC:
+			return "Relic"
+	return "Weapon"
+
+
+static func station(value: RecipeDefinition.Station) -> String:
+	match value:
+		RecipeDefinition.Station.STILLROOM:
+			return "Stillroom"
+	return "Forge"
+
+
+static func resonance(value: Enums.ResonanceTag) -> String:
+	match value:
+		Enums.ResonanceTag.STORM:
+			return "Storm"
+		Enums.ResonanceTag.BLOOM:
+			return "Bloom"
+		Enums.ResonanceTag.CHOIR:
+			return "Choir"
+		Enums.ResonanceTag.HUNTER:
+			return "Hunter"
+		Enums.ResonanceTag.HOLLOW:
+			return "Hollow"
+		Enums.ResonanceTag.EMBER:
+			return "Ember"
+	return "—"
+
+
 static func role(value: Enums.EnemyRole) -> String:
 	match value:
 		Enums.EnemyRole.BULWARK:

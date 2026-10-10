@@ -86,10 +86,11 @@ func test_title_menu_has_focus_and_a_bounded_fixed_layout() -> void:
 	menu._layout_menu()
 	for frame in 3:
 		await tree.process_frame
-	assert_true(menu._first_button.has_focus())
-	assert_eq(menu.find_children("*", "ScrollContainer", true, false).size(), 0, "title options never need a scrollbar")
+	var focused := tree.root.gui_get_focus_owner()
+	assert_true(focused is Button and not focused.disabled and menu._column.is_ancestor_of(focused))
+	assert_eq(menu._column.find_children("*", "ScrollContainer", true, false).size(), 0, "title options never need a scrollbar; contextual inspection may scroll")
 	var buttons := menu._column.get_children().filter(func(node: Node) -> bool: return node is Button)
-	assert_eq(buttons.size(), 6)
+	assert_eq(buttons.size(), 5)
 	for button: Button in buttons:
 		assert_true(Rect2(Vector2.ZERO, Vector2(1280, 720)).encloses(button.get_global_rect()), "every title option is visible")
 	assert_lte(menu._menu_panel.position.x + menu._menu_panel.size.x, 1280)

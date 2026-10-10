@@ -11,6 +11,8 @@ static func mapping(group: String, key: Variant, fallback: String = "unavailable
 	return str(_map.get(group, {}).get(str(key), fallback))
 
 static func texture(id: String) -> Texture2D:
+	if id == "state_exposed":
+		return preload("res://assets/art/global/ui/items/exposed_v01.svg")
 	if id in ["log", "pause", "setup", "restart", "turn_order"]:
 		return UICraft.texture(id)
 	if id in ["stagger", "state_broken"]:

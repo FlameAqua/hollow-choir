@@ -1,0 +1,247 @@
+QA user data home: C:\Users\Adrian\Code\Games\hollow-choir\.godot\qa-playtest-revision\director-full-headless-02
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+User data: C:/Users/Adrian/Code/Games/hollow-choir/.godot/qa-playtest-revision/director-full-headless-02/Godot/app_userdata/Hollow Choir (isolated QA home)
+WARNING: BattleEngine: rejected action (Needs 5 Focus)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] submit_action (res://src/battle/battle_engine.gd:142)
+       [1] act (res://tests/fixtures/battle_driver.gd:46)
+       [2] test_focus_cost_and_illegal_option_reason (res://tests/unit/test_engine_flow.gd:97)
+       [3] _run (res://tests/run_tests.gd:64)
+User data: C:/Users/Adrian/Code/Games/hollow-choir/.godot/qa-playtest-revision/director-full-headless-02/Godot/app_userdata/Hollow Choir (isolated QA home)
+User data: C:/Users/Adrian/Code/Games/hollow-choir/.godot/qa-playtest-revision/director-full-headless-02/Godot/app_userdata/Hollow Choir (isolated QA home)
+QA isolation failed: cache is C:/Users/Adrian/Code/Games/hollow-choir/.godot/qa-playtest-revision/director-full-headless-02/cache, not inside C:/Users/Adrian/Code/Games/hollow-choir/.godot/qa-playtest-revision/director-full-headless-02/Godot/app_userdata (outdated launcher?). Nothing was run.
+ERROR: SaveMigrator: missing save_version
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] migrate (res://src/save/save_migrator.gd:15)
+       [1] test_migrator_rejects_missing_and_future_versions (res://tests/unit/test_save_and_settings.gd:46)
+       [2] _run (res://tests/run_tests.gd:64)
+ERROR: SaveMigrator: save version 2 is newer than this build (1)
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] migrate (res://src/save/save_migrator.gd:18)
+       [1] test_migrator_rejects_missing_and_future_versions (res://tests/unit/test_save_and_settings.gd:47)
+       [2] _run (res://tests/run_tests.gd:64)
+ERROR: Parse JSON failed. Error at line 0: Expected key
+   at: parse_string (core/io/json.cpp:629)
+   GDScript backtrace (most recent call first):
+       [0] read_json (res://src/autoload/save_manager.gd:146)
+       [1] test_corrupt_file_is_rejected_not_crashing (res://tests/unit/test_save_and_settings.gd:57)
+       [2] _run (res://tests/run_tests.gd:64)
+ERROR: SaveManager: user://test_saves/slot_test.json is not a valid save
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] read_json (res://src/autoload/save_manager.gd:148)
+       [1] test_corrupt_file_is_rejected_not_crashing (res://tests/unit/test_save_and_settings.gd:57)
+       [2] _run (res://tests/run_tests.gd:64)
+ERROR: SaveMigrator: the save has no data section
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] migrate (res://src/save/save_migrator.gd:21)
+       [1] test_migrator_rejects_a_save_without_a_data_section (res://tests/unit/test_save_and_settings.gd:250)
+       [2] _run (res://tests/run_tests.gd:64)
+ERROR: SaveMigrator: the save has no data section
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] migrate (res://src/save/save_migrator.gd:21)
+       [1] test_migrator_rejects_a_save_without_a_data_section (res://tests/unit/test_save_and_settings.gd:251)
+       [2] _run (res://tests/run_tests.gd:64)
+SCRIPT ERROR: Invalid access to property or key 'text' on a base object of type 'null instance'.
+   at: test_character_view_arranges_equips_and_shows_typed_reasons (res://tests/world/test_world_combat_arrangement.gd:221)
+   GDScript backtrace (most recent call first):
+       [0] test_character_view_arranges_equips_and_shows_typed_reasons (res://tests/world/test_world_combat_arrangement.gd:221)
+ERROR: Parse JSON failed. Error at line 0: Expected key
+   at: parse_string (core/io/json.cpp:629)
+   GDScript backtrace (most recent call first):
+       [0] read_json (res://src/autoload/save_manager.gd:146)
+       [1] load_slot (res://src/autoload/save_manager.gd:37)
+       [2] test_summaries_survive_empty_damaged_and_newer_saves_without_errors (res://tests/world/test_world_journey_setup.gd:177)
+       [3] _run (res://tests/run_tests.gd:64)
+ERROR: SaveManager: user://saves/slot_0.json is not a valid save
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] read_json (res://src/autoload/save_manager.gd:148)
+       [1] load_slot (res://src/autoload/save_manager.gd:37)
+       [2] test_summaries_survive_empty_damaged_and_newer_saves_without_errors (res://tests/world/test_world_journey_setup.gd:177)
+       [3] _run (res://tests/run_tests.gd:64)
+ERROR: SaveMigrator: save version 2 is newer than this build (1)
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] migrate (res://src/save/save_migrator.gd:18)
+       [1] load_slot (res://src/autoload/save_manager.gd:40)
+       [2] test_summaries_survive_empty_damaged_and_newer_saves_without_errors (res://tests/world/test_world_journey_setup.gd:178)
+       [3] _run (res://tests/run_tests.gd:64)
+ERROR: Parameter "body->get_space()" is null.
+   at: body_test_motion (modules/godot_physics_2d/godot_physics_server_2d.cpp:996)
+   GDScript backtrace (most recent call first):
+       [0] step (res://src/world/world_player.gd:95)
+       [1] test_tapping_into_a_wall_never_reads_as_walking (res://tests/world/test_world_revision_host.gd:384)
+SCRIPT ERROR: Out of bounds get index '2' (on base: 'Array[SaveFact]')
+   at: test_every_successful_write_publishes_its_origin_once (res://tests/world/test_world_revision_session.gd:502)
+   GDScript backtrace (most recent call first):
+       [0] test_every_successful_write_publishes_its_origin_once (res://tests/world/test_world_revision_session.gd:502)
+       [1] _run (res://tests/run_tests.gd:64)
+SCRIPT ERROR: Out of bounds get index '0' (on base: 'Array[PreparationResult]')
+   at: test_equipment_publishes_one_structured_fact_per_changed_command (res://tests/world/test_world_revision_session.gd:534)
+   GDScript backtrace (most recent call first):
+       [0] test_equipment_publishes_one_structured_fact_per_changed_command (res://tests/world/test_world_revision_session.gd:534)
+       [1] _run (res://tests/run_tests.gd:64)
+SCRIPT ERROR: Invalid access to property or key 'kind' on a base object of type 'Nil'.
+   at: test_charm_ui_equips_retries_and_removes_without_leaving_the_station (res://tests/world/test_world_salvage_host.gd:199)
+   GDScript backtrace (most recent call first):
+       [0] test_charm_ui_equips_retries_and_removes_without_leaving_the_station (res://tests/world/test_world_salvage_host.gd:199)
+       [1] _frames (res://tests/world/test_world_salvage_host.gd:49)
+SCRIPT ERROR: Cannot call method 'show' on a previously freed instance.
+   at: JourneyNotices._save_completed (res://src/ui/world/journey_notices.gd:36)
+   GDScript backtrace (most recent call first):
+       [0] _save_completed (res://src/ui/world/journey_notices.gd:36)
+       [1] commit (res://src/world/world_session.gd:122)
+       [2] commit_victory (res://src/world/world_session.gd:867)
+       [3] _commit_victory (res://src/world/world_host.gd:967)
+       [4] _on_battle_finished (res://src/world/world_host.gd:945)
+       [5] test_host_adds_no_notice_of_its_own_and_hides_cards_in_battle (res://tests/world/test_world_save_events.gd:147)
+       [6] _start_battle_at_guard (res://tests/world/test_world_save_events.gd:159)
+WARNING: WorldSession: unknown anchor briarfen_reedway/behind_the_waterfall; resuming at the square
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] open (res://src/world/world_session.gd:102)
+       [1] test_invalid_anchor_recovers_to_square_and_keeps_valid_progress (res://tests/world/test_world_session.gd:60)
+       [2] _run (res://tests/run_tests.gd:64)
+WARNING: WorldSession: unknown landmark secret_grotto dropped
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] open (res://src/world/world_session.gd:102)
+       [1] test_invalid_anchor_recovers_to_square_and_keeps_valid_progress (res://tests/world/test_world_session.gd:60)
+       [2] _run (res://tests/run_tests.gd:64)
+WARNING: WorldSession: unknown link sky_bridge dropped
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] open (res://src/world/world_session.gd:102)
+       [1] test_invalid_anchor_recovers_to_square_and_keeps_valid_progress (res://tests/world/test_world_session.gd:60)
+       [2] _run (res://tests/run_tests.gd:64)
+WARNING: WorldSession: unknown encounter site reed_gate dropped
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] open (res://src/world/world_session.gd:102)
+       [1] test_invalid_anchor_recovers_to_square_and_keeps_valid_progress (res://tests/world/test_world_session.gd:60)
+       [2] _run (res://tests/run_tests.gd:64)
+WARNING: WorldSession: unknown encounter site mirebell_cantor dropped
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] open (res://src/world/world_session.gd:102)
+       [1] test_invalid_anchor_recovers_to_square_and_keeps_valid_progress (res://tests/world/test_world_session.gd:60)
+       [2] _run (res://tests/run_tests.gd:64)
+FAIL test_loadout_rules::test_positions_supplies_and_bag_report_the_backends_capacities
+    the one action outside the six: expected <[&"kindle"]> but got <[&"spark", &"kindle"]>  (test_loadout_rules.gd:117)
+FAIL test_reward_rules::test_shipped_rewards_follow_the_v05a_table
+    no new action fills the eighth slot  (test_reward_rules.gd:100)
+FAIL test_world_combat_arrangement::test_commands_write_once_and_reject_whole
+    the deterministic default: expected <[&"sword_strike", &"lunge", &"arc_cleave", &"riposte_stance", &"inspect", &"spark"]> but got <[&"sword_strike", &"lunge", &"arc_cleave", &"earthsplitter", &"riposte_stance", &"inspect"]>  (test_world_combat_arrangement.gd:55)
+    expected <[&"spark", true]> but got <[&"inspect", true]>  (test_world_combat_arrangement.gd:57)
+    replace: Spark leaves, Kindle takes position 6: expected <[&"sword_strike", &"lunge", &"arc_cleave", &"riposte_stance", &"inspect", &"kindle"]> but got <[&"sword_strike", &"lunge", &"arc_cleave", &"earthsplitter", &"riposte_stance", &"kindle"]>  (test_world_combat_arrangement.gd:58)
+    and Spark is listed, never hidden: expected <[&"spark"]> but got <[&"inspect", &"spark"]>  (test_world_combat_arrangement.gd:60)
+    expected <inspect> but got <riposte_stance>  (test_world_combat_arrangement.gd:62)
+    expected <[&"kindle", &"inspect", &"lunge", &"arc_cleave", &"riposte_stance", &"sword_strike"]> but got <[&"kindle", &"riposte_stance", &"lunge", &"arc_cleave", &"earthsplitter", &"sword_strike"]>  (test_world_combat_arrangement.gd:64)
+    expected <31> but got <0>  (test_world_combat_arrangement.gd:83)
+    expected <5> but got <0>  (test_world_combat_arrangement.gd:84)
+    expected false  (test_world_combat_arrangement.gd:85)
+    expected <[&"kindle", &"riposte_stance", &"lunge", &"arc_cleave", &"earthsplitter", &"sword_strike"]> but got <[&"earthsplitter", &"riposte_stance", &"lunge", &"arc_cleave", &"kindle", &"sword_strike"]>  (test_world_combat_arrangement.gd:86)
+    a public reason  (test_world_combat_arrangement.gd:87)
+    nothing changed: expected <{"bestiary":{"points":{},"sources":{}},"campaign":{"difficulty":1.0,"starter":""},"combat":{"actions":["kindle","riposte_stance","lunge","arc_cleave","earthsplitter","sword_strike"]},"companions":{"mara":{"recruited":true,"relationship":0.0}},"crafting":{"fittings":{},"recipes":[]},"familiars":["bell_crow","cinder_pup"],"home_upgrades":{"forge":0.0,"observatory":0.0,"stillroom":0.0},"inventory":{"consumables":{"fen_water_flask":4.0,"mending_draught":4.0},"equipment":["pilgrims_edge","mire_maul","reedbow","pilgrims_coat"],"materials":{},"quest_items":[]},"loadout":{"charm":"","companion":"mara","familiar":"bell_crow","familiar_passive":"","garb":"pilgrims_coat","potions":["mending_draught","fen_water_flask"],"relic":"","weapon":"pilgrims_edge"},"migrations":["supplies.finite_stock.v1"],"quests":{"first_footsteps.wayside_bell":0.0},"regions":{"events":{},"pressure":{"briarfen":0.0}},"rewards":{"claims":[]},"stats":{"battles_lost":0.0,"battles_won":0.0},"weapon_mastery":{},"world":{"anchor":"town_bell","area":"gloamstead","cleared":[],"discovered":[],"entry_serial":0.0,"flags":{"return_latch_open":false,"wayside_bell_restored":false},"found":[],"gathered":[],"last_applied_token":"","links":[],"pending_entry":null,"rune_input":{},"solved":[]},"world_choices":{}}> but got <{"bestiary":{"points":{},"sources":{}},"campaign":{"difficulty":1.0,"starter":""},"combat":{"actions":["earthsplitter","riposte_stance","lunge","arc_cleave","kindle","sword_strike"]},"companions":{"mara":{"recruited":true,"relationship":0.0}},"crafting":{"fittings":{},"recipes":[]},"familiars":["bell_crow","cinder_pup"],"home_upgrades":{"forge":0.0,"observatory":0.0,"stillroom":0.0},"inventory":{"consumables":{"fen_water_flask":4.0,"mending_draught":4.0},"equipment":["pilgrims_edge","mire_maul","reedbow","pilgrims_coat"],"materials":{},"quest_items":[]},"loadout":{"charm":"","companion":"mara","familiar":"bell_crow","familiar_passive":"","garb":"pilgrims_coat","potions":["mending_draught","fen_water_flask"],"relic":"","weapon":"pilgrims_edge"},"migrations":["supplies.finite_stock.v1"],"quests":{"first_footsteps.wayside_bell":0.0},"regions":{"events":{},"pressure":{"briarfen":0.0}},"rewards":{"claims":[]},"stats":{"battles_lost":0.0,"battles_won":0.0},"weapon_mastery":{},"world":{"anchor":"town_bell","area":"gloamstead","cleared":[],"discovered":[],"entry_serial":0.0,"flags":{"return_latch_open":false,"wayside_bell_restored":false},"found":[],"gathered":[],"last_applied_token":"","links":[],"pending_entry":null,"rune_input":{},"solved":[]},"world_choices":{}}>  (test_world_combat_arrangement.gd:88)
+    and nothing was written or announced: expected <[3, 3]> but got <[4, 4]>  (test_world_combat_arrangement.gd:89)
+    expected <{"bestiary":{"points":{},"sources":{}},"campaign":{"difficulty":1.0,"starter":""},"combat":{"actions":["kindle","riposte_stance","lunge","arc_cleave","earthsplitter","sword_strike"]},"companions":{"mara":{"recruited":true,"relationship":0.0}},"crafting":{"fittings":{},"recipes":[]},"familiars":["bell_crow","cinder_pup"],"home_upgrades":{"forge":0.0,"observatory":0.0,"stillroom":0.0},"inventory":{"consumables":{"fen_water_flask":4.0,"mending_draught":4.0},"equipment":["pilgrims_edge","mire_maul","reedbow","pilgrims_coat"],"materials":{},"quest_items":[]},"loadout":{"charm":"","companion":"mara","familiar":"bell_crow","familiar_passive":"","garb":"pilgrims_coat","potions":["mending_draught","fen_water_flask"],"relic":"","weapon":"pilgrims_edge"},"migrations":["supplies.finite_stock.v1"],"quests":{"first_footsteps.wayside_bell":0.0},"regions":{"events":{},"pressure":{"briarfen":0.0}},"rewards":{"claims":[]},"stats":{"battles_lost":0.0,"battles_won":0.0},"weapon_mastery":{},"world":{"anchor":"town_bell","area":"gloamstead","cleared":[],"discovered":[],"entry_serial":0.0,"flags":{"return_latch_open":false,"wayside_bell_restored":false},"found":[],"gathered":[],"last_applied_token":"","links":[],"pending_entry":null,"rune_input":{},"solved":[]},"world_choices":{}}> but got <{"bestiary":{"points":{},"sources":{}},"campaign":{"difficulty":1.0,"starter":""},"combat":{"actions":["earthsplitter","riposte_stance","lunge","arc_cleave","kindle","sword_strike"]},"companions":{"mara":{"recruited":true,"relationship":0.0}},"crafting":{"fittings":{},"recipes":[]},"familiars":["bell_crow","cinder_pup"],"home_upgrades":{"forge":0.0,"observatory":0.0,"stillroom":0.0},"inventory":{"consumables":{"fen_water_flask":4.0,"mending_draught":4.0},"equipment":["pilgrims_edge","mire_maul","reedbow","pilgrims_coat"],"materials":{},"quest_items":[]},"loadout":{"charm":"","companion":"mara","familiar":"bell_crow","familiar_passive":"","garb":"pilgrims_coat","potions":["mending_draught","fen_water_flask"],"relic":"","weapon":"pilgrims_edge"},"migrations":["supplies.finite_stock.v1"],"quests":{"first_footsteps.wayside_bell":0.0},"regions":{"events":{},"pressure":{"briarfen":0.0}},"rewards":{"claims":[]},"stats":{"battles_lost":0.0,"battles_won":0.0},"weapon_mastery":{},"world":{"anchor":"town_bell","area":"gloamstead","cleared":[],"discovered":[],"entry_serial":0.0,"flags":{"return_latch_open":false,"wayside_bell_restored":false},"found":[],"gathered":[],"last_applied_token":"","links":[],"pending_entry":null,"rune_input":{},"solved":[]},"world_choices":{}}>  (test_world_combat_arrangement.gd:94)
+    expected <3> but got <4>  (test_world_combat_arrangement.gd:95)
+    expected <4> but got <5>  (test_world_combat_arrangement.gd:99)
+FAIL test_world_combat_arrangement::test_entries_capture_the_order_and_a_retry_never_changes
+    expected <7> but got <8>  (test_world_combat_arrangement.gd:128)
+FAIL test_world_combat_arrangement::test_gear_changes_reconcile_the_arrangement_in_the_same_write
+    shared actions keep their positions: expected <[&"inspect", &"spark"]> but got <[&"hammer_blow", &"inspect"]>  (test_world_combat_arrangement.gd:144)
+    expected <[&"lunge", &"arc_cleave", &"riposte_stance", &"sword_strike"]> but got <[&"riposte_stance", &"lunge", &"arc_cleave", &"sword_strike"]>  (test_world_combat_arrangement.gd:147)
+    expected <[1, 2, 3, 4]> but got <[0, 1, 2, 4]>  (test_world_combat_arrangement.gd:149)
+    Equipment saved for your next encounter. Hammer Blow takes Riposte Stance's place in combat position 1. Shockwave takes Lunge's place in combat position 2. Anchor Stance takes Arc Cleave's place in combat position 3. Spark takes Strike's place in combat position 5.  (test_world_combat_arrangement.gd:153)
+    kept positions stay; freed ones refill in grid order (no per-weapon memory): expected <[&"inspect", &"sword_strike", &"lunge", &"arc_cleave", &"riposte_stance", &"spark"]> but got <[&"sword_strike", &"lunge", &"arc_cleave", &"earthsplitter", &"spark", &"inspect"]>  (test_world_combat_arrangement.gd:158)
+    expected <[&"sword_strike", &"lunge", &"arc_cleave", &"riposte_stance"]> but got <[&"sword_strike", &"lunge", &"arc_cleave"]>  (test_world_combat_arrangement.gd:160)
+FAIL test_world_combat_arrangement::test_old_saves_migrate_deterministically
+    expected <[&"sword_strike", &"lunge", &"arc_cleave", &"riposte_stance", &"inspect", &"spark"]> but got <[&"sword_strike", &"lunge", &"arc_cleave", &"earthsplitter", &"riposte_stance", &"inspect"]>  (test_world_combat_arrangement.gd:188)
+FAIL test_world_combat_arrangement::test_character_view_arranges_equips_and_shows_typed_reasons
+    engine/script errors: expected 0, got 1
+      error: Invalid access to property or key 'text' on a base object of type 'null instance'. (test_world_combat_arrangement.gd:221 in test_character_view_arranges_equips_and_shows_typed_reasons)
+FAIL test_world_crafting::test_an_over_limit_loadout_rejects_station_commands_whole
+    expected <9> but got <10>  (test_world_crafting.gd:296)
+    a fitting adds a trait, never an action: expected <7> but got <8>  (test_world_crafting.gd:309)
+FAIL test_world_crafting::test_readouts_are_typed_copies_without_creature_facts
+    expected <[false, 25, 7]> but got <[false, 25, 8]>  (test_world_crafting.gd:782)
+FAIL test_world_preparation::test_equipment_is_a_field_command_blocked_only_by_an_encounter
+    expected true  (test_world_preparation.gd:50)
+    expected <0> but got <31>  (test_world_preparation.gd:52)
+    expected <3> but got <2>  (test_world_preparation.gd:55)
+    expected false  (test_world_preparation.gd:59)
+FAIL test_world_preparation::test_failed_equip_write_changes_nothing_and_retry_applies_once
+    expected <13> but got <31>  (test_world_preparation.gd:138)
+    expected <8> but got <7>  (test_world_preparation.gd:139)
+    expected <0> but got <31>  (test_world_preparation.gd:144)
+    expected <storm_salt_charm> but got <>  (test_world_preparation.gd:145)
+    one successful change: expected <1> but got <0>  (test_world_preparation.gd:146)
+FAIL test_world_preparation::test_an_over_limit_loadout_is_rejected_whole
+    the Hollow's shipped gear grants seven actions: expected <7> but got <8>  (test_world_preparation.gd:164)
+    expected <9> but got <10>  (test_world_preparation.gd:167)
+    expected <0> but got <31>  (test_world_preparation.gd:178)
+FAIL test_world_preparation::test_every_owned_shipped_choice_fits_the_eight_slots
+    storm_salt_charm fits (9 actions)  (test_world_preparation.gd:197)
+    expected <= 8.0 but got 9.0  (test_world_preparation.gd:198)
+FAIL test_world_preparation::test_readouts_match_ownership_and_never_share_state
+    expected <0> but got <31>  (test_world_preparation.gd:246)
+    expected <[&"storm_salt_charm", "Storm Salt Charm", true]> but got <[&"", "", false]>  (test_world_preparation.gd:260)
+FAIL test_world_preparation::test_the_charm_reaches_the_next_entry_and_a_real_wet_shock_battle
+    expected <0> but got <31>  (test_world_preparation.gd:304)
+    expected <storm_salt_charm> but got <>  (test_world_preparation.gd:306)
+    expected <storm_salt_charm> but got <>  (test_world_preparation.gd:312)
+    expected <(res://data/armor/storm_salt_charm.tres):<Resource#-9223371936778680458>> but got <<null>>  (test_world_preparation.gd:314)
+    the Hollow carries the authored Grounding trait  (test_world_preparation.gd:317)
+    Spark is affordable on the Hollow's next turn: expected <0> but got <33>  (test_world_preparation.gd:377)
+    Spark is affordable on the Hollow's next turn: expected <0> but got <33>  (test_world_preparation.gd:377)
+    Shock on the Wet target triggers Grounding once: expected <1> but got <0>  (test_world_preparation.gd:328)
+    its authored Stagger (Shock may raise it): expected >= 12.0 but got 0.0  (test_world_preparation.gd:332)
+    expected <(res://data/armor/storm_salt_charm.tres):<Resource#-9223371936778680458>> but got <<null>>  (test_world_preparation.gd:340)
+FAIL test_world_revision_host::test_entering_reach_counts_down_and_walking_away_cancels_for_free
+    expected false  (test_world_revision_host.gd:146)
+FAIL test_world_revision_host::test_tapping_into_a_wall_never_reads_as_walking
+    engine/script errors: expected 0, got 1
+      error: Parameter "body->get_space()" is null. (godot_physics_server_2d.cpp:996 in body_test_motion)
+FAIL test_world_revision_session::test_every_successful_write_publishes_its_origin_once
+    write 2: expected <0> but got <31>  (test_world_revision_session.gd:500)
+    write 2: one fact, one legacy event: expected <[3, 3]> but got <[2, 2]>  (test_world_revision_session.gd:501)
+    engine/script errors: expected 0, got 1
+      error: Out of bounds get index '2' (on base: 'Array[SaveFact]') (test_world_revision_session.gd:502 in test_every_successful_write_publishes_its_origin_once)
+FAIL test_world_revision_session::test_equipment_publishes_one_structured_fact_per_changed_command
+    expected <0> but got <31>  (test_world_revision_session.gd:533)
+    engine/script errors: expected 0, got 1
+      error: Out of bounds get index '0' (on base: 'Array[PreparationResult]') (test_world_revision_session.gd:534 in test_equipment_publishes_one_structured_fact_per_changed_command)
+FAIL test_world_salvage_host::test_the_anvil_interaction_owns_the_station_context_and_equipment_needs_none
+    equipment is a field command: expected <0> but got <31>  (test_world_salvage_host.gd:110)
+    the same production command: expected <0> but got <31>  (test_world_salvage_host.gd:119)
+    expected <storm_salt_charm> but got <>  (test_world_salvage_host.gd:137)
+FAIL test_world_salvage_host::test_charm_ui_equips_retries_and_removes_without_leaving_the_station
+    owned charm is reachable without a mouse: expected <Item_storm_salt_charm:<Button#15345364503127>> but got <Action_inventory:<Button#15344223655589>>  (test_world_salvage_host.gd:188)
+    expected <save_failed> but got <bench>  (test_world_salvage_host.gd:192)
+    engine/script errors: expected 0, got 1
+      error: Invalid access to property or key 'kind' on a base object of type 'Nil'. (test_world_salvage_host.gd:199 in test_charm_ui_equips_retries_and_removes_without_leaving_the_station)
+FAIL test_world_salvage_host::test_inventory_round_trip_is_read_only_and_retains_the_selected_slot
+    expected <×4> but got <>  (test_world_salvage_host.gd:222)
+    expected <×1> but got <>  (test_world_salvage_host.gd:223)
+FAIL test_world_salvage_host::test_failed_bell_write_shows_no_receipt_and_retry_shows_one
+    expected <1> but got <2>  (test_world_salvage_host.gd:279)
+FAIL test_world_save_events::test_every_world_write_publishes_one_save_event_after_adoption
+    write 8 succeeds: expected <0> but got <31>  (test_world_save_events.gd:83)
+    write 8: one event per successful commit: expected <9> but got <8>  (test_world_save_events.gd:84)
+FAIL test_world_save_events::test_host_adds_no_notice_of_its_own_and_hides_cards_in_battle
+    no duplicate host push: expected <1> but got <0>  (test_world_save_events.gd:126)
+    engine/script errors: expected 0, got 1
+      error: Cannot call method 'show' on a previously freed instance. (journey_notices.gd:36 in JourneyNotices._save_completed)
+FAIL test_world_session::test_world_section_round_trips_through_a_real_save_file
+    expected <{ "area": "briarfen_reedway", "anchor": "reedway_patrol", "discovered": ["return_latch", "reedway_patrol"], "links": ["short_return"], "cleared": [], "flags": { "wayside_bell_restored": false, "return_latch_open": true }, "pending_entry": { "token": "reedway_patrol#1", "site": "reedway_patrol", "encounter": "fen_patrol", "area": "briarfen_reedway", "approach_anchor": "reedway_patrol", "seed": 584527, "loadout": { "weapon": "pilgrims_edge", "garb": "pilgrims_coat", "charm": "", "relic": "", "companion": "mara", "familiar": "bell_crow", "familiar_passive": "bell_crow", "potions": ["mending_draught", "fen_water_flask"], "modifications": [], "actions": ["sword_strike", "lunge", "arc_cleave", "earthsplitter", "riposte_stance", "inspect"], "potion_charges": [2, 2] }, "research": {  }, "difficulty": 1, "assist": 1, "auto_brace": 0, "reaction_pause": 0 }, "last_applied_token": "", "entry_serial": 1, "gathered": [], "found": [], "solved": [], "rune_input": {  } }> but got <{ "area": "briarfen_reedway", "anchor": "reedway_patrol", "discovered": ["return_latch", "reedway_patrol"], "links": ["short_return"], "cleared": [], "flags": { "wayside_bell_restored": false, "return_latch_open": true }, "pending_entry": { "approach_anchor": "reedway_patrol", "area": "briarfen_reedway", "assist": 1, "auto_brace": 0, "difficulty": 1, "encounter": "fen_patrol", "loadout": { "actions": ["sword_strike", "lunge", "arc_cleave", "earthsplitter", "riposte_stance", "inspect"], "charm": "", "companion": "mara", "familiar": "bell_crow", "familiar_passive": "bell_crow", "garb": "pilgrims_coat", "modifications": [], "potion_charges": [2.0, 2.0], "potions": ["mending_draught", "fen_water_flask"], "relic": "", "weapon": "pilgrims_edge" }, "reaction_pause": 0, "research": {  }, "seed": 584527, "site": "reedway_patrol", "token": "reedway_patrol#1" }, "last_applied_token": "", "entry_serial": 1, "gathered": [], "found": [], "solved": [], "rune_input": {  } }>  (test_world_session.gd:282)
+    expected <{ "token": "reedway_patrol#1", "site": "reedway_patrol", "encounter": "fen_patrol", "area": "briarfen_reedway", "approach_anchor": "reedway_patrol", "seed": 584527, "loadout": { "weapon": "pilgrims_edge", "garb": "pilgrims_coat", "charm": "", "relic": "", "companion": "mara", "familiar": "bell_crow", "familiar_passive": "bell_crow", "potions": ["mending_draught", "fen_water_flask"], "modifications": [], "actions": ["sword_strike", "lunge", "arc_cleave", "earthsplitter", "riposte_stance", "inspect"], "potion_charges": [2, 2] }, "research": {  }, "difficulty": 1, "assist": 1, "auto_brace": 0, "reaction_pause": 0 }> but got <{ "approach_anchor": "reedway_patrol", "area": "briarfen_reedway", "assist": 1, "auto_brace": 0, "difficulty": 1, "encounter": "fen_patrol", "loadout": { "actions": ["sword_strike", "lunge", "arc_cleave", "earthsplitter", "riposte_stance", "inspect"], "charm": "", "companion": "mara", "familiar": "bell_crow", "familiar_passive": "bell_crow", "garb": "pilgrims_coat", "modifications": [], "potion_charges": [2.0, 2.0], "potions": ["mending_draught", "fen_water_flask"], "relic": "", "weapon": "pilgrims_edge" }, "reaction_pause": 0, "research": {  }, "seed": 584527, "site": "reedway_patrol", "token": "reedway_patrol#1" }>  (test_world_session.gd:284)
+
+Tests: 497 passed, 26 failed, 10143 assertions (141.52s)

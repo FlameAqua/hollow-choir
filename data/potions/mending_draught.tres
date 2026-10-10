@@ -26,3 +26,4 @@ display_name = "Mending Draught"
 description = "Restores 45 HP to one ally."
 action = SubResource("Resource_17xd6")
 charges = 2
+starter_stock = 4

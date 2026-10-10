@@ -1,0 +1,311 @@
+QA user data home: C:\Users\Adrian\Code\Games\hollow-choir\.godot\qa-playtest-revision\director-full-headless-01
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+User data: C:/Users/Adrian/Code/Games/hollow-choir/.godot/qa-playtest-revision/director-full-headless-01/Godot/app_userdata/Hollow Choir (isolated QA home)
+WARNING: BattleEngine: rejected action (Needs 5 Focus)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] submit_action (res://src/battle/battle_engine.gd:142)
+       [1] act (res://tests/fixtures/battle_driver.gd:46)
+       [2] test_focus_cost_and_illegal_option_reason (res://tests/unit/test_engine_flow.gd:97)
+       [3] _run (res://tests/run_tests.gd:64)
+User data: C:/Users/Adrian/Code/Games/hollow-choir/.godot/qa-playtest-revision/director-full-headless-01/Godot/app_userdata/Hollow Choir (isolated QA home)
+User data: C:/Users/Adrian/Code/Games/hollow-choir/.godot/qa-playtest-revision/director-full-headless-01/Godot/app_userdata/Hollow Choir (isolated QA home)
+QA isolation failed: cache is C:/Users/Adrian/Code/Games/hollow-choir/.godot/qa-playtest-revision/director-full-headless-01/cache, not inside C:/Users/Adrian/Code/Games/hollow-choir/.godot/qa-playtest-revision/director-full-headless-01/Godot/app_userdata (outdated launcher?). Nothing was run.
+ERROR: SaveMigrator: missing save_version
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] migrate (res://src/save/save_migrator.gd:15)
+       [1] test_migrator_rejects_missing_and_future_versions (res://tests/unit/test_save_and_settings.gd:46)
+       [2] _run (res://tests/run_tests.gd:64)
+ERROR: SaveMigrator: save version 2 is newer than this build (1)
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] migrate (res://src/save/save_migrator.gd:18)
+       [1] test_migrator_rejects_missing_and_future_versions (res://tests/unit/test_save_and_settings.gd:47)
+       [2] _run (res://tests/run_tests.gd:64)
+ERROR: Parse JSON failed. Error at line 0: Expected key
+   at: parse_string (core/io/json.cpp:629)
+   GDScript backtrace (most recent call first):
+       [0] read_json (res://src/autoload/save_manager.gd:146)
+       [1] test_corrupt_file_is_rejected_not_crashing (res://tests/unit/test_save_and_settings.gd:57)
+       [2] _run (res://tests/run_tests.gd:64)
+ERROR: SaveManager: user://test_saves/slot_test.json is not a valid save
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] read_json (res://src/autoload/save_manager.gd:148)
+       [1] test_corrupt_file_is_rejected_not_crashing (res://tests/unit/test_save_and_settings.gd:57)
+       [2] _run (res://tests/run_tests.gd:64)
+ERROR: SaveMigrator: the save has no data section
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] migrate (res://src/save/save_migrator.gd:21)
+       [1] test_migrator_rejects_a_save_without_a_data_section (res://tests/unit/test_save_and_settings.gd:250)
+       [2] _run (res://tests/run_tests.gd:64)
+ERROR: SaveMigrator: the save has no data section
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] migrate (res://src/save/save_migrator.gd:21)
+       [1] test_migrator_rejects_a_save_without_a_data_section (res://tests/unit/test_save_and_settings.gd:251)
+       [2] _run (res://tests/run_tests.gd:64)
+SCRIPT ERROR: Invalid access to property or key 'text' on a base object of type 'null instance'.
+   at: test_character_view_arranges_equips_and_shows_typed_reasons (res://tests/world/test_world_combat_arrangement.gd:215)
+   GDScript backtrace (most recent call first):
+       [0] test_character_view_arranges_equips_and_shows_typed_reasons (res://tests/world/test_world_combat_arrangement.gd:215)
+ERROR: Can't take value from empty array.
+   at: back (core/variant/array.cpp:360)
+   GDScript backtrace (most recent call first):
+       [0] test_failed_writes_change_nothing_and_a_retry_publishes_once (res://tests/world/test_world_crafting.gd:332)
+       [1] _run (res://tests/run_tests.gd:64)
+ERROR: Can't take value from empty array.
+   at: back (core/variant/array.cpp:360)
+   GDScript backtrace (most recent call first):
+       [0] test_failed_writes_change_nothing_and_a_retry_publishes_once (res://tests/world/test_world_crafting.gd:332)
+       [1] _run (res://tests/run_tests.gd:64)
+SCRIPT ERROR: Invalid access to property or key 'kind' on a base object of type 'Nil'.
+   at: test_encounter_card_cancel_costs_nothing_and_engage_launches_once (res://tests/world/test_world_host.gd:194)
+   GDScript backtrace (most recent call first):
+       [0] test_encounter_card_cancel_costs_nothing_and_engage_launches_once (res://tests/world/test_world_host.gd:194)
+       [1] _walk_until (res://tests/world/test_world_host.gd:64)
+SCRIPT ERROR: Invalid access to property or key '_armed_sites' on a base object of type 'Node (WorldHost)'.
+   at: test_victory_return_rearms_triggers_from_the_engagement_spot (res://tests/world/test_world_host.gd:491)
+   GDScript backtrace (most recent call first):
+       [0] test_victory_return_rearms_triggers_from_the_engagement_spot (res://tests/world/test_world_host.gd:491)
+       [1] _start (res://tests/world/test_world_host.gd:40)
+SCRIPT ERROR: Invalid access to property or key 'chosen' on a base object of type 'Nil'.
+   at: test_complete_journey_walks_every_authored_link (res://tests/world/test_world_journey.gd:107)
+   GDScript backtrace (most recent call first):
+       [0] test_complete_journey_walks_every_authored_link (res://tests/world/test_world_journey.gd:107)
+       [1] _route (res://tests/world/test_world_journey.gd:59)
+ERROR: Parse JSON failed. Error at line 0: Expected key
+   at: parse_string (core/io/json.cpp:629)
+   GDScript backtrace (most recent call first):
+       [0] read_json (res://src/autoload/save_manager.gd:146)
+       [1] load_slot (res://src/autoload/save_manager.gd:37)
+       [2] test_summaries_survive_empty_damaged_and_newer_saves_without_errors (res://tests/world/test_world_journey_setup.gd:177)
+       [3] _run (res://tests/run_tests.gd:64)
+ERROR: SaveManager: user://saves/slot_0.json is not a valid save
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] read_json (res://src/autoload/save_manager.gd:148)
+       [1] load_slot (res://src/autoload/save_manager.gd:37)
+       [2] test_summaries_survive_empty_damaged_and_newer_saves_without_errors (res://tests/world/test_world_journey_setup.gd:177)
+       [3] _run (res://tests/run_tests.gd:64)
+ERROR: SaveMigrator: save version 2 is newer than this build (1)
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] migrate (res://src/save/save_migrator.gd:18)
+       [1] load_slot (res://src/autoload/save_manager.gd:40)
+       [2] test_summaries_survive_empty_damaged_and_newer_saves_without_errors (res://tests/world/test_world_journey_setup.gd:178)
+       [3] _run (res://tests/run_tests.gd:64)
+SCRIPT ERROR: Cannot call method 'show' on a previously freed instance.
+   at: JourneyNotices._save_completed (res://src/ui/world/journey_notices.gd:36)
+   GDScript backtrace (most recent call first):
+       [0] _save_completed (res://src/ui/world/journey_notices.gd:36)
+       [1] commit (res://src/world/world_session.gd:122)
+       [2] commit_victory (res://src/world/world_session.gd:867)
+       [3] _commit_victory (res://src/world/world_host.gd:967)
+       [4] _on_battle_finished (res://src/world/world_host.gd:945)
+       [5] test_host_adds_no_notice_of_its_own_and_hides_cards_in_battle (res://tests/world/test_world_save_events.gd:147)
+       [6] _start_battle_at_guard (res://tests/world/test_world_save_events.gd:159)
+WARNING: WorldSession: unknown anchor briarfen_reedway/behind_the_waterfall; resuming at the square
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] open (res://src/world/world_session.gd:102)
+       [1] test_invalid_anchor_recovers_to_square_and_keeps_valid_progress (res://tests/world/test_world_session.gd:60)
+       [2] _run (res://tests/run_tests.gd:64)
+WARNING: WorldSession: unknown landmark secret_grotto dropped
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] open (res://src/world/world_session.gd:102)
+       [1] test_invalid_anchor_recovers_to_square_and_keeps_valid_progress (res://tests/world/test_world_session.gd:60)
+       [2] _run (res://tests/run_tests.gd:64)
+WARNING: WorldSession: unknown link sky_bridge dropped
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] open (res://src/world/world_session.gd:102)
+       [1] test_invalid_anchor_recovers_to_square_and_keeps_valid_progress (res://tests/world/test_world_session.gd:60)
+       [2] _run (res://tests/run_tests.gd:64)
+WARNING: WorldSession: unknown encounter site reed_gate dropped
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] open (res://src/world/world_session.gd:102)
+       [1] test_invalid_anchor_recovers_to_square_and_keeps_valid_progress (res://tests/world/test_world_session.gd:60)
+       [2] _run (res://tests/run_tests.gd:64)
+WARNING: WorldSession: unknown encounter site mirebell_cantor dropped
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] open (res://src/world/world_session.gd:102)
+       [1] test_invalid_anchor_recovers_to_square_and_keeps_valid_progress (res://tests/world/test_world_session.gd:60)
+       [2] _run (res://tests/run_tests.gd:64)
+FAIL test_stage_art::test_title_menu_has_focus_and_a_bounded_fixed_layout
+    title options never need a scrollbar: expected <0> but got <1>  (test_stage_art.gd:91)
+FAIL test_world_combat_arrangement::test_old_saves_migrate_deterministically
+    a valid older save needs no write: expected <0> but got <1>  (test_world_combat_arrangement.gd:181)
+FAIL test_world_combat_arrangement::test_character_view_arranges_equips_and_shows_typed_reasons
+    engine/script errors: expected 0, got 1
+      error: Invalid access to property or key 'text' on a base object of type 'null instance'. (test_world_combat_arrangement.gd:215 in test_character_view_arranges_equips_and_shows_typed_reasons)
+FAIL test_world_crafting::test_station_services_gate_station_work_and_supplies_are_field_choices
+    expected <0> but got <24>  (test_world_crafting.gd:129)
+FAIL test_world_crafting::test_rejections_are_typed_change_nothing_and_publish_nothing
+    expected <7> but got <24>  (test_world_crafting.gd:198)
+    expected <13> but got <25>  (test_world_crafting.gd:198)
+    expected <17> but got <23>  (test_world_crafting.gd:198)
+    expected <17> but got <23>  (test_world_crafting.gd:198)
+    the exact reason a zero-weapon-use win leaves the kit locked: expected <Needs 1 weapon mastery point with Pilgrim's Edge, Mire Maul or Reedbow. Use one of them in a battle that records progress.> but got <Choose an individual fitting to craft.>  (test_world_crafting.gd:204)
+    expected <32> but got <0>  (test_world_crafting.gd:217)
+    expected <4> but got <0>  (test_world_crafting.gd:218)
+    expected <{"bestiary":{"points":{},"sources":{}},"campaign":{"difficulty":1.0,"starter":""},"combat":{"actions":[]},"companions":{"mara":{"recruited":true,"relationship":0.0}},"crafting":{"fittings":{},"recipes":[]},"familiars":["bell_crow","cinder_pup"],"home_upgrades":{"forge":0.0,"observatory":0.0,"stillroom":0.0},"inventory":{"consumables":{"clotting_salve":2.0,"fen_water_flask":4.0,"mending_draught":4.0},"equipment":["pilgrims_edge","mire_maul","reedbow","pilgrims_coat"],"materials":{"bog_iron":3.0},"quest_items":[]},"loadout":{"charm":"","companion":"mara","familiar":"bell_crow","familiar_passive":"","garb":"pilgrims_coat","potions":["mending_draught","fen_water_flask"],"relic":"","weapon":"pilgrims_edge"},"migrations":["supplies.finite_stock.v1"],"quests":{"first_footsteps.wayside_bell":0.0},"regions":{"events":{},"pressure":{"briarfen":0.0}},"rewards":{"claims":[]},"stats":{"battles_lost":0.0,"battles_won":0.0},"weapon_mastery":{},"world":{"anchor":"town_bell","area":"gloamstead","cleared":[],"discovered":["stillroom_table"],"entry_serial":0.0,"flags":{"return_latch_open":false,"wayside_bell_restored":false},"found":[],"gathered":[],"last_applied_token":"","links":[],"pending_entry":null,"rune_input":{},"solved":[]},"world_choices":{}}> but got <{"bestiary":{"points":{},"sources":{}},"campaign":{"difficulty":1.0,"starter":""},"combat":{"actions":[]},"companions":{"mara":{"recruited":true,"relationship":0.0}},"crafting":{"fittings":{},"recipes":[]},"familiars":["bell_crow","cinder_pup"],"home_upgrades":{"forge":0.0,"observatory":0.0,"stillroom":0.0},"inventory":{"consumables":{"clotting_salve":4.0,"fen_water_flask":4.0,"mending_draught":4.0},"equipment":["pilgrims_edge","mire_maul","reedbow","pilgrims_coat"],"materials":{"bog_iron":2.0},"quest_items":[]},"loadout":{"charm":"","companion":"mara","familiar":"bell_crow","familiar_passive":"","garb":"pilgrims_coat","potions":["mending_draught","fen_water_flask"],"relic":"","weapon":"pilgrims_edge"},"migrations":["supplies.finite_stock.v1"],"quests":{"first_footsteps.wayside_bell":0.0},"regions":{"events":{},"pressure":{"briarfen":0.0}},"rewards":{"claims":[]},"stats":{"battles_lost":0.0,"battles_won":0.0},"weapon_mastery":{},"world":{"anchor":"town_bell","area":"gloamstead","cleared":[],"discovered":["stillroom_table"],"entry_serial":0.0,"flags":{"return_latch_open":false,"wayside_bell_restored":false},"found":[],"gathered":[],"last_applied_token":"","links":[],"pending_entry":null,"rune_input":{},"solved":[]},"world_choices":{}}>  (test_world_crafting.gd:219)
+    expected <1> but got <2>  (test_world_crafting.gd:220)
+    expected <1> but got <2>  (test_world_crafting.gd:221)
+    expected <0> but got <31>  (test_world_crafting.gd:225)
+FAIL test_world_crafting::test_duplicate_traits_are_rejected_without_removing_anything
+    expected <0> but got <31>  (test_world_crafting.gd:235)
+    expected <14> but got <25>  (test_world_crafting.gd:239)
+    expected <Your equipment already supplies this trait. Remove one source first.> but got <Craft this fitting first.>  (test_world_crafting.gd:240)
+    expected <[false, 14]> but got <[false, 25]>  (test_world_crafting.gd:243)
+    the other choice is fine: expected <0> but got <31>  (test_world_crafting.gd:244)
+    expected <0> but got <31>  (test_world_crafting.gd:247)
+    a free swap: expected <fitting.merciful_grip> but got <>  (test_world_crafting.gd:248)
+    expected <31> but got <0>  (test_world_crafting.gd:250)
+    expected <9> but got <0>  (test_world_crafting.gd:251)
+    expected <A fitting already supplies this item's trait. Remove one source first. Your equipment has not changed.> but got <>  (test_world_crafting.gd:252)
+    expected <9> but got <0>  (test_world_crafting.gd:253)
+    expected <{"bestiary":{"points":{},"sources":{}},"campaign":{"difficulty":1.0,"starter":""},"combat":{"actions":["sword_strike","lunge","arc_cleave","riposte_stance","inspect","spark"]},"companions":{"mara":{"recruited":true,"relationship":0.0}},"crafting":{"fittings":{},"recipes":[]},"familiars":["bell_crow","cinder_pup"],"home_upgrades":{"forge":0.0,"observatory":0.0,"stillroom":0.0},"inventory":{"consumables":{"fen_water_flask":4.0,"mending_draught":4.0},"equipment":["pilgrims_edge","mire_maul","reedbow","pilgrims_coat","hollow_reliquary"],"materials":{"bog_iron":2.0},"quest_items":[]},"loadout":{"charm":"","companion":"mara","familiar":"bell_crow","familiar_passive":"","garb":"pilgrims_coat","potions":["mending_draught","fen_water_flask"],"relic":"","weapon":"pilgrims_edge"},"migrations":["supplies.finite_stock.v1"],"quests":{"first_footsteps.wayside_bell":0.0},"regions":{"events":{},"pressure":{"briarfen":0.0}},"rewards":{"claims":[]},"stats":{"battles_lost":0.0,"battles_won":0.0},"weapon_mastery":{"pilgrims_edge":1.0},"world":{"anchor":"town_bell","area":"gloamstead","cleared":[],"discovered":[],"entry_serial":0.0,"flags":{"return_latch_open":false,"wayside_bell_restored":false},"found":[],"gathered":[],"last_applied_token":"","links":[],"pending_entry":null,"rune_input":{},"solved":[]},"world_choices":{}}> but got <{"bestiary":{"points":{},"sources":{}},"campaign":{"difficulty":1.0,"starter":""},"combat":{"actions":["sword_strike","lunge","arc_cleave","riposte_stance","inspect","spark"]},"companions":{"mara":{"recruited":true,"relationship":0.0}},"crafting":{"fittings":{},"recipes":[]},"familiars":["bell_crow","cinder_pup"],"home_upgrades":{"forge":0.0,"observatory":0.0,"stillroom":0.0},"inventory":{"consumables":{"fen_water_flask":4.0,"mending_draught":4.0},"equipment":["pilgrims_edge","mire_maul","reedbow","pilgrims_coat","hollow_reliquary"],"materials":{"bog_iron":2.0},"quest_items":[]},"loadout":{"charm":"","companion":"mara","familiar":"bell_crow","familiar_passive":"","garb":"pilgrims_coat","potions":["mending_draught","fen_water_flask"],"relic":"hollow_reliquary","weapon":"pilgrims_edge"},"migrations":["supplies.finite_stock.v1"],"quests":{"first_footsteps.wayside_bell":0.0},"regions":{"events":{},"pressure":{"briarfen":0.0}},"rewards":{"claims":[]},"stats":{"battles_lost":0.0,"battles_won":0.0},"weapon_mastery":{"pilgrims_edge":1.0},"world":{"anchor":"town_bell","area":"gloamstead","cleared":[],"discovered":[],"entry_serial":0.0,"flags":{"return_latch_open":false,"wayside_bell_restored":false},"found":[],"gathered":[],"last_applied_token":"","links":[],"pending_entry":null,"rune_input":{},"solved":[]},"world_choices":{}}>  (test_world_crafting.gd:255)
+    expected <31> but got <0>  (test_world_crafting.gd:261)
+    expected <9> but got <0>  (test_world_crafting.gd:262)
+    expected <{"bestiary":{"points":{},"sources":{}},"campaign":{"difficulty":1.0,"starter":""},"combat":{"actions":["hammer_blow","earthsplitter","shockwave","anchor_stance","inspect","spark"]},"companions":{"mara":{"recruited":true,"relationship":0.0}},"crafting":{"fittings":{},"recipes":[]},"familiars":["bell_crow","cinder_pup"],"home_upgrades":{"forge":0.0,"observatory":0.0,"stillroom":0.0},"inventory":{"consumables":{"fen_water_flask":4.0,"mending_draught":4.0},"equipment":["pilgrims_edge","mire_maul","reedbow","pilgrims_coat","hollow_reliquary"],"materials":{"bog_iron":2.0},"quest_items":[]},"loadout":{"charm":"","companion":"mara","familiar":"bell_crow","familiar_passive":"","garb":"pilgrims_coat","potions":["mending_draught","fen_water_flask"],"relic":"hollow_reliquary","weapon":"mire_maul"},"migrations":["supplies.finite_stock.v1"],"quests":{"first_footsteps.wayside_bell":0.0},"regions":{"events":{},"pressure":{"briarfen":0.0}},"rewards":{"claims":[]},"stats":{"battles_lost":0.0,"battles_won":0.0},"weapon_mastery":{"pilgrims_edge":1.0},"world":{"anchor":"town_bell","area":"gloamstead","cleared":[],"discovered":[],"entry_serial":0.0,"flags":{"return_latch_open":false,"wayside_bell_restored":false},"found":[],"gathered":[],"last_applied_token":"","links":[],"pending_entry":null,"rune_input":{},"solved":[]},"world_choices":{}}> but got <{"bestiary":{"points":{},"sources":{}},"campaign":{"difficulty":1.0,"starter":""},"combat":{"actions":["sword_strike","lunge","arc_cleave","riposte_stance","inspect","spark"]},"companions":{"mara":{"recruited":true,"relationship":0.0}},"crafting":{"fittings":{},"recipes":[]},"familiars":["bell_crow","cinder_pup"],"home_upgrades":{"forge":0.0,"observatory":0.0,"stillroom":0.0},"inventory":{"consumables":{"fen_water_flask":4.0,"mending_draught":4.0},"equipment":["pilgrims_edge","mire_maul","reedbow","pilgrims_coat","hollow_reliquary"],"materials":{"bog_iron":2.0},"quest_items":[]},"loadout":{"charm":"","companion":"mara","familiar":"bell_crow","familiar_passive":"","garb":"pilgrims_coat","potions":["mending_draught","fen_water_flask"],"relic":"hollow_reliquary","weapon":"pilgrims_edge"},"migrations":["supplies.finite_stock.v1"],"quests":{"first_footsteps.wayside_bell":0.0},"regions":{"events":{},"pressure":{"briarfen":0.0}},"rewards":{"claims":[]},"stats":{"battles_lost":0.0,"battles_won":0.0},"weapon_mastery":{"pilgrims_edge":1.0},"world":{"anchor":"town_bell","area":"gloamstead","cleared":[],"discovered":[],"entry_serial":0.0,"flags":{"return_latch_open":false,"wayside_bell_restored":false},"found":[],"gathered":[],"last_applied_token":"","links":[],"pending_entry":null,"rune_input":{},"solved":[]},"world_choices":{}}>  (test_world_crafting.gd:263)
+FAIL test_world_crafting::test_an_over_limit_loadout_rejects_station_commands_whole
+    expected <0> but got <31>  (test_world_crafting.gd:279)
+    expected <15> but got <25>  (test_world_crafting.gd:291)
+    expected true  (test_world_crafting.gd:292)
+    expected <0> but got <31>  (test_world_crafting.gd:299)
+FAIL test_world_crafting::test_failed_writes_change_nothing_and_a_retry_publishes_once
+    expected <13> but got <31>  (test_world_crafting.gd:320)
+    expected <20> but got <24>  (test_world_crafting.gd:322)
+    Retry repeats the exact command: expected <0> but got <31>  (test_world_crafting.gd:330)
+    and publishes once: expected <1> but got <0>  (test_world_crafting.gd:331)
+    expected true  (test_world_crafting.gd:332)
+    expected <13> but got <31>  (test_world_crafting.gd:320)
+    expected <20> but got <25>  (test_world_crafting.gd:322)
+    Retry repeats the exact command: expected <0> but got <31>  (test_world_crafting.gd:330)
+    and publishes once: expected <1> but got <0>  (test_world_crafting.gd:331)
+    expected true  (test_world_crafting.gd:332)
+    expected <13> but got <31>  (test_world_crafting.gd:320)
+    expected <20> but got <5>  (test_world_crafting.gd:322)
+    Retry repeats the exact command: expected <0> but got <31>  (test_world_crafting.gd:330)
+    and publishes once: expected <3> but got <2>  (test_world_crafting.gd:331)
+    expected true  (test_world_crafting.gd:332)
+    one successful write per command: expected <5> but got <2>  (test_world_crafting.gd:333)
+    expected <[[&"bog_iron", 2, 2]]> but got <[]>  (test_world_crafting.gd:335)
+    expected <fitting.merciful_grip> but got <>  (test_world_crafting.gd:337)
+    engine/script errors: expected 0, got 2
+      error: Can't take value from empty array. (array.cpp:360 in back)
+      error: Can't take value from empty array. (array.cpp:360 in back)
+FAIL test_world_crafting::test_refunds_conserve_materials_and_clear_the_fitting_together
+    expected <0> but got <31>  (test_world_crafting.gd:345)
+    expected <[[&"bog_iron", 2, 0]]> but got <[]>  (test_world_crafting.gd:346)
+    expected <0> but got <2>  (test_world_crafting.gd:348)
+    expected <0> but got <31>  (test_world_crafting.gd:351)
+    expected <0> but got <2>  (test_world_crafting.gd:352)
+    expected <0> but got <31>  (test_world_crafting.gd:351)
+    expected <0> but got <2>  (test_world_crafting.gd:352)
+    expected <0> but got <2>  (test_world_crafting.gd:352)
+    expected <0> but got <31>  (test_world_crafting.gd:351)
+    expected <0> but got <2>  (test_world_crafting.gd:352)
+    expected <0> but got <31>  (test_world_crafting.gd:355)
+    expected <0> but got <31>  (test_world_crafting.gd:360)
+    in one write: expected <1> but got <0>  (test_world_crafting.gd:365)
+    expected <0> but got <31>  (test_world_crafting.gd:373)
+    expected <0> but got <31>  (test_world_crafting.gd:375)
+    expected <0> but got <31>  (test_world_crafting.gd:376)
+    expected <0> but got <31>  (test_world_crafting.gd:373)
+    expected <0> but got <31>  (test_world_crafting.gd:375)
+    expected <0> but got <31>  (test_world_crafting.gd:376)
+    expected <0> but got <31>  (test_world_crafting.gd:373)
+    expected <0> but got <31>  (test_world_crafting.gd:375)
+    expected <0> but got <31>  (test_world_crafting.gd:376)
+    expected <0> but got <31>  (test_world_crafting.gd:379)
+    expected <0> but got <31>  (test_world_crafting.gd:380)
+    expected <9> but got <5>  (test_world_crafting.gd:385)
+    expected true  (test_world_crafting.gd:386)
+    expected <0> but got <31>  (test_world_crafting.gd:389)
+    expected <999> but got <997>  (test_world_crafting.gd:390)
+FAIL test_world_crafting::test_the_real_route_funds_everything_and_unlocks_survive_reset_and_reload
+    expected <0> but got <31>  (test_world_crafting.gd:402)
+    expected <31> but got <0>  (test_world_crafting.gd:405)
+    expected <6> but got <0>  (test_world_crafting.gd:406)
+    expected <0> but got <31>  (test_world_crafting.gd:412)
+    expected <[&"forge.first_fitting", &"stillroom.clotting_salve", &"stillroom.focus_tincture"]> but got <[]>  (test_world_crafting.gd:416)
+    expected <[1, 0]> but got <[2, 0]>  (test_world_crafting.gd:417)
+    unlocks persist: expected <[&"forge.first_fitting", &"stillroom.clotting_salve", &"stillroom.focus_tincture"]> but got <[]>  (test_world_crafting.gd:423)
+    and the installed fitting: expected <fitting.hollow_echo> but got <<null>>  (test_world_crafting.gd:424)
+    expected <1> but got <2>  (test_world_crafting.gd:427)
+    unlocks persist: expected <[&"forge.first_fitting", &"stillroom.clotting_salve", &"stillroom.focus_tincture"]> but got <[]>  (test_world_crafting.gd:423)
+    and the installed fitting: expected <fitting.hollow_echo> but got <<null>>  (test_world_crafting.gd:424)
+    expected <1> but got <2>  (test_world_crafting.gd:427)
+    expected <["fitting.hollow_echo"]> but got <[]>  (test_world_crafting.gd:434)
+FAIL test_world_crafting::test_older_saves_reconcile_potions_and_keep_unknown_ids_inert
+    its recipe is grandfathered as unlocked  (test_world_crafting.gd:453)
+    expected <1> but got <0>  (test_world_crafting.gd:455)
+FAIL test_world_crafting::test_the_fitting_reaches_the_next_entry_and_a_retry_never_changes
+    expected <0> but got <31>  (test_world_crafting.gd:510)
+    expected <0> but got <31>  (test_world_crafting.gd:511)
+    expected <["fitting.merciful_grip"]> but got <[]>  (test_world_crafting.gd:520)
+    expected <[(res://data/modifications/merciful_grip_fitting.tres):<Resource#-9223371919934355476>]> but got <[]>  (test_world_crafting.gd:522)
+    expected <Pilgrim's Edge fitting> but got <<null>>  (test_world_crafting.gd:527)
+    expected <[(res://data/modifications/merciful_grip_fitting.tres):<Resource#-9223371919934355476>]> but got <[]>  (test_world_crafting.gd:536)
+FAIL test_world_crafting::test_potion_preparation_reaches_battle_with_unchanged_capacities
+    expected <[&"fen_water_flask", false, 17]> but got <[&"fen_water_flask", false, 23]>  (test_world_crafting.gd:664)
+FAIL test_world_crafting::test_readouts_are_typed_copies_without_creature_facts
+    Forge first, then Stillroom: expected <[&"forge.first_fitting", &"stillroom.clotting_salve", &"stillroom.focus_tincture"]> but got <[&"forge.first_fitting", &"forge.hollow_echo", &"forge.merciful_grip", &"stillroom.clotting_salve", &"stillroom.fen_water_flask", &"stillroom.focus_tincture", &"stillroom.mending_draught"]>  (test_world_crafting.gd:725)
+    expected <["Forge", "Fitting kit", true, false, true]> but got <["Forge", "Fitting kit", true, false, false]>  (test_world_crafting.gd:729)
+    expected <[true, false, false, 13]> but got <[true, false, true, 0]>  (test_world_crafting.gd:746)
+    expected <[false, 13, 7]> but got <[false, 25, 7]>  (test_world_crafting.gd:753)
+    expected <0> but got <31>  (test_world_crafting.gd:759)
+    expected <0> but got <31>  (test_world_crafting.gd:760)
+    expected <[true, &"fitting.hollow_echo", "Hollow Echo", true, true]> but got <[true, &"", "", false, false]>  (test_world_crafting.gd:762)
+    expected <true> but got <false>  (test_world_crafting.gd:764)
+FAIL test_world_crafting::test_other_saves_and_shared_resources_are_unaffected
+    expected <0> but got <31>  (test_world_crafting.gd:805)
+    expected <0> but got <31>  (test_world_crafting.gd:806)
+    and the first save keeps its own  (test_world_crafting.gd:821)
+    expected true  (test_world_crafting.gd:825)
+FAIL test_world_host::test_encounter_card_cancel_costs_nothing_and_engage_launches_once
+    reaching the group shows the card  (test_world_host.gd:193)
+    engine/script errors: expected 0, got 1
+      error: Invalid access to property or key 'kind' on a base object of type 'Nil'. (test_world_host.gd:194 in test_encounter_card_cancel_costs_nothing_and_engage_launches_once)
+FAIL test_world_host::test_victory_return_rearms_triggers_from_the_engagement_spot
+    engine/script errors: expected 0, got 1
+      error: Invalid access to property or key '_armed_sites' on a base object of type 'Node (WorldHost)'. (test_world_host.gd:491 in test_victory_return_rearms_triggers_from_the_engagement_spot)
+FAIL test_world_journey::test_complete_journey_walks_every_authored_link
+    the patrol presents its card on the main boards  (test_world_journey.gd:76)
+    expected true  (test_world_journey.gd:105)
+    engine/script errors: expected 0, got 1
+      error: Invalid access to property or key 'chosen' on a base object of type 'Nil'. (test_world_journey.gd:107 in test_complete_journey_walks_every_authored_link)
+FAIL test_world_presentation::test_guard_card_still_opens_on_the_bell_steps
+    stepping toward the guard still presents a deliberate encounter  (test_world_presentation.gd:237)
+FAIL test_world_reset::test_reset_restarts_only_the_journey_and_keeps_combat_progression
+    research, mastery, loadout, inventory and statistics are kept: expected <{"bestiary":{"points":{"rotcap_brute":3.0,"sporecaller":3.0,"thornhound":3.0},"sources":{"rotcap_brute":[0.0,2.0],"sporecaller":[0.0,2.0],"thornhound":[0.0,2.0]}},"campaign":{"difficulty":1.0,"starter":""},"combat":{"actions":["loosed_arrow","spotters_mark","heartseeker","steady_aim","inspect","spark"]},"companions":{"mara":{"recruited":true,"relationship":0.0}},"crafting":{"fittings":{},"recipes":[]},"familiars":["bell_crow","cinder_pup"],"home_upgrades":{"forge":0.0,"observatory":0.0,"stillroom":0.0},"inventory":{"consumables":{"fen_water_flask":4.0,"mending_draught":4.0},"equipment":["pilgrims_edge","mire_maul","reedbow","pilgrims_coat","storm_salt_charm"],"materials":{"bog_iron":2.0,"storm_salt":1.0},"quest_items":[]},"loadout":{"charm":"","companion":"mara","familiar":"bell_crow","familiar_passive":"","garb":"pilgrims_coat","potions":["mending_draught","fen_water_flask"],"relic":"","weapon":"reedbow"},"migrations":["supplies.finite_stock.v1"],"quests":{"first_footsteps.wayside_bell":2.0},"regions":{"events":{},"pressure":{"briarfen":0.0}},"rewards":{"claims":["first_footsteps.guard","first_footsteps.restoration"]},"stats":{"battles_lost":0.0,"battles_won":1.0},"weapon_mastery":{"pilgrims_edge":5.0},"world_choices":{}}> but got <{"bestiary":{"points":{"rotcap_brute":3.0,"sporecaller":3.0,"thornhound":3.0},"sources":{"rotcap_brute":[0.0,2.0],"sporecaller":[0.0,2.0],"thornhound":[0.0,2.0]}},"campaign":{"difficulty":1.0,"starter":""},"combat":{"actions":["loosed_arrow","spotters_mark","heartseeker","steady_aim","inspect","spark"]},"companions":{"mara":{"recruited":true,"relationship":0.0}},"crafting":{"fittings":{},"recipes":[]},"familiars":["bell_crow","cinder_pup"],"home_upgrades":{"forge":0.0,"observatory":0.0,"stillroom":0.0},"inventory":{"consumables":{"fen_water_flask":4.0,"mending_draught":4.0},"equipment":["pilgrims_edge","mire_maul","reedbow","pilgrims_coat","storm_salt_charm"],"materials":{"bog_iron":2.0,"storm_salt":1.0},"quest_items":[]},"loadout":{"charm":"","companion":"mara","familiar":"bell_crow","familiar_passive":"","garb":"pilgrims_coat","potions":["mending_draught","fen_water_flask"],"relic":"","weapon":"reedbow"},"migrations":["supplies.finite_stock.v1"],"quests":{"first_footsteps.wayside_bell":0.0},"regions":{"events":{},"pressure":{"briarfen":0.0}},"rewards":{"claims":["first_footsteps.guard","first_footsteps.restoration"]},"stats":{"battles_lost":0.0,"battles_won":1.0},"weapon_mastery":{"pilgrims_edge":5.0},"world_choices":{}}>  (test_world_reset.gd:102)
+    research, mastery, loadout, inventory and statistics are kept: expected <{"bestiary":{"points":{"rotcap_brute":3.0,"sporecaller":3.0,"thornhound":3.0},"sources":{"rotcap_brute":[0.0,2.0],"sporecaller":[0.0,2.0],"thornhound":[0.0,2.0]}},"campaign":{"difficulty":1.0,"starter":""},"combat":{"actions":["loosed_arrow","spotters_mark","heartseeker","steady_aim","inspect","spark"]},"companions":{"mara":{"recruited":true,"relationship":0.0}},"crafting":{"fittings":{},"recipes":[]},"familiars":["bell_crow","cinder_pup"],"home_upgrades":{"forge":0.0,"observatory":0.0,"stillroom":0.0},"inventory":{"consumables":{"fen_water_flask":4.0,"mending_draught":4.0},"equipment":["pilgrims_edge","mire_maul","reedbow","pilgrims_coat","storm_salt_charm"],"materials":{"bog_iron":2.0,"storm_salt":1.0},"quest_items":[]},"loadout":{"charm":"","companion":"mara","familiar":"bell_crow","familiar_passive":"","garb":"pilgrims_coat","potions":["mending_draught","fen_water_flask"],"relic":"","weapon":"reedbow"},"migrations":["supplies.finite_stock.v1"],"quests":{"first_footsteps.wayside_bell":2.0},"regions":{"events":{},"pressure":{"briarfen":0.0}},"rewards":{"claims":["first_footsteps.guard","first_footsteps.restoration"]},"stats":{"battles_lost":0.0,"battles_won":1.0},"weapon_mastery":{"pilgrims_edge":5.0},"world_choices":{}}> but got <{"bestiary":{"points":{"rotcap_brute":3.0,"sporecaller":3.0,"thornhound":3.0},"sources":{"rotcap_brute":[0.0,2.0],"sporecaller":[0.0,2.0],"thornhound":[0.0,2.0]}},"campaign":{"difficulty":1.0,"starter":""},"combat":{"actions":["loosed_arrow","spotters_mark","heartseeker","steady_aim","inspect","spark"]},"companions":{"mara":{"recruited":true,"relationship":0.0}},"crafting":{"fittings":{},"recipes":[]},"familiars":["bell_crow","cinder_pup"],"home_upgrades":{"forge":0.0,"observatory":0.0,"stillroom":0.0},"inventory":{"consumables":{"fen_water_flask":4.0,"mending_draught":4.0},"equipment":["pilgrims_edge","mire_maul","reedbow","pilgrims_coat","storm_salt_charm"],"materials":{"bog_iron":2.0,"storm_salt":1.0},"quest_items":[]},"loadout":{"charm":"","companion":"mara","familiar":"bell_crow","familiar_passive":"","garb":"pilgrims_coat","potions":["mending_draught","fen_water_flask"],"relic":"","weapon":"reedbow"},"migrations":["supplies.finite_stock.v1"],"quests":{"first_footsteps.wayside_bell":0.0},"regions":{"events":{},"pressure":{"briarfen":0.0}},"rewards":{"claims":["first_footsteps.guard","first_footsteps.restoration"]},"stats":{"battles_lost":0.0,"battles_won":1.0},"weapon_mastery":{"pilgrims_edge":5.0},"world_choices":{}}>  (test_world_reset.gd:102)
+    expected <{"bestiary":{"points":{"rotcap_brute":3.0,"sporecaller":3.0,"thornhound":3.0},"sources":{"rotcap_brute":[0.0,2.0],"sporecaller":[0.0,2.0],"thornhound":[0.0,2.0]}},"campaign":{"difficulty":1.0,"starter":""},"combat":{"actions":["loosed_arrow","spotters_mark","heartseeker","steady_aim","inspect","spark"]},"companions":{"mara":{"recruited":true,"relationship":0.0}},"crafting":{"fittings":{},"recipes":[]},"familiars":["bell_crow","cinder_pup"],"home_upgrades":{"forge":0.0,"observatory":0.0,"stillroom":0.0},"inventory":{"consumables":{"fen_water_flask":4.0,"mending_draught":4.0},"equipment":["pilgrims_edge","mire_maul","reedbow","pilgrims_coat","storm_salt_charm"],"materials":{"bog_iron":2.0,"storm_salt":1.0},"quest_items":[]},"loadout":{"charm":"","companion":"mara","familiar":"bell_crow","familiar_passive":"","garb":"pilgrims_coat","potions":["mending_draught","fen_water_flask"],"relic":"","weapon":"reedbow"},"migrations":["supplies.finite_stock.v1"],"quests":{"first_footsteps.wayside_bell":2.0},"regions":{"events":{},"pressure":{"briarfen":0.0}},"rewards":{"claims":["first_footsteps.guard","first_footsteps.restoration"]},"stats":{"battles_lost":0.0,"battles_won":1.0},"weapon_mastery":{"pilgrims_edge":5.0},"world_choices":{}}> but got <{"bestiary":{"points":{"rotcap_brute":3.0,"sporecaller":3.0,"thornhound":3.0},"sources":{"rotcap_brute":[0.0,2.0],"sporecaller":[0.0,2.0],"thornhound":[0.0,2.0]}},"campaign":{"difficulty":1.0,"starter":""},"combat":{"actions":["loosed_arrow","spotters_mark","heartseeker","steady_aim","inspect","spark"]},"companions":{"mara":{"recruited":true,"relationship":0.0}},"crafting":{"fittings":{},"recipes":[]},"familiars":["bell_crow","cinder_pup"],"home_upgrades":{"forge":0.0,"observatory":0.0,"stillroom":0.0},"inventory":{"consumables":{"fen_water_flask":4.0,"mending_draught":4.0},"equipment":["pilgrims_edge","mire_maul","reedbow","pilgrims_coat","storm_salt_charm"],"materials":{"bog_iron":2.0,"storm_salt":1.0},"quest_items":[]},"loadout":{"charm":"","companion":"mara","familiar":"bell_crow","familiar_passive":"","garb":"pilgrims_coat","potions":["mending_draught","fen_water_flask"],"relic":"","weapon":"reedbow"},"migrations":["supplies.finite_stock.v1"],"quests":{"first_footsteps.wayside_bell":0.0},"regions":{"events":{},"pressure":{"briarfen":0.0}},"rewards":{"claims":["first_footsteps.guard","first_footsteps.restoration"]},"stats":{"battles_lost":0.0,"battles_won":1.0},"weapon_mastery":{"pilgrims_edge":5.0},"world_choices":{}}>  (test_world_reset.gd:110)
+FAIL test_world_reset::test_confirmed_reset_rebuilds_the_host_at_the_square_once
+    expected <{"bestiary":{"points":{"rotcap_brute":3.0,"sporecaller":3.0,"thornhound":3.0},"sources":{"rotcap_brute":[0.0,2.0],"sporecaller":[0.0,2.0],"thornhound":[0.0,2.0]}},"campaign":{"difficulty":1.0,"starter":""},"combat":{"actions":["loosed_arrow","spotters_mark","heartseeker","steady_aim","inspect","spark"]},"companions":{"mara":{"recruited":true,"relationship":0.0}},"crafting":{"fittings":{},"recipes":[]},"familiars":["bell_crow","cinder_pup"],"home_upgrades":{"forge":0.0,"observatory":0.0,"stillroom":0.0},"inventory":{"consumables":{"fen_water_flask":4.0,"mending_draught":4.0},"equipment":["pilgrims_edge","mire_maul","reedbow","pilgrims_coat","storm_salt_charm"],"materials":{"bog_iron":2.0,"storm_salt":1.0},"quest_items":[]},"loadout":{"charm":"","companion":"mara","familiar":"bell_crow","familiar_passive":"","garb":"pilgrims_coat","potions":["mending_draught","fen_water_flask"],"relic":"","weapon":"reedbow"},"migrations":["supplies.finite_stock.v1"],"quests":{"first_footsteps.wayside_bell":2.0},"regions":{"events":{},"pressure":{"briarfen":0.0}},"rewards":{"claims":["first_footsteps.guard","first_footsteps.restoration"]},"stats":{"battles_lost":0.0,"battles_won":1.0},"weapon_mastery":{"pilgrims_edge":5.0},"world_choices":{}}> but got <{"bestiary":{"points":{"rotcap_brute":3.0,"sporecaller":3.0,"thornhound":3.0},"sources":{"rotcap_brute":[0.0,2.0],"sporecaller":[0.0,2.0],"thornhound":[0.0,2.0]}},"campaign":{"difficulty":1.0,"starter":""},"combat":{"actions":["loosed_arrow","spotters_mark","heartseeker","steady_aim","inspect","spark"]},"companions":{"mara":{"recruited":true,"relationship":0.0}},"crafting":{"fittings":{},"recipes":[]},"familiars":["bell_crow","cinder_pup"],"home_upgrades":{"forge":0.0,"observatory":0.0,"stillroom":0.0},"inventory":{"consumables":{"fen_water_flask":4.0,"mending_draught":4.0},"equipment":["pilgrims_edge","mire_maul","reedbow","pilgrims_coat","storm_salt_charm"],"materials":{"bog_iron":2.0,"storm_salt":1.0},"quest_items":[]},"loadout":{"charm":"","companion":"mara","familiar":"bell_crow","familiar_passive":"","garb":"pilgrims_coat","potions":["mending_draught","fen_water_flask"],"relic":"","weapon":"reedbow"},"migrations":["supplies.finite_stock.v1"],"quests":{"first_footsteps.wayside_bell":0.0},"regions":{"events":{},"pressure":{"briarfen":0.0}},"rewards":{"claims":["first_footsteps.guard","first_footsteps.restoration"]},"stats":{"battles_lost":0.0,"battles_won":1.0},"weapon_mastery":{"pilgrims_edge":5.0},"world_choices":{}}>  (test_world_reset.gd:197)
+FAIL test_world_reset::test_reset_writes_only_the_active_slot
+    reloaded from disk with progression kept: expected <{"bestiary":{"points":{"rotcap_brute":3.0,"sporecaller":3.0,"thornhound":3.0},"sources":{"rotcap_brute":[0.0,2.0],"sporecaller":[0.0,2.0],"thornhound":[0.0,2.0]}},"campaign":{"difficulty":1.0,"starter":""},"combat":{"actions":["loosed_arrow","spotters_mark","heartseeker","steady_aim","inspect","spark"]},"companions":{"mara":{"recruited":true,"relationship":0.0}},"crafting":{"fittings":{},"recipes":[]},"familiars":["bell_crow","cinder_pup"],"home_upgrades":{"forge":0.0,"observatory":0.0,"stillroom":0.0},"inventory":{"consumables":{"fen_water_flask":4.0,"mending_draught":4.0},"equipment":["pilgrims_edge","mire_maul","reedbow","pilgrims_coat"],"materials":{"bog_iron":2.0,"storm_salt":1.0},"quest_items":[]},"loadout":{"charm":"","companion":"mara","familiar":"bell_crow","familiar_passive":"","garb":"pilgrims_coat","potions":["mending_draught","fen_water_flask"],"relic":"","weapon":"reedbow"},"migrations":["supplies.finite_stock.v1"],"quests":{"first_footsteps.wayside_bell":1.0},"regions":{"events":{},"pressure":{"briarfen":0.0}},"rewards":{"claims":["first_footsteps.guard"]},"stats":{"battles_lost":0.0,"battles_won":1.0},"weapon_mastery":{"pilgrims_edge":5.0},"world_choices":{}}> but got <{"bestiary":{"points":{"rotcap_brute":3.0,"sporecaller":3.0,"thornhound":3.0},"sources":{"rotcap_brute":[0.0,2.0],"sporecaller":[0.0,2.0],"thornhound":[0.0,2.0]}},"campaign":{"difficulty":1.0,"starter":""},"combat":{"actions":["loosed_arrow","spotters_mark","heartseeker","steady_aim","inspect","spark"]},"companions":{"mara":{"recruited":true,"relationship":0.0}},"crafting":{"fittings":{},"recipes":[]},"familiars":["bell_crow","cinder_pup"],"home_upgrades":{"forge":0.0,"observatory":0.0,"stillroom":0.0},"inventory":{"consumables":{"fen_water_flask":4.0,"mending_draught":4.0},"equipment":["pilgrims_edge","mire_maul","reedbow","pilgrims_coat"],"materials":{"bog_iron":2.0,"storm_salt":1.0},"quest_items":[]},"loadout":{"charm":"","companion":"mara","familiar":"bell_crow","familiar_passive":"","garb":"pilgrims_coat","potions":["mending_draught","fen_water_flask"],"relic":"","weapon":"reedbow"},"migrations":["supplies.finite_stock.v1"],"quests":{"first_footsteps.wayside_bell":0.0},"regions":{"events":{},"pressure":{"briarfen":0.0}},"rewards":{"claims":["first_footsteps.guard"]},"stats":{"battles_lost":0.0,"battles_won":1.0},"weapon_mastery":{"pilgrims_edge":5.0},"world_choices":{}}>  (test_world_reset.gd:253)
+FAIL test_world_rewards::test_incomplete_older_saves_receive_only_what_their_journey_proves
+    nothing to write: expected <2> but got <3>  (test_world_rewards.gd:301)
+FAIL test_world_salvage_host::test_inventory_round_trip_is_read_only_and_retains_the_selected_slot
+    expected <×4> but got <>  (test_world_salvage_host.gd:222)
+    expected <×1> but got <>  (test_world_salvage_host.gd:223)
+FAIL test_world_salvage_host::test_failed_bell_write_shows_no_receipt_and_retry_shows_one
+    expected <1> but got <2>  (test_world_salvage_host.gd:279)
+FAIL test_world_save_events::test_host_adds_no_notice_of_its_own_and_hides_cards_in_battle
+    no duplicate host push: expected <1> but got <0>  (test_world_save_events.gd:126)
+    engine/script errors: expected 0, got 1
+      error: Cannot call method 'show' on a previously freed instance. (journey_notices.gd:36 in JourneyNotices._save_completed)
+FAIL test_world_session::test_world_section_round_trips_through_a_real_save_file
+    expected <{ "area": "briarfen_reedway", "anchor": "reedway_patrol", "discovered": ["return_latch", "reedway_patrol"], "links": ["short_return"], "cleared": [], "flags": { "wayside_bell_restored": false, "return_latch_open": true }, "pending_entry": { "token": "reedway_patrol#1", "site": "reedway_patrol", "encounter": "fen_patrol", "area": "briarfen_reedway", "approach_anchor": "reedway_patrol", "seed": 584527, "loadout": { "weapon": "pilgrims_edge", "garb": "pilgrims_coat", "charm": "", "relic": "", "companion": "mara", "familiar": "bell_crow", "familiar_passive": "bell_crow", "potions": ["mending_draught", "fen_water_flask"], "modifications": [], "actions": ["sword_strike", "lunge", "arc_cleave", "riposte_stance", "inspect", "spark"], "potion_charges": [2, 2] }, "research": {  }, "difficulty": 1, "assist": 1, "auto_brace": 0, "reaction_pause": 0 }, "last_applied_token": "", "entry_serial": 1, "gathered": [], "found": [], "solved": [], "rune_input": {  } }> but got <{ "area": "briarfen_reedway", "anchor": "reedway_patrol", "discovered": ["return_latch", "reedway_patrol"], "links": ["short_return"], "cleared": [], "flags": { "wayside_bell_restored": false, "return_latch_open": true }, "pending_entry": { "approach_anchor": "reedway_patrol", "area": "briarfen_reedway", "assist": 1, "auto_brace": 0, "difficulty": 1, "encounter": "fen_patrol", "loadout": { "actions": ["sword_strike", "lunge", "arc_cleave", "riposte_stance", "inspect", "spark"], "charm": "", "companion": "mara", "familiar": "bell_crow", "familiar_passive": "bell_crow", "garb": "pilgrims_coat", "modifications": [], "potion_charges": [2.0, 2.0], "potions": ["mending_draught", "fen_water_flask"], "relic": "", "weapon": "pilgrims_edge" }, "reaction_pause": 0, "research": {  }, "seed": 584527, "site": "reedway_patrol", "token": "reedway_patrol#1" }, "last_applied_token": "", "entry_serial": 1, "gathered": [], "found": [], "solved": [], "rune_input": {  } }>  (test_world_session.gd:282)
+    expected <{ "token": "reedway_patrol#1", "site": "reedway_patrol", "encounter": "fen_patrol", "area": "briarfen_reedway", "approach_anchor": "reedway_patrol", "seed": 584527, "loadout": { "weapon": "pilgrims_edge", "garb": "pilgrims_coat", "charm": "", "relic": "", "companion": "mara", "familiar": "bell_crow", "familiar_passive": "bell_crow", "potions": ["mending_draught", "fen_water_flask"], "modifications": [], "actions": ["sword_strike", "lunge", "arc_cleave", "riposte_stance", "inspect", "spark"], "potion_charges": [2, 2] }, "research": {  }, "difficulty": 1, "assist": 1, "auto_brace": 0, "reaction_pause": 0 }> but got <{ "approach_anchor": "reedway_patrol", "area": "briarfen_reedway", "assist": 1, "auto_brace": 0, "difficulty": 1, "encounter": "fen_patrol", "loadout": { "actions": ["sword_strike", "lunge", "arc_cleave", "riposte_stance", "inspect", "spark"], "charm": "", "companion": "mara", "familiar": "bell_crow", "familiar_passive": "bell_crow", "garb": "pilgrims_coat", "modifications": [], "potion_charges": [2.0, 2.0], "potions": ["mending_draught", "fen_water_flask"], "relic": "", "weapon": "pilgrims_edge" }, "reaction_pause": 0, "research": {  }, "seed": 584527, "site": "reedway_patrol", "token": "reedway_patrol#1" }>  (test_world_session.gd:284)
+
+Tests: 449 passed, 27 failed, 7724 assertions (126.17s)

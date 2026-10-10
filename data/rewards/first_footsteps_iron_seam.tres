@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="RewardDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/progression/reward_definition.gd" id="1_reward"]
+[ext_resource type="Script" path="res://src/data/progression/reward_item.gd" id="2_item"]
+[ext_resource type="Resource" path="res://data/materials/bog_iron.tres" id="3_content"]
+
+[sub_resource type="Resource" id="Item"]
+script = ExtResource("2_item")
+kind = 0
+material = ExtResource("3_content")
+count = 1
+
+[resource]
+script = ExtResource("1_reward")
+id = &"first_footsteps.iron_seam"
+display_name = "Iron seam"
+source = 2
+source_id = &"iron_seam"
+items = Array[ExtResource("2_item")]([SubResource("Item")])

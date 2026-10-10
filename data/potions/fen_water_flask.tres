@@ -27,3 +27,4 @@ display_name = "Fen Water Flask"
 description = "Thrown: soaks one enemy (Wet, 3 turns). Puts out Burns; sets up Shock."
 action = SubResource("Resource_hd5hj")
 charges = 2
+starter_stock = 4

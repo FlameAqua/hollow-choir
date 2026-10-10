@@ -1,7 +1,7 @@
 class_name PresentationLedger
 extends RefCounted
-## What the player has *seen* so far, per unit: HP, Stagger, Focus, statuses, buffs, cover, Broken,
-## exposed weak point and life, plus the familiar's readiness this round, the active battlefield
+## What the player has *seen* so far, per unit: HP, Stagger (Break), Focus, statuses, buffs, cover,
+## Broken, exposed weak point and life (playtest revision: Break and Broken for party members too), plus the familiar's readiness this round, the active battlefield
 ## conditions and the next-round forecast (DECISION_LOG D-013, M1.1 F3). The engine resolves a whole
 ## step before presentation sees it, so widgets must not read live unit state while a batch plays:
 ## they read this ledger, which is snapshotted from the engine at every reconcile and advanced by
@@ -33,8 +33,12 @@ class UnitDisplay:
 	var uid: int = -1
 	var hp: float = 0.0
 	var max_hp: int = 1
+	## The unit's Break meter as shown. Enemies always have one; since the playtest revision each
+	## controlled party member has its own (has_break). STAGGER_DAMAGE, BROKEN and RECOVERED events
+	## advance it for either side; a renderer only draws these values.
 	var stagger: float = 0.0
 	var max_stagger: float = 0.0
+	var has_break: bool = false
 	var focus: int = 0
 	var max_focus: int = 0
 	var statuses: Array[DisplayStatus] = []
@@ -87,6 +91,7 @@ func snapshot(engine: BattleEngine) -> void:
 		display.max_hp = battle_unit.max_hp
 		display.stagger = battle_unit.stagger
 		display.max_stagger = battle_unit.max_stagger
+		display.has_break = battle_unit.has_break_meter()
 		display.focus = battle_unit.focus
 		display.max_focus = Stats.max_focus(engine.ctx, battle_unit)
 		display.covered_by = battle_unit.intercepted_by
@@ -264,14 +269,16 @@ func displayed_forecast() -> Array[int]:
 
 func _snapshot_familiar(engine: BattleEngine) -> void:
 	var familiar := engine.get_state().familiar
+	# The passive in effect this battle (the loadout's selected one, else the familiar's default).
+	var passive := engine.get_state().familiar_trait
 	familiar_uses = 0
 	familiar_limit = 0
 	_familiar_name = ""
-	if familiar == null or familiar.trait_def == null:
+	if familiar == null or passive == null:
 		return
 	_familiar_name = familiar.display_name
 	var unlimited := false
-	for trigger in familiar.trait_def.triggers:
+	for trigger in passive.triggers:
 		if trigger == null:
 			continue
 		if trigger.max_per_round <= 0:
@@ -283,8 +290,8 @@ func _snapshot_familiar(engine: BattleEngine) -> void:
 	if owner == null:
 		return
 	for instance in owner.traits:
-		if instance.trait_def == familiar.trait_def:
-			for trigger_index in familiar.trait_def.triggers.size():
+		if instance.trait_def == passive:
+			for trigger_index in passive.triggers.size():
 				familiar_uses += instance.fired_this_round(trigger_index)
 
 

@@ -23,6 +23,8 @@ static func make(card: EncounterCardReadout) -> WorldModal:
 		panel.add_child(facts)
 		facts.add_child(UITheme.label(String(condition.name), UITheme.INFO, -1, true))
 		facts.add_child(UITheme.label(String(condition.summary), UITheme.TEXT, -1, true))
+	if not card.rewards.is_empty():
+		content.add_child(WorldRewardView.make(card.rewards, true))
 	content.add_child(UITheme.label(card.resource_rule, UITheme.TEXT_DIM, -1, true))
 	content.add_child(UITheme.label(WorldCopy.ENCOUNTER_OPTIONAL if card.optional else WorldCopy.ENCOUNTER_GUARD,
 		UITheme.TEXT_DIM, -1, true))

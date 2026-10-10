@@ -1,5 +1,6 @@
 [gd_resource type="Resource" script_class="WeaponDefinition" format=3]
 
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/items/pilgrims_edge_v01.svg" id="inventory_icon"]
 [ext_resource type="Resource" path="res://data/actions/sword/strike.tres" id="1_yv2w4"]
 [ext_resource type="Resource" path="res://data/actions/sword/riposte_stance.tres" id="2_neops"]
 [ext_resource type="Script" path="res://src/data/items/weapon_definition.gd" id="3_k6pa5"]
@@ -37,6 +38,7 @@ triggers = Array[ExtResource("9_jlpul")]([SubResource("Resource_porql")])
 
 [resource]
 script = ExtResource("3_k6pa5")
+icon = ExtResource("inventory_icon")
 id = &"pilgrims_edge"
 display_name = "Pilgrim's Edge"
 description = "A plain pilgrim's sword, worn smooth by prayer and practice."

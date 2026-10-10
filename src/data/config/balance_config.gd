@@ -58,6 +58,25 @@ extends Resource
 ## Party ambush: every enemy starts with this fraction of its Stagger already removed.
 @export_range(0.0, 1.0, 0.01) var ambush_stagger_fraction: float = 0.25
 
+@export_group("Party Break")
+## Playtest revision. Each controlled party member has its own Break meter of this size. At 0 the
+## member is Broken: it loses its next activation, cannot react meanwhile, then recovers with a full
+## meter. Provisional numbers; none of the enemy Break consequences below apply to the party.
+@export var party_max_break: float = 40.0
+## Break one damaging enemy action removes from a party target that did not react (or whose
+## reaction failed), unless the action authors its own value (EnemyActionDefinition.party_break).
+@export var party_break_hit: float = 8.0
+## Multiplies the hit's Break on a successful Brace (mitigation) and Evade (avoidance).
+@export_range(0.0, 1.0, 0.05) var party_break_brace_multiplier: float = 0.5
+@export_range(0.0, 1.0, 0.05) var party_break_evade_multiplier: float = 0.0
+## Multiplies the hit's Break when a reaction was attempted and failed.
+@export var party_break_failed_multiplier: float = 1.0
+## Break a successful Parry costs the defender, instead of the hit's Break: once per defending unit
+## per resolved reaction, never per hit.
+@export var party_break_parry_cost: float = 6.0
+## Activations a Broken party member loses.
+@export var party_break_turns: int = 1
+
 @export_group("Default actions")
 @export var default_guard_action: ActionDefinition
 @export var default_inspect_action: ActionDefinition
@@ -99,4 +118,8 @@ func validate() -> PackedStringArray:
 		problems.append("reaction windows must be ordered PARRY <= EVADE <= BRACE")
 	if default_guard_action == null or default_inspect_action == null:
 		problems.append("default guard and inspect actions must be assigned")
+	if party_max_break < 0.0 or party_break_hit < 0.0 or party_break_parry_cost < 0.0 or party_break_failed_multiplier < 0.0:
+		problems.append("party Break values cannot be negative")
+	if party_break_turns < 1:
+		problems.append("a Broken party member loses at least one activation (party_break_turns >= 1)")
 	return problems

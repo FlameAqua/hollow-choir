@@ -4,7 +4,11 @@ A 2D top-down pixel-art RPG with **reactive turn-based combat**: read every enem
 tactical action, then execute it with a short timing command and defend with Brace / Evade / Parry
 in real time. Design canon lives in [`docs/DESIGN_DOCUMENT.md`](docs/DESIGN_DOCUMENT.md).
 
-**Version 0.3.0** ([release notes](docs/RELEASE_NOTES.md)). The playable build is the combat
+**Working build 0.5.0** (save version 1; last released version 0.3.0 in
+[release notes](docs/RELEASE_NOTES.md)). V0.5A/B/C are integrated for human testing: persistent
+salvage and equipment preparation, the character menu and reward-expanded bag, Forge fittings,
+Stillroom recipes and potion slots, and the Reedway's iron seam, listening rhythm and drowned
+niche. [Complete A/B/C test sheet](docs/playtests/V0_5_INTEGRATED_TEST.md). The playable build retains the combat
 foundation: a deterministic battle engine, data-driven content, utility AI with three tactical
 difficulties, four execution assists, the V0.2 combat UI, Practice/Lab and headless balance
 simulation, a saved-knowledge Field Guide and randomized music playlists. The M1.1 human clarity
@@ -18,11 +22,13 @@ records integration and the still-open human/controller/listening gates.
 Requires **Godot 4.7.2** (standard build; no addons, no C#).
 
 1. Open the folder in the Godot editor (or run the executable with `--path <repo>`); press **Play**.
-2. Title → **Continue journey** for First Footsteps. Speak to the Bellkeeper, choose an owned
-   starter weapon at the bench, then follow the old boards beyond the reed gate. Journey victories
+2. Title → **Continue Journey** → choose a saved file. New Journey's setup is reviewable; creation
+   awaits Claude's [backend handoff](docs/briefs/V0_5_UI_BACKEND_HANDOFF.md). With no saves, use
+   **F10 → Preview journey** in a debug build. Speak to the Bellkeeper, choose owned equipment
+   through Character at a station, then follow the old boards beyond the reed gate. Journey victories
    save research and weapon practice. Progress resumes at the last saved safe place; quitting
    during battle returns to its approach without recording that attempt.
-3. Title → **Combat Sandbox**. **Practice** offers curated encounters with fixed, honest rules.
+3. **F10 → Combat Sandbox** in a debug build. **Practice** offers curated encounters with fixed, honest rules.
    **Lab** builds any fight (enemies, conditions, equipment, knowledge, simulated execution,
    autopilot) and **Simulate** runs it 10–500 times. Inside a battle, **Setup** returns to these
    pages and **Restart** replays the fight.
@@ -37,8 +43,9 @@ Requires **Godot 4.7.2** (standard build; no addons, no C#).
 | Action | Keyboard | Gamepad |
 |---|---|---|
 | Menus / targets | Arrows; Enter confirms; Escape, X or Backspace go back | D-pad; A confirms, B goes back |
-| Walk · Interact (world) | WASD / arrows · E | Left stick / D-pad · A |
+| Walk · Sprint (hold) · Interact (world) | WASD / arrows · Shift · E | Left stick / D-pad · L-Stick press · A |
 | Local map · World menu | M · Escape | Back · Start |
+| Loadout · Inventory · Journal · Field Guide (world) | L · I · J · F | — |
 | Action command | Space or Z | A / X |
 | Brace · Evade · Parry | A · S · D | LB · X · RB |
 | Details (hold by default; Toggle/Always in Settings) | Alt | Y |
@@ -50,6 +57,20 @@ without spending anything. Before each manual command or reaction, its real mete
 for a short, motionless preparation beat. During an enemy attack a ring shrinks onto its target:
 press a reaction as it lands. The first allowed key locks your choice, and crossed-out reactions
 are unavailable for that move. Saved custom bindings always take precedence over these defaults.
+
+In the world, coming close to a threat starts a three-second countdown (walk away to cancel it);
+Interact fights at once. Sprinting lasts about five seconds from a full meter, shown under Hollow's
+feet, and refills when you stop. The view shortcuts open and close their view.
+
+### Logs and bug reports
+
+Every session writes `hollow_choir.log` (Windows: `%APPDATA%\Godot\app_userdata\Hollow Choir\logs`;
+**Settings → Gameplay → Open log folder**). A new session starts a new file and the previous few
+are kept beside it with a timestamp, so the log of a session that crashed survives the restart.
+Besides the engine's own errors and any crash backtrace, the game records its version, platform
+and renderer, then one line per notable event (scenes, areas, opened views, battles with their
+encounter and seed, saves) with the time since start. A clean exit ends with `session: ended
+normally`; a log without that line ended in a crash or was killed. Attach it to bug reports.
 
 ## Development
 

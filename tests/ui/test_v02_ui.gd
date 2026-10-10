@@ -140,13 +140,28 @@ func test_long_inspection_scrolls_from_source_and_inside_card() -> void:
 	_wheel(icon.get_global_rect().get_center())
 	await _frames(3)
 	assert_gt(inspector._scroll.scroll_vertical, 0, "wheel over inspected source scrolls its card")
+	# A floating card leaves with its source (V0.5 playtest revision): an unpinned card is not a
+	# destination, so reading inside it takes an explicit pin.
+	var card_center := inspector.get_global_rect().get_center()
+	_move(card_center)
+	await _frames(3)
+	assert_false(inspector.visible, "the unpinned card dismisses when the pointer leaves its source")
+	_move(icon.get_global_rect().get_center())
+	await _frames(12)
+	var pin := InputEventMouseButton.new()
+	pin.position = icon.get_global_rect().get_center()
+	pin.button_index = MOUSE_BUTTON_RIGHT
+	pin.pressed = true
+	_tree.root.push_input(pin, true)
+	await _frames(2)
+	assert_true(inspector.pinned)
 	var before := inspector._scroll.scroll_vertical
 	_move(inspector.get_global_rect().get_center())
 	await _frames(3)
 	_wheel(inspector.get_global_rect().get_center())
 	await _frames(3)
-	assert_gt(inspector._scroll.scroll_vertical, before, "wheel also works within the card")
-	assert_true(inspector.visible, "entering the card preserves it for scrollbar interaction")
+	assert_gt(inspector._scroll.scroll_vertical, before, "wheel works within the pinned card")
+	assert_true(inspector.visible, "a pinned card stays for scrollbar interaction")
 	host.queue_free()
 
 func test_practice_footer_and_scrolling_fit_fixed_game_canvas() -> void:

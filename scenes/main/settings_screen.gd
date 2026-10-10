@@ -13,6 +13,7 @@ var _assist_note: Label
 var _binding_buttons: Dictionary[StringName, Button] = {}
 var _capturing: StringName = &""
 var _first_control: Control
+var _binding_status: Label
 ## Set by a host before the node enters the tree: keep the host's music and return via [signal closed].
 var embedded := false
 
@@ -55,23 +56,19 @@ func _ready() -> void:
 	column.add_child(back)
 	if _first_control != null:
 		_first_control.grab_focus.call_deferred()
+	TooltipPolicy.install(self)
 
 
 func _input(event: InputEvent) -> void:
-	if _capturing == &"":
-		return
-	var code := ""
-	if event is InputEventKey and event.pressed and not event.echo:
-		if (event as InputEventKey).physical_keycode == KEY_ESCAPE:
-			_finish_capture("")
-			get_viewport().set_input_as_handled()
-			return
-		code = InputBindings.code_from_event(event)
-	elif event is InputEventJoypadButton and event.pressed:
-		code = InputBindings.code_from_event(event)
-	if not code.is_empty():
+	if _capturing == &"": return
+	if InputBindings.is_capture_cancel(event):
+		_finish_capture("")
 		get_viewport().set_input_as_handled()
-		_finish_capture(code)
+		return
+	var captured := InputBindings.capture_code(event)
+	if not captured.is_empty():
+		get_viewport().set_input_as_handled()
+		_finish_capture(captured)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -114,6 +111,13 @@ func _build_gameplay(page: VBoxContainer) -> void:
 		Settings.set_value("auto_brace", value))
 	_option(page, "Pause before reactions", TOGGLE_ENTRIES, int(data.reaction_pause), func(value: int) -> void:
 		Settings.set_value("reaction_pause", value))
+	# Bug reports: Godot keeps this session's log and the last few beside it (SessionLog).
+	var logs := Button.new()
+	logs.name = "OpenLogs"
+	logs.text = "Open log folder"
+	logs.pressed.connect(func() -> void: OS.shell_open(SessionLog.folder()))
+	_row(page, "Session logs", logs)
+	_note(page, "Each session writes hollow_choir.log, and earlier sessions are kept beside it. Include the log with a bug report.")
 
 
 func _build_display(page: VBoxContainer) -> void:
@@ -162,8 +166,10 @@ func _build_audio(page: VBoxContainer) -> void:
 
 
 func _build_controls(page: VBoxContainer) -> void:
-	_note(page, "Click a binding, then press a key or gamepad button (Escape cancels). The new input replaces " +
+	_note(page, "Click a binding, then press a key, gamepad button, Middle Mouse, Mouse X1 or Mouse X2 (Escape cancels). The new input replaces " +
 		"the first binding of the same kind; the others stay.")
+	_binding_status = _note(page, "")
+	_binding_status.name = "BindingStatus"
 	for action: StringName in InputBindings.DEFAULTS:
 		var button := Button.new()
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -185,7 +191,7 @@ func _build_controls(page: VBoxContainer) -> void:
 
 func _begin_capture(action: StringName) -> void:
 	_capturing = action
-	_binding_buttons[action].text = "Press a key or button…"
+	_binding_buttons[action].text = "Press a key, pad or mouse button…"
 
 
 func _finish_capture(code: String) -> void:
@@ -193,18 +199,18 @@ func _finish_capture(code: String) -> void:
 	_capturing = &""
 	if not code.is_empty():
 		var codes := InputBindings.codes_for(action)
-		var kind := code.get_slice(":", 0)
-		var replaced := false
-		for index in codes.size():
-			if codes[index].get_slice(":", 0) == kind:
-				codes[index] = code
-				replaced = true
-				break
-		if not replaced:
-			codes.insert(0, code)
-		Settings.set_binding(action, codes)
-		AudioManager.play(AudioManager.Cue.UI_CONFIRM)
+		var conflicts := InputBindings.conflicts(action, code)
+		var names := PackedStringArray()
+		for other in conflicts: names.append(InputBindings.DISPLAY_NAMES.get(other, String(other)))
+		_binding_status.text = "Also bound to: " + ", ".join(names) if not names.is_empty() else "Binding saved."
+		Settings.set_binding(action, InputBindings.rebound(codes, code))
+		AudioManager.play(AudioManager.Cue.UI_CONFIRM, 0, -9)
 	_refresh_bindings()
+	WorldModal.focus_later(_binding_buttons[action])
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_WINDOW_FOCUS_OUT and _capturing != &"":
+		_finish_capture("")
 
 
 func _refresh_bindings() -> void:
@@ -254,6 +260,7 @@ func _option(page: VBoxContainer, label_text: String, entries: Array, selected_v
 		if int(entry[1]) == selected_value:
 			option.select(option.item_count - 1)
 	option.item_selected.connect(func(index: int) -> void: on_change.call(int(option.get_item_metadata(index))))
+	option.item_selected.connect(func(_index: int) -> void: AudioManager.play(AudioManager.Cue.UI_CONFIRM, 0, -9))
 	_row(page, label_text, option)
 	return option
 
@@ -261,10 +268,12 @@ func _option(page: VBoxContainer, label_text: String, entries: Array, selected_v
 func _check(page: VBoxContainer, label_text: String, value: bool, field: String) -> CheckBox:
 	var check := CheckBox.new()
 	check.text = label_text
+	check.custom_minimum_size.y = 44
 	check.clip_text = true
 	check.tooltip_text = label_text
 	check.button_pressed = value
 	check.toggled.connect(func(pressed: bool) -> void: Settings.set_value(field, pressed))
+	UIFeedback.navigation(check)
 	page.add_child(check)
 	return check
 

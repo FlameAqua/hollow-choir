@@ -1,9 +1,14 @@
 extends TestCase
-## Fifth playtest: the fixed action grid holds ActionMenu.CAPACITY (eight) non-item actions with no
-## scrolling. A party member's actions come from UnitFactory: basic action, techniques, innate
+## Fifth playtest: the fixed action grid holds PartyLoadout.MAX_ACTIONS (eight) non-item actions with
+## no scrolling. A party member's actions come from UnitFactory: basic action, techniques, innate
 ## actions, armor-granted actions, the weapon's stance (or Guard) and Inspect. Every protagonist with
 ## every weapon and the most action-granting armor in each slot, and every companion, must fit;
 ## content that would exceed the grid is a loadout decision, never a silently dropped action.
+## V0.5A: the limit is the rule's (campaign preparation enforces it); the grid shows the same number.
+
+
+func test_the_grid_shows_the_rule_capacity() -> void:
+	assert_eq(ActionMenu.CAPACITY, PartyLoadout.MAX_ACTIONS, "one source of truth for the eight slots")
 
 
 func test_every_equipment_combination_fits_the_action_grid() -> void:
@@ -18,9 +23,10 @@ func test_every_equipment_combination_fits_the_action_grid() -> void:
 	for hero: ProtagonistDefinition in registry.protagonists.values():
 		for weapon: WeaponDefinition in registry.weapons.values():
 			var count := 1 + weapon.techniques.size() + hero.innate_actions.size() + armor_actions + 2
-			assert_lte(count, ActionMenu.CAPACITY, "%s with %s and the most action-granting armor" % [hero.id, weapon.id])
+			assert_lte(count, PartyLoadout.MAX_ACTIONS, "%s with %s and the most action-granting armor" % [hero.id, weapon.id])
 	for companion: CompanionDefinition in registry.companions.values():
-		assert_lte(1 + companion.techniques.size() + 2, ActionMenu.CAPACITY, String(companion.id))
+		assert_lte(1 + companion.techniques.size() + 2, PartyLoadout.MAX_ACTIONS, String(companion.id))
+		assert_lte(UnitFactory.companion_actions(companion, registry.balance).size(), PartyLoadout.MAX_ACTIONS)
 
 
 func test_shipped_loadouts_offer_their_real_actions_within_the_grid() -> void:
@@ -32,4 +38,8 @@ func test_shipped_loadouts_offer_their_real_actions_within_the_grid() -> void:
 		for unit in engine.get_state().party(false):
 			var actions := ActionRules.options_for(engine.ctx, unit).filter(func(option: ActionOption) -> bool: return option.item_slot < 0)
 			assert_eq(actions.size(), unit.actions.size(), "%s/%s: every action is offered" % [id, unit.display_name])
-			assert_lte(actions.size(), ActionMenu.CAPACITY, "%s/%s fits the grid" % [id, unit.display_name])
+			assert_lte(actions.size(), PartyLoadout.MAX_ACTIONS, "%s/%s fits the grid" % [id, unit.display_name])
+		# Campaign preparation counts the same list the battle builds.
+		var hero := engine.get_state().protagonist()
+		assert_eq(UnitFactory.protagonist_actions(registry.loadouts[id], registry.balance), hero.actions,
+			"%s: the shared action list is the battle's" % id)

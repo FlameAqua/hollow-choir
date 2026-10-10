@@ -32,7 +32,9 @@ func after_each() -> void:
 ## routes charted, the guard cleared, bell rung, latch opened, standing at the latch.
 func _progressed(session: WorldSession) -> void:
 	var definition := session.definition
+	assert_eq(session.enter_station(&"preparation_bench"), OK)
 	assert_eq(session.choose_weapon(&"reedbow"), OK)
+	session.leave_station()
 	var entry := session.begin_entry(&"bell_guard", &"bell_guard")
 	assert_eq(session.commit_victory(entry, WorldKit.victory(&"bell_guard")), OK)
 	var world := GameState.progress.world
@@ -53,10 +55,13 @@ static func _settings_text() -> String:
 	return config.encode_to_text()
 
 
-## Everything outside the world section as canonical JSON (numbers and key order as on disk).
+## Everything outside the journey as canonical JSON (numbers and key order as on disk). The
+## journey is the world section and, since the playtest revision, the journal stage derived from it
+## (`quests`): Reset journey rewinds both. Everything else, the supply stock included, is kept.
 static func _kept(progress: ProgressState) -> String:
 	var data := progress.to_dict()
 	data.erase("world")
+	data.erase("quests")
 	return JSON.stringify(JSON.parse_string(JSON.stringify(data)), "", true)
 
 
@@ -98,6 +103,8 @@ func test_reset_restarts_only_the_journey_and_keeps_combat_progression() -> void
 		assert_eq(world.entry_serial, serial, "completion tokens keep counting")
 		assert_eq(world.last_applied_token, token)
 		assert_eq(_kept(progress), kept, "research, mastery, loadout, inventory and statistics are kept")
+		assert_eq(progress.quests.get(QuestRules.BELL), QuestRules.BellStage.FIND, "the journal follows the journey back")
+		assert_true(progress.has_migration(SupplyRules.MIGRATION), "the supply migration is never repeated by a reset")
 	assert_eq(GameState.progress.loadout_weapon, &"reedbow", "the equipped weapon is kept")
 	assert_eq(_settings_text(), settings, "settings are untouched")
 	# Fresh session from the saved file: the square, nothing to sanitize, progression intact.
@@ -144,15 +151,14 @@ func test_pending_entries_and_old_completions_cannot_cross_the_reset() -> void:
 
 func test_menu_reset_asks_first_with_cancel_focused() -> void:
 	await _start()
+	assert_eq(host.session.enter_station(&"preparation_bench"), OK)
 	assert_eq(host.session.choose_weapon(&"mire_maul"), OK)
+	host.session.leave_station()
 	var before := GameState.progress.to_dict()
 	var writes := kit.writer.writes.size()
 	host.open_menu()
-	var reset := host.modal.button(&"reset")
-	assert_not_null(reset, "the paused menu offers Reset journey")
-	assert_eq(reset.text, WorldCopy.ACTION_RESET)
-	assert_true(host.modal.buttons.find(reset) < host.modal.buttons.find(host.modal.button(&"title")), "above leaving to the title")
-	reset.pressed.emit()
+	assert_null(host.modal.button(&"reset"), "Reset journey is debug-only")
+	host._confirm_reset()
 	assert_eq(host.modal.kind, &"reset")
 	assert_true(_modal_text().contains(WorldCopy.RESET_BODY), "the card states what resets and what is kept")
 	await tree.process_frame
@@ -160,7 +166,7 @@ func test_menu_reset_asks_first_with_cancel_focused() -> void:
 	assert_eq(host.get_viewport().gui_get_focus_owner(), host.modal.button(&"cancel"), "Cancel is focused first")
 	host.modal.button(&"cancel").pressed.emit()
 	assert_eq(host.modal.kind, &"menu", "Cancel returns to the paused menu")
-	host.modal.button(&"reset").pressed.emit()
+	host._confirm_reset()
 	var back := InputEventAction.new()
 	back.action = InputBindings.CANCEL
 	back.pressed = true
@@ -180,7 +186,7 @@ func test_confirmed_reset_rebuilds_the_host_at_the_square_once() -> void:
 	assert_eq(host.area_def.id, &"briarfen_reedway")
 	assert_true((host.area.get_node("DepthSorted/ReturnLatch/Open") as Node2D).visible)
 	host.open_menu()
-	host.modal.button(&"reset").pressed.emit()
+	host._confirm_reset()
 	var confirm := host.modal.button(&"reset")
 	var writes := kit.writer.writes.size()
 	confirm.pressed.emit()
@@ -213,7 +219,7 @@ func test_failed_reset_offers_retry_and_keeps_the_journey_until_it_saves() -> vo
 	await _start()
 	var before := GameState.progress.to_dict()
 	host.open_menu()
-	host.modal.button(&"reset").pressed.emit()
+	host._confirm_reset()
 	kit.writer.fail = true
 	host.modal.button(&"reset").pressed.emit()
 	assert_eq(host.modal.kind, &"save_failed")
@@ -235,7 +241,9 @@ func test_reset_writes_only_the_active_slot() -> void:
 	var files_before := Array(DirAccess.get_files_at(dir)) if DirAccess.dir_exists_absolute(dir) else []
 	var session := WorldSession.new(WorldDefinition.load_default(), Callable(), 5)
 	session.open()
+	assert_eq(session.enter_station(&"preparation_bench"), OK)
 	assert_eq(session.choose_weapon(&"reedbow"), OK)
+	session.leave_station()
 	var entry := session.begin_entry(&"bell_guard", &"bell_guard")
 	assert_eq(session.commit_victory(entry, WorldKit.victory(&"bell_guard")), OK)
 	var kept := _kept(GameState.progress)

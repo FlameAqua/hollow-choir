@@ -89,7 +89,8 @@ static func calculate_hit(ctx: BattleContext, attacker: BattleUnit, defender: Ba
 		raw *= weak_point
 		_line(calc, want_breakdown, "Weak point exposed: x%.2f" % weak_point)
 
-	if defender.is_broken():
+	# Broken vulnerability is an enemy consequence; a Broken party member takes normal damage.
+	if defender.is_broken() and StaggerRules.vulnerable_when_broken(defender):
 		calc.broken_bonus = true
 		raw *= balance.broken_damage_taken_multiplier
 		_line(calc, want_breakdown, "Target Broken: x%.2f" % balance.broken_damage_taken_multiplier)
@@ -160,7 +161,7 @@ static func calculate_effect_damage(ctx: BattleContext, source: BattleUnit, reci
 		elif enemy.resists(damage_type):
 			calc.is_resisted = true
 			raw *= ctx.balance.resistance_multiplier
-	if recipient.is_broken():
+	if recipient.is_broken() and StaggerRules.vulnerable_when_broken(recipient):
 		raw *= ctx.balance.broken_damage_taken_multiplier
 	raw = ModifierQuery.apply(ctx, Enums.ModifierStat.DAMAGE_TAKEN, raw, recipient, rc)
 	if damage_type != Enums.DamageType.PURE:

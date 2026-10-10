@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="ModificationDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/crafting/modification_definition.gd" id="1_fitting"]
+[ext_resource type="Resource" path="res://data/armor/hollow_reliquary.tres" id="2_source"]
+
+[resource]
+script = ExtResource("1_fitting")
+id = &"fitting.hollow_echo"
+display_name = "Hollow Echo"
+description = "A Pilgrim's Edge fitting that creates an opening: a successful Parry also exposes the attacker's weak point."
+trait_source = ExtResource("2_source")
+trait_id = &"hollow_echo"

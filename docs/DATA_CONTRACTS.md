@@ -33,6 +33,10 @@ data/
   actions/       ActionDefinition / EnemyActionDefinition (common, sword, hammer, bow, magic, companion)
   weapons/ armor/ resonances/ familiars/ potions/ characters/ enemies/
   encounters/    EncounterDefinition           loadouts/    PartyLoadout
+  world/         WorldDefinition (V0.4 journey)
+  materials/     MaterialDefinition (V0.5A salvage)   rewards/   RewardDefinition (V0.5A claims)
+  crafting/      RecipeDefinition (V0.5B Forge/Stillroom)
+  modifications/ ModificationDefinition (V0.5B weapon fittings)
 ```
 
 ## 2. The rules vocabulary (Traits)
@@ -161,6 +165,8 @@ supplies default considerations merged into every action expressing that role (f
 | A familiar | `FamiliarDefinition` whose trait triggers on GDD events (relation relative to the protagonist) | No |
 | A potion | `PotionDefinition` + an `ITEM` category `ActionDefinition` | No |
 | An encounter | `EncounterDefinition` (1–4 enemies, ≤1 major + ≤1 minor condition) — appears in the sandbox automatically | No |
+| A salvage material | `MaterialDefinition` in `data/materials/` (id, public name and description, optional icon) | No |
+| A campaign reward | `RewardDefinition` in `data/rewards/`: a stable dotted claim id, a public label, a source (`SITE_VICTORY` + encounter landmark id, or `WORLD_FLAG` + world flag) and `RewardItem`s (material × 1–99, or one weapon/armor). Granted once per save by the command that commits the source; see "V0.5A salvage and preparation" | No (a new source *kind* needs code) |
 | A new *kind* of effect / condition / trigger / modifier stat | Append the enum value, add the `match` branch and a test | Yes (small) |
 | A new status (Chill, Blight) | `StatusDefinition` using the reserved enum value; tick/strenuous/interaction fields + traits | Only if the behaviour is new |
 
@@ -210,7 +216,8 @@ action itself, hovering and Details change nothing. The engine still receives ex
 
 ```json
 { "save_version": 1, "game_version": "0.3.0", "saved_at_unix": 1767225600, "slot": 0,
-  "data": { "loadout": {"weapon", "garb", "charm", "relic", "companion", "familiar", "potions"},
+  "data": { "loadout": {"weapon", "garb", "charm", "relic", "companion", "familiar", "familiar_passive",
+                        "potions"},
             "bestiary": {"points": {id: n}, "sources": {id: [source…]}},
             "weapon_mastery": {id: n},
             "inventory": {"equipment", "materials", "consumables", "quest_items"},
@@ -219,8 +226,100 @@ action itself, hovering and Details change nothing. The engine still receives ex
             "stats": {"battles_won", "battles_lost"},
             "world": {"area", "anchor", "discovered": [id], "links": [id], "cleared": [id],
                       "flags": {"wayside_bell_restored": bool, "return_latch_open": bool},
-                      "pending_entry": {…} | null, "last_applied_token", "entry_serial"} } }
+                      "pending_entry": {…} | null, "last_applied_token", "entry_serial",
+                      "gathered": [id], "found": [id], "solved": [id], "rune_input": {puzzle: [rune id…]}},
+            "rewards": {"claims": [claim id…]},
+            "crafting": {"recipes": [recipe id…], "fittings": {weapon id: fitting id}},
+            "campaign": {"difficulty": 0|1|2, "starter": preset weapon id | ""},
+            "combat": {"actions": [action id…]},
+            "migrations": [migration id…] } }
 ```
+
+**Playtest revision keys** (additive to save version 1; no `SaveMigrator` step, the application
+stays 0.5.0). Four keys change meaning or are new; everything else is untouched.
+- `inventory.consumables` (existed, always empty until now) is the finite supply stock: potion id →
+  held doses, whole numbers 1–`PotionDefinition.MAX_STOCK` (99). `from_dict` drops zero, negative,
+  fractional, boolean and non-numeric values and caps at 99; unknown potion ids are kept and inert.
+- `migrations` (new, top level) lists one-time content migrations already applied to the save,
+  unique and sorted; `from_dict` keeps strings only and a wrong-typed value is an empty list. Today
+  it can hold `supplies.finite_stock.v1`. It lives outside `world`, so Reset journey keeps it.
+- `quests` (existed, always empty until now) holds `first_footsteps.wayside_bell` → stage 0–3
+  (`QuestRules.BellStage`). The stage is re-derived from `world` inside every write, so a saved value
+  that disagrees with the world is corrected by the next write and is never trusted by a readout.
+- `loadout.familiar_passive` (new) is the selected passive (trait id) of the travelling familiar;
+  `""` or an id the familiar does not offer means its default passive.
+- A captured `pending_entry.loadout` gains `"potion_charges": [n…]` (the supply allowance, one whole
+  number per saved potion id: `min(per-encounter cap, held)` at capture) and `"familiar_passive"`.
+  An entry captured before the revision has neither: it keeps the authored charges and settles no
+  stock when it is won, and it uses the familiar's default passive.
+- `crafting.recipes` keeps its shape. It now records crafted fittings (`Kind.FITTING` recipe ids) and
+  an older save's fitting kit; potion recipe ids from older saves stay in the list, inert.
+
+**Supply migration** (`SupplyRules.migrate`, applied by `WorldSession.reconcile()` at world entry and
+when a journey is created; never by `from_dict`). A save without the `supplies.finite_stock.v1`
+marker receives, in one write together with the marker: `starter_stock` doses of every potion that
+authors it (Mending Draught 4, Fen Water Flask 4), and one brew's yield (2) of every other potion it
+had access to under the old model (its Stillroom recipe id is in `crafting.recipes`, or the potion
+is prepared in `loadout.potions`). Grants add to whatever the save already holds and cap at 99. The
+marker is what prevents a second grant: a save whose stock later runs to zero is not topped up
+again. A failed write changes nothing and the next world entry retries. An older build that
+rewrites the save drops `migrations` (it does not know the key) but keeps `inventory.consumables`;
+reopening it here would grant the starting stock once more on top. Downgrading is not supported.
+
+**V0.5 UI campaign and combat sections** (optional, additive to save version 1; no migration step;
+save version 1 stays compatible both ways for these keys). `campaign.difficulty` is the journey's
+Tactical Difficulty (`Enums.TacticalDifficulty`) chosen at New Journey; absent or not a whole number
+in range = `ADVENTURER` (1), the Settings default. `campaign.starter` records the New Journey preset
+(a weapon id; `""` for older saves); it is informational, the saved loadout is the truth.
+`combat.actions` is the Hollow's arranged action ids in combat-position order; absent or empty =
+never arranged, so `CombatRules` derives the default (the first six granted actions: Actions in grid
+order, then Magic). `from_dict` keeps unique non-empty strings; `CombatRules` keeps only actions the
+equipped gear grants, within the unlocked capacity. A captured `EncounterEntry` stores the journey's
+difficulty (no longer the Settings value at capture) and `loadout.actions` (the arrangement in battle
+order); an entry captured before this pass has no `actions` and keeps every granted action, exactly
+as it was captured. World entry (`WorldSession.reconcile`) rewrites an explicit arrangement only
+when it is invalid for the gear or larger than the capacity (`CombatRules.repair`, one repair line).
+`ProgressState.from_dict()` is now type-safe for every section: a wrong-typed section or field of a
+valid-JSON save loads as its default (bestiary, mastery, companions, familiars, quests, regions,
+choices, home upgrades, stats, entry serial, pending entry) instead of stopping the load.
+
+**V0.5B crafting section** (optional, additive to save version 1; no migration step).
+`crafting.recipes` lists the owned `RecipeDefinition` ids (unique, sorted): unlocks, never counts.
+`crafting.fittings` maps a weapon id to its installed `ModificationDefinition` id. Both live outside
+`world`, so Reset journey keeps them; a save without the section has none, and New Game starts
+empty. `ProgressState.from_dict()` keeps string entries only (a non-list or non-dictionary falls
+back to empty). Unknown recipe or fitting ids stay in the save and are inert: a fitting takes
+effect only when `CraftingRules` finds its weapon's kit owned, the kit's mastery met and the id among
+the kit's approved choices. Capacity is derived from the kit and saved weapon mastery; nothing else
+is saved. A captured `EncounterEntry.loadout` gains `"modifications": [fitting id…]` (the fittings
+resolved for its weapon at capture), so a retry never reads live unlocks; older entries without the
+key have none. *(Superseded by the playtest revision: a fitting is owned per fitting, a potion
+recipe is no longer an unlock, and an older save's prepared potion is grandfathered as stock by the
+supply migration instead of as an unlocked recipe. See "Playtest revision keys" above.)*
+
+**V0.5C exploration state** (inside the optional `world` section, additive; older saves have none).
+`gathered` lists gathered GATHERING landmark ids; Reset journey keeps it (a node yields once per
+save and never regrows). `found` (found SECRET landmark ids), `solved` (puzzle ids) and `rune_input`
+(each unsolved puzzle's current attempt: rune landmark ids in strike order) are journey state and
+reset. `WorldState.sanitize()` keeps only ids the world defines, and only a valid partial attempt of
+a puzzle's own runes (shorter than its solution, never for a solved puzzle). Their rewards are
+ordinary reward claims, so repeating a puzzle or secret after a reset grants nothing.
+
+**V0.5A rewards section and inventory** (optional, additive to save version 1; no migration step).
+`rewards.claims` lists the claimed `RewardDefinition` ids, unique and sorted. It lives outside
+`world`, so Reset journey keeps it; a save without it (every V0.4 slot) has claimed nothing yet.
+`inventory.materials` now holds real salvage (material id → whole count, 1–999) and
+`inventory.equipment` real ownership. `ProgressState.from_dict()` never trusts these types: claims
+and equipment keep string entries only (equipment de-duplicated, claims sorted); material counts
+keep whole numbers ≥ 1, capped at `MaterialDefinition.MAX_COUNT` (999), and drop zero, negative,
+fractional, boolean, NaN and non-numeric values; a wrong-typed `loadout`, `inventory` or `rewards`
+section or loadout slot falls back to its default (a wrong-typed equipment or potion list keeps the
+starter list). Unknown ids that are well-formed strings are kept: an unknown claim can only block
+a grant that does not exist, and an unknown material or equipment id is never shown or equipped.
+Deserializing never grants, repairs or writes anything; `WorldSession.reconcile()` does that at
+world entry (see "V0.5A salvage and preparation"). An older build that rewrites a V0.5A save drops
+`rewards` (it does not know the key); reopening that save here would re-grant the catch-up for
+accomplishments still in its journey. Downgrading is not supported.
 
 **V0.4 world section** (optional, additive to save version 1). A save without it (every V0.3 slot)
 starts at `gloamstead/town_bell` with research, mastery, loadout and stats untouched; no migration
@@ -238,7 +337,8 @@ through `WorldSession.commit()`: copy → change → atomic write → adopt only
 such commit: the candidate's `world` section becomes `WorldState.fresh()` (start area/anchor; no
 discoveries, links, cleared sites, flags or pending entry) while `entry_serial` and
 `last_applied_token` carry over, so completion tokens never repeat across a reset. Every other
-section (loadout, bestiary, mastery, inventory, stats…) and the separate settings file are kept.
+section (loadout, bestiary, mastery, inventory, V0.5A reward claims, stats…) and the separate
+settings file are kept, so a site cleared or a bell rung again after a reset grants no reward twice.
 A failed write leaves the live journey unchanged. No format change; save version stays 1.
 
 All references are content ids (strings); no node or Resource is serialized. Sections for later
@@ -247,7 +347,10 @@ milestones exist now (empty) so their arrival does not need a migration. To chan
 `game_version` is informational (`application/config/version`); only `save_version` drives migration,
 so an application version bump never requires a save-version bump.
 
-**Settings** (`user://settings.cfg`, global, not per slot, D-009): sections `gameplay`
+**Settings** (`user://settings.cfg`, global, not per slot, D-009; V0.5 UI: Tactical Difficulty is
+also saved per journey in `campaign.difficulty`. Loading or starting a journey shows its difficulty
+in Settings; changing it in Settings during the journey changes the journey at once, in the live
+state, saved by the next commit; execution assist and every other setting stay per player): sections `gameplay`
 (tactical_difficulty, execution_assist, auto_brace, reaction_pause), `display` (window_mode,
 window_resolution (`Vector2i`, one of 1280×720 / 1366×768 / 1600×900 / 1920×1080 / 2560×1440),
 screen_shake, reduce_flashing, reduce_motion, show_damage_numbers, advanced_tooltips, combat_speed,
@@ -265,17 +368,24 @@ remain authoritative. No progress-save format or migration changes are required.
 `WorldDefinition` {tile_size, start_area, start_anchor, areas, portals, flags} → `AreaDefinition`
 {id, display_name, scene_path, size_tiles, default_anchor, extra_anchors, landmarks, paths,
 music_cue (empty = intentional silence)} → `LandmarkDefinition` {id, public display_name, kind
-(HOME/DIALOGUE/PREPARATION/PORTAL/LANDMARK/ENCOUNTER/RESTORATION/SHORTCUT/DISCOVERY), planning
+(HOME/DIALOGUE/PREPARATION/PORTAL/LANDMARK/ENCOUNTER/RESTORATION/SHORTCUT/DISCOVERY, and V0.5C
+GATHERING/SECRET/RUNE), planning
 tile, public description, interact_radius, safe_anchor, encounter + threat_label + optional
-(ENCOUNTER), far_side (SHORTCUT), discover_radius} and `WorldPath` {id, tile points, width_tiles,
-requires_flag}. `PortalDefinition` pairs {from_area, from_landmark} with {to_area, arrival_anchor}.
+(ENCOUNTER), far_side (SHORTCUT), discover_radius, service (V0.5 UI: PREPARATION only, `FORGE` = 1 or
+`STILLROOM` = 2; every other kind `NONE`)} and `WorldPath` {id, tile points, width_tiles,
+requires_flag}. `preparation_bench` (displayed "Forge") is the anvil (`FORGE`); `stillroom_table` is
+the Stillroom (`STILLROOM`); both ids are stable. `PortalDefinition` pairs {from_area, from_landmark} with {to_area, arrival_anchor}.
+V0.5C: `WorldDefinition` also holds `gathering: Array[GatheringDefinition]`, `secrets:
+Array[SecretDefinition]` and `puzzles: Array[RuneSequenceDefinition]` (field reference below); each
+GATHERING/SECRET/RUNE landmark has exactly one definition (`ExplorationRules.validate`).
 Geometry lives in the area scene: `Interactions/<landmark id>` (WorldPoint), `Anchors/<anchor id>`
 (Marker2D), `Portals/<landmark id>` (WorldPortal trigger rectangle), the painted `Collision`
 TileMapLayer and `Solids`/footprint StaticBody2Ds on physics layer 2. Prop footprints are authored ground
 shapes traced from the visible base (trunk and root flare, footings, plinths, posts), never
 runtime sprite alpha; all willows share `scenes/world/footprints/willow_roots.tres`. Canopy and
 other overhanging art stays walk-behind through the Y-sorted `DepthSorted` layer. `WorldStateView` nodes show
-art and enable collision from one typed condition (a flag or a cleared site); they never write state.
+art and enable collision from one typed condition (a flag or a cleared site; V0.5C: `GATHERED` node,
+`FOUND` secret, `SOLVED` puzzle, `RUNE_LIT` rune in the current attempt); they never write state.
 
 ## 7. Field reference
 
@@ -327,6 +437,14 @@ Every global combat number in one designer-editable place. Damage previews, the 
 | `interrupt_focus` | `int` | `1` | Additional Focus when the break cancels a channel (an interrupt). |
 | **Stagger** | | | |
 | `ambush_stagger_fraction` | `float` | `0.25` | Party ambush: every enemy starts with this fraction of its Stagger already removed. |
+| **Party Break** (playtest revision; provisional) | | | |
+| `party_max_break` | `float` | `40.0` | Break meter of the Hollow and of each companion, tracked per unit. 0 disables party Break. |
+| `party_break_hit` | `float` | `8.0` | Break one damaging enemy action removes from a party target that did not react or whose reaction failed, unless the action authors `party_break`. |
+| `party_break_brace_multiplier` | `float` | `0.5` | Share of the hit's Break a successful Brace still takes. |
+| `party_break_evade_multiplier` | `float` | `0.0` | Share a successful Evade still takes (none). |
+| `party_break_failed_multiplier` | `float` | `1.0` | Share an attempted, failed reaction takes. |
+| `party_break_parry_cost` | `float` | `6.0` | Break a successful Parry costs the defender instead of the hit's Break: once per defending unit per resolved reaction, never per hit. |
+| `party_break_turns` | `int` | `1` | Activations a Broken party member loses (at least 1). |
 | **Default actions** | | | |
 | `default_guard_action` | `ActionDefinition` | `` |  |
 | `default_inspect_action` | `ActionDefinition` | `` |  |
@@ -368,6 +486,7 @@ Starting choices that code would otherwise name by id: the new-game loadout, the
 | `starter_loadout` | `PartyLoadout` | `` | New games (and unknown saved ids) fall back to this loadout; its protagonist leads the party. |
 | `practice_encounter` | `EncounterDefinition` | `` | The combat-toy fight: CombatSandbox default and the battle scene when opened on its own. |
 | `simulation_loadouts` | `Array[PartyLoadout]` | `[]` | tools/simulate.gd compares these when no --loadout is given. |
+| `journey_presets` | `Array[WeaponDefinition]` | `[]` | V0.5 UI New Journey starter presets, in order (preset id = weapon id). Each must be a weapon a fresh campaign owns; the rest of the starting loadout is the fresh campaign's (`JourneyRules.validate_catalog`). |
 
 ### TacticalDifficultyProfile
 `src/data/config/tactical_difficulty_profile.gd`
@@ -538,7 +657,8 @@ A familiar never takes a turn: it reacts to triggers (GDD: on_perfect_parry, on_
 | `display_name` | `String` | `""` |  |
 | `description` | `String` | `""` |  |
 | `playstyle` | `String` | `""` | The play style this familiar is meant to encourage (shown at the Menagerie and in tooltips). |
-| `trait_def` | `TraitDefinition` | `` |  |
+| `trait_def` | `TraitDefinition` | `` | The familiar's passive; with `passives` empty it is the one choice. |
+| `passives` | `Array[TraitDefinition]` | `[]` | Playtest revision: the passives this familiar offers (at most `MAX_PASSIVES = 3`, unique ids), of which the player selects exactly one. Empty = the single legacy choice `trait_def`. `passive_choices()`, `default_passive()`, `passive(id)` and `resolved_passive(id)` (unknown or `&""` → the default) read them. |
 | `shape` | `Enums.VisualShape` | `Enums.VisualShape.FLYER` |  |
 | `color` | `Color` | `Color(0.6, 0.6, 0.7)` |  |
 | `portrait` | `Texture2D` | Null | Optional familiar art/AtlasTexture; no combat targeting. |
@@ -621,6 +741,7 @@ An enemy ability: an ActionDefinition plus utility-AI data, telegraph data and r
 | `can_parry` | `bool` | `true` |  |
 | `windup_ms` | `float` | `900.0` | Wind-up animation length before impact (presentation; reaction timing centres on impact). |
 | `reaction_window_scale` | `float` | `1.0` | Scales all reaction windows for this move (fast jabs < 1, slow slams > 1). |
+| `party_break` | `float` | `-1.0` | Playtest revision: Break this action removes from a party target that does not react (`-1` = `BalanceConfig.party_break_hit`). Only a damaging action deals it. No authored action sets it yet. |
 
 ### AIConsiderationDefinition
 `src/data/combat/ai_consideration_definition.gd`
@@ -712,6 +833,8 @@ A horizontal choice, not a stat tier. The family defines the action-command lang
 | `resonance_tags` | `Array[Enums.ResonanceTag]` | `[]` |  |
 | `socket_count` | `int` | `0` | Modification sockets (Forge milestone; stored now so saves stay compatible). |
 
+Optional `icon: Texture2D` defaults to null; the character menu and loot readouts use it only for presentation.
+
 ### ArmorDefinition
 `src/data/items/armor_definition.gd`
 
@@ -729,6 +852,8 @@ Garb, Charm or Relic. Mostly supplies rules ("Brace generates Focus"), not stat 
 | `granted_actions` | `Array[ActionDefinition]` | `[]` | Actions this item teaches while equipped (e.g. a charm granting a spell). |
 | `resonance_tags` | `Array[Enums.ResonanceTag]` | `[]` |  |
 
+Optional `icon: Texture2D` defaults to null; the character menu and loot readouts use it only for presentation.
+
 ### ResonanceDefinition
 `src/data/items/resonance_definition.gd`
 
@@ -744,15 +869,21 @@ A two-item synergy. Active when at least two equipped items (weapon, garb, charm
 ### PotionDefinition
 `src/data/items/potion_definition.gd`
 
-A brewed combat consumable carried in one of the potion slots. Using it is an ITEM action. Recipe data (Base + Reagent + optional Catalyst) arrives with the Stillroom milestone.
+A brewed combat consumable carried in one of the potion slots. Using it is an ITEM action. Playtest
+revision: campaign supplies are finite. A save holds a stock of doses per potion
+(`inventory.consumables`, at most `MAX_STOCK = 99`); a prepared position carries
+`min(charges, held)` doses into an encounter, and only a saved victory removes the doses that battle
+actually used. Practice, the Lab and static loadouts never read the stock and keep `charges`.
 
 | Field | Type | Default | Notes |
 |---|---|---|---|
 | `id` | `StringName` | `&""` |  |
 | `display_name` | `String` | `""` |  |
 | `description` | `String` | `""` |  |
+| `icon` | `Texture2D` | `` | Optional supply icon; readouts expose its resource path. |
 | `action` | `ActionDefinition` | `` | Category must be ITEM. Targets and effects live here. |
-| `charges` | `int` | `1` | Doses per expedition in one slot. |
+| `charges` | `int` | `1` | The per-encounter cap: the most doses one prepared position carries into an encounter. |
+| `starter_stock` | `int` | `0` | Doses a new journey starts with, and an older save receives once (0–99). Only starter-loadout potions may author it. Mending Draught and Fen Water Flask: 4. |
 
 ### TraitDefinition
 `src/data/rules/trait_definition.gd`
@@ -890,6 +1021,126 @@ What the party brings into battle: chosen at home (GDD core loop) or in the Comb
 | `companion` | `CompanionDefinition` | `` | Null = protagonist fights alone (combat toy). |
 | `familiar` | `FamiliarDefinition` | `` |  |
 | `potions` | `Array[PotionDefinition]` | `[]` |  |
+| `modifications` | `Array[ModificationDefinition]` | `[]` | V0.5B fittings resolved for `weapon`; `from_ids` reads an entry's `"modifications"` ids. Practice and the Lab leave it empty. |
+| `action_ids` | `Array[StringName]` | `[]` | V0.5 UI: the Hollow's arranged action ids in battle order (`from_ids` reads `"actions"`). Empty = every granted action in grid order (Practice, the Lab, static loadouts, older entries). |
+| `potion_charges` | `Array[int]` | `[]` | Playtest revision: the supply allowance, one entry per potion in `potions` (`from_ids` reads `"potion_charges"`, each clamped to 0–`charges`). Empty = every potion's authored `charges` (Practice, the Lab, static loadouts, older entries). `charges_for(index)` reads it. |
+| `familiar_passive` | `TraitDefinition` | `` | Playtest revision: the familiar's selected passive (`from_ids` reads `"familiar_passive"`). Null = the familiar's default. `familiar_trait()` is what the battle uses. |
+
+Constants: `MAX_POTION_SLOTS = 2`; `MAX_ACTIONS = 8` (V0.5A home of the eight-slot rule; the
+battle grid's `ActionMenu.CAPACITY` uses it). `UnitFactory.granted_actions(loadout, balance)` lists
+every action the gear grants (basic, techniques, innate, armor-granted, stance or Guard, Inspect; no
+duplicates; held to `MAX_ACTIONS` by the equipment checks). `protagonist_actions(loadout, balance)`
+is what the protagonist gets in battle: with `action_ids`, the granted ones in that order (never
+more than `MAX_ACTIONS`); without, every granted action. `companion_actions(definition, balance)`
+is unchanged (companions are not arranged).
+
+### MaterialDefinition
+`src/data/items/material_definition.gd` (V0.5A)
+
+A salvage material, counted per save in `inventory.materials`. Public item facts only. Saved stacks
+saturate at `MAX_COUNT = 999`; the catalog check keeps all authored grants of one material below it.
+
+| Field | Type | Default | Notes |
+|---|---|---|---|
+| `id` | `StringName` | `&""` |  |
+| `display_name` | `String` | `""` |  |
+| `description` | `String` | `""` | Required, public. |
+| `icon` | `Texture2D` | `` | Optional; readouts expose its resource path. |
+| `listed` | `bool` | `true` | Playtest revision: shown in the public ingredient catalog (Inventory, Stillroom, Forge) even at a count of zero. False hides it from the catalog; it is still counted and spent. |
+| `sort_order` | `int` | `0` | Catalog order: lower first, then by id. |
+
+### RewardDefinition
+`src/data/progression/reward_definition.gd` (V0.5A)
+
+One stable campaign reward. `id` is the persistent claim id (lowercase dotted words, ≤ 64 chars,
+e.g. `first_footsteps.patrol`): a save receives it once, in the write that commits its source, and
+Reset journey keeps the claim. Quantities are provisional slice data.
+
+| Field | Type | Default | Notes |
+|---|---|---|---|
+| `id` | `StringName` | `&""` | Claim id. |
+| `display_name` | `String` | `""` | Public label ("Patrol salvage"); never an encounter or species name. |
+| `source` | `RewardDefinition.Source` | `SITE_VICTORY` | `SITE_VICTORY = 0` (first committed victory at an encounter landmark), `WORLD_FLAG = 1` (the action that sets a world flag); V0.5C `GATHERED = 2`, `SECRET_FOUND = 3`, `PUZZLE_SOLVED = 4`. |
+| `source_id` | `StringName` | `&""` | Encounter landmark id, a `WorldDefinition.flags` id, a GATHERING or SECRET landmark id, or a puzzle id. |
+| `items` | `Array[RewardItem]` | `[]` | No item twice; may be empty when equipment slots are granted. |
+| `equipment_slots` | `int` | `0` | Permanent equipment bag expansion through this claim; 0–50, multiple of five. |
+
+### RewardItem
+`src/data/progression/reward_item.gd` (V0.5A)
+
+| Field | Type | Default | Notes |
+|---|---|---|---|
+| `kind` | `RewardItem.Kind` | `MATERIAL` | `MATERIAL = 0` or `EQUIPMENT = 1`. Consumables are not reward kinds. |
+| `material` | `MaterialDefinition` | `` | MATERIAL only; must be the registered `data/materials` definition. |
+| `equipment` | `Resource` | `` | EQUIPMENT only: a registered `WeaponDefinition` or `ArmorDefinition`. Never duplicated when already owned. |
+| `count` | `int` | `1` | MATERIAL: 1–99. EQUIPMENT: exactly 1. |
+
+Catalog checks (`RewardRules.validate_catalog`, run by `DefinitionRegistry.validate()` and the
+content test): duplicate claim ids, id format, empty or null items, kinds, counts, registered
+material/equipment references (not copies), sources (an ENCOUNTER landmark, a world flag, or a
+V0.5C gathering node, secret or puzzle of `registry.world`), and each material's authored total ≤ 999.
+
+### MaterialCost
+`src/data/crafting/material_cost.gd` (V0.5B)
+
+| Field | Type | Default | Notes |
+|---|---|---|---|
+| `material` | `MaterialDefinition` | `` | Must be the registered `data/materials` definition. |
+| `count` | `int` | `1` | 1–99. Spent whole on purchase; a refundable recipe returns exactly this. |
+
+### RecipeDefinition
+`src/data/crafting/recipe_definition.gd` (V0.5B)
+
+A home-station recipe. Playtest revision: a `FITTING` recipe crafts one fitting once (ownership is
+saved by `id`), a `POTION` recipe is brewed any number of times into finite stock (nothing is saved
+by `id`), and the older `FITTING_KIT` can no longer be bought (a save that owns one keeps every
+fitting it offered and may still refund it).
+
+| Field | Type | Default | Notes |
+|---|---|---|---|
+| `id` | `StringName` | `&""` | Lowercase dotted words (`forge.first_fitting`). |
+| `display_name`, `description` | `String` | `""` | Public, required. |
+| `station` | `RecipeDefinition.Station` | `FORGE` | `FORGE = 0`, `STILLROOM = 1` (grouping/labels; the bench hosts both). |
+| `kind` | `RecipeDefinition.Kind` | `FITTING_KIT` | `FITTING_KIT = 0` (legacy: retired from purchase, still refundable when owned), `POTION = 1` (brews `yield_count` doses of `potion`), `FITTING = 2` (crafts the one fitting in `fittings` for `weapon`). |
+| `costs` | `Array[MaterialCost]` | `[]` | The whole price, spent in the write that brews or crafts; non-empty, no material twice. For POTION, the Reagent. |
+| `refundable` | `bool` | `false` | FITTING_KIT only. A crafted fitting and a brew are not refundable. |
+| `mastery_points` | `int` | `0` | Crafting or brewing needs this many saved points on any one owned weapon in `mastery_weapons`. |
+| `mastery_weapons` | `Array[WeaponDefinition]` | `[]` | Required when `mastery_points > 0`. |
+| `weapon` | `WeaponDefinition` | `` | FITTING_KIT and FITTING. |
+| `fittings` | `Array[ModificationDefinition]` | `[]` | FITTING_KIT: non-empty, unique. FITTING: exactly one. |
+| `potion` | `PotionDefinition` | `` | POTION only. Every campaign potion, starters included, has one brew recipe. |
+| `yield_count` | `int` | `1` | POTION only: doses one brew adds to the stock (1–`MAX_YIELD = 20`). Every authored recipe yields 2. |
+| `base_name`, `base_description` | `String` | `""` | POTION only: the public Base (a reusable home supply, never a saved stack or hidden cost). No Catalyst in V0.5B. |
+
+### ModificationDefinition
+`src/data/crafting/modification_definition.gd` (V0.5B)
+
+A weapon fitting: a stable saved id reusing one complete authored trait by reference.
+
+| Field | Type | Default | Notes |
+|---|---|---|---|
+| `id` | `StringName` | `&""` | Lowercase dotted words (`fitting.merciful_grip`); saved and captured. |
+| `display_name`, `description` | `String` | `""` | Public, required. |
+| `trait_source` | `Resource` | `` | The registered weapon or armor authoring the trait (never granted or edited). |
+| `trait_id` | `StringName` | `&""` | Must resolve in `trait_source.traits`; `resolved_trait()` returns that shared resource. |
+
+Catalog checks (`CraftingRules.validate_catalog`): registered materials, mastery weapons, kit weapons,
+fittings, potions and trait sources; one kit per weapon; one recipe per potion; no recipe for a free
+starter; every fitting offered by a kit; and the V0.5B economy invariant: all recipes together cost
+no more of each material than the authored rewards grant, so any purchase order can buy everything.
+
+### GatheringDefinition, SecretDefinition, RuneSequenceDefinition
+`src/world/exploration/*.gd` (V0.5C), held by `WorldDefinition`.
+
+| Definition | Field | Type | Notes |
+|---|---|---|---|
+| Gathering | `landmark` | `StringName` | A GATHERING landmark. Its yield is a `GATHERED` RewardDefinition (source_id = landmark id). |
+| Gathering | `refresh` | `GatheringDefinition.Refresh` | `ONCE_PER_SAVE = 0` (the only policy: no clock, no regrowth, kept by Reset journey). |
+| Secret | `landmark` | `StringName` | A SECRET landmark: no prompt, discovery or map entry until revealed. Reward source `SECRET_FOUND`. |
+| Secret | `reveal`, `reveal_key` | `SecretDefinition.Reveal`, `StringName` | `ALWAYS = 0` (no key), `PUZZLE_SOLVED = 1` (a puzzle id), `WORLD_FLAG = 2` (a world flag). |
+| Rune sequence | `id`, `display_name` | `StringName`, `String` | Stable puzzle id (saved; reward source_id of `PUZZLE_SOLVED`) and public name. |
+| Rune sequence | `runes` | `Array[StringName]` | ≥ 2 RUNE landmarks, all in one area, each in one puzzle. |
+| Rune sequence | `solution` | `Array[StringName]` | 2–8 strikes of its own runes (repeats allowed). Never shown by a readout. |
 
 ## V0.2 support presentation additions (transient)
 
@@ -980,3 +1231,551 @@ Explicit auditions and version-preserving tone switches update shuffle history.
 version padding, copies external originals or renames inbox audio/sidecars, rejects duplicate
 cue/version/tone formats and archives previous audio/metadata before explicit `--replace` swaps.
 The delivery metadata retains original_filename provenance and records current_filename separately.
+
+## V0.5A salvage and preparation
+
+See [the implementation report](reports/V0_5A_BACKEND_IMPLEMENTATION.md) for the API/fixture guide.
+Nothing here changes combat rules, balance or the battle resource policy (every encounter resets).
+
+- **Grants ride inside the accomplishment's write.** `WorldSession.commit_victory()` grants the
+  site's unclaimed `SITE_VICTORY` rewards, `restore_bell()` the `WORLD_FLAG wayside_bell_restored`
+  rewards and `open_latch()` any `WORLD_FLAG return_latch_open` rewards (none authored), in the same
+  copy → change → write → adopt commit. Eligibility is the claim id, never an encounter token.
+  Discovering a site, examining the bell, defeat, leaving, an interrupted entry, Practice and the
+  recording Lab (`GameState.record_battle`) grant nothing. Equipment that is already owned is never
+  duplicated; material stacks saturate at 999.
+- **Receipts after adoption only.** A successful reward-capable command sets
+  `WorldSession.last_receipts: Array[RewardReadout]` (status `GRANTED`) and emits
+  `EventBus.rewards_granted(receipt)` once per receipt. A failed write changes nothing and emits
+  nothing; Retry grants once. A repeated victory token is a no-op with no receipt.
+- **World-entry reconciliation.** `WorldSession.reconcile()` (called by `WorldHost` after `open()`,
+  through the save-failure card) grants, in one write, the rewards whose accomplishment the save's
+  journey still proves (a cleared site or a set flag without its claim) and repairs the saved
+  loadout: approved gear in its own slot that the save does not list as owned becomes owned; an
+  unknown or wrong-slot armor id is unequipped; an unknown or wrong-slot weapon becomes the starter
+  loadout's weapon (or the first owned weapon). It writes nothing when there is nothing to do, so
+  a second call is a no-op. `last_repairs` lists the repairs written.
+- **Preparation station context.** *Superseded by the V0.5 UI section: equipment no longer needs a
+  station; the context now carries a typed Forge or Stillroom service.* `enter_station(landmark_id)`
+  (a PREPARATION landmark; refused
+  while an entry is pending) is opened by the bench interaction and ends with `leave_station()`,
+  which the host calls when the bench closes and on any return to exploration, battle or a
+  transition; `begin_entry()` and `reset_journey()` also end it. It is never saved; a saved anchor or
+  a hidden button never stands in for it.
+- **Preparation commands.** `equip(slot, item_id)`, `unequip(slot)` and `choose_weapon(weapon_id)`
+  (= `equip(WEAPON, …)`) return `Error` and set `last_preparation: PreparationResult`
+  {reason, error, slot, item_id, previous_id, changed}. Reasons: `NO_STATION`, `ENCOUNTER_PENDING`
+  (`ERR_UNAVAILABLE`); `UNKNOWN_ITEM`, `NOT_OWNED`, `WRONG_SLOT`, `REQUIRED_SLOT` (the weapon cannot
+  be emptied), `ACTION_LIMIT` (the whole new loadout would exceed `PartyLoadout.MAX_ACTIONS` for a
+  party member; nothing is truncated) (`ERR_INVALID_PARAMETER`); `WRITE_FAILED` (the writer's error;
+  live state unchanged). Changes apply to the next `EncounterEntry`; a captured entry and its retry
+  never change. Practice, the Lab and `PartyLoadout.from_ids` stay ownership-free.
+- **Readouts (plain data, copies).** `WorldSession.preparation() -> PreparationReadout` {station_id,
+  reason, reason_text, action_limit, protagonist_actions, companion_actions, slots:
+  `EquipmentSlotReadout` ×4 {slot, label, optional, equipped_id, equipped_name, can_remove, options:
+  [{id, name, icon_path, description, details, category, rarity, equipped, selectable, reason, reason_text,
+  actions, traits: [{name, description}], grants: [{name, description}], resonance}]}};
+  `inventory() -> InventoryReadout` {equipment_capacity, materials: [{id, name, description, icon_path, count}],
+  equipment: [owned option facts above plus slot, slot_label, mastery]}; `reward_previews(source,
+  source_id)` and `EncounterCardReadout.rewards` → `RewardReadout` {claim_id, label, source,
+  source_id, equipment_slots, status AVAILABLE/CLAIMED/GRANTED, items: [{kind, id, name, description, icon_path,
+  count, added, total, owned}]}, `status_text()` (eligibility wording), `summary()` and
+  `plain_text()`. They name only approved items and
+  their public text; no enemy, species or research facts, and no shared Resources.
+- **Bench listing.** `WorldRules.bench_weapons(progress)` lists every owned, approved weapon by
+  family, rarity and id (the three starters keep their order); `WorldRules.STARTER_LOADOUTS` was
+  removed.
+
+### V0.5A Director presentation integration
+
+`WorldHost.open_bench()` presents `session.preparation()` through `WorldPreparationView`, with
+Weapon/Garb/Charm/Relic tabs, public trait/action facts and backend action counts/availability.
+`equip`/`unequip` run through the host's `_commit` adapter; its optional rejection callback rebuilds
+the station from current readouts and shows `last_preparation.text()`. A failed write uses the
+existing Retry card and captures IDs/resources rather than discarded controls. Paused Inventory
+uses only `session.inventory()`; Inventory opened from preparation remains inside the same station
+interaction and returns to its selected slot. Neither inventory path equips or writes.
+
+Victory, bell restoration and old-save reconciliation render only the command's successfully
+adopted `last_receipts`, using `WorldRewardView`. No second EventBus listener consumes these same
+receipts. Empty/no-addition receipts are omitted. Old-save catch-up has one dismissible notice
+after a successful write; repeat world entry has none. The encounter card renders its already
+filtered `rewards` previews and typed status without changing eligibility or enemy knowledge.
+Material icon paths are now supplied by two native SVG textures through `MaterialDefinition.icon`.
+These are presentation changes only; save version, command contracts and combat remain unchanged.
+
+### V0.5A character menu follow-up
+
+The exploration portrait opens `WorldCharacterView` (Inventory, Actions, Magic, Skills). Paused
+Inventory and the bench inventory use the same view, preserving their return destination and
+station context. `CharacterReadout.build()` copies the real `UnitFactory.protagonist_actions()`
+into Actions/Magic plus saved weapon mastery and currently equipped passives into Skills (V0.5 UI:
+every granted action, arranged or not; resonance and familiar passives added). It
+does not simulate a battle or infer target numbers. Equipment and material cells provide
+`ItemInspectionReadout` through `inspection_readout`; the existing `HoverInspector` renders
+these with the same focus/pointer arbitration, detail setting, Alt/gamepad info, wheel ownership,
+right-click pin and source-destruction release as combat. `manages_detail_input` is opt-in for
+world inspectors; battle retains its existing input owner.
+
+Equipment has ten starting presentation slots (two rows of five). `RewardDefinition.equipment_slots`
+defaults to zero and must be 0–50 in multiples of five. First bell restoration grants five.
+`PreparationRules.inventory()` computes capacity from approved claimed reward definitions;
+ingredients consume no slots. There is no new saved counter or migration: existing claims unlock
+their row, failed transactions publish none, reset/reload retain capacity, and repeated claims
+cannot add rows. This is visible bag capacity, not an item-discard or full-bag rejection mechanic;
+compatibility equipment above capacity is always shown. Future acquisition rules must explicitly
+define a full-bag policy before adding content that can exhaust capacity.
+
+The V0.5 visual follow-up uses existing `UICraft` cloth/leather textures for square pockets and
+dark/gold atlas strips for ingredient and character-fact rows. These are presentation styles;
+item payloads, inspection input and capacity contracts stay the same. Application metadata is now
+0.5.0 at Adrian's request; save version remains 1.
+
+`WeaponDefinition.icon` and `ArmorDefinition.icon` are optional presentation textures copied into
+readouts; reward equipment uses the same paths. Compact loot rows show only icon/name/quantity,
+with descriptions in the shared inspector. The persistent Exposed sprite banner and bullseye
+are replaced by an effect icon using only the presentation ledger's weak-point flag. It explains
+increased damage, Precision, Spotter's Mark and Break recovery without revealing enemy research.
+
+## V0.5B Forge and Stillroom
+
+See [the implementation report](reports/V0_5B_BACKEND_IMPLEMENTATION.md) for the API/fixture
+guide. No combat rule, balance number or encounter changed; a battle without a fitting is
+identical to before (determinism probe in the report).
+
+- **Data.** `data/crafting/forge_first_fitting.tres` (`forge.first_fitting`: 2 Bog Iron, 1 mastery
+  point on Pilgrim's Edge, Mire Maul or Reedbow, refundable; Pilgrim's Edge with Merciful Grip or
+  Hollow Echo), `stillroom_clotting_salve.tres` (1 Bog Iron) and `stillroom_focus_tincture.tres`
+  (1 Storm Salt), both permanent; `data/modifications/merciful_grip_fitting.tres` and
+  `hollow_echo_fitting.tres` reuse the traits authored in `merciful_iron.tres` and
+  `hollow_reliquary.tres` by reference. Pilgrim's Edge keeps `socket_count = 0`; capacity is derived.
+- **Station.** *V0.5 UI: purchase/refund/fit need the open station of their own service (Forge anvil
+  or Stillroom; `WRONG_STATION` otherwise) and `prepare_potion` is a field command; see the V0.5 UI
+  section.* Every command needs the bench's station context and no pending encounter (the same
+  context as equipment). Commands return `Error` and set `WorldSession.last_crafting:
+  CraftingResult` {command, reason, error, reason_text, recipe_id, weapon_id, modification_id,
+  potion_slot, potion_id, previous_id, changed, spent, refunded, cleared_fitting}.
+  - `purchase(recipe_id)`: spends the whole price and records the unlock in one write.
+  - `refund(recipe_id)`: refundable recipes only; returns exactly the price and clears the unlock
+    and that weapon's fitting together; rejected whole (`REFUND_OVERFLOW`) if any stack would pass 999.
+  - `fit(weapon_id, fitting_id)` / `remove_fitting(weapon_id)`: free; the fitting applies to the
+    next encounter whenever that weapon is equipped.
+  - `prepare_potion(slot_index, potion_id)`: slot 0 or 1; a free starter or a potion whose recipe is
+    owned, not already in the other slot.
+  A repeated fit or potion choice is an accepted no-op that writes nothing.
+- **Reasons.** `NO_STATION`, `ENCOUNTER_PENDING` (`ERR_UNAVAILABLE`); `ALREADY_OWNED`
+  (`ERR_ALREADY_EXISTS`; never spends again); `UNKNOWN_RECIPE`, `RECIPE_NOT_OWNED`,
+  `INSUFFICIENT_MATERIALS`, `MASTERY_REQUIRED`, `NOT_REFUNDABLE`, `REFUND_OVERFLOW`, `UNKNOWN_FITTING`,
+  `WRONG_WEAPON`, `WEAPON_NOT_OWNED`, `NO_FITTING_CAPACITY`, `DUPLICATE_TRAIT`, `ACTION_LIMIT`,
+  `UNKNOWN_POTION`, `POTION_LOCKED`, `DUPLICATE_POTION`, `INVALID_POTION_SLOT`
+  (`ERR_INVALID_PARAMETER`); `WRITE_FAILED` (the writer's error; live state unchanged, Retry
+  repeats the command). Equipment commands gain `PreparationResult.Reason.DUPLICATE_TRAIT = 9` when
+  the new loadout would carry an active fitting's trait twice.
+- **Duplicate traits.** A fitting whose trait the resulting loadout already supplies (e.g. a Hollow
+  Reliquary with the Hollow Echo fitting on the equipped Pilgrim's Edge) is rejected in either
+  direction; nothing is doubled, dropped or removed. Reconciliation removes such a fitting from an
+  edited save (never the gear).
+- **Publishing.** A successful changing command emits `EventBus.crafting_completed(result)` once,
+  after adoption; rejections, no-ops and failed writes emit nothing.
+- **Battle.** `PreparationRules.battle_ids(progress, registry)` = the saved loadout ids plus the
+  resolved `modifications`; `EncounterEntry.capture()` stores them; `UnitFactory` adds each
+  fitting's trait to the protagonist with the source `"<weapon> fitting"`. Potions use the Supplies
+  slots (not the eight-action grid) and keep their authored charges; recipes unlock selection only.
+- **Readouts (plain-data copies).** `WorldSession.crafting() -> CraftingReadout` {station_id, reason,
+  reason_text, materials, recipes: `RecipeReadout` (costs with held/enough, Base/Reagents/Catalyst,
+  mastery required/current/weapons/met, owned, refundable, refund preview, can_purchase/can_refund
+  with typed reasons and text, fitting choices or potion facts), fittings: `FittingReadout` (weapon,
+  equipped, kit owned, capacity + reason, installed, active, can_remove, base traits, options with
+  trait facts, typed reasons and action counts), potion_slots: `PotionSlotReadout` ×2 (prepared
+  potion, options with source, recipe id, unlocked, selected, typed reasons), action counts}.
+  `CharacterReadout` and `PreparationReadout` read the same campaign loadout (fitting passives
+  included). No enemy, species or research facts.
+
+## V0.5C exploration vocabulary
+
+Production content is placed in `data/world/first_footsteps.tres` and the Reedway scene:
+iron seam (+1 Bog Iron), listening rhythm (low → high → middle, no direct reward), and the
+drowned niche it reveals (existing Fenrunner Leathers). The [Director specification](design/V05C_EXPLORATION.md)
+confirms persistence, copy and physically tested coordinates. `tests/fixtures/exploration_kit.gd`
+keeps an independent test proposal and a second, test-only puzzle. The
+[backend report](reports/V0_5C_BACKEND_IMPLEMENTATION.md) remains historical.
+
+- **Commands** (`WorldSession`, each one atomic write; rewards ride inside it; receipts and
+  `EventBus.rewards_granted` only after adoption): `gather(area_id, landmark_id)`,
+  `find_secret(area_id, landmark_id)`, `strike_rune(area_id, landmark_id)`. They set
+  `last_exploration: ExplorationResult` {command, reason, error, landmark_id, puzzle_id, strike
+  (`ADVANCED`, `MISTAKE`, `SOLVED`), progress, length, revealed, rewarded}. Reasons:
+  `UNKNOWN_FEATURE` (`ERR_INVALID_PARAMETER`), `ENCOUNTER_PENDING`, `HIDDEN` (`ERR_UNAVAILABLE`),
+  `ALREADY_DONE` (`ERR_ALREADY_EXISTS`; no write), `WRITE_FAILED`. Each charts its landmark and makes
+  it the resume point when it is a safe anchor.
+- **Rune grammar** (`ExplorationRules.strike`, pure): the expected rune advances the attempt; the
+  last one solves the puzzle; a wrong rune clears the attempt, or restarts it when it is the
+  solution's first rune. Every strike is saved. `WorldSession.puzzle(id) -> PuzzleReadout` {id, name,
+  solved, entered, length, runes: [{id, label, lit}]} never carries the solution.
+- **Perception.** `WorldRules.perceivable()` / `ExplorationRules.perceivable()`: an unrevealed secret
+  has no prompt, is never discovered by proximity and is never charted. `WorldRules.interaction_label`,
+  `dialogue` and `map_readout` take an optional `WorldDefinition` (the host passes its own).
+- **Host routing.** GATHERING and SECRET open a dialogue with `gather` /
+  `search` actions and show successful receipts with the existing reward card; Confirm at a RUNE
+  strikes at once and emits `WorldHost.rune_struck(result)`; solving shows a short card. Copy lines
+  are Director-authored in `WorldCopy`; static saved feedback, prompt progress and scene-authored
+  stone tones supplement the existing reward cards. No solution is passed to widgets.
+
+## V0.5 UI backend: journeys, saves, field preparation, stations, combat arrangement
+
+See [the implementation report](reports/V0_5_UI_BACKEND_IMPLEMENTATION.md). Save version 1;
+application 0.5.0. No combat rule, balance number, recipe, reward or encounter changed; a battle
+built from a static loadout is identical to before.
+
+- **Save slots.** `SaveManager.summary(slot) -> SaveSlotSummary` {slot, state (`EMPTY`, `READY`,
+  `UNREADABLE`, `UNSUPPORTED`), saved_at_unix (UTC epoch seconds; 0 = unknown), saved_at_text
+  ("2026-10-10 14:03 UTC" or "Time unknown"), save_version, game_version, battles_won, weapon_id,
+  weapon_name, difficulty, difficulty_name, starter_preset, reason_text}; `summaries()` (slot order)
+  and `journeys()` (READY only, newest first, equal times by slot number). Summaries read quietly
+  (`read_json_quiet`: no engine error for a damaged file), type-check every field and never load,
+  write or change the active slot. Every non-EMPTY state counts as occupied. `load_slot(slot)` adopts
+  only after parse and migration succeed (`GameState.adopt`); a missing, damaged or newer file
+  changes neither the live journey nor the active slot. `SaveMigrator.migrate` rejects an envelope
+  without a dictionary `data` section. The slot count is `SaveSlotSummary.SLOT_COUNT` (3) and
+  `SaveManager.SLOT_COUNT` aliases it. Pure rules use the class constant: tool scripts compile them
+  before the autoloads exist.
+- **New Journey.** `MainMenu.new_journey_requested(options)` is connected in `_ready`. Options:
+  `{difficulty: int, preset_id: StringName, slot: int, replace: bool}`; without `slot` the title
+  shows the explicit slot step (an occupied slot needs a separate Replace confirmation).
+  `GameState.start_journey(options, writer = SaveManager.write_progress) -> JourneyResult` {reason
+  (`OK`, `UNKNOWN_DIFFICULTY`, `UNKNOWN_PRESET`, `NO_SLOT`, `INVALID_SLOT`, `SLOT_OCCUPIED`
+  (`ERR_ALREADY_EXISTS`), `WRITE_FAILED`), error, slot, difficulty, preset_id, replace, replaced,
+  changed}. Values are never guessed: a missing or wrong-typed difficulty, preset or slot is
+  rejected. The fresh journey is `ProgressState` defaults with the preset weapon equipped, the
+  difficulty and starter recorded and the world at its start anchor (`JourneyRules.fresh_progress`):
+  nothing is owned, claimed or unlocked beyond a fresh campaign. It is written atomically to the
+  chosen slot and adopted (`GameState.adopt`: progress, active slot, session resumed, Settings
+  difficulty) only after success; then `game_saved(slot, true)` once. A rejection or failure changes
+  no file, the live journey, the active slot or Settings. `JourneyRules.setup(registry, summaries,
+  default_difficulty) -> JourneySetupReadout` {difficulties [{id, name, description}], presets [{id,
+  name, description, icon_path, category, facts, details}], slots, default_difficulty,
+  default_preset, suggested_slot (first EMPTY, -1 = all occupied), all_full()}.
+- **Save events.** `WorldSession.commit()` owns `EventBus.game_saved(slot, true)`: one emission per
+  successful world write, after adoption; none for a rejection, an accepted no-op or a failed write.
+  The world host pushes no save notice of its own and hides the notice layer while a battle owns
+  the screen. `SaveManager.save_slot` (Practice battle recording) is unchanged; `write_progress`
+  stays a silent candidate writer. Reward receipts still emit `rewards_granted` after adoption.
+- **Field preparation.** `equip`/`unequip`/`choose_weapon` and `prepare_potion` need no station:
+  `PreparationRules.availability(progress)` and `CraftingRules.field_availability(progress)` reject
+  only during a pending or active encounter (`ENCOUNTER_PENDING`). `PreparationResult.NO_STATION`
+  is never returned (kept for compatibility). Re-choosing the equipped item is an accepted no-op that
+  writes nothing. A changing equip reconciles the combat arrangement in the same write and reports it:
+  `PreparationResult.actions_removed / actions_added` [{id, name, position}], `summary()`
+  (saved/unchanged/rejection plus one sentence per affected position). Equipment options preview it
+  (`option.combat`); `option.actions` counts every action the gear would grant;
+  `PreparationReadout.granted_actions` / `protagonist_actions` (arranged, for battle) /
+  `combat_capacity`.
+- **Station services.** `WorldSession.enter_station(landmark_id)` opens the landmark's typed
+  `LandmarkDefinition.Service`; `service()` reads it; leaving, walking, transitions, battles and
+  Reset journey end it. `CraftingRules.availability(progress, service, required)`: `NO_STATION`
+  without an open station, `ENCOUNTER_PENDING`, then `WRONG_STATION` (`CraftingResult.Reason` 21,
+  `ERR_UNAVAILABLE`) when the open station offers the other service. Kit purchase, refund and
+  fit/remove need `FORGE`; Stillroom purchases need `STILLROOM`. `CraftingReadout.service`; each
+  recipe and fitting carries its own availability here; potion slots carry the field availability.
+  Display constants: `FITTING_SOCKETS = 3`, `POTION_POSITIONS = 4`, `fitting_capacity = 1`,
+  `potion_capacity = 2`, `locked_reason_text` (display concepts only).
+- **Combat arrangement.** `CombatRules`: `capacity()` = `STARTING_CAPACITY` (6) until authored
+  progression exists, never a saved counter; `POSITIONS` = `PartyLoadout.MAX_ACTIONS` (8 shown,
+  2 locked). Candidates = granted actions, Actions then Magic. `resolve(saved, candidate_ids, slots)`
+  keeps each saved position whose action is still granted, frees duplicates and ungranted ids, fills
+  freed and remaining positions with saved overflow first, then candidates in order; never a
+  duplicate or more than `slots`. Commands (`WorldSession`, field, one atomic write, typed
+  `CombatResult` in `last_combat` {command, reason, error, reason_text, action_id, position,
+  other_position, previous_id, before, after, changed}): `arrange_action(position, action_id)` (PUT:
+  replace, swap when already arranged, or fill the next empty position), `swap_actions(first,
+  second)`, `move_action(action_id, position)` (reorder). Reasons: `ENCOUNTER_PENDING`
+  (`ERR_UNAVAILABLE`), `INVALID_POSITION`, `LOCKED_POSITION`, `UNKNOWN_ACTION`, `NOT_GRANTED`,
+  `PASSIVE_SKILL`, `EMPTY_POSITION` (`ERR_INVALID_PARAMETER`), `WRITE_FAILED`. The same arrangement
+  is an accepted no-op. `WorldSession.combat() -> CombatReadout` {reason, reason_text, capacity,
+  positions_total, action_limit, positions [{index, locked, reason, reason_text, action_id}],
+  arranged, unarranged, actions/magic [candidate facts + arranged, position, selectable, reason,
+  reason_text, source], skills [passives + mastery facts; never selectable], companion {name,
+  actions}}. `CharacterReadout` lists every granted action and adds the authored passives the battle
+  applies: active resonances (e.g. Litany: Pilgrim's Edge + Pilgrim's Coat) and the familiar trait.
+- **Battle.** `PreparationRules.battle_ids` adds `"actions"`; `EncounterEntry.capture` stores it and
+  the journey difficulty; `UnitFactory.protagonist_actions` builds the hero's grid from it. Mastery
+  tally, AI, companions and potion Supplies are unchanged.
+
+## V0.5 playtest revision (backend)
+
+Additive to save version 1 and application 0.5.0. Save keys and the one-time supply migration are in
+section 6 ("Playtest revision keys"); new definition fields are in the field reference. This section
+lists the rules, results, readouts and events presentation consumes. Readouts are plain copies:
+changing one changes neither the save nor a definition. Every command below is rejected without a
+write (typed reason, nothing published), a failed write adopts and publishes nothing and the same
+command may be retried, and an accepted no-op writes nothing.
+
+### Capacities
+
+| Capacity | Shown | Usable | Where it is derived |
+|---|---|---|---|
+| Combat positions | 8 (`PartyLoadout.MAX_ACTIONS`) | 6 | `CombatRules.STARTING_CAPACITY`; unchanged by this revision. |
+| Supply positions | 4 (`SupplyRules.POSITIONS`) | 2 | `SupplyRules.capacity()` = `PartyLoadout.MAX_POTION_SLOTS`. |
+| Fitting sockets per fitting-capable weapon | 3 (`CraftingRules.SOCKETS`) | 1 | `CraftingRules.socket_capacity(registry, weapon_id)`; 0 for a weapon no fitting is offered for. |
+| Equipment bag cells | 20 (`InventoryReadout.EQUIPMENT_CELLS`) | 10; 15 once the bell restoration reward is claimed | `InventoryReadout.equipment_capacity`: `PreparationRules.STARTING_EQUIPMENT_CAPACITY` plus `RewardDefinition.equipment_slots` of claimed rewards. Cells at or beyond it are locked. |
+| Action icons per gear source | 3 (`LoadoutRules.STRIP_CELLS`) | actions that source grants | `LoadoutRules.strip()`. |
+| Familiar passives | up to 3 offered (`FamiliarDefinition.MAX_PASSIVES`) | exactly 1 selected | `FamiliarRules`. |
+| Doses held per potion | 99 (`PotionDefinition.MAX_STOCK`) | per encounter: `PotionDefinition.charges` | `SupplyRules`. |
+
+None of the usable numbers is saved: each is derived, so a later authored unlock changes one
+function and no save.
+
+### Finite supplies (`SupplyRules`, `src/progression/supply_rules.gd`)
+
+Four things are kept apart: the **recipe** (data, open to every save at the Stillroom), the
+**stock** (`inventory.consumables`), the **prepared choice** (`loadout.potions`; it survives an empty
+stock) and the **allowance** (what one battle starts with: `min(charges, held)`, captured once by
+the encounter entry).
+
+- `WorldSession.brew(recipe_id)` (Stillroom context): spends the recipe's whole price and adds its
+  `yield_count` to the stock in one write. Reasons: `NO_STATION`, `WRONG_STATION`,
+  `ENCOUNTER_PENDING`, `UNKNOWN_RECIPE`, `NOT_BREWABLE`, `MASTERY_REQUIRED`,
+  `INSUFFICIENT_MATERIALS`, `STOCK_OVERFLOW` (the yield would pass 99: the whole brew is rejected,
+  nothing is clipped). Brewing never prepares a position.
+- `WorldSession.prepare_potion(slot, potion_id)` (a field command, unchanged signature): needs a
+  usable position, an approved potion not in the other position and at least one held dose
+  (`NO_STOCK`). It moves no stock. Re-choosing what the position already holds is an accepted no-op,
+  even at zero doses. A position cannot be emptied.
+- `WorldSession.begin_entry()` captures `potion_charges` in the entry. Entering moves no stock, and a
+  retry of that entry rebuilds the battle from the captured numbers, never from the live stock.
+- The battle engine counts the item actions that actually resolved (`BattleResult.item_uses`:
+  potion id → count). `WorldSession.commit_victory()` removes them from the stock in the victory's
+  own write (`SupplyRules.settle`: never more than the captured allowance, never below zero), and
+  reports them in `last_consumed` (`[{id, name, icon_path, count, total}]`).
+- **Only a saved victory consumes.** Defeat then Return home, Leave battle, a quit or crash and a
+  failed victory write all leave the stock as it was; a repeated victory result
+  (`ERR_ALREADY_EXISTS`) settles nothing a second time.
+- `PreparationRules.battle_ids()` returns `potion_charges` and `familiar_passive` with the loadout
+  ids; `PartyLoadout.from_ids()` without them (Practice, the Lab, static loadouts) keeps the
+  authored charges.
+
+### Fittings (`CraftingRules`)
+
+- `WorldSession.craft_fitting(fitting_id)` (Forge context): spends the fitting recipe's whole price
+  and records ownership in one write. Reasons: station reasons, `UNKNOWN_FITTING`, `UNKNOWN_RECIPE`
+  (no craft recipe), `WEAPON_NOT_OWNED`, `ALREADY_OWNED` (`ERR_ALREADY_EXISTS`; crafted, or granted
+  by an older kit), `MASTERY_REQUIRED`, `INSUFFICIENT_MATERIALS`.
+- `WorldSession.fit(weapon_id, fitting_id, socket := 0)` and `remove_fitting(weapon_id, socket := 0)`
+  are free and never grant materials. New reasons: `FITTING_NOT_OWNED`, `INVALID_SOCKET` (not one of
+  the three shown), `LOCKED_SOCKET` (shown, beyond the usable capacity). Duplicate-trait and
+  action-limit checks are unchanged.
+- **Legacy kit.** `forge.first_fitting` can no longer be bought (`RECIPE_RETIRED`). A save that owns
+  it owns every fitting it offered (`CraftingRules.fitting_owned_source()` returns
+  `OWNED_LEGACY_KIT`; nothing is written to grandfather it) and may still `refund()` it for its
+  exact price; the refund clears an installed fitting only when the save does not also own that
+  fitting by craft. A refunded kit cannot be bought back, so no refund loop exists.
+- `WorldSession.purchase(recipe_id)` remains for older callers: it brews a potion recipe, crafts a
+  fitting recipe and rejects a kit. The stations emit `brew` and `craft` directly.
+- `CraftingRules.validate_catalog()` now requires a craft recipe for every fitting, a brew recipe
+  for every campaign potion, and that each recipe alone costs no more of a material than the
+  authored rewards grant in total. The old "all recipes together fit the route budget" check is
+  gone because brewing is repeatable.
+
+`CraftingResult`: `Command.BREW = 4`, `CRAFT = 5`; reasons `STOCK_OVERFLOW = 22`, `NO_STOCK = 23`,
+`RECIPE_RETIRED = 24`, `FITTING_NOT_OWNED = 25`, `INVALID_SOCKET = 26`, `LOCKED_SOCKET = 27`,
+`NOT_BREWABLE = 28`; new fields `produced` (`[{id, name, icon_path, count, total}]`, BREW) and
+`socket` (FIT); `operation()` returns `&"brew"`, `&"craft"`, `&"fit"`, `&"remove"`, `&"prepare"`,
+`&"refund"` or `&"purchase"` for a changed command and `&""` for a rejection or a no-op.
+
+`CraftingReadout` gains `ingredients` (the shared catalog, zero counts included), `supplies` (all
+four positions; `potion_slots` stays the two usable ones), `stock` (`[{id, name, description,
+icon_path, held, cap, usable, prepared_slot, recipe_id}]`) and `SUPPLY_POSITIONS`.
+`PotionSlotReadout` gains `state` (`EMPTY`/`PREPARED`/`DEPLETED`/`LOCKED`), `locked`, `reason`,
+`icon_path`, `description`, `held`, `cap`, `usable`, `inspection` (title, category, description,
+icon_path, facts, details) and `choices` (what the save holds, plus what the position holds).
+`RecipeReadout` gains `yield_count`, `potion_held`, `potion_cap`, `potion_total_after`, `can_brew`,
+`brew_reason`, `brew_reason_text`, `repeatable`, `retired`, `potion_icon_path`. `FittingReadout`
+gains `weapon_icon_path`, `sockets` (three entries: index, locked, reason, fitting id and name),
+`socket_capacity` and `legacy_kit` (id, name, owned, can_refund, refund lines); each option gains
+`owned`, `owned_source`, `recipe_id`, `costs`, `mastery_*`, `can_craft`, `craft_reason(_text)`,
+`can_fit`, `can_remove` and `action` (`&"remove"`, `&"fit"`, `&"craft"` or `&"none"`: the one
+primary command the option offers now).
+
+### Ingredients and Loadout facts
+
+- `PreparationRules.ingredient_catalog(progress, registry)` → `[{id, name, description, icon_path,
+  count, held}]` for every `listed` material, zero counts included, by `sort_order` then id.
+  `InventoryReadout.ingredients` and `CraftingReadout.ingredients` carry the same list.
+- `InventoryReadout` gains `EQUIPMENT_CELLS = 20`, `equipment_cells` (cells drawn),
+  `cells_locked_text` and `ingredients`; `equipment_capacity` stays the usable count. `EquipmentSlotReadout` gains `source_id`, `icon_path`, `strip_cells` and
+  `actions` (the actions that slot's item grants, at most three shown).
+- `WorldSession.loadout()` → `LoadoutReadout` (`LoadoutRules`, `src/progression/loadout_rules.gd`):
+  `gear` (weapon, garb, charm, relic: `EquipmentSlotReadout` with up to three action facts each),
+  `core` (the stance or Guard, the Hollow's innate actions, Inspect, and any action a strip had no
+  cell for), `positions` (eight: six usable, two locked, each with its action and source),
+  `arranged`/`unarranged`, `supplies` (four positions), `familiar`, `passives` (gear, fitting,
+  resonance and familiar passives in effect, never placed in a position), `mastery`, `ingredients`
+  and the bag capacity. An action fact is `{id, name, description, details, category, category_id,
+  focus_cost, timing, source_id, origin, origin_name, arranged, position, selectable, reason,
+  reason_text}`; every granted action appears exactly once across the strips and `core`. Fitting
+  sockets are in `FittingReadout`.
+- `PreparationResult` gains `actions_kept`, `arrangement_before`, `arrangement_after` and
+  `operation()` (`&"equip"`, `&"unequip"` or `&""`). `CombatRules.changes()` returns `kept` beside
+  `removed` and `added`; `reconcile()` returns `before` and `after`.
+
+### Familiar (`FamiliarRules`, `src/progression/familiar_rules.gd`)
+
+`WorldSession.familiar()` → `FamiliarReadout` (the travelling familiar, its passives with exactly one
+selected, the owned familiars as choices). `choose_familiar(id)` makes an owned, approved familiar
+travel and selects its default passive in the same write; `choose_familiar_passive(id)` selects one
+of the travelling familiar's passives. Both are field commands rejected during a pending encounter;
+see `last_familiar` (`FamiliarResult`: reasons `ENCOUNTER_PENDING`, `UNKNOWN_FAMILIAR`, `NOT_OWNED`,
+`UNKNOWN_PASSIVE`, `WRITE_FAILED`; `operation()`). Both authored familiars offer one passive today,
+so the selection is real but has one option. World entry repairs an unknown travelling familiar or
+a passive the familiar does not offer (`FamiliarRules.repair`, one repair line each). A familiar is
+still a passive: no turn, no target, no HP.
+
+### Party Break (`StaggerRules`)
+
+The Hollow and each companion have their own Break meter (`BattleUnit.stagger` / `max_stagger`,
+`BattleUnit.has_break_meter()`), filled at battle start from `BalanceConfig.party_max_break`. Only a
+damaging enemy action that reaches a living party target changes it, once per target per action:
+
+| The target… | Break removed |
+|---|---|
+| did not react, or was not offered a reaction | the hit's Break (`party_break`, else `party_break_hit`) |
+| reacted and failed | hit × `party_break_failed_multiplier` |
+| Braced successfully | hit × `party_break_brace_multiplier` |
+| Evaded successfully | hit × `party_break_evade_multiplier` |
+| Parried successfully | `party_break_parry_cost` instead of the hit's Break |
+
+The Parry cost is charged once per defending unit per resolved reaction (a multi-hit action costs it
+once) and is flagged `BattleEvent.FLAG_REACTION_COST = 1024` on its `STAGGER_DAMAGE` event. At zero
+the unit is Broken (`BROKEN`): it loses its next `party_break_turns` activation(s) (`TURN_SKIPPED`),
+is not offered a reaction and takes no further Break while Broken (`BattleUnit.can_react()`,
+`IntentRules.reacting_targets()`), then recovers with a full meter (`RECOVERED`). The same event
+types as enemy Break are used; the subject may now be a party member. None of the enemy Break
+consequences apply to the party: no damage vulnerability, no weak point, no growing cap, no Focus
+reward to the attacker, no `STAGGER_BREAK` trigger. When every party target of an action is Broken,
+no reaction window opens. A lethal hit deals no Break. Damage over time, triggered or effect damage
+and authored Stagger effects are not party Break sources. Enemy Stagger is unchanged. Readouts: `ReactionSpec.break_unreacted`, `break_brace`, `break_evade`, `break_parry_cost`,
+`break_remaining`, `break_for(reaction)`, `would_break(reaction)`; `IntentPreview.break_unreacted`,
+`break_braced`, `break_parry_cost`; `UnitDisplay.has_break` and `UnitReadout.has_break`,
+`break_current`, `break_max`; `BattleMetrics.party_breaks`. `ExecutionSimulator` weighs a reaction
+that would Break its own unit (`BROKEN_TURN_VALUE = 0.6`), so simulated players stop parrying
+themselves into a lost turn.
+
+### Encounter countdown (`EncounterCountdown`, `src/world/encounter_countdown.gd`)
+
+The move-away countdown replaces the Engage card. Pure state fed by `WorldHost` each exploration
+frame with `[{id, distance, radius}]` for every uncleared encounter site of the area:
+
+- Entering an armed site's radius starts `DURATION = 3.0` s for that site, which then owns the
+  countdown (the nearest armed site starts; ties by id). Leaving the radius cancels and disarms the
+  site until the feet are `REARM = 24` px beyond the radius. A site is armed from where the feet
+  stand when an area loads, so a threat underfoot waits until the player has left.
+- Frames outside exploration (a modal, the paused menu, a lost focus, a transition) are *frozen*:
+  the remaining time is held, never reset. Opening and closing a menu cannot postpone it.
+- Interact inside the radius fights at once (Adrian, V0.5 follow-up): the host calls `engage(site)`
+  without waiting, whether or not a countdown is running. The prompt reads "Engage the patrol"
+  (`WorldCopy.PROMPT_ENGAGE`).
+- At zero `update()` returns the site once and the host calls `engage(site)`. Either way: one saved
+  entry, one battle; `engage()` drops a running countdown first and refuses while a battle exists. A
+  failed entry write shows the usual Retry card; Retry enters the same site once.
+- A cleared site is not in the list and can own nothing. An area load re-arms from scratch and a
+  portal cancels first.
+
+`WorldHost.encounter_countdown()` → `EncounterCountdownReadout` (`state`, `active`, `frozen`,
+`threat_id`, `threat_label` (the public category), `remaining`, `duration`, `fraction()`), current
+every physics frame; `WorldHost.encounter_countdown_changed(readout)` fires on state changes; the
+HUD's `present_countdown(readout)` is called on changes and every frame while one is active.
+`WorldHost.open_encounter_card()` and `WorldRules.encounter_card()` remain as unused APIs.
+
+### Quest journal (`QuestRules`, `src/world/quest_rules.gd`)
+
+One quest, `first_footsteps.wayside_bell`, with stages `FIND = 0` (the guard holds the approach),
+`RESTORE = 1` (guard cleared), `RETURN = 2` (bell restored) and `COMPLETE = 3` (back in Gloamstead
+with the bell restored; kept once reached, until Reset journey). The stage is derived from `world`;
+its step text is the HUD objective's own `WorldCopy` lines. It adds no reward, flag or content.
+`WorldSession.quests()` → `QuestJournalReadout` (`active`, `completed`, `quest(id)`), each entry a
+`QuestReadout` (`id`, `title`, `objective`, `stage`, `stage_count`, `completed`, `steps`:
+`[{stage, text, done, current}]`). Reading announces and writes nothing.
+
+`WorldSession.commit()` re-derives the stage on the candidate before every write and, after a
+successful write, emits `EventBus.quest_changed(QuestChange)` (`kind`: `ACQUIRED`, `ADVANCED`,
+`COMPLETED`, `RESET`; `quest_id`, `title`, `objective`, `previous_stage`, `stage`). Two cases are
+silent by design: a quest entering the journal through a world write (an older or loaded save had no
+recorded stage) and anything adopted by `reconcile()` at world entry. A journey created this session
+is announced once by `WorldSession.announce_new_journey()` (no write), which the host calls at that
+journey's first world entry (`GameState.take_fresh_journey()`).
+
+### Save origin, operation facts and cues
+
+- `EventBus.save_completed(SaveFact)` follows every successful `game_saved`: `SaveFact {slot,
+  origin}`, `Origin.AUTOMATIC = 0`, `MANUAL = 1`. Manual is exactly `WorldSession.save()` (Save, Save and
+  return to title, Save and Quit). Everything else is automatic: every other world write, a new
+  journey's first write and a Practice recording (`SaveManager.save_slot`). A failed write emits
+  neither event.
+- Changed commands publish one typed fact each, after their write: `EventBus.crafting_completed`
+  (`CraftingResult`, existing), `preparation_completed(PreparationResult)` and
+  `familiar_changed(FamiliarResult)`. Each result's `operation()` names what happened.
+- `AudioManager.operation_cue(result) -> int` maps a result to a `Cue` (`-1` = no sound): equip,
+  prepare, fit → `UI_EQUIP`; unequip, remove → `UI_UNEQUIP`; brew → `CRAFT_BREW`; craft →
+  `CRAFT_SMITH`; refund, purchase → `PURCHASE`. The five cues are appended to `AudioManager.Cue`;
+  their sounds are the Director's. The backend plays nothing itself.
+- `WorldSession.commit_victory()` fills `last_learnings` (`LearningReadout`: `enemy_id`, `name`,
+  `icon`, `icon_path`, `previous_tier`, `new_tier` and their names): one entry per enemy whose
+  knowledge tier rose, measured against the tier before the victory was adopted. Empty after a
+  failed write or a repeated result. `WorldHost.victory_learnings` holds them while the victory
+  card is open.
+
+### Input
+
+`InputBindings` accepts middle, X1 and X2 mouse buttons as bindings (`"mouse:3"`, `"mouse:8"`,
+`"mouse:9"` in `settings.cfg`; left and right stay reserved for the pointer). `kind_of(event)`,
+`capture_code(event)`, `is_capture_cancel(event)`, `rebound()`, `conflicts()` and
+`code_label()` handle them; `ui_mirror_event(event)` turns a bound mouse press into the matching
+`ui_*` action so menus follow a mouse-bound Confirm or Cancel, forwarded by `Settings`' window input
+handler. `WorldPlayer.moving` is true only when input achieved travel that is not along the normal
+of a surface the feet collided with that step (`WorldPlayer.walked()`), so a tap into a wall never
+reads as a walking frame.
+
+### V0.5 follow-up: sprint, shortcuts, session log
+
+- **Sprint.** `InputBindings.WORLD_SPRINT` (Shift, pad L-Stick). `WorldPlayer.step(direction, delta,
+  sprint)` moves at `SPRINT_MULTIPLIER` (1.6) × `SPEED` while `WorldPlayer.stamina` (`Stamina`, pure)
+  allows: `DRAIN_SECONDS = 5` of sprint from full, refilled at a rate of `RECOVER_SECONDS = 5` from
+  empty whenever Hollow is not sprinting; emptying it sets `exhausted` until the input is released.
+  Only travel achieved at sprint speed spends it; only exploration frames advance it; `place()`
+  resets it. `StaminaMeter` draws it under the feet while it is not full. Nothing is saved.
+  `WorldHost.sprint_held()` reads the input through the held-input gate (`scripted_sprint` in tests).
+- **Shortcuts.** `WORLD_LOADOUT` (L), `WORLD_INVENTORY` (I), `WORLD_JOURNAL` (J), `WORLD_FIELD_GUIDE`
+  (F), keyboard only (the pad's face buttons belong to menus). `WorldHost.toggle_view(view)` opens the
+  view from exploration, closes it when it is on screen (through the view's own Back), and switches
+  between the shortcut views (`shortcut_view()`: `map`, `loadout`, `inventory`, `journal`,
+  `field_guide`, `""` while exploring, `other` otherwise). Stations, dialogue, the menu, reward and
+  save-failure cards, battles and transitions ignore them. `FieldGuide.close()` leaves the guide.
+- **Session log.** `project.godot` keeps Godot's file logging on for every platform at
+  `user://logs/hollow_choir.log` and flushes on each print; each run starts a new file and the
+  previous ones are kept beside it, timestamped (default 5). The `SessionLog` autoload prints a
+  header (version, save format, build, platform, adapter, renderer, display) and `event(category,
+  text)` breadcrumbs (`[T+mm:ss.mmm] category: text`): scenes, areas, opened views, engagements,
+  battle start (encounter, seed, difficulty) and result, saves and failed writes, quest stages, and
+  `session: ended normally` on a clean exit. `quiet` silences it (the test runner sets it).
+  `SessionLog.folder()` is the OS path; Settings → Gameplay → Session logs opens it.
+
+### Public wording
+
+Rule classes return player-facing lines straight from `WorldCopy` constants (`CRAFT_*`,
+`FAMILIAR_*`, `SUPPLY_*`, `QUEST_BELL_*`, `BAG_LOCKED_CELL`, `JOURNAL_TITLE`). A line with `%d`
+placeholders (`CRAFT_STOCK_OVERFLOW`, `SUPPLY_FACT_HELD`, `SUPPLY_FACT_USABLE`) keeps them. The
+overlap-era name lookup (`WorldText.line`) is no longer used.
+
+### Presentation wiring
+
+`WorldHost` calls the views directly: `WorldCharacterView.present(inventory, loadout)` (Loadout and
+Inventory tabs; the pre-Loadout Equipment and Combat pages are gone), `present_preparation`,
+`present_combat`, `WorldCraftingView.present_operation(CraftingResult)`,
+`WorldRewardView.present_learnings(Array[LearningReadout])`, `WorldJournalView.make(QuestJournalReadout)`
+and `ExplorationHUD.present_countdown(EncounterCountdownReadout)`. `JourneyNotices` listens to
+`save_completed` only; `OperationFeedback` plays `AudioManager.operation_cue(result)` for the three
+operation events. A floating tooltip card is dismissed as soon as the pointer leaves its source
+unless it is pinned; the fixed battle dock keeps its subject across short gaps and while the
+pointer reads or scrolls it. A card for a source inside a control marked with the `tooltip_anchor`
+meta (`OwnedChoicePopup`) is placed beside that whole control, level with the source, and the
+popup's own card draws above the popup (both are top-level, so their z is absolute).

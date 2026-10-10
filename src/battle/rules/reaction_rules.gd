@@ -20,6 +20,13 @@ static func build_spec(ctx: BattleContext, attacker: BattleUnit, defenders: Arra
 	spec.windup_ms = action.windup_ms * ctx.assist.time_scale
 	spec.auto_brace = ctx.assist.auto_brace
 	spec.pause_before = ctx.assist.pause_before_reaction
+	spec.break_unreacted = StaggerRules.party_break_amount(balance, action, null)
+	spec.break_brace = StaggerRules.party_break_amount(balance, action, ReactionResult.make(Enums.ReactionType.BRACE, true))
+	spec.break_evade = StaggerRules.party_break_amount(balance, action, ReactionResult.make(Enums.ReactionType.EVADE, true))
+	spec.break_parry_cost = StaggerRules.party_break_amount(balance, action, ReactionResult.make(Enums.ReactionType.PARRY, true))
+	for defender in defenders:
+		if defender != null and defender.has_break_meter() and not defender.is_broken():
+			spec.break_remaining = defender.stagger if spec.break_remaining <= 0.0 else minf(spec.break_remaining, defender.stagger)
 	return spec
 
 

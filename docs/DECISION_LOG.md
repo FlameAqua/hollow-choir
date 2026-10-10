@@ -1,5 +1,24 @@
 # Decision Log
 
+## D-048 — Prototype the revised journey, station and character menus
+
+**Owner:** Adrian / Director. **Status:** Frontend prototype for review, 10 October; backend assigned.
+**Update, 10 October:** Backend returned and presentation integrated for Adrian's human test.
+D-049–D-054 below govern the working transactions; the preview-only consequences below record
+the original prototype stage. See [Director acceptance](reports/V0_5_UI_DIRECTOR_ACCEPTANCE.md).
+**DECISION:** Adopt [the requested UI iteration](design/V05_UI_PROTOTYPE.md): five-choice title,
+chronological Continue picker, dedicated anvil and Stillroom, icon-first Equipment/Inventory/Combat,
+Character-owned Field Guide and stacked save/pickup notices. Deprecate the public preparation-bench
+flow and public reset. Keep legacy IDs and debugging code compatible. New journey creation,
+autosave event ownership, field equipment permissions, station service checks and persisted six-of-
+eight Combat arrangements go to [Claude](briefs/V0_5_UI_BACKEND_HANDOFF.md).
+**WHY:** Gear and crafting decisions need a visible object/slot hierarchy and one familiar information
+box. Long contextual explanations belong behind Help/inspection. Saves must never displace menus.
+**CONSEQUENCES:** New Journey's Start is disabled until real creation is wired; Combat arrangements
+are explicitly local previews. Existing station guards and engine capacity remain intact. Two future
+Forge sockets and two future potion/Combat positions do not authorize new mechanics. Generated art
+is supplied with provenance; no new audio delivery, balance retune or version change is required.
+
 Every irreversible (or expensive-to-reverse) decision gets an entry. Format per `DESIGN_DOCUMENT.md`
 ("The handoff format"). **Owner** marks who has authority; entries marked *Provisional* await the
 Director (ChatGPT) and are cheap to change because they live in data.
@@ -88,11 +107,12 @@ player can see does not cost the turn. The engine still normalises a submitted d
 "Brace or Evade?" a real decision against status attacks.
 
 ## D-009 — Settings live in their own autoload and file (`user://settings.cfg`)
-**Owner:** Claude (technical). **Status:** Locked.
+**Owner:** Claude (technical). **Status:** Amended by D-049, 10 October 2026.
 
-**WHY:** Difficulty, assist and accessibility are per player, not per save slot, and must be changeable
-at any time ("Allow difficulty to change during an existing save").
-**CONSEQUENCES:** Adds a seventh autoload (`Settings`) to the GDD's suggested six.
+**WHY:** Assist and accessibility are per player. Tactical difficulty is per journey under D-049,
+and remains changeable at any time ("Allow difficulty to change during an existing save").
+**CONSEQUENCES:** Adds a seventh autoload (`Settings`) to the GDD's suggested six. Settings still
+presents difficulty; New Journey and loading a save apply that journey's value.
 
 ## D-010 — Input actions are registered at runtime from one default table
 **Owner:** Claude (technical). **Status:** Locked.
@@ -499,3 +519,204 @@ with its group/point; existing safe anchors, physics tiles and portals remain in
 description now reflects the existing bell flag. Pixel alignment affects art/camera only.
 [Acceptance](reports/V0_4_DIRECTOR_ACCEPTANCE.md) and [follow-up](briefs/V0_4_POST_INTEGRATION.md)
 record evidence and the open human/controller/listening gates; no release or human approval is inferred.
+
+## D-042 — Present saved salvage and station-owned preparation
+
+**Owner:** Director/UI integrator. **Status:** Integrated for Adrian's test, 9 October 2026; uncommitted.
+**DECISION:** Accept V0.5A's backend foundation and connect all four equipment slots, read-only
+inventory, public first-clear previews, saved victory/bell reward cards and a one-time old-save
+catch-up notice. Explain that Reset journey retains salvage/claims and cannot renew rewards.
+Finalize material/reward/rejection copy; use native stepped material icons and existing textured
+panels. Retain Grounding's authored 12 Stagger and the application/save versions 0.3.0/1.
+**WHY:** Earning the charm should suggest a concrete return to the bench and a Wet → Shock outing;
+materials and already-claimed previews must tell the truth about the bounded route.
+**CONSEQUENCES:** Rules, claims, ownership, station context, action ceiling and atomic writes remain
+backend-owned. A preparation rejection stays in the station and shows its typed reason; Retry
+retains the context, and inventory within preparation returns to the selected slot. Catch-up
+feedback appears only after a successful write and does not repeat on reload. Materials explicitly
+have no use yet. [Director acceptance](reports/V0_5A_DIRECTOR_ACCEPTANCE.md),
+[presentation evidence](reports/V0_5A_PRESENTATION.md) and [icon provenance](art/SALVAGE_ICONS_V01.md)
+record this pass; gameplay, art, controller and listening gates remain open.
+
+## D-043 — Bound the first Forge/Stillroom budget and reversible choice
+
+**Owner:** Director. **Status:** Specification ready for Claude, 9 October 2026; not implemented.
+**DECISION:** Adopt [V0.5B's brief](briefs/V0_5B_BACKEND_HANDOFF.md): one fitting kit costs 2 Bog
+Iron and requires 1 saved mastery point on any owned starter; it provides one introductory socket
+on Pilgrim's Edge for Merciful Grip or Hollow Echo, or no fitting. Switching/removing is free;
+reclaiming the kit atomically clears it and refunds the full 2 iron once. Clotting Salve and Focus
+Tincture permanent recipe unlocks cost 1 Bog Iron and 1 Storm Salt respectively, with no mastery
+threshold and no refund. Preserve two potion slots and all-reset capacities.
+**WHY:** Total 3 iron + 1 salt fits the route's 4 + 1 in every purchase order. A single recorded
+weapon action opens capacity without a repeat-clear grind; reusable existing traits offer comfort/
+recovery versus a weak-point opening. The shared unlock does not demand mastery on three weapons.
+**CONSEQUENCES:** This deliberately permits a single introductory fitting on the common sword
+despite its current zero authored sockets; derive capacity from the kit instead of mutating shared
+Resources. No second socket, damage tier, depletion, currency, new action or map work. Duplicate
+traits and refund overflow reject whole. New entry snapshots capture fitting IDs; retries remain
+immutable. This is a backend handoff specification, not shipped crafting or human balance approval.
+
+## D-044 — Character menu, compact inspection and reward-unlocked bag rows
+
+**Owner:** Adrian; implemented by Codex. **Status:** Integrated for review, 9 October 2026; uncommitted.
+**DECISION:** Remove redundant reading buttons. Use icon/name/quantity loot with hover details;
+replace the persistent Exposed banner with a ledger-driven, inspectable effect icon. Add the
+exploration portrait and Inventory/Actions/Magic/Skills tabs. Inventory starts with ten thin
+equipment frames in two rows of five, separate ingredient stacks and the combat inspector's
+Alt/detail/pin/scroll behavior. Adrian chose specific progression rewards for expansion; author
+five permanent slots on first bell restoration.
+**WHY:** Long descriptions belong in contextual inspection, and existing scrolling already
+handles long content. Bag rows should grow through explicit accomplishments rather than a
+character-level system that the game does not have.
+**CONSEQUENCES:** Capacity is a readout of approved persistent reward claims, with no new saved
+counter or migration. Failure/retry/reset/duplicate boundaries remain atomic. No acquisition
+discard/full-bag rejection is introduced, and all legacy equipment stays visible. Menu browsing
+never equips or saves. The four preparation equipment types and eight-action ceiling are unchanged.
+[Follow-up](reports/V0_5A_CHARACTER_MENU.md) records implementation, validation and captures.
+
+## D-045 — Atlas character-menu frames and integrated V0.5 test timing
+
+**Owner:** Adrian; implemented/prepared by Codex. **Status:** Presentation integrated; later
+backend stages remain unimplemented, 9 October 2026; uncommitted.
+**DECISION:** Reuse the existing square cloth/leather atlas frames for equipment pockets and
+dark/gold strips for ingredient, action, magic and skill rows. Update application metadata to
+0.5.0, preserving save version 1. Continue with Claude's bounded V0.5B Forge/Stillroom stage,
+Codex integration and a bounded C brief, then V0.5C exploration and its presentation. Run the full
+human test on the integrated V0.5 build rather than requiring it before the next backend stage.
+**WHY:** The supplied atlas references fit the game's existing materials. A complete return/build/
+discovery loop gives the full human test a more useful scope than testing the isolated A seam.
+**CONSEQUENCES:** Hover/Alt/pin inspection and reward-derived slot growth remain intact. Automated
+checks and focused reviews still accompany each return. Historical version holds are superseded
+by Adrian's explicit update; no save migration is added. Human/controller/listening acceptance
+stays open. The [current handoff](briefs/V0_5_CONTINUATION_FOR_CLAUDE.md) is prepared, not dispatched.
+
+## D-046 — Connect the Forge and Stillroom; confirm backend policies
+
+**Owner:** Director, following Adrian's V0.5 continuation. **Status:** Integrated, 10 October 2026;
+uncommitted. **DECISION:** Keep the specified costs, mastery, exact refund and trait references;
+connect all commands through the host's transaction/rejection/retry path. Two copies of the same
+potion are rejected: two slots should support distinct situational choices. Duplicate traits are
+checked against the resulting active loadout in either direction; an unequipped fitting is inert.
+Grandfather legacy prepared recipe potions without charging salvage. Accept no-op fitting/potion
+choices without writes; equipment re-choice also writes nothing under D-053 (supersedes the
+earlier V0.5A exception).
+**WHY:** Preserve existing saves and avoid hidden costs, double traits or redundant writes.
+Recipe source, free reusable bases, no Catalyst, mastery/current stock, refund preview, kept
+Pilgrim's Patience and fitting activation are presented from typed readouts.
+**CONSEQUENCES:** Recipes stay permanent; kit refunds clear the fitting atomically. No balance or
+battle-resource change. Merciful Grip's wider Perfect window also feeds Pilgrim's Patience's
+Focus: watch it in Adrian's test, without claiming balance acceptance or retuning it.
+
+## D-047 — Place the first gathering / discovery / rune loop
+
+**Owner:** Director. **Status:** Integrated for Adrian's test, 10 October 2026; uncommitted.
+**DECISION:** Accept the proposal with physically checked placements in
+[the bounded C specification](design/V05C_EXPLORATION.md). One seam grants +1 Bog Iron once per save.
+Low → high → middle reveals the drowned niche; searching grants existing Fenrunner Leathers once.
+Wrong runes clear the attempt, with low starting a fresh attempt when applicable. Confirm strikes
+directly; gathering/searching require explicit dialogue actions. Each strike saves once.
+**WHY:** Optional exploration yields a real alternative garb and reuses existing rules/rewards.
+Written clue, notch counts, saved lights, prompt progress and static feedback preserve sound-off
+play. Original small stepped art and three soft procedural stone tones extend the established
+visual/audio vocabulary; existing approved music needs no new delivery.
+**CONSEQUENCES:** Gathered nodes stay gathered after Reset journey; found secrets, solved puzzles
+and rune attempts reset; claims never repeat. Reset copy says so. The route gains one spare iron,
+with no price, damage, encounter, terrain-regeneration or version change. Gate chimes stays
+test-only. Human/controller/art/listening gates remain open; V0.6 stays later work.
+
+## D-049 — Tactical difficulty belongs to the journey (amends D-009)
+
+**Owner:** Director. **Status:** Accepted for integrated V0.5, 10 October 2026; uncommitted.
+**DECISION:** New Journey saves its chosen difficulty; loading applies it to Settings. Settings
+can change it at any time during a journey: live state follows immediately, and the next normal
+save persists it. Encounter entries capture the difficulty for that attempt and its retries.
+Execution assist, bindings and accessibility remain per player.
+**WHY:** A named journey should resume its own tactical challenge while retaining adjustable difficulty.
+**CONSEQUENCES:** Amend D-009's original per-player difficulty rule. Closing through the window
+before a save can lose a recent change; in-game exits save first. No new write boundary or version bump.
+
+## D-050 — Kindle starts outside the six combat positions
+
+**Owner:** Director. **Status:** Accepted for Adrian's human test, 10 October 2026; uncommitted.
+**DECISION:** Keep the deterministic first-six order, Actions then Magic, for every starter and
+an older save without an arrangement. Kindle starts unplaced. It remains granted, inspectable
+and selectable in Magic; a visible Unplaced line names it. Place it to take it into battle.
+**WHY:** Six positions make a real choice from seven granted actions. Preserve the authored order
+and introduce the choice explicitly rather than hiding the seventh action.
+**CONSEQUENCES:** Older players also receive this default; their next battle omits Kindle until
+they place it. Existing captured entries retain their original actions. Human usability and
+balance acceptance remain open; this ruling does not certify either.
+
+## D-051 — Older journeys without difficulty resume as Adventurer
+
+**Owner:** Director. **Status:** Accepted, 10 October 2026; uncommitted.
+**DECISION:** A save without campaign difficulty uses Adventurer, independently of player Settings.
+**WHY:** A deterministic default avoids transferring another journey's challenge into an older save.
+**CONSEQUENCES:** An older Tactician player must choose Tactician once again. Optional campaign
+fields keep save version 1 compatible; loading does not write solely to record this default.
+
+## D-052 — Equipment refills freed combat positions in grid order
+
+**Owner:** Director. **Status:** Accepted, 10 October 2026; uncommitted.
+**DECISION:** Shared actions keep their positions. New equipment actions fill freed positions in
+grid order in the equipment transaction. No per-weapon arrangement memory in V0.5.
+**WHY:** The current arrangement stays predictable and the equipment preview can explain every change.
+**CONSEQUENCES:** Sword → Maul → Sword may change a customised sword order. The candidate previews
+and adopted result name affected positions; the arrangement and equipment save together.
+
+## D-053 — Re-choosing equipped gear is a no-op
+
+**Owner:** Director. **Status:** Accepted, 10 October 2026; uncommitted.
+**DECISION:** Selecting the currently equipped item writes nothing and emits no save event. Show
+the unchanged result. This supersedes the V0.5A equipment exception retained in D-046.
+**WHY:** Save feedback should represent a successful write; an unchanged selection has no new progress.
+**CONSEQUENCES:** Equipment now follows the existing fitting, potion and arrangement no-op policy.
+
+## D-054 — Battle owns the screen; station save confirmations have a footer dock
+
+**Owner:** Director. **Status:** Accepted and presented, 10 October 2026; uncommitted.
+**DECISION:** Hide world notices while battle owns the screen. Notice timers continue, including
+cards created during battle. In wide station and Character menus, reserve footer space for the
+coalesced Game Saved card, beside the fixed actions. Other menus and exploration retain the stack.
+**WHY:** Neither an encounter-entry save nor a station save should obscure an action the player needs.
+**CONSEQUENCES:** No paused timers, deferred success announcement or duplicate event owner.
+The station's Close button remains visible during the confirmation; Reduced Motion keeps it static.
+
+## D-055 — Unified Loadout and visible capacity stay within earned limits
+
+**Owner:** Adrian / Director. **Status:** Implemented and rendered; human acceptance open (10 October).
+**DECISION:** Replace separate Equipment/Combat with one Loadout. Show truthful gear-source strips,
+Core/stance grants, eight destinations (six usable), pet/authored passive selection and four supplies
+(two usable). Inventory draws twenty cells in four rows of five; actual capacity stays 10/15.
+Three visible Forge sockets retain one usable socket. All three menus share the supplied approved
+ingredient catalog, including zero quantities. No extra grant, unlock or action is implied by art.
+**WHY:** Source, destination and passive membership need to be visible together; drawing capacity
+must not change progression rules.
+**CONSEQUENCES:** Widgets consume backend readouts and emit commands. Missing contracts cannot
+fabricate playable choices. Existing action/source and old-save content must remain reachable.
+[Implementation status and gates](reports/V0_5_PLAYTEST_DIRECTOR_IMPLEMENTATION.md).
+
+## D-056 — Finite supplies and individually crafted fittings
+
+**Owner:** Adrian (finite paid brewing) / Claude and Director (provisional policies).
+**Status:** Provisional for playtest; economy and human acceptance open, 10 October.
+**DECISION:** Brew pays each batch into saved finite dose stock. Use the backend proposal of starter
+4 Mending/4 Flask, 1 ingredient → 2 doses, 99-dose cap; only a saved victory settles actual uses once.
+Defeat/retry/leave/quit discard attempt uses. Each fitting costs 2 Bog Iron with mastery 1.
+**WHY:** Permanent recipe ownership cannot provide unlimited encounter supplies under the new brief.
+**CONSEQUENCES:** Entry captures allowance; UI never decrements stock. Older paid kits retain granted
+ownership and deliberately reachable refunds; loading does not refund or clear them. One-time stock
+migration must not mint stock again on reset/reload. These values are not tuned or balance-approved.
+[Backend outcome/migration policy](reports/V0_5_PLAYTEST_BACKEND_IMPLEMENTATION.md).
+
+## D-057 — Individual party Break is a provisional playtest policy
+
+**Owner:** Adrian (feature) / Claude and Director (provisional values).
+**Status:** Provisional, requires deterministic regression evidence and human balance review.
+**DECISION:** Present each party member's own Break from engine/ledger facts. Proposed values are
+40 maximum, hit 8, Brace 4, Evade 0, Parry 6; Broken loses that unit's next activation, then recovers.
+No reactions/cover while Broken, and no enemy Broken damage multiplier applies to party members.
+**WHY:** Reaction choices need distinct resource consequences while keeping the two party units
+independent. Presentation must not calculate or advance those rules.
+**CONSEQUENCES:** Upright sprites, explicit bars/status and reaction indicators communicate the
+state. The values remain cheap to change. No broader V2/Pressure rules or acceptance are implied.

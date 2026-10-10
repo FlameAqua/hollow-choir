@@ -24,8 +24,11 @@ func _run() -> void:
 	_export(material, Rect2i(650, 940, 258, 260), "slider_knob", Vector2i(26, 26))
 	_export(material, Rect2i(947, 1014, 301, 112), "header", Vector2i(128, 48))
 	var reaction := Image.load_from_file(UI + "sources/reactions.png")
+	# The two rings are square crops centred on their art (sheet bounds x 28-317 / 345-635, y 34-323).
+	# The earlier hand-measured squares sat up-left of it, so the exported rings were off-centre and
+	# lost their right and bottom ornaments (V0.5 playtest).
 	var regions := {
-		"ring": Rect2i(12, 12, 294, 294), "ring_open": Rect2i(320, 12, 294, 294),
+		"ring": Rect2i(25, 31, 295, 295), "ring_open": Rect2i(343, 31, 295, 295),
 		"needle": Rect2i(679, 9, 180, 286), "impact": Rect2i(976, 18, 246, 282),
 		"brace": Rect2i(10, 316, 297, 292), "evade": Rect2i(321, 316, 297, 292),
 		"parry": Rect2i(634, 316, 297, 292), "reaction_selected": Rect2i(946, 316, 297, 292),

@@ -1,0 +1,27 @@
+QA user data home: C:\Users\Adrian\Code\Games\hollow-choir\.godot\qa-playtest-revision\director-focused-test_world_journey_setup
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+User data: C:/Users/Adrian/Code/Games/hollow-choir/.godot/qa-playtest-revision/director-focused-test_world_journey_setup/Godot/app_userdata/Hollow Choir (isolated QA home)
+ERROR: Parse JSON failed. Error at line 0: Expected key
+   at: parse_string (core/io/json.cpp:629)
+   GDScript backtrace (most recent call first):
+       [0] read_json (res://src/autoload/save_manager.gd:146)
+       [1] load_slot (res://src/autoload/save_manager.gd:37)
+       [2] test_summaries_survive_empty_damaged_and_newer_saves_without_errors (res://tests/world/test_world_journey_setup.gd:177)
+       [3] _run (res://tests/run_tests.gd:64)
+ERROR: SaveManager: user://saves/slot_0.json is not a valid save
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] read_json (res://src/autoload/save_manager.gd:148)
+       [1] load_slot (res://src/autoload/save_manager.gd:37)
+       [2] test_summaries_survive_empty_damaged_and_newer_saves_without_errors (res://tests/world/test_world_journey_setup.gd:177)
+       [3] _run (res://tests/run_tests.gd:64)
+ERROR: SaveMigrator: save version 2 is newer than this build (1)
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] migrate (res://src/save/save_migrator.gd:18)
+       [1] load_slot (res://src/autoload/save_manager.gd:40)
+       [2] test_summaries_survive_empty_damaged_and_newer_saves_without_errors (res://tests/world/test_world_journey_setup.gd:178)
+       [3] _run (res://tests/run_tests.gd:64)
+
+Tests: 6 passed, 0 failed, 129 assertions (6.51s)

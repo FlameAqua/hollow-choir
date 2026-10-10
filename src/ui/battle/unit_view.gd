@@ -233,7 +233,6 @@ func _draw() -> void:
 	if alive and intent_targeted:
 		draw_texture_rect(UICraft.texture("target_rim"), Rect2(size.x * .5 - 32, _sprite_size.y - 18, 64, 22), false)
 	# Selection uses corner brackets; turn ownership also appears in the portrait timeline.
-	var small := UITheme.secondary_size()
 	if alive and highlighted:
 		_draw_brackets(Rect2(sprite_origin - Vector2(6, 6), _sprite_size + Vector2(12, 12)), UITheme.DANGER if unit.is_enemy() else UITheme.ACCENT)
 	elif alive and active:
@@ -242,9 +241,8 @@ func _draw() -> void:
 	if not alive:
 		_draw_defeated(sprite_origin)
 		return
-	var tilt := 0.18 if broken else 0.0
 	var pivot := Vector2(center.x, sprite_origin.y + _sprite_size.y)
-	var body := Transform2D(tilt, Vector2(body_scale, body_scale * _breath_scale), 0.0, pivot)
+	var body := Transform2D(0.0, Vector2(body_scale, body_scale * _breath_scale), 0.0, pivot)
 	draw_set_transform_matrix(body)
 	var local_origin := sprite_origin - pivot
 	if _texture != null:
@@ -252,14 +250,6 @@ func _draw() -> void:
 	else:
 		_draw_silhouette(local_origin)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-	var weak_point := display.weak_point if display != null else unit.is_weak_point_exposed()
-	if weak_point:
-		_draw_weak_point(center + Vector2(0, _sprite_size.y * 0.05))
-	# State tags sit inside the lower body, clear of the intent strip and target label.
-	var state_y := sprite_origin.y + _sprite_size.y - 8
-	if weak_point and UITheme.text_scale() < 1.3:
-		_draw_tag(Vector2(size.x * 0.5, state_y), "EXPOSED", UITheme.FOCUS, small)
-		state_y -= small + 10
 	_draw_plate(Vector2(0.0, _sprite_size.y + 4.0), display, broken)
 	# Brackets carry selection; turn order carries the active turn. No repeated text over sprites.
 
@@ -308,15 +298,6 @@ func _draw_silhouette(origin: Vector2) -> void:
 		draw_rect(Rect2(bell.position + Vector2(bell.size.x * 0.4, bell.size.y), Vector2(bell.size.x * 0.2, cell)), Color(0.5, 0.4, 0.2))
 
 
-## Static bullseye/crosshair differs from Broken's cracks, even with motion/flashing reduced.
-func _draw_weak_point(at: Vector2) -> void:
-	draw_circle(at, 14, UITheme.BG)
-	draw_arc(at, 11, 0, TAU, 24, UITheme.FOCUS, 2)
-	draw_rect(Rect2(at - Vector2(3, 3), Vector2(6, 6)), UITheme.TEXT)
-	for direction in [Vector2.LEFT, Vector2.RIGHT, Vector2.UP, Vector2.DOWN]:
-		draw_line(at + direction * 16, at + direction * 22, UITheme.FOCUS, 2)
-
-
 func _draw_defeated(origin: Vector2) -> void:
 	var feet := Vector2(size.x * 0.5, origin.y + _sprite_size.y)
 	if _dead_texture != null:
@@ -349,10 +330,12 @@ func _draw_plate(origin: Vector2, display: PresentationLedger.UnitDisplay, broke
 	ResourceBarArt.paint(self, hp_rect, displayed_hp / maxf(1, max_hp), unit.is_enemy())
 	_regions.append({"rect": hp_rect, "text": "%s · Health\n%d / %d" % [unit.display_name, roundi(displayed_hp), max_hp]})
 	# Thin break track is immediately beneath HP; its value is available in inspection.
-	if unit.is_enemy():
+	var has_break := bool(display.get("has_break")) if display != null and JourneyUI.has_fact(display, &"has_break") else unit.is_enemy()
+	if has_break:
 		var break_rect := Rect2(x, y + 14, inner, 5)
 		ResourceBarArt.paint(self, break_rect, displayed_stagger / maxf(1, max_stagger), true, true)
-		_regions.append({"rect": break_rect, "text": "Break remaining\n%d / %d\nBreak it to interrupt its channel and skip its next activation." % [roundi(displayed_stagger), roundi(max_stagger)]})
+		var policy := "Break it to interrupt its channel and skip its next activation." if unit.is_enemy() else "Broken: loses one activation, then recovers. Cannot react while Broken."
+		_regions.append({"rect": break_rect, "text": "%s · Break remaining\n%d / %d\n%s" % [unit.display_name, roundi(displayed_stagger), roundi(max_stagger), policy]})
 	y += 24
 	CombatIcons.paint(self, "heart", Rect2(x, y, side, side), team)
 	var hp := str(roundi(displayed_hp))
@@ -381,7 +364,9 @@ func _draw_effects(origin: Vector2, width: float, display: PresentationLedger.Un
 	var side := float(UITheme.secondary_size() + 4)
 	var entries: Array[Dictionary] = []
 	if display.broken:
-		entries.append({"icon": "state_broken", "count": "", "text": "Broken\nLoses its next activation. Any channel was interrupted."})
+		entries.append({"icon": "state_broken", "count": "", "text": "Broken\nLoses its next activation. Any channel was interrupted." if unit.is_enemy() else "Broken\nCannot react. Loses one activation, then recovers."})
+	if display.weak_point:
+		entries.append({"icon": "state_exposed", "count": "", "text": "Exposed weak point\nTakes increased damage; Precision attacks gain an extra bonus.\nSpotter's Mark exposes it for 2 of the target's activations. A Break can also expose it until recovery. These effects can overlap."})
 	for status in display.statuses:
 		entries.append({"icon": CombatIcons.mapping("statuses", status.status), "count": str(status.remaining), "text": "%s · %s\n%s" % [EnumText.status(status.status), UnitDetails.remaining_text(status.definition, status.remaining), status.definition.description if status.definition != null else ""]})
 	for buff in display.buffs:
@@ -419,13 +404,6 @@ func _text_width(text: String, font_size: int) -> float:
 	if _font == null:
 		return text.length() * font_size * 0.6
 	return _font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
-
-
-func _draw_tag(at: Vector2, text: String, color: Color, font_size: int) -> void:
-	var width := _font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x + 12.0
-	var rect := Rect2(at.x - width * 0.5, at.y - font_size - 6.0, width, font_size + 6.0)
-	UICraft.draw(self, "broken_plaque" if text == "BROKEN" else "number", rect)
-	draw_string(_font, Vector2(rect.position.x + 6.0, rect.end.y - 4.0), text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, color)
 
 
 func _draw_brackets(rect: Rect2, color: Color) -> void:

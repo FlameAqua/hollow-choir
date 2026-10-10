@@ -17,6 +17,13 @@ var pending_entry: EncounterEntry
 var last_applied_token: String = ""
 ## Monotonic counter for completion tokens.
 var entry_serial: int = 0
+## V0.5C exploration (ExplorationRules). Gathered GATHERING landmark ids: Reset journey keeps them
+## (a node yields once per save). Found SECRET landmark ids, solved puzzle ids and each unsolved
+## puzzle's current rune input (rune landmark ids in strike order) are journey state.
+var gathered: Array[StringName] = []
+var found: Array[StringName] = []
+var solved: Array[StringName] = []
+var rune_input: Dictionary[StringName, Array] = {}
 
 
 static func fresh(definition: WorldDefinition) -> WorldState:
@@ -37,6 +44,34 @@ func flag(flag_id: StringName) -> bool:
 
 func is_cleared(site_id: StringName) -> bool:
 	return cleared.has(site_id)
+
+
+func is_gathered(landmark_id: StringName) -> bool:
+	return gathered.has(landmark_id)
+
+
+func is_found(landmark_id: StringName) -> bool:
+	return found.has(landmark_id)
+
+
+func is_solved(puzzle_id: StringName) -> bool:
+	return solved.has(puzzle_id)
+
+
+## The current attempt at [param puzzle_id] (a copy; empty when none or solved).
+func rune_input_of(puzzle_id: StringName) -> Array[StringName]:
+	var result: Array[StringName] = []
+	for value in rune_input.get(puzzle_id, []):
+		result.append(StringName(value))
+	return result
+
+
+## Is [param rune_id] part of a puzzle's current attempt? (Scene views: WorldStateView RUNE_LIT.)
+func is_rune_lit(rune_id: StringName) -> bool:
+	for puzzle_id: StringName in rune_input:
+		if rune_input[puzzle_id].has(rune_id):
+			return true
+	return false
 
 
 func is_discovered(landmark_id: StringName) -> bool:
@@ -71,7 +106,21 @@ func to_dict() -> Dictionary:
 		"pending_entry": pending_entry.to_dict() if pending_entry != null else null,
 		"last_applied_token": last_applied_token,
 		"entry_serial": entry_serial,
+		"gathered": _strings(gathered),
+		"found": _strings(found),
+		"solved": _strings(solved),
+		"rune_input": _input_strings(),
 	}
+
+
+func _input_strings() -> Dictionary:
+	var result := {}
+	for puzzle_id: StringName in rune_input:
+		var runes := []
+		for rune_id in rune_input[puzzle_id]:
+			runes.append(String(rune_id))
+		result[String(puzzle_id)] = runes
+	return result
 
 
 ## Reads a saved section without trusting it: wrong types become defaults. Call sanitize() before use.
@@ -92,7 +141,15 @@ static func from_dict(data: Variant) -> WorldState:
 	if typeof(pending) == TYPE_DICTIONARY:
 		state.pending_entry = EncounterEntry.from_dict(pending)
 	state.last_applied_token = str(data.get("last_applied_token", ""))
-	state.entry_serial = maxi(0, int(data.get("entry_serial", 0)))
+	state.entry_serial = maxi(0, ProgressState.number(data.get("entry_serial"), 0))
+	state.gathered = _ids(data.get("gathered", []))
+	state.found = _ids(data.get("found", []))
+	state.solved = _ids(data.get("solved", []))
+	var input: Variant = data.get("rune_input", {})
+	if typeof(input) == TYPE_DICTIONARY:
+		for key: Variant in input:
+			if (typeof(key) == TYPE_STRING or typeof(key) == TYPE_STRING_NAME) and typeof(input[key]) == TYPE_ARRAY:
+				state.rune_input[StringName(key)] = Array(_ids(input[key]))
 	return state
 
 
@@ -118,12 +175,45 @@ func sanitize(definition: WorldDefinition) -> PackedStringArray:
 	problems.append_array(_keep_known(discovered, landmark_ids, "landmark"))
 	problems.append_array(_keep_known(links, path_ids, "link"))
 	problems.append_array(_keep_known(cleared, site_ids, "encounter site"))
+	problems.append_array(_sanitize_exploration(definition))
 	if pending_entry != null:
-		var found := definition.find_landmark(pending_entry.site_id())
-		if found.is_empty() or (found[1] as LandmarkDefinition).kind != LandmarkDefinition.Kind.ENCOUNTER \
+		var located := definition.find_landmark(pending_entry.site_id())
+		if located.is_empty() or (located[1] as LandmarkDefinition).kind != LandmarkDefinition.Kind.ENCOUNTER \
 				or not definition.is_anchor(pending_entry.area_id(), pending_entry.approach_anchor()):
 			problems.append("pending encounter %s is not approved content; dropped" % pending_entry.site_id())
 			pending_entry = null
+	return problems
+
+
+## V0.5C: keeps only approved gathering nodes, secrets and puzzles, and each unsolved puzzle's
+## input that is a valid partial attempt of its own runes (shorter than its solution).
+func _sanitize_exploration(definition: WorldDefinition) -> PackedStringArray:
+	var problems := PackedStringArray()
+	var nodes := {}
+	for entry in definition.gathering:
+		if entry != null:
+			nodes[entry.landmark] = true
+	var secret_ids := {}
+	for entry in definition.secrets:
+		if entry != null:
+			secret_ids[entry.landmark] = true
+	var puzzle_ids := {}
+	for entry in definition.puzzles:
+		if entry != null:
+			puzzle_ids[entry.id] = true
+	problems.append_array(_keep_known(gathered, nodes, "gathering node"))
+	problems.append_array(_keep_known(found, secret_ids, "secret"))
+	problems.append_array(_keep_known(solved, puzzle_ids, "puzzle"))
+	for puzzle_id: StringName in rune_input.keys():
+		var entry := ExplorationRules.puzzle(definition, puzzle_id)
+		var input := rune_input_of(puzzle_id)
+		var valid := entry != null and not solved.has(puzzle_id) and input.size() < entry.solution.size() 			and input.all(func(rune_id: StringName) -> bool: return entry.runes.has(rune_id))
+		if not valid:
+			if entry == null or not input.is_empty():
+				problems.append("rune input for %s dropped" % puzzle_id)
+			rune_input.erase(puzzle_id)
+		elif input.is_empty():
+			rune_input.erase(puzzle_id)
 	return problems
 
 

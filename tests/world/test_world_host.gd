@@ -1,7 +1,9 @@
 extends TestCase
 ## V0.4 world host through the real scenes: feet collision, bounded portals that cannot bounce,
-## modal/held-input gates, deliberate encounter cards, one battle per entry, exact retry, failed
-## writes, far-side latch, home consequence, paused-world return paths and filtered map readouts.
+## modal/held-input gates, deliberate encounters, one battle per entry, exact retry, failed writes,
+## far-side latch, home consequence, paused-world return paths and filtered map readouts.
+## Playtest revision: the move-away countdown replaced the Engage card; its own behaviour is covered
+## by test_world_revision_host.gd, and the card survives only as an unused API (tested here).
 
 const FORBIDDEN := ["fen_patrol", "rot_grove", "Fen Patrol", "Rot Grove", "Bogshell", "Thornhound", "Fen Wisp",
 	"Rotcap", "Sporecaller", "affinit", "weakness", "resist"]
@@ -32,6 +34,8 @@ func _start(area_id: StringName = &"", anchor: StringName = &"") -> void:
 		GameState.progress.world.area = area_id
 		GameState.progress.world.anchor = anchor
 	host = WorldHost.new()
+	# Desktop focus must not interrupt scripted walking in hidden-window test runs.
+	host.pause_on_focus_loss = false
 	host.session = kit.session()
 	tree.root.add_child(host)
 	await tree.process_frame
@@ -179,19 +183,39 @@ func test_modals_freeze_movement_and_held_input_needs_release() -> void:
 
 func test_focus_loss_pauses_into_the_world_menu() -> void:
 	await _start()
+	host.pause_on_focus_loss = true
 	host._notification(Node.NOTIFICATION_APPLICATION_FOCUS_OUT)
 	assert_eq(host.mode, WorldHost.Mode.MODAL)
 	assert_eq(host.modal.kind, &"menu")
 
 
-func test_encounter_card_cancel_costs_nothing_and_engage_launches_once() -> void:
+func test_reaching_a_group_opens_no_card_and_the_legacy_card_still_works_as_an_api() -> void:
 	await _start(&"briarfen_reedway", &"reedway_patrol")
-	var opened := await _walk_until(Vector2.UP, func() -> bool: return host.modal != null)
-	assert_true(opened, "reaching the group shows the card")
+	var reached := await _walk_until(Vector2.UP, func() -> bool: return host.countdown.active())
+	assert_true(reached, "reaching the group starts its countdown")
+	assert_null(host.modal, "and opens no card")
+	assert_eq(host.mode, WorldHost.Mode.EXPLORE)
+	var writes := kit.writer.writes.size()
+	var left := await _walk_until(Vector2.DOWN, func() -> bool: return not host.countdown.active())
+	assert_true(left, "walking away cancels it")
+	assert_null(host.battle, "leaving never launches")
+	assert_null(GameState.progress.world.pending_entry)
+	assert_eq(kit.writer.writes.size(), writes)
+	await _walk_until(Vector2.UP, func() -> bool: return false, 6)
+	await _frames(10)
+	assert_false(host.countdown.active(), "it does not restart while still at the edge of reach")
+	assert_eq(host.readout().interaction, "Engage the patrol", "Interact fights at once (test_world_revision_host)")
+	# Walking clear re-arms the group; walking back in starts a fresh countdown.
+	assert_true(await _walk_until(Vector2.DOWN, func() -> bool: return host.countdown.is_armed(&"reedway_patrol")))
+	assert_true(await _walk_until(Vector2.UP, func() -> bool: return host.countdown.active()))
+	assert_null(host.modal)
+	assert_null(host.battle)
+	# The V0.4 card is no longer opened by the world, but stays a working API: Cancel costs nothing
+	# and Engage saves one entry and launches one battle.
+	host.open_encounter_card(WorldKit.site(&"reedway_patrol"))
 	assert_eq(host.modal.kind, &"encounter")
 	assert_not_null(host.modal.button(WorldRules.ACT_ENGAGE))
 	_assert_no_leaks(host.modal, "encounter card")
-	var writes := kit.writer.writes.size()
 	var cancel := InputEventAction.new()
 	cancel.action = InputBindings.CANCEL
 	cancel.pressed = true
@@ -202,14 +226,11 @@ func test_encounter_card_cancel_costs_nothing_and_engage_launches_once() -> void
 	assert_null(host.battle, "Cancel never launches")
 	assert_null(GameState.progress.world.pending_entry)
 	assert_eq(kit.writer.writes.size(), writes)
-	await _frames(10)
-	assert_null(host.modal, "the card does not reopen while still in reach")
-	assert_eq(host.readout().interaction, "Approach the patrol")
-	host.interact()
-	assert_eq(host.modal.kind, &"encounter", "Confirm reopens it deliberately")
+	host.open_encounter_card(WorldKit.site(&"reedway_patrol"))
 	host.modal.chosen.emit(WorldRules.ACT_ENGAGE)
 	assert_not_null(host.battle)
 	assert_eq(host.mode, WorldHost.Mode.BATTLE)
+	assert_false(host.countdown.active(), "engaging drops the running countdown")
 	assert_eq(kit.writer.writes.size(), writes + 1, "entry saved before launch")
 	var battle := host.battle
 	host.engage(WorldKit.site(&"reedway_patrol"))
@@ -324,12 +345,14 @@ func test_latch_opens_only_from_the_far_side() -> void:
 func test_ringing_the_bell_changes_home() -> void:
 	GameState.progress.world.cleared.append(&"bell_guard")
 	await _start(&"briarfen_reedway", &"wayside_bell")
+	assert_eq(host.modal.kind, &"catch_up", "the older guard accomplishment gets one saved notice")
+	host.modal.chosen.emit(&"continue")
 	assert_eq(host.readout().interaction, "Examine the wayside bell")
 	host.interact()
 	host.modal.chosen.emit(WorldRules.ACT_RING)
 	assert_true(GameState.progress.world.wayside_bell_restored)
 	assert_true(" ".join(_texts(host.modal)).contains(WorldCopy.BELL_RESTORED))
-	host.modal.chosen.emit(WorldRules.ACT_LEAVE)
+	host.modal.chosen.emit(&"continue")
 	assert_eq(host.readout().objective, WorldCopy.OBJECTIVE_RETURN)
 	host.load_area(&"gloamstead", &"town_bell")
 	assert_true((host.area.get_node("DepthSorted/TownBell/Answering") as Node2D).visible)
@@ -348,15 +371,18 @@ func test_bench_choice_feeds_the_next_entry() -> void:
 	await _start()
 	host.player.place(host.area.point(&"preparation_bench") + Vector2(0, 28))
 	await _frames(2)
-	assert_eq(host.readout().interaction, "Use the preparation bench")
+	assert_eq(host.readout().interaction, "Use the forge")
 	host.interact()
-	assert_eq(host.modal.kind, &"bench")
+	assert_eq(host.modal.kind, &"crafting")
+	# Legacy debug preparation still exercises its original command path.
+	host.open_bench(WorldKit.site(&"preparation_bench"))
 	var reedbow := host.modal.find_child("Weapon_reedbow", true, false) as Button
 	assert_not_null(reedbow)
 	assert_null(host.modal.find_child("Weapon_thunderhead", true, false), "only owned starter weapons")
 	reedbow.pressed.emit()
 	assert_eq(GameState.progress.loadout_weapon, &"reedbow")
-	assert_true(reedbow.button_pressed and reedbow.icon != null)
+	var saved := host.modal.find_child("Weapon_reedbow", true, false) as Button
+	assert_true(saved.button_pressed and saved.icon != null)
 	host.modal.chosen.emit(WorldRules.ACT_LEAVE)
 	var entry := host.session.begin_entry(&"reedway_patrol", &"reedway_patrol")
 	assert_eq(entry.build_setup(Database.registry, Database.library).loadout.weapon.id, &"reedbow")
@@ -411,13 +437,15 @@ func test_title_offers_continue_journey_without_a_new_game_overwrite() -> void:
 	var menu: MainMenu = load(SceneRouter.MAIN_MENU).instantiate()
 	tree.root.add_child(menu)
 	await tree.process_frame
-	assert_eq(menu._first_button.text, "Continue journey")
+	assert_eq(menu._first_button.text, "Continue Journey")
 	await tree.process_frame
 	await tree.process_frame
 	assert_lte(menu._menu_panel.get_global_rect().end.y, 720.0, "title options fit the fixed canvas")
 	var texts := " ".join(_texts(menu))
 	assert_false(texts.contains("New game"), "no overwrite control")
-	assert_true(texts.contains("Combat Sandbox"), "the Sandbox stays available")
+	assert_false(texts.contains("Combat Sandbox"), "development tools leave the public title")
+	assert_true(texts.contains("New Journey"))
+	assert_true(texts.contains("Credits"))
 	menu.queue_free()
 	await tree.process_frame
 
@@ -427,6 +455,7 @@ func test_bench_choice_survives_a_failed_save_and_retry() -> void:
 	host.player.place(host.area.point(&"preparation_bench") + Vector2(0, 28))
 	await _frames(2)
 	host.interact()
+	host.open_bench(WorldKit.site(&"preparation_bench"))
 	kit.writer.fail = true
 	(host.modal.find_child("Weapon_reedbow", true, false) as Button).pressed.emit()
 	assert_eq(host.modal.kind, &"save_failed")
@@ -477,7 +506,8 @@ func test_victory_return_rearms_triggers_from_the_engagement_spot() -> void:
 	host._on_battle_finished(GameState.progress.world.pending_entry, WorldKit.victory(&"bell_guard"))
 	host.modal.chosen.emit(&"continue")
 	assert_eq(host.player.position, spot, "victory returns to the engagement spot")
-	assert_false(host._armed_sites[&"bell_guard"], "triggers are armed from the feet, not from the approach anchor")
+	assert_false(host.countdown.is_armed(&"bell_guard"), "triggers are armed from the feet, not from the approach anchor")
+	assert_false(host.countdown.active())
 	assert_true(host._portals_armed)
 	assert_eq(String(kit.writer.last().world.anchor), "bell_guard", "the save still resumes at the safe anchor")
 

@@ -12,16 +12,16 @@ enum Type {
 	INTENT_DECLARED = 3,      ## subject = enemy, uids = targets, action
 	INTENT_CHANGED = 4,       ## subject = enemy, uids = new targets, action, text = why
 	TURN_STARTED = 5,         ## subject
-	TURN_SKIPPED = 6,         ## subject (Broken)
+	TURN_SKIPPED = 6,         ## subject (Broken; an enemy or, since the playtest revision, a party member)
 	ACTION_STARTED = 7,       ## subject = actor, uids = targets, action
 	COMMAND_RESULT = 8,       ## subject = actor, grade, action
 	REACTION_RESULT = 9,      ## subject = defender, other = attacker, reaction, success, flags AUTO
 	DAMAGE = 10,              ## subject = damaged, other = source, amount, damage_type, flags, action
 	HEAL = 11,                ## subject = healed, other = healer, amount, amount2 = overheal
 	FOCUS_CHANGED = 12,       ## subject, amount = delta, amount2 = new total, text = reason
-	STAGGER_DAMAGE = 13,      ## subject = enemy, other = source, amount, amount2 = remaining
-	BROKEN = 14,              ## subject, other = breaker, flags INTERRUPTED
-	RECOVERED = 15,           ## subject
+	STAGGER_DAMAGE = 13,      ## subject = the unit whose Break meter fell (enemy or party), other = source, amount, amount2 = remaining, flags REACTION_COST
+	BROKEN = 14,              ## subject (enemy or party), other = breaker, flags INTERRUPTED
+	RECOVERED = 15,           ## subject (enemy or party): the meter is full again
 	WEAK_POINT_EXPOSED = 16,  ## subject, other = cause
 	WEAK_POINT_CLOSED = 17,   ## subject
 	STATUS_APPLIED = 18,      ## subject = bearer, other = source, status, amount = stacks, amount2 = duration, flags CHAIN/REFRESHED
@@ -61,6 +61,8 @@ const FLAG_STATUS_TICK := 64
 const FLAG_REFRESHED := 128
 const FLAG_INTERRUPTED := 256
 const FLAG_EFFECT := 512
+## STAGGER_DAMAGE on a party member: the Break a successful Parry cost it (not Break from a hit).
+const FLAG_REACTION_COST := 1024
 
 var type: Type = Type.NOTE
 var round: int = 0

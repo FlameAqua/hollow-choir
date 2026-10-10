@@ -12,6 +12,9 @@ var turn_index: int = -1
 var conditions: Array[ActiveCondition] = []
 var potion_slots: Array[PotionSlotState] = []
 var familiar: FamiliarDefinition
+## Playtest revision: the familiar passive in effect this battle (the loadout's selected one, else
+## the familiar's default). Presentation reads this, not familiar.trait_def.
+var familiar_trait: TraitDefinition
 var advantage: Enums.Advantage = Enums.Advantage.NONE
 ## Successful party reactions observed this battle (ReactionType -> count). Enemies may learn
 ## from what they have seen; they never read inputs before they happen.

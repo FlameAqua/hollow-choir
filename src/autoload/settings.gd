@@ -16,7 +16,12 @@ func _ready() -> void:
 	# player is using, so prompts show the right bindings.
 	get_tree().root.window_input.connect(func(event: InputEvent) -> void:
 		if InputBindings.note_event(event):
-			EventBus.input_device_changed.emit())
+			EventBus.input_device_changed.emit()
+		# Playtest revision: an extra mouse button bound to Confirm, Back or a direction also
+		# drives the focused control, like the key it stands beside.
+		var mirrored := InputBindings.ui_mirror_event(event)
+		if mirrored != null:
+			Input.parse_input_event(mirrored))
 
 
 func load_settings() -> void:

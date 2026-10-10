@@ -32,11 +32,13 @@ var actions: Array[ActionDefinition] = []
 ## Enemies: the current action set (boss phases replace it).
 var enemy_actions: Array[EnemyActionDefinition] = []
 
-# Enemy-only state.
+# The Break (Stagger) meter. Enemies always have one; since the playtest revision each controlled
+# party member has its own (BalanceConfig.party_max_break). A unit without one has max_stagger 0.
 var stagger: float = 0.0
 var max_stagger: float = 0.0
 var break_count: int = 0
 var broken_turns_left: int = 0
+# Enemy-only state.
 var weak_point_turns: int = 0
 var weak_point_from_break: bool = false
 var intent: EnemyIntent
@@ -73,6 +75,16 @@ func is_enemy() -> bool:
 
 func is_broken() -> bool:
 	return broken_turns_left > 0
+
+
+## Does this unit have a Break meter at all?
+func has_break_meter() -> bool:
+	return max_stagger > 0.0
+
+
+## May this unit answer an incoming attack with a reaction? Not while defeated or Broken.
+func can_react() -> bool:
+	return is_alive() and not is_broken()
 
 
 func is_weak_point_exposed() -> bool:

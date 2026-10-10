@@ -42,3 +42,26 @@ sample peaks and RMS; these are technical measurements, not LUFS, true peak or a
 See [the integration review and audition order](../../../docs/reports/V0_4_SFX_REFRESH.md).
 Music/ambience must not replace or masquerade as reaction, beat, impact or outcome cues. The sibling
 [audio contract](../AUDIO_CONTRACT.md) remains authoritative for music deliveries.
+
+V0.5C appends `rune_low`, `rune_mid` and `rune_high`: three original procedural stone tones
+from `tools/generate_exploration_sfx.py`, using the existing modal material synthesizer.
+`exploration_manifest.json` records separate provenance and measurements. Original 25 cue
+positions and WAV bytes are preserved. The three approximately 0.569-second contacts peak at
+-17.39 dBFS before the host's -3 dB trim and user SFX volume. Godot normalization and looping
+stay off. Playback follows saved strikes only; static text and rune shapes carry the same state
+when muted. No new music or recording is required. Human listening approval remains pending;
+technical measurements are not an audition.
+
+V0.5 playtest revision adds five original operation cues: `ui_equip` (cloth/wood seating),
+`ui_unequip` (soft release), `craft_smith` (damped metal contact with a wooden body), `craft_brew` (rounded clay/
+water contacts), and `purchase` (a small ceramic exchange). `tools/generate_playtest_ui_sfx.py`
+uses the existing synthesizer with private seeds and writes only these five assets plus
+`playtest_operations_manifest.json`. Existing WAV bytes and enum positions are preserved.
+These mono PCM16/44.1 kHz cues peak at -17.08 dBFS before the adapter's -6 dB trim and user volume;
+normalization/looping remain off. Navigation uses UI_MOVE at -12 dB and deliberate selection
+UI_CONFIRM at -9 dB. OperationFeedback listens once to adopted changed operation facts and delegates
+cue choice to AudioManager.operation_cue; rejected/no-op commands and automatic saves are silent.
+The integrated host removes generic-confirm success calls; the presentation regression checks
+one cue per adopted operation, with failed writes and re-choices silent.
+No sound timing drives gameplay. Generation and measurements are complete; in-game mix, repetition
+and listening approval remain pending. See the [Director revision report](../../../docs/reports/V0_5_PLAYTEST_DIRECTOR_IMPLEMENTATION.md).

@@ -53,7 +53,8 @@ static func line(event: BattleEvent, engine: BattleEngine) -> String:
 				return "  %s +%d Focus (%s)." % [subject, int(event.amount), event.text]
 			return ""
 		T.STAGGER_DAMAGE:
-			return "  %s Stagger -%.0f (%.0f left)." % [subject, event.amount, event.amount2] if event.amount > 0 else ""
+			var cost := " for the Parry" if event.has_flag(BattleEvent.FLAG_REACTION_COST) else ""
+			return "  %s Break -%.0f%s (%.0f left)." % [subject, event.amount, cost, event.amount2] if event.amount > 0 else ""
 		T.BROKEN:
 			var interrupted := " Its channel is interrupted!" if event.has_flag(BattleEvent.FLAG_INTERRUPTED) else ""
 			return "[color=#c9a3ff][b]%s is BROKEN![/b]%s[/color]" % [subject, interrupted]

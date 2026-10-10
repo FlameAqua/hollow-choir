@@ -10,14 +10,17 @@ const CURRENT_VERSION := 1
 
 ## Returns the migrated payload, or an empty dictionary if the save cannot be used.
 static func migrate(envelope: Dictionary) -> Dictionary:
-	var version := int(envelope.get("save_version", 0))
+	var version := ProgressState.number(envelope.get("save_version"), 0)
 	if version <= 0:
 		push_error("SaveMigrator: missing save_version")
 		return {}
 	if version > CURRENT_VERSION:
 		push_error("SaveMigrator: save version %d is newer than this build (%d)" % [version, CURRENT_VERSION])
 		return {}
-	var data: Dictionary = envelope.get("data", {}).duplicate(true)
+	if typeof(envelope.get("data")) != TYPE_DICTIONARY:
+		push_error("SaveMigrator: the save has no data section")
+		return {}
+	var data: Dictionary = (envelope.data as Dictionary).duplicate(true)
 	while version < CURRENT_VERSION:
 		version += 1
 		data = _step(version, data)

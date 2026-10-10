@@ -8,6 +8,11 @@ extends SceneTree
 ## collision, battle; Director additions: bench-hammer, bench-bow, guard, guard-approach, gate,
 ## facades, map-full, map-restored, victory, defeat, save-failed; Claude third pass: reset (the
 ## Reset journey confirmation over the paused menu).
+## V0.5A: bench-charm, bench-empty, inventory, encounter-claimed, charm-reward, catch-up.
+## V0.5B/C: forge[-locked/-fitted/-refund/-receipt], stillroom[-potion/-locked],
+## explore-clue/runes/progress/mistake/solved/niche/searched/reward/iron/gathered.
+## --revealed completes any dialogue for static copy review (capture only).
+## --scroll-end renders the bottom of the current modal's facts/receipts.
 ## Options: --size=<supported preset>, --out=res://… or user://… (PNG).
 ##
 ## Capture fixtures: the runner seeds an in-memory world state, places Hollow at named spots and

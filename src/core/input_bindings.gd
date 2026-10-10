@@ -4,6 +4,9 @@ extends RefCounted
 ## Bindings are strings so settings files stay readable: "key:Space" (physical key, so reaction
 ## keys keep their position on any keyboard layout), "joy:9" (joypad button), "mouse:1",
 ## "axis:0:-1" (joypad axis and direction, used by the world movement defaults).
+##
+## Playtest revision: the extra mouse buttons (middle, X1, X2) can be captured, labelled, saved and
+## used like any key. Left and right click and the wheel stay with the pointer and scrollable UI.
 
 const CONFIRM := &"hc_confirm"
 const CANCEL := &"hc_cancel"
@@ -27,9 +30,16 @@ const WORLD_RIGHT := &"hc_world_right"
 const WORLD_INTERACT := &"hc_world_interact"
 const WORLD_MAP := &"hc_world_map"
 const WORLD_MENU := &"hc_world_menu"
+## V0.5: held to sprint while stamina lasts (WorldPlayer.SPRINT_MULTIPLIER, Stamina).
+const WORLD_SPRINT := &"hc_world_sprint"
+## V0.5 shortcuts: each opens its view from exploration and closes it again (WorldHost).
+const WORLD_LOADOUT := &"hc_world_loadout"
+const WORLD_INVENTORY := &"hc_world_inventory"
+const WORLD_JOURNAL := &"hc_world_journal"
+const WORLD_FIELD_GUIDE := &"hc_world_field_guide"
 const WORLD_MOVES: Array[StringName] = [WORLD_UP, WORLD_DOWN, WORLD_LEFT, WORLD_RIGHT]
-const WORLD_ACTIONS: Array[StringName] = [WORLD_UP, WORLD_DOWN, WORLD_LEFT, WORLD_RIGHT, WORLD_INTERACT, WORLD_MAP,
-	WORLD_MENU]
+const WORLD_ACTIONS: Array[StringName] = [WORLD_UP, WORLD_DOWN, WORLD_LEFT, WORLD_RIGHT, WORLD_INTERACT, WORLD_SPRINT,
+	WORLD_MAP, WORLD_LOADOUT, WORLD_INVENTORY, WORLD_JOURNAL, WORLD_FIELD_GUIDE, WORLD_MENU]
 
 ## Menus use arrows + Enter/X so A/S/D are free for the three reactions,
 ## ordered left to right from safe to risky.
@@ -52,7 +62,13 @@ const DEFAULTS := {
 	WORLD_LEFT: ["key:A", "key:Left", "joy:13", "axis:0:-1"],
 	WORLD_RIGHT: ["key:D", "key:Right", "joy:14", "axis:0:1"],
 	WORLD_INTERACT: ["key:E", "key:Enter", "key:Space", "joy:0"],
+	WORLD_SPRINT: ["key:Shift", "joy:7"],
 	WORLD_MAP: ["key:M", "joy:4"],
+	# Keyboard only: menus read the pad's face buttons (Y is Details), so these would collide.
+	WORLD_LOADOUT: ["key:L"],
+	WORLD_INVENTORY: ["key:I"],
+	WORLD_JOURNAL: ["key:J"],
+	WORLD_FIELD_GUIDE: ["key:F"],
 	WORLD_MENU: ["key:Escape", "joy:6"],
 }
 
@@ -64,9 +80,19 @@ const DISPLAY_NAMES := {
 	PARRY: "Parry", INFO: "Details", UP: "Up", DOWN: "Down", LEFT: "Left", RIGHT: "Right",
 	LOG: "Battle log", MENU: "Pause",
 	WORLD_UP: "World: move up", WORLD_DOWN: "World: move down", WORLD_LEFT: "World: move left",
-	WORLD_RIGHT: "World: move right", WORLD_INTERACT: "World: interact", WORLD_MAP: "World: map",
-	WORLD_MENU: "World: menu",
+	WORLD_RIGHT: "World: move right", WORLD_INTERACT: "World: interact", WORLD_SPRINT: "World: sprint",
+	WORLD_MAP: "World: map", WORLD_LOADOUT: "World: loadout", WORLD_INVENTORY: "World: inventory",
+	WORLD_JOURNAL: "World: journal", WORLD_FIELD_GUIDE: "World: Field Guide", WORLD_MENU: "World: menu",
 }
+
+## Mouse buttons a rebinding capture accepts: middle, X1 and X2. Never left or right (they operate
+## the interface, and the click that opens a capture must not rebind it) and never the wheel.
+const CAPTURE_MOUSE_BUTTONS: Array[int] = [MOUSE_BUTTON_MIDDLE, MOUSE_BUTTON_XBUTTON1, MOUSE_BUTTON_XBUTTON2]
+
+const MOUSE_NAMES := {MOUSE_BUTTON_LEFT: "Left Mouse", MOUSE_BUTTON_RIGHT: "Right Mouse",
+	MOUSE_BUTTON_MIDDLE: "Middle Mouse", MOUSE_BUTTON_WHEEL_UP: "Wheel Up", MOUSE_BUTTON_WHEEL_DOWN: "Wheel Down",
+	MOUSE_BUTTON_WHEEL_LEFT: "Wheel Left", MOUSE_BUTTON_WHEEL_RIGHT: "Wheel Right",
+	MOUSE_BUTTON_XBUTTON1: "Mouse X1", MOUSE_BUTTON_XBUTTON2: "Mouse X2"}
 
 ## The device whose bindings prompts should show (M1.1: "current device bindings").
 enum Device { KEYBOARD = 0, GAMEPAD = 1 }
@@ -102,7 +128,10 @@ static func install(overrides: Dictionary = {}) -> void:
 		if InputMap.has_action(ui_action):
 			InputMap.action_erase_events(ui_action)
 			for event in InputMap.action_get_events(action):
-				InputMap.action_add_event(ui_action, event)
+				# A mouse button is positional: copied here it would press the control under the pointer
+				# as well as the focused one. ui_mirror_event() forwards it to the focused control instead.
+				if not event is InputEventMouseButton:
+					InputMap.action_add_event(ui_action, event)
 
 
 static func codes_for(action: StringName) -> PackedStringArray:
@@ -180,7 +209,7 @@ static func code_label(code: String) -> String:
 			var index := int(parts[1])
 			return "Pad %s" % (PAD_NAMES[index] if index >= 0 and index < PAD_NAMES.size() else parts[1])
 		"mouse":
-			return "Mouse %s" % parts[1]
+			return MOUSE_NAMES.get(int(parts[1]), "Mouse %s" % parts[1])
 		"axis":
 			return "Pad %s" % AXIS_NAMES.get(parts[1], "Axis " + parts[1])
 	return parts[1]
@@ -226,13 +255,21 @@ static func labels(action: StringName, separator: String = " / ") -> String:
 	var names := PackedStringArray()
 	if not InputMap.has_action(action):
 		return "?"
+	var mouse_names := PackedStringArray()
 	for event in InputMap.action_get_events(action):
 		var is_pad := event is InputEventJoypadButton
 		if is_pad != (active_device == Device.GAMEPAD):
 			continue
+		if event is InputEventMouseButton:
+			var mouse_name := _mouse_name((event as InputEventMouseButton).button_index)
+			if not mouse_names.has(mouse_name):
+				mouse_names.append(mouse_name)
+			continue
 		var name := _pad_name((event as InputEventJoypadButton).button_index) if is_pad else _key_name(event as InputEventKey)
 		if not name.is_empty() and not names.has(name):
 			names.append(name)
+	# Keys first, then mouse buttons, whatever order they were bound in.
+	names.append_array(mouse_names)
 	return separator.join(names) if not names.is_empty() else label(action)
 
 
@@ -270,4 +307,89 @@ static func key_label(action: StringName) -> String:
 		if event is InputEventKey:
 			# Layout-aware label where the display server knows the layout (not headless).
 			return _key_name(event as InputEventKey)
+	# No key at all: an action bound only to a mouse button still gets a truthful prompt.
+	for event in InputMap.action_get_events(action):
+		if event is InputEventMouseButton:
+			return _mouse_name((event as InputEventMouseButton).button_index)
 	return "?"
+
+
+static func _mouse_name(index: int) -> String:
+	return MOUSE_NAMES.get(index, "Mouse %d" % index)
+
+
+# --- Rebinding (playtest revision) ----------------------------------------------------------------
+
+## The kind of a binding code: "key", "joy", "mouse" or "axis" ("" when malformed).
+static func kind_of(code: String) -> String:
+	return code.get_slice(":", 0) if code.contains(":") else ""
+
+
+## Ends a rebinding capture without changing anything: Escape pressed. Check before capture_code().
+static func is_capture_cancel(event: InputEvent) -> bool:
+	var key := event as InputEventKey
+	return key != null and key.pressed and not key.echo and \
+		(key.physical_keycode == KEY_ESCAPE or key.keycode == KEY_ESCAPE)
+
+
+## The binding code a rebinding capture accepts for [param event], or "" to keep waiting: a fresh
+## key press (never an echo), a joypad button press, or a press of one of CAPTURE_MOUSE_BUTTONS.
+## Releases, motion, the wheel and the left or right click (the click that opened the capture
+## included) are never captured.
+static func capture_code(event: InputEvent) -> String:
+	if event is InputEventKey:
+		var key := event as InputEventKey
+		return code_from_event(key) if key.pressed and not key.echo else ""
+	if event is InputEventJoypadButton:
+		return code_from_event(event) if (event as InputEventJoypadButton).pressed else ""
+	if event is InputEventMouseButton:
+		var mouse := event as InputEventMouseButton
+		if mouse.pressed and CAPTURE_MOUSE_BUTTONS.has(int(mouse.button_index)):
+			return code_from_event(mouse)
+	return ""
+
+
+## [param codes] after capturing [param code]: it replaces the first binding of the same kind (a
+## key replaces the first key, a mouse button the first mouse button); with none of that kind it
+## becomes the first binding. Every other binding stays.
+static func rebound(codes: PackedStringArray, code: String) -> PackedStringArray:
+	var result := codes.duplicate()
+	if code.is_empty() or result.has(code):
+		return result
+	var kind := kind_of(code)
+	for index in result.size():
+		if kind_of(result[index]) == kind:
+			result[index] = code
+			return result
+	result.insert(0, code)
+	return result
+
+
+## Other actions that already use [param code] in [param action]'s own context (the world, or
+## battle and menus: the two contexts share keys on purpose and never read each other's input).
+## Informational, as before this pass: a capture is accepted either way.
+static func conflicts(action: StringName, code: String) -> Array[StringName]:
+	var result: Array[StringName] = []
+	var world := WORLD_ACTIONS.has(action)
+	for other: StringName in DEFAULTS:
+		if other != action and WORLD_ACTIONS.has(other) == world and codes_for(other).has(code):
+			result.append(other)
+	return result
+
+
+## The ui_* action event to send to the focused control for a mouse button bound to a mirrored
+## action (Confirm, Back, directions), or null. Mouse codes are not copied into the ui_* actions,
+## so the Settings autoload forwards them with this instead.
+static func ui_mirror_event(event: InputEvent) -> InputEventAction:
+	var mouse := event as InputEventMouseButton
+	if mouse == null or not CAPTURE_MOUSE_BUTTONS.has(int(mouse.button_index)):
+		return null
+	var code := code_from_event(mouse)
+	for action: StringName in UI_MIRRORS:
+		if InputMap.has_action(action) and codes_for(action).has(code):
+			var mirrored := InputEventAction.new()
+			mirrored.action = UI_MIRRORS[action]
+			mirrored.pressed = mouse.pressed
+			mirrored.strength = 1.0 if mouse.pressed else 0.0
+			return mirrored
+	return null

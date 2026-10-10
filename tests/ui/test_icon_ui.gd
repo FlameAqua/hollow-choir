@@ -6,21 +6,35 @@ func before_each() -> void:
 	_tree = Engine.get_main_loop() as SceneTree
 
 func test_inspector_is_immediate_and_retains_content_across_short_gaps() -> void:
+	# The fixed battle dock: a short gap between neighbouring icons never blanks it.
 	var inspector := HoverInspector.new()
+	inspector.docked = true
 	_tree.root.add_child(inspector)
 	inspector.set_process(false)
 	inspector.advance("Burn · 2 turns", 0)
 	assert_true(inspector.visible, "first feedback needs no dwell")
 	assert_eq(inspector.shown_text(), "Burn · 2 turns")
 	inspector.advance("", 0.1)
-	assert_true(inspector.visible, "a small pointer gap cannot flicker the card")
+	assert_eq(inspector.shown_text(), "Burn · 2 turns", "a small pointer gap cannot flicker the dock")
 	inspector.advance("Wet · 3 turns", 0.02)
-	assert_eq(inspector.shown_text(), "Burn · 2 turns", "sweeping an adjacent icon settles briefly")
-	inspector.advance("Wet · 3 turns", 0.05)
-	assert_eq(inspector.shown_text(), "Wet · 3 turns")
+	assert_eq(inspector.shown_text(), "Wet · 3 turns", "the dock follows the next icon at once")
 	inspector.advance("", 0.15)
-	assert_false(inspector.visible, "leaving clears stale details")
+	assert_eq(inspector.shown_text(), "", "leaving clears stale details")
 	inspector.queue_free()
+	# A floating card: sweeping onto an adjacent icon settles briefly, but leaving dismisses it at
+	# once (V0.5 playtest revision: a card leaves with its source).
+	var card := HoverInspector.new()
+	_tree.root.add_child(card)
+	card.set_process(false)
+	card.advance("Burn · 2 turns", 0)
+	assert_true(card.visible, "first feedback needs no dwell")
+	card.advance("Wet · 3 turns", 0.02)
+	assert_eq(card.shown_text(), "Burn · 2 turns", "sweeping an adjacent icon settles briefly")
+	card.advance("Wet · 3 turns", 0.05)
+	assert_eq(card.shown_text(), "Wet · 3 turns")
+	card.advance("", 0.0)
+	assert_false(card.visible, "leaving dismisses the card")
+	card.queue_free()
 
 func test_unknown_move_icons_and_reaction_legality_match_the_filtered_readout() -> void:
 	var driver := BattleDriver.new(_setup())
@@ -156,6 +170,34 @@ func test_reaction_visual_windows_use_the_same_boundaries_as_rules() -> void:
 	widget._chosen = Enums.ReactionType.BRACE
 	assert_false(widget.window_open(Enums.ReactionType.PARRY), "no other window invites input after the first press locks")
 	widget.free()
+
+func test_exposure_is_an_inspectable_effect_and_waits_for_its_presentation_event() -> void:
+	var engine := BattleEngine.new(_setup())
+	var unit := engine.get_state().enemies()[0]
+	var ledger := PresentationLedger.new()
+	ledger.snapshot(engine)
+	var view := UnitView.new()
+	view.setup(unit, ledger)
+	_tree.root.add_child(view)
+	# The engine can already have resolved a mark, but its icon waits for the public event.
+	unit.weak_point_turns = 2
+	view.queue_redraw()
+	await _tree.process_frame
+	assert_false(view._regions.any(func(region: Dictionary) -> bool: return String(region.text).begins_with("Exposed weak point")))
+	ledger.apply(BattleEvent.new(BattleEvent.Type.WEAK_POINT_EXPOSED, unit.uid), 0, engine)
+	view.queue_redraw()
+	await _tree.process_frame
+	var effects := view._regions.filter(func(region: Dictionary) -> bool: return String(region.text).contains("Exposed weak point"))
+	assert_eq(effects.size(), 1, "one compact effect instead of a sprite banner")
+	if not effects.is_empty():
+		var text := view._get_tooltip((effects[0].rect as Rect2).get_center())
+		assert_true(text.contains("Precision"))
+		assert_true(text.contains("Spotter's Mark"))
+		assert_true(text.contains("2 of the target's activations"))
+		assert_true(text.contains("until recovery"))
+	assert_eq(CombatIcons.texture("state_exposed").resource_path, "res://assets/art/global/ui/items/exposed_v01.svg")
+	view.queue_free()
+
 
 func _setup() -> BattleSetup:
 	var registry := Database.registry

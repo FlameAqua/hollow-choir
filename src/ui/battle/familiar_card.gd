@@ -2,6 +2,7 @@ class_name FamiliarCard
 extends Control
 ## Equipped familiar stands beside the companion. No party slot or turn.
 var familiar: FamiliarDefinition
+var selected_trait: TraitDefinition
 var ledger: PresentationLedger
 var _show_art := true
 var _pulse: Tween
@@ -17,8 +18,9 @@ func _ready() -> void:
 	focus_mode = Control.FOCUS_ALL
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 
-func setup(value: FamiliarDefinition, display: PresentationLedger, show_art: bool = true) -> void:
+func setup(value: FamiliarDefinition, display: PresentationLedger, show_art: bool = true, passive: TraitDefinition = null) -> void:
 	familiar = value
+	selected_trait = passive if passive != null else familiar.trait_def if familiar != null else null
 	ledger = display
 	_show_art = show_art
 	_idle = preload("res://assets/art/global/familiars/frames/bell_crow_idle_v03.tres") if familiar != null and familiar.id == &"bell_crow" else null
@@ -61,7 +63,8 @@ func refresh() -> void:
 func plain_text() -> String:
 	if familiar == null:
 		return "No familiar in this loadout."
-	return "%s\n%s\n%s\n%s · no turn cost" % [familiar.display_name, "Ready this round" if ledger == null or ledger.familiar_ready() else "Used this round", familiar.description, limit_text()]
+	var passive := "\n%s · %s" % [selected_trait.display_name, selected_trait.description] if selected_trait != null else ""
+	return "%s\n%s\n%s%s\n%s · no turn cost" % [familiar.display_name, "Ready this round" if ledger == null or ledger.familiar_ready() else "Used this round", familiar.description, passive, limit_text()]
 
 func limit_text() -> String:
 	var limit := ledger.familiar_limit if ledger != null else 0

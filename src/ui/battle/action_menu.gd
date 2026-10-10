@@ -4,8 +4,9 @@ extends PanelContainer
 ## The grid's fixed capacity: two columns of four rows, no scrolling. Potions live in Supplies.
 ## tests/unit/test_action_capacity.gd holds every party member's non-item actions to it.
 ## Every party member has up to eight action slots (Adrian, 9 October 2026); a slot without an
-## action shows an empty, inert frame, so the grid always reads as eight slots.
-const CAPACITY := 8
+## action shows an empty, inert frame, so the grid always reads as eight slots. The number is the
+## rule's (PartyLoadout.MAX_ACTIONS), which campaign preparation also enforces.
+const CAPACITY := PartyLoadout.MAX_ACTIONS
 const EMPTY_SLOT_TINT := Color(0.6, 0.6, 0.6, 0.5)
 signal row_focused(option: ActionOption)
 signal option_chosen(option: ActionOption)

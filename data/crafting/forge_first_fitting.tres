@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="RecipeDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/crafting/recipe_definition.gd" id="1_recipe"]
+[ext_resource type="Script" path="res://src/data/crafting/material_cost.gd" id="2_cost"]
+[ext_resource type="Resource" path="res://data/materials/bog_iron.tres" id="3_iron"]
+[ext_resource type="Script" path="res://src/data/items/weapon_definition.gd" id="4_weapon"]
+[ext_resource type="Resource" path="res://data/weapons/pilgrims_edge.tres" id="5_edge"]
+[ext_resource type="Resource" path="res://data/weapons/mire_maul.tres" id="6_maul"]
+[ext_resource type="Resource" path="res://data/weapons/reedbow.tres" id="7_bow"]
+[ext_resource type="Script" path="res://src/data/crafting/modification_definition.gd" id="8_fitting"]
+[ext_resource type="Resource" path="res://data/modifications/merciful_grip_fitting.tres" id="9_grip"]
+[ext_resource type="Resource" path="res://data/modifications/hollow_echo_fitting.tres" id="10_echo"]
+
+[sub_resource type="Resource" id="Cost_bog_iron"]
+script = ExtResource("2_cost")
+material = ExtResource("3_iron")
+count = 2
+
+[resource]
+script = ExtResource("1_recipe")
+id = &"forge.first_fitting"
+display_name = "Fitting kit"
+description = "An older kit of tools and a spare collar for Pilgrim's Edge. It keeps Merciful Grip and Hollow Echo yours. Reclaim it at the Forge anvil for a full refund."
+station = 0
+kind = 0
+costs = Array[ExtResource("2_cost")]([SubResource("Cost_bog_iron")])
+refundable = true
+mastery_points = 1
+mastery_weapons = Array[ExtResource("4_weapon")]([ExtResource("5_edge"), ExtResource("6_maul"), ExtResource("7_bow")])
+weapon = ExtResource("5_edge")
+fittings = Array[ExtResource("8_fitting")]([ExtResource("9_grip"), ExtResource("10_echo")])

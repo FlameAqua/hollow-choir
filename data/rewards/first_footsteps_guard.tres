@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="RewardDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/progression/reward_definition.gd" id="1_reward"]
+[ext_resource type="Script" path="res://src/data/progression/reward_item.gd" id="2_item"]
+[ext_resource type="Resource" path="res://data/materials/bog_iron.tres" id="3_bog_iron"]
+[ext_resource type="Resource" path="res://data/materials/storm_salt.tres" id="4_storm_salt"]
+
+[sub_resource type="Resource" id="Item_bog_iron"]
+script = ExtResource("2_item")
+material = ExtResource("3_bog_iron")
+count = 2
+
+[sub_resource type="Resource" id="Item_storm_salt"]
+script = ExtResource("2_item")
+material = ExtResource("4_storm_salt")
+
+[resource]
+script = ExtResource("1_reward")
+id = &"first_footsteps.guard"
+display_name = "Bell-approach salvage"
+source_id = &"bell_guard"
+items = Array[ExtResource("2_item")]([SubResource("Item_bog_iron"), SubResource("Item_storm_salt")])

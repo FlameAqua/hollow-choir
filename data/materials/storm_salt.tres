@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="MaterialDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/items/material_definition.gd" id="1_material"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/materials/storm_salt_v01.svg" id="2_icon"]
+
+[resource]
+script = ExtResource("1_material")
+id = &"storm_salt"
+display_name = "Storm Salt"
+description = "Pale crystals left where lightning touched fen water. They prickle through cloth."
+icon = ExtResource("2_icon")

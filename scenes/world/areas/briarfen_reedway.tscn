@@ -16,6 +16,13 @@
 [ext_resource type="Script" path="res://src/world/world_point.gd" id="15_e5er3"]
 [ext_resource type="Script" path="res://src/world/world_portal.gd" id="16_1no0l"]
 [ext_resource type="Shape2D" path="res://scenes/world/footprints/willow_roots.tres" id="17_wroot"]
+[ext_resource type="Texture2D" path="res://assets/art/world/exploration_v05/rune_stone.svg" id="v05_rune_stone"]
+[ext_resource type="Texture2D" path="res://assets/art/world/exploration_v05/rune_low.svg" id="v05_rune_low"]
+[ext_resource type="Texture2D" path="res://assets/art/world/exploration_v05/rune_mid.svg" id="v05_rune_mid"]
+[ext_resource type="Texture2D" path="res://assets/art/world/exploration_v05/rune_high.svg" id="v05_rune_high"]
+[ext_resource type="Texture2D" path="res://assets/art/world/exploration_v05/iron_seam.svg" id="v05_iron_seam"]
+[ext_resource type="Texture2D" path="res://assets/art/world/exploration_v05/niche.svg" id="v05_niche"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/materials/parcel_v01.svg" id="v05_wrapping"]
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_7moc3"]
 _surfaces = [{
@@ -1441,6 +1448,34 @@ metadata/_note = "Backend graybox: painted solid cells (water, fences, bounds). 
 
 [node name="Interactions" type="Node2D" parent="." unique_id=126447076]
 
+[node name="iron_seam" type="Node2D" parent="Interactions"]
+position = Vector2(368, 1232)
+script = ExtResource("15_e5er3")
+radius = 48.0
+
+[node name="rhythm_stone_low" type="Node2D" parent="Interactions"]
+metadata/strike_cue = &"rune_low"
+position = Vector2(2640, 1296)
+script = ExtResource("15_e5er3")
+radius = 36.0
+
+[node name="rhythm_stone_mid" type="Node2D" parent="Interactions"]
+metadata/strike_cue = &"rune_mid"
+position = Vector2(2704, 1360)
+script = ExtResource("15_e5er3")
+radius = 36.0
+
+[node name="rhythm_stone_high" type="Node2D" parent="Interactions"]
+metadata/strike_cue = &"rune_high"
+position = Vector2(2768, 1296)
+script = ExtResource("15_e5er3")
+radius = 36.0
+
+[node name="drowned_niche" type="Node2D" parent="Interactions"]
+position = Vector2(2768, 1360)
+script = ExtResource("15_e5er3")
+radius = 36.0
+
 [node name="reedway_entry" type="Node2D" parent="Interactions" unique_id=1085346340]
 position = Vector2(720, 2448)
 script = ExtResource("15_e5er3")
@@ -1505,3 +1540,134 @@ position = Vector2(2704, 1328)
 position = Vector2(720, 2688)
 script = ExtResource("16_1no0l")
 size = Vector2(160, 96)
+
+[node name="Rune_low" type="Sprite2D" parent="LowDecoration"]
+texture_filter = 1
+position = Vector2(2640, 1296)
+texture = ExtResource("v05_rune_stone")
+
+[node name="Unlit" type="Node2D" parent="LowDecoration/Rune_low"]
+script = ExtResource("3_qxym1")
+source = 5
+key = &"rhythm_stone_low"
+show_when = false
+
+[node name="Etching" type="Sprite2D" parent="LowDecoration/Rune_low/Unlit"]
+modulate = Color(0.25, 0.25, 0.25, 1)
+texture = ExtResource("v05_rune_low")
+
+[node name="Lit" type="Node2D" parent="LowDecoration/Rune_low"]
+script = ExtResource("3_qxym1")
+source = 5
+key = &"rhythm_stone_low"
+
+[node name="Etching" type="Sprite2D" parent="LowDecoration/Rune_low/Lit"]
+texture = ExtResource("v05_rune_low")
+
+[node name="Rune_mid" type="Sprite2D" parent="LowDecoration"]
+texture_filter = 1
+position = Vector2(2704, 1360)
+texture = ExtResource("v05_rune_stone")
+
+[node name="Unlit" type="Node2D" parent="LowDecoration/Rune_mid"]
+script = ExtResource("3_qxym1")
+source = 5
+key = &"rhythm_stone_mid"
+show_when = false
+
+[node name="Etching" type="Sprite2D" parent="LowDecoration/Rune_mid/Unlit"]
+modulate = Color(0.25, 0.25, 0.25, 1)
+texture = ExtResource("v05_rune_mid")
+
+[node name="Lit" type="Node2D" parent="LowDecoration/Rune_mid"]
+script = ExtResource("3_qxym1")
+source = 5
+key = &"rhythm_stone_mid"
+
+[node name="Etching" type="Sprite2D" parent="LowDecoration/Rune_mid/Lit"]
+texture = ExtResource("v05_rune_mid")
+
+[node name="Rune_high" type="Sprite2D" parent="LowDecoration"]
+texture_filter = 1
+position = Vector2(2768, 1296)
+texture = ExtResource("v05_rune_stone")
+
+[node name="Unlit" type="Node2D" parent="LowDecoration/Rune_high"]
+script = ExtResource("3_qxym1")
+source = 5
+key = &"rhythm_stone_high"
+show_when = false
+
+[node name="Etching" type="Sprite2D" parent="LowDecoration/Rune_high/Unlit"]
+modulate = Color(0.25, 0.25, 0.25, 1)
+texture = ExtResource("v05_rune_high")
+
+[node name="Lit" type="Node2D" parent="LowDecoration/Rune_high"]
+script = ExtResource("3_qxym1")
+source = 5
+key = &"rhythm_stone_high"
+
+[node name="Etching" type="Sprite2D" parent="LowDecoration/Rune_high/Lit"]
+texture = ExtResource("v05_rune_high")
+
+[node name="IronSeam" type="Sprite2D" parent="LowDecoration"]
+texture_filter = 1
+position = Vector2(368, 1232)
+texture = ExtResource("v05_iron_seam")
+self_modulate = Color(0.55, 0.55, 0.55, 1)
+
+[node name="OreRemaining" type="Node2D" parent="LowDecoration/IronSeam"]
+script = ExtResource("3_qxym1")
+source = 2
+key = &"iron_seam"
+show_when = false
+
+[node name="Ore" type="Sprite2D" parent="LowDecoration/IronSeam/OreRemaining"]
+texture = ExtResource("v05_iron_seam")
+
+[node name="Solved" type="Node2D" parent="LowDecoration/Rune_low"]
+script = ExtResource("3_qxym1")
+source = 4
+key = &"listening_rhythm"
+
+[node name="Etching" type="Sprite2D" parent="LowDecoration/Rune_low/Solved"]
+texture = ExtResource("v05_rune_low")
+
+[node name="Solved" type="Node2D" parent="LowDecoration/Rune_mid"]
+script = ExtResource("3_qxym1")
+source = 4
+key = &"listening_rhythm"
+
+[node name="Etching" type="Sprite2D" parent="LowDecoration/Rune_mid/Solved"]
+texture = ExtResource("v05_rune_mid")
+
+[node name="Solved" type="Node2D" parent="LowDecoration/Rune_high"]
+script = ExtResource("3_qxym1")
+source = 4
+key = &"listening_rhythm"
+
+[node name="Etching" type="Sprite2D" parent="LowDecoration/Rune_high/Solved"]
+texture = ExtResource("v05_rune_high")
+
+
+[node name="Niche" type="Node2D" parent="LowDecoration"]
+position = Vector2(2768, 1360)
+script = ExtResource("3_qxym1")
+source = 4
+key = &"listening_rhythm"
+
+[node name="Opening" type="Sprite2D" parent="LowDecoration/Niche"]
+texture_filter = 1
+texture = ExtResource("v05_niche")
+
+[node name="Unsearched" type="Node2D" parent="LowDecoration/Niche"]
+script = ExtResource("3_qxym1")
+source = 3
+key = &"drowned_niche"
+show_when = false
+
+[node name="Wrapping" type="Sprite2D" parent="LowDecoration/Niche/Unsearched"]
+texture_filter = 1
+position = Vector2(0, 6)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("v05_wrapping")

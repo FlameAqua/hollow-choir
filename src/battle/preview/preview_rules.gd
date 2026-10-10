@@ -122,6 +122,15 @@ static func preview_intent(ctx: BattleContext, enemy: BattleUnit) -> IntentPrevi
 		if final_target != target:
 			preview.covered_by = final_target.uid
 		preview.target_uids.append(final_target.uid)
+		if final_target.side != enemy.side and final_target.has_break_meter() and not final_target.is_broken():
+			var unreacted_break := StaggerRules.party_break_amount(ctx.balance, action, null)
+			if unreacted_break > 0.0:
+				preview.break_unreacted[final_target.uid] = unreacted_break
+				preview.break_braced[final_target.uid] = StaggerRules.party_break_amount(ctx.balance, action,
+					ReactionResult.make(Enums.ReactionType.BRACE, true))
+			if action.allows_reaction(Enums.ReactionType.PARRY):
+				preview.break_parry_cost = StaggerRules.party_break_amount(ctx.balance, action,
+					ReactionResult.make(Enums.ReactionType.PARRY, true))
 		if not action.deals_damage() or final_target.side == enemy.side:
 			continue
 		preview.unreacted[final_target.uid] = _range(ctx, enemy, final_target, action, 1.0)

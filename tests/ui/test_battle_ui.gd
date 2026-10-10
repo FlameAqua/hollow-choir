@@ -197,7 +197,10 @@ func test_code_labels_are_readable() -> void:
 	assert_eq(InputBindings.code_label("key:Space"), "Space")
 	assert_eq(InputBindings.code_label("joy:0"), "Pad A")
 	assert_eq(InputBindings.code_label("joy:9"), "Pad LB")
-	assert_eq(InputBindings.code_label("mouse:1"), "Mouse 1")
+	assert_eq(InputBindings.code_label("mouse:1"), "Left Mouse")
+	assert_eq(InputBindings.code_label("mouse:3"), "Middle Mouse")
+	assert_eq(InputBindings.code_label("mouse:8"), "Mouse X1")
+	assert_eq(InputBindings.code_label("mouse:9"), "Mouse X2")
 
 
 # --- Helpers -------------------------------------------------------------------------------------

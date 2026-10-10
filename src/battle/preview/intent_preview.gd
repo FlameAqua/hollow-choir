@@ -19,6 +19,12 @@ var unreacted: Dictionary[int, Vector2i] = {}
 var braced: Dictionary[int, Vector2i] = {}
 var evade_failed: Dictionary[int, Vector2i] = {}
 var parry_failed: Dictionary[int, Vector2i] = {}
+## Playtest revision: Break each party target would lose (target uid -> amount) unreacted and on a
+## successful Brace, and the Break a successful Parry costs each parrying unit. Empty / 0 when the
+## action deals none. A Broken or defeated target is not listed (it takes no Break).
+var break_unreacted: Dictionary[int, float] = {}
+var break_braced: Dictionary[int, float] = {}
+var break_parry_cost: float = 0.0
 ## Worst case relative to the target's max HP, readable without exact numbers.
 var threat: Threat = Threat.NONE
 ## Unit covering the target (Intercept), or -1.

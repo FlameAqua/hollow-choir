@@ -186,3 +186,71 @@ func test_recorded_battles_are_saved_and_resumed_next_session() -> void:
 	GameState.active_slot = previous_slot
 	GameState.progress = previous_progress
 	GameState._session_resumed = previous_resumed
+
+
+## V0.5 UI: the optional campaign (difficulty, starter preset) and combat (arrangement) sections
+## round-trip, and an older save without them loads with deterministic defaults.
+func test_campaign_and_combat_sections_round_trip_with_deterministic_defaults() -> void:
+	var progress := ProgressState.new()
+	progress.difficulty = Enums.TacticalDifficulty.STORY
+	progress.starter_preset = &"mire_maul"
+	progress.combat_actions.assign([&"inspect", &"kindle"])
+	var restored := ProgressState.from_dict(SaveMigrator.migrate(JSON.parse_string(JSON.stringify(
+		SaveMigrator.wrap(progress.to_dict(), 1)))))
+	assert_eq([restored.difficulty, restored.starter_preset, restored.combat_actions],
+		[Enums.TacticalDifficulty.STORY, &"mire_maul", [&"inspect", &"kindle"] as Array[StringName]])
+	var older := progress.to_dict()
+	older.erase("campaign")
+	older.erase("combat")
+	var legacy := ProgressState.from_dict(older)
+	assert_eq([legacy.difficulty, legacy.starter_preset, legacy.combat_actions],
+		[Enums.TacticalDifficulty.ADVENTURER, &"", [] as Array[StringName]])
+
+
+## A save that is valid JSON but holds wrong-typed sections loads every damaged field as its default
+## instead of stopping the load (nothing is written or repaired here).
+func test_wrong_typed_sections_load_as_defaults() -> void:
+	var data := {
+		"loadout": "sword", "bestiary": {"points": [1, 2], "sources": {"bogshell": "inspect", "rotcap": [1, "two", 3.0]}},
+		"weapon_mastery": {"pilgrims_edge": "lots", "reedbow": 2.0, "mire_maul": 1.5}, "inventory": [],
+		"companions": {"mara": "friend"}, "familiars": {"crow": true}, "quests": 4,
+		"regions": {"pressure": [], "events": {"briarfen": "flood"}}, "world_choices": {"drowned_chapel": 3},
+		"home_upgrades": "none", "stats": {"battles_won": {}, "battles_lost": -4},
+		"world": {"entry_serial": "seven", "pending_entry": {"token": 5, "site": "bell_guard", "encounter": "rot_grove",
+			"area": "briarfen_reedway", "approach_anchor": "bell_guard", "seed": "x", "loadout": {}, "research": {},
+			"difficulty": 1, "assist": 1}},
+		"rewards": "all", "crafting": [], "campaign": {"difficulty": [2]}, "combat": {"actions": {"0": "inspect"}},
+	}
+	var state := ProgressState.from_dict(data)
+	var fresh := ProgressState.new()
+	assert_eq(state.loadout_weapon, fresh.loadout_weapon)
+	assert_true(state.bestiary.points.is_empty())
+	assert_eq(state.bestiary.sources[&"rotcap"], PackedInt32Array([1, 3]))
+	assert_eq(state.weapon_mastery, {&"reedbow": 2} as Dictionary[StringName, int], "whole numbers only")
+	assert_eq(state.owned_equipment, fresh.owned_equipment)
+	assert_true(state.companions.is_empty(), "a damaged companion entry is dropped")
+	assert_eq(state.familiars, fresh.familiars)
+	assert_true(state.quests.is_empty() and state.region_events.is_empty() and state.world_choices.is_empty())
+	assert_eq(state.home_upgrades, fresh.home_upgrades)
+	assert_eq([state.battles_won, state.battles_lost], [0, 0])
+	assert_eq(state.world.entry_serial, 0)
+	assert_null(state.world.pending_entry, "an entry with a damaged token or seed is dropped")
+	assert_eq([state.reward_claims.size(), state.crafting_recipes.size(), state.weapon_fittings.size()], [0, 0, 0])
+	assert_eq([state.difficulty, state.combat_actions.size()], [Enums.TacticalDifficulty.ADVENTURER, 0])
+	assert_eq([ProgressState.number(3.0, -1), ProgressState.number(3.5, -1), ProgressState.number(NAN, -1),
+		ProgressState.number("3", -1), ProgressState.number(INF, -1)], [3, -1, -1, -1, -1])
+
+
+func test_migrator_rejects_a_save_without_a_data_section() -> void:
+	expect_engine_errors(2)
+	# A local logger proves both errors are the migrator's own rejection: without the check, the
+	# missing key and the Array cast would fail as runtime errors with the same count.
+	var logger := TestErrorLogger.new()
+	OS.add_logger(logger)
+	assert_empty(SaveMigrator.migrate({"save_version": 1}))
+	assert_empty(SaveMigrator.migrate({"save_version": 1, "data": [1, 2]}))
+	OS.remove_logger(logger)
+	var errors := logger.take_errors()
+	assert_eq(errors.size(), 2)
+	for error in errors:
+		assert_true(error.begins_with("SaveMigrator: the save has no data section"), error)

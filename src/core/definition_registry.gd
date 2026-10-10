@@ -19,6 +19,12 @@ var conditions: Dictionary[StringName, BattlefieldConditionDefinition] = {}
 var actions: Dictionary[StringName, ActionDefinition] = {}
 var buffs: Dictionary[StringName, BuffDefinition] = {}
 var traits: Dictionary[StringName, TraitDefinition] = {}
+## V0.5A salvage materials and stable campaign rewards (data/materials, data/rewards).
+var materials: Dictionary[StringName, MaterialDefinition] = {}
+var rewards: Dictionary[StringName, RewardDefinition] = {}
+## V0.5B Forge/Stillroom recipes and weapon fittings (data/crafting, data/modifications).
+var recipes: Dictionary[StringName, RecipeDefinition] = {}
+var modifications: Dictionary[StringName, ModificationDefinition] = {}
 var statuses: Dictionary[int, StatusDefinition] = {}
 var roles: Dictionary[int, EnemyRoleDefinition] = {}
 var resonances: Dictionary[int, ResonanceDefinition] = {}
@@ -99,8 +105,8 @@ func validate() -> PackedStringArray:
 	if world != null:
 		problems.append_array(world.validate())
 	for collection: Dictionary in [weapons, armor, enemies, companions, protagonists, familiars, potions,
-			encounters, loadouts, conditions, actions, buffs, traits, statuses, roles, resonances,
-			difficulty_profiles, assist_profiles, skill_profiles]:
+			encounters, loadouts, conditions, actions, buffs, traits, materials, rewards, recipes, modifications,
+			statuses, roles, resonances, difficulty_profiles, assist_profiles, skill_profiles]:
 		for key in collection:
 			var definition: Resource = collection[key]
 			for problem: String in definition.call("validate"):
@@ -115,6 +121,9 @@ func validate() -> PackedStringArray:
 		if not statuses.has(status):
 			problems.append("missing vertical-slice status %s" % EnumText.status(status))
 	problems.append_array(_check_weapon_power_spread())
+	problems.append_array(RewardRules.validate_catalog(self))
+	problems.append_array(CraftingRules.validate_catalog(self))
+	problems.append_array(JourneyRules.validate_catalog(self))
 	return problems
 
 
@@ -175,6 +184,14 @@ func _register(resource: Resource, path: String) -> void:
 		_put(buffs, resource.id, resource, path)
 	elif resource is TraitDefinition:
 		_put(traits, resource.id, resource, path)
+	elif resource is MaterialDefinition:
+		_put(materials, resource.id, resource, path)
+	elif resource is RewardDefinition:
+		_put(rewards, resource.id, resource, path)
+	elif resource is RecipeDefinition:
+		_put(recipes, resource.id, resource, path)
+	elif resource is ModificationDefinition:
+		_put(modifications, resource.id, resource, path)
 	elif resource is StatusDefinition:
 		_put_enum(statuses, resource.status, resource, path)
 	elif resource is EnemyRoleDefinition:

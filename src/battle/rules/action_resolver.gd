@@ -1,10 +1,13 @@
 class_name ActionResolver
 extends RefCounted
 ## Resolves any action for either side, in a fixed order:
-##   costs → for each target: reaction, hit (damage, Stagger, weakness), on-hit effects
+##   costs → for each target: reaction, hit (damage, Stagger, weakness), party Break, on-hit effects
 ##   → once-only effects → strenuous (Bleed) → execution-grade Focus → buff consumption
 ##   → ACTION_RESOLVED / ITEM_USED triggers.
 ## A missed command never cancels the action: it only scales it (GDD).
+## Playtest revision: an enemy action removes Break from each living party target once, after its
+## hit resolved (StaggerRules.apply_party_break): the hit's Break scaled by the reaction, or the
+## Parry's cost. A defeated target takes none.
 
 
 ## [param reactions]: defender uid -> ReactionResult (enemy actions against the party).
@@ -50,6 +53,8 @@ static func resolve(ctx: BattleContext, actor: BattleUnit, action: ActionDefinit
 			break
 		if action.deals_damage() and target.is_alive():
 			weakness_rewarded = _hit(ctx, actor, target, action, grade, reaction_mult, blocked, weakness_rewarded)
+		if actor.is_enemy() and not target.is_enemy() and target.is_alive() and not ctx.is_decided():
+			StaggerRules.apply_party_break(ctx, target, actor, action, reaction)
 		if blocked or not target.is_alive() or ctx.is_decided():
 			continue
 		var target_rc := RuleContext.make(Enums.TriggerType.ACTION_RESOLVED, actor, target, action)

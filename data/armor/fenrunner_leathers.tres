@@ -1,5 +1,7 @@
 [gd_resource type="Resource" script_class="ArmorDefinition" format=3]
 
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/items/fenrunner_leathers_v01.svg" id="inventory_icon"]
+
 [ext_resource type="Script" path="res://src/data/combat/action_definition.gd" id="1_sir56"]
 [ext_resource type="Script" path="res://src/data/items/armor_definition.gd" id="2_ml7ll"]
 [ext_resource type="Script" path="res://src/data/rules/trait_definition.gd" id="3_xelx2"]
@@ -61,6 +63,7 @@ triggers = Array[ExtResource("5_p6dhb")]([SubResource("Resource_1l74m"), SubReso
 [resource]
 script = ExtResource("2_ml7ll")
 id = &"fenrunner_leathers"
+icon = ExtResource("inventory_icon")
 display_name = "Fenrunner Leathers"
 description = "Oiled leathers that shed water like a duck's back."
 rarity = 1

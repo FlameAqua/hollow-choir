@@ -1,0 +1,169 @@
+QA user data home: C:\Users\Adrian\Code\Games\hollow-choir\.godot\qa-playtest-revision\director-full-compatibility-02
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 617.14 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 SUPER
+
+User data: C:/Users/Adrian/Code/Games/hollow-choir/.godot/qa-playtest-revision/director-full-compatibility-02/Godot/app_userdata/Hollow Choir (isolated QA home)
+WARNING: BattleEngine: rejected action (Needs 5 Focus)
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] submit_action (res://src/battle/battle_engine.gd:142)
+       [1] act (res://tests/fixtures/battle_driver.gd:46)
+       [2] test_focus_cost_and_illegal_option_reason (res://tests/unit/test_engine_flow.gd:97)
+       [3] _run (res://tests/run_tests.gd:64)
+SCRIPT ERROR: Parse Error: Function "_action_ids()" not found in base self.
+   at: GDScript::reload (res://tests/unit/test_loadout_rules.gd:73)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/run_tests.gd:44)
+SCRIPT ERROR: Parse Error: Function "_action_ids()" not found in base self.
+   at: GDScript::reload (res://tests/unit/test_loadout_rules.gd:74)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/run_tests.gd:44)
+SCRIPT ERROR: Parse Error: Function "_action_ids()" not found in base self.
+   at: GDScript::reload (res://tests/unit/test_loadout_rules.gd:88)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/run_tests.gd:44)
+SCRIPT ERROR: Parse Error: Function "_action_ids()" not found in base self.
+   at: GDScript::reload (res://tests/unit/test_loadout_rules.gd:89)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/run_tests.gd:44)
+ERROR: Failed to load script "res://tests/unit/test_loadout_rules.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/run_tests.gd:44)
+User data: C:/Users/Adrian/Code/Games/hollow-choir/.godot/qa-playtest-revision/director-full-compatibility-02/Godot/app_userdata/Hollow Choir (isolated QA home)
+User data: C:/Users/Adrian/Code/Games/hollow-choir/.godot/qa-playtest-revision/director-full-compatibility-02/Godot/app_userdata/Hollow Choir (isolated QA home)
+QA isolation failed: cache is C:/Users/Adrian/Code/Games/hollow-choir/.godot/qa-playtest-revision/director-full-compatibility-02/cache, not inside C:/Users/Adrian/Code/Games/hollow-choir/.godot/qa-playtest-revision/director-full-compatibility-02/Godot/app_userdata (outdated launcher?). Nothing was run.
+ERROR: SaveMigrator: missing save_version
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] migrate (res://src/save/save_migrator.gd:15)
+       [1] test_migrator_rejects_missing_and_future_versions (res://tests/unit/test_save_and_settings.gd:46)
+       [2] _run (res://tests/run_tests.gd:64)
+ERROR: SaveMigrator: save version 2 is newer than this build (1)
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] migrate (res://src/save/save_migrator.gd:18)
+       [1] test_migrator_rejects_missing_and_future_versions (res://tests/unit/test_save_and_settings.gd:47)
+       [2] _run (res://tests/run_tests.gd:64)
+ERROR: Parse JSON failed. Error at line 0: Expected key
+   at: parse_string (core/io/json.cpp:629)
+   GDScript backtrace (most recent call first):
+       [0] read_json (res://src/autoload/save_manager.gd:146)
+       [1] test_corrupt_file_is_rejected_not_crashing (res://tests/unit/test_save_and_settings.gd:57)
+       [2] _run (res://tests/run_tests.gd:64)
+ERROR: SaveManager: user://test_saves/slot_test.json is not a valid save
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] read_json (res://src/autoload/save_manager.gd:148)
+       [1] test_corrupt_file_is_rejected_not_crashing (res://tests/unit/test_save_and_settings.gd:57)
+       [2] _run (res://tests/run_tests.gd:64)
+ERROR: SaveMigrator: the save has no data section
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] migrate (res://src/save/save_migrator.gd:21)
+       [1] test_migrator_rejects_a_save_without_a_data_section (res://tests/unit/test_save_and_settings.gd:250)
+       [2] _run (res://tests/run_tests.gd:64)
+ERROR: SaveMigrator: the save has no data section
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] migrate (res://src/save/save_migrator.gd:21)
+       [1] test_migrator_rejects_a_save_without_a_data_section (res://tests/unit/test_save_and_settings.gd:251)
+       [2] _run (res://tests/run_tests.gd:64)
+SCRIPT ERROR: Invalid access to property or key 'text' on a base object of type 'null instance'.
+   at: test_character_view_arranges_equips_and_shows_typed_reasons (res://tests/world/test_world_combat_arrangement.gd:221)
+   GDScript backtrace (most recent call first):
+       [0] test_character_view_arranges_equips_and_shows_typed_reasons (res://tests/world/test_world_combat_arrangement.gd:221)
+ERROR: Parse JSON failed. Error at line 0: Expected key
+   at: parse_string (core/io/json.cpp:629)
+   GDScript backtrace (most recent call first):
+       [0] read_json (res://src/autoload/save_manager.gd:146)
+       [1] load_slot (res://src/autoload/save_manager.gd:37)
+       [2] test_summaries_survive_empty_damaged_and_newer_saves_without_errors (res://tests/world/test_world_journey_setup.gd:177)
+       [3] _run (res://tests/run_tests.gd:64)
+ERROR: SaveManager: user://saves/slot_0.json is not a valid save
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] read_json (res://src/autoload/save_manager.gd:148)
+       [1] load_slot (res://src/autoload/save_manager.gd:37)
+       [2] test_summaries_survive_empty_damaged_and_newer_saves_without_errors (res://tests/world/test_world_journey_setup.gd:177)
+       [3] _run (res://tests/run_tests.gd:64)
+ERROR: SaveMigrator: save version 2 is newer than this build (1)
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] migrate (res://src/save/save_migrator.gd:18)
+       [1] load_slot (res://src/autoload/save_manager.gd:40)
+       [2] test_summaries_survive_empty_damaged_and_newer_saves_without_errors (res://tests/world/test_world_journey_setup.gd:178)
+       [3] _run (res://tests/run_tests.gd:64)
+ERROR: Parameter "body->get_space()" is null.
+   at: body_test_motion (modules/godot_physics_2d/godot_physics_server_2d.cpp:996)
+   GDScript backtrace (most recent call first):
+       [0] step (res://src/world/world_player.gd:95)
+       [1] test_tapping_into_a_wall_never_reads_as_walking (res://tests/world/test_world_revision_host.gd:384)
+SCRIPT ERROR: Cannot call method 'show' on a previously freed instance.
+   at: JourneyNotices._save_completed (res://src/ui/world/journey_notices.gd:36)
+   GDScript backtrace (most recent call first):
+       [0] _save_completed (res://src/ui/world/journey_notices.gd:36)
+       [1] commit (res://src/world/world_session.gd:122)
+       [2] commit_victory (res://src/world/world_session.gd:867)
+       [3] _commit_victory (res://src/world/world_host.gd:967)
+       [4] _on_battle_finished (res://src/world/world_host.gd:945)
+       [5] test_host_adds_no_notice_of_its_own_and_hides_cards_in_battle (res://tests/world/test_world_save_events.gd:147)
+       [6] _start_battle_at_guard (res://tests/world/test_world_save_events.gd:159)
+WARNING: WorldSession: unknown anchor briarfen_reedway/behind_the_waterfall; resuming at the square
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] open (res://src/world/world_session.gd:102)
+       [1] test_invalid_anchor_recovers_to_square_and_keeps_valid_progress (res://tests/world/test_world_session.gd:60)
+       [2] _run (res://tests/run_tests.gd:64)
+WARNING: WorldSession: unknown landmark secret_grotto dropped
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] open (res://src/world/world_session.gd:102)
+       [1] test_invalid_anchor_recovers_to_square_and_keeps_valid_progress (res://tests/world/test_world_session.gd:60)
+       [2] _run (res://tests/run_tests.gd:64)
+WARNING: WorldSession: unknown link sky_bridge dropped
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] open (res://src/world/world_session.gd:102)
+       [1] test_invalid_anchor_recovers_to_square_and_keeps_valid_progress (res://tests/world/test_world_session.gd:60)
+       [2] _run (res://tests/run_tests.gd:64)
+WARNING: WorldSession: unknown encounter site reed_gate dropped
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] open (res://src/world/world_session.gd:102)
+       [1] test_invalid_anchor_recovers_to_square_and_keeps_valid_progress (res://tests/world/test_world_session.gd:60)
+       [2] _run (res://tests/run_tests.gd:64)
+WARNING: WorldSession: unknown encounter site mirebell_cantor dropped
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] open (res://src/world/world_session.gd:102)
+       [1] test_invalid_anchor_recovers_to_square_and_keeps_valid_progress (res://tests/world/test_world_session.gd:60)
+       [2] _run (res://tests/run_tests.gd:64)
+FAIL res://tests/unit/test_loadout_rules.gd: could not load (parse error?)
+    Parse Error: Function "_action_ids()" not found in base self. (test_loadout_rules.gd:73 in GDScript::reload)
+    Parse Error: Function "_action_ids()" not found in base self. (test_loadout_rules.gd:74 in GDScript::reload)
+    Parse Error: Function "_action_ids()" not found in base self. (test_loadout_rules.gd:88 in GDScript::reload)
+    Parse Error: Function "_action_ids()" not found in base self. (test_loadout_rules.gd:89 in GDScript::reload)
+    Failed to load script "res://tests/unit/test_loadout_rules.gd" with error "Parse error". (gdscript_resource_format.cpp:46 in load)
+FAIL test_world_combat_arrangement::test_character_view_arranges_equips_and_shows_typed_reasons
+    engine/script errors: expected 0, got 1
+      error: Invalid access to property or key 'text' on a base object of type 'null instance'. (test_world_combat_arrangement.gd:221 in test_character_view_arranges_equips_and_shows_typed_reasons)
+FAIL test_world_revision_host::test_entering_reach_counts_down_and_walking_away_cancels_for_free
+    expected false  (test_world_revision_host.gd:146)
+FAIL test_world_revision_host::test_tapping_into_a_wall_never_reads_as_walking
+    engine/script errors: expected 0, got 1
+      error: Parameter "body->get_space()" is null. (godot_physics_server_2d.cpp:996 in body_test_motion)
+FAIL test_world_salvage_host::test_inventory_round_trip_is_read_only_and_retains_the_selected_slot
+    expected <×4> but got <>  (test_world_salvage_host.gd:222)
+    expected <×1> but got <>  (test_world_salvage_host.gd:223)
+FAIL test_world_salvage_host::test_failed_bell_write_shows_no_receipt_and_retry_shows_one
+    expected <1> but got <2>  (test_world_salvage_host.gd:279)
+FAIL test_world_save_events::test_host_adds_no_notice_of_its_own_and_hides_cards_in_battle
+    no duplicate host push: expected <1> but got <0>  (test_world_save_events.gd:126)
+    engine/script errors: expected 0, got 1
+      error: Cannot call method 'show' on a previously freed instance. (journey_notices.gd:36 in JourneyNotices._save_completed)
+FAIL test_world_session::test_world_section_round_trips_through_a_real_save_file
+    expected <{ "area": "briarfen_reedway", "anchor": "reedway_patrol", "discovered": ["return_latch", "reedway_patrol"], "links": ["short_return"], "cleared": [], "flags": { "wayside_bell_restored": false, "return_latch_open": true }, "pending_entry": { "token": "reedway_patrol#1", "site": "reedway_patrol", "encounter": "fen_patrol", "area": "briarfen_reedway", "approach_anchor": "reedway_patrol", "seed": 584527, "loadout": { "weapon": "pilgrims_edge", "garb": "pilgrims_coat", "charm": "", "relic": "", "companion": "mara", "familiar": "bell_crow", "familiar_passive": "bell_crow", "potions": ["mending_draught", "fen_water_flask"], "modifications": [], "actions": ["sword_strike", "lunge", "arc_cleave", "riposte_stance", "inspect", "spark"], "potion_charges": [2, 2] }, "research": {  }, "difficulty": 1, "assist": 1, "auto_brace": 0, "reaction_pause": 0 }, "last_applied_token": "", "entry_serial": 1, "gathered": [], "found": [], "solved": [], "rune_input": {  } }> but got <{ "area": "briarfen_reedway", "anchor": "reedway_patrol", "discovered": ["return_latch", "reedway_patrol"], "links": ["short_return"], "cleared": [], "flags": { "wayside_bell_restored": false, "return_latch_open": true }, "pending_entry": { "approach_anchor": "reedway_patrol", "area": "briarfen_reedway", "assist": 1, "auto_brace": 0, "difficulty": 1, "encounter": "fen_patrol", "loadout": { "actions": ["sword_strike", "lunge", "arc_cleave", "riposte_stance", "inspect", "spark"], "charm": "", "companion": "mara", "familiar": "bell_crow", "familiar_passive": "bell_crow", "garb": "pilgrims_coat", "modifications": [], "potion_charges": [2.0, 2.0], "potions": ["mending_draught", "fen_water_flask"], "relic": "", "weapon": "pilgrims_edge" }, "reaction_pause": 0, "research": {  }, "seed": 584527, "site": "reedway_patrol", "token": "reedway_patrol#1" }, "last_applied_token": "", "entry_serial": 1, "gathered": [], "found": [], "solved": [], "rune_input": {  } }>  (test_world_session.gd:282)
+    expected <{ "token": "reedway_patrol#1", "site": "reedway_patrol", "encounter": "fen_patrol", "area": "briarfen_reedway", "approach_anchor": "reedway_patrol", "seed": 584527, "loadout": { "weapon": "pilgrims_edge", "garb": "pilgrims_coat", "charm": "", "relic": "", "companion": "mara", "familiar": "bell_crow", "familiar_passive": "bell_crow", "potions": ["mending_draught", "fen_water_flask"], "modifications": [], "actions": ["sword_strike", "lunge", "arc_cleave", "riposte_stance", "inspect", "spark"], "potion_charges": [2, 2] }, "research": {  }, "difficulty": 1, "assist": 1, "auto_brace": 0, "reaction_pause": 0 }> but got <{ "approach_anchor": "reedway_patrol", "area": "briarfen_reedway", "assist": 1, "auto_brace": 0, "difficulty": 1, "encounter": "fen_patrol", "loadout": { "actions": ["sword_strike", "lunge", "arc_cleave", "riposte_stance", "inspect", "spark"], "charm": "", "companion": "mara", "familiar": "bell_crow", "familiar_passive": "bell_crow", "garb": "pilgrims_coat", "modifications": [], "potion_charges": [2.0, 2.0], "potions": ["mending_draught", "fen_water_flask"], "relic": "", "weapon": "pilgrims_edge" }, "reaction_pause": 0, "research": {  }, "seed": 584527, "site": "reedway_patrol", "token": "reedway_patrol#1" }>  (test_world_session.gd:284)
+
+Tests: 511 passed, 8 failed, 10129 assertions (139.99s)

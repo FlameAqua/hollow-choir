@@ -11,6 +11,10 @@ var research: Dictionary[StringName, PackedInt32Array] = {}
 var weapon_uses: Dictionary[StringName, int] = {}
 var weapon_perfects: Dictionary[StringName, int] = {}
 var defeated_enemies: Array[StringName] = []
+## Playtest revision (finite supplies): potion id -> doses the party actually used this battle,
+## counted by the engine as each ITEM action resolves. WorldSession settles a saved victory's uses
+## against the stock exactly once; nothing else may decrement it.
+var item_uses: Dictionary[StringName, int] = {}
 ## Inputs submitted, for exact replays (see BattleReplay).
 var input_log: Array[Dictionary] = []
 

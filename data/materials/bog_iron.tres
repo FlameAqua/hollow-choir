@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="MaterialDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/items/material_definition.gd" id="1_material"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/materials/bog_iron_v01.svg" id="2_icon"]
+
+[resource]
+script = ExtResource("1_material")
+id = &"bog_iron"
+display_name = "Bog Iron"
+description = "Rust-dark iron drawn from the peat. Dense, rough and flecked with reed roots."
+icon = ExtResource("2_icon")

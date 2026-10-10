@@ -32,6 +32,10 @@ const INFO := Color("a9c7d8")
 ## scaling gives 33 px at 1080p and 44 px at 1440p. Nothing essential is smaller than this body size.
 const BASE_FONT_SIZE := 22
 const SECONDARY_FONT_SIZE := 22
+## Inspection content uses the existing 22 px font at 82% (about 18 px on the canvas).
+const TOOLTIP_WIDTH := 380.0
+const SLOT_SIZE := 48.0
+const SOURCE_SIZE := 36.0
 ## Minimum height of an interactive control at 100% text.
 const CONTROL_HEIGHT := 40.0
 ## Bundled pixel font. Preloaded so exported builds keep it as a tracked dependency.
@@ -75,6 +79,10 @@ static func build() -> Theme:
 
 	theme.set_color("font_color", "Label", TEXT)
 	theme.set_color("default_color", "RichTextLabel", TEXT)
+	for type in ["Label", "RichTextLabel"]:
+		theme.set_color("font_shadow_color", type, Color(0.015, 0.02, 0.018, .95))
+		theme.set_constant("shadow_offset_x", type, 2)
+		theme.set_constant("shadow_offset_y", type, 2)
 	for font in ["normal_font_size", "bold_font_size", "italics_font_size", "bold_italics_font_size"]:
 		theme.set_font_size(font, "RichTextLabel", size)
 
@@ -82,6 +90,7 @@ static func build() -> Theme:
 		theme.set_stylebox("normal", type, UICraft.panel("technique", 12, pad))
 		theme.set_stylebox("hover", type, UICraft.panel("selected", 12, pad))
 		theme.set_stylebox("pressed", type, UICraft.panel("selected", 12, pad, Color(0.8, 0.8, 0.8)))
+		theme.set_stylebox("hover_pressed", type, UICraft.panel("selected", 12, pad, Color(0.8, 0.8, 0.8)))
 		theme.set_stylebox("focus", type, UICraft.panel("selected", 12, pad))
 		theme.set_stylebox("disabled", type, UICraft.panel("technique", 12, pad, Color(0.55, 0.55, 0.55)))
 		theme.set_color("font_color", type, TEXT)
@@ -89,9 +98,6 @@ static func build() -> Theme:
 		theme.set_color("font_pressed_color", type, ACCENT)
 		theme.set_color("font_focus_color", type, FOCUS)
 		theme.set_color("font_disabled_color", type, TEXT_FAINT)
-	for type in ["CheckBox", "CheckButton"]:
-		theme.set_stylebox("normal", type, box(Color(0, 0, 0, 0), Color(0, 0, 0, 0), 0, 3, 6, pad))
-		theme.set_stylebox("hover", type, box(PANEL_LIGHT, Color(0, 0, 0, 0), 0, 3, 6, pad))
 
 	theme.set_stylebox("normal", "LineEdit", UICraft.panel("inspection", 12, pad))
 	theme.set_stylebox("focus", "LineEdit", UICraft.panel("selected", 12, pad))
@@ -118,6 +124,13 @@ static func build() -> Theme:
 		theme.set_icon(icon, "PopupMenu", UICraft.texture("check"))
 	for icon in ["unchecked", "unchecked_disabled", "radio_unchecked", "radio_unchecked_disabled"]:
 		theme.set_icon(icon, "PopupMenu", empty_icon)
+	# Every checkbox state reserves the same icon and frame dimensions, including keyboard focus.
+	for type in ["CheckBox", "CheckButton"]:
+		for icon in ["checked", "checked_disabled", "radio_checked", "radio_checked_disabled", "on", "on_disabled", "on_mirrored", "on_disabled_mirrored"]:
+			theme.set_icon(icon, type, UICraft.texture("check"))
+		for icon in ["unchecked", "unchecked_disabled", "radio_unchecked", "radio_unchecked_disabled", "off", "off_disabled", "off_mirrored", "off_disabled_mirrored"]:
+			theme.set_icon(icon, type, empty_icon)
+		theme.set_constant("h_separation", type, 12)
 	for type in ["VScrollBar", "HScrollBar"]:
 		var prefix := "h_" if type == "HScrollBar" else ""
 		for style in ["scroll", "scroll_focus"]:

@@ -39,9 +39,17 @@ static func final_targets(ctx: BattleContext, enemy: BattleUnit) -> Array[Battle
 
 ## Does this declared action call for a real-time reaction from the party?
 static func needs_reaction(action: EnemyActionDefinition, targets: Array[BattleUnit]) -> bool:
+	return not reacting_targets(action, targets).is_empty()
+
+
+## The party targets that answer [param action] with the one shared reaction: living and not
+## Broken (playtest revision: a Broken party member cannot react and is simply hit). Empty when the
+## action is not reactable or no such target exists, and then no reaction window opens.
+static func reacting_targets(action: EnemyActionDefinition, targets: Array[BattleUnit]) -> Array[BattleUnit]:
+	var result: Array[BattleUnit] = []
 	if not action.is_reactable() or not action.targets_enemies():
-		return false
+		return result
 	for target in targets:
-		if target.side == Enums.Side.PLAYER:
-			return true
-	return false
+		if target.side == Enums.Side.PLAYER and target.can_react():
+			result.append(target)
+	return result

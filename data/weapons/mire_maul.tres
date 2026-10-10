@@ -1,5 +1,6 @@
 [gd_resource type="Resource" script_class="WeaponDefinition" format=3]
 
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/items/mire_maul_v01.svg" id="inventory_icon"]
 [ext_resource type="Resource" path="res://data/actions/hammer/hammer_blow.tres" id="1_2qjhe"]
 [ext_resource type="Resource" path="res://data/actions/hammer/anchor_stance.tres" id="2_x2gvx"]
 [ext_resource type="Script" path="res://src/data/items/weapon_definition.gd" id="3_ibm0y"]
@@ -40,6 +41,7 @@ triggers = Array[ExtResource("9_ufk7r")]([SubResource("Resource_susuf")])
 
 [resource]
 script = ExtResource("3_ibm0y")
+icon = ExtResource("inventory_icon")
 id = &"mire_maul"
 display_name = "Mire Maul"
 description = "A fen-oak maul, heavy enough to stop a charging boar."

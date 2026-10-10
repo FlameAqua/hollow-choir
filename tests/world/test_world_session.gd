@@ -252,16 +252,23 @@ func test_errand_completes_before_any_dialogue() -> void:
 	assert_true(GameState.progress.world.wayside_bell_restored, "talking cannot reset the bell")
 
 
-func test_bench_offers_only_owned_starter_weapons() -> void:
+## V0.5A: every owned weapon is offered (the three starters first); V0.5 UI: a field choice from
+## Character, with no station needed.
+func test_owned_weapons_are_field_choices() -> void:
 	var session := kit.session()
 	session.open()
 	var ids := WorldRules.bench_weapons(GameState.progress).map(func(weapon: WeaponDefinition) -> StringName: return weapon.id)
 	assert_eq(ids, [&"pilgrims_edge", &"mire_maul", &"reedbow"])
-	assert_eq(session.choose_weapon(&"reedbow"), OK)
+	assert_eq(session.station(), &"")
+	assert_eq(session.choose_weapon(&"reedbow"), OK, "no station needed")
 	assert_eq(GameState.progress.loadout_weapon, &"reedbow")
-	assert_eq(session.choose_weapon(&"thunderhead"), ERR_INVALID_PARAMETER, "no unowned or new weapons")
+	assert_eq(session.choose_weapon(&"thunderhead"), ERR_INVALID_PARAMETER, "no unowned weapons")
+	assert_eq(session.last_preparation.reason, PreparationResult.Reason.NOT_OWNED)
 	GameState.progress.owned_equipment.erase(&"mire_maul")
 	assert_false(WorldRules.bench_weapons(GameState.progress).any(func(weapon: WeaponDefinition) -> bool: return weapon.id == &"mire_maul"))
+	GameState.progress.owned_equipment.append(&"thunderhead")
+	ids = WorldRules.bench_weapons(GameState.progress).map(func(weapon: WeaponDefinition) -> StringName: return weapon.id)
+	assert_eq(ids, [&"pilgrims_edge", &"thunderhead", &"reedbow"], "any owned weapon, ordered by family")
 
 
 func test_world_section_round_trips_through_a_real_save_file() -> void:

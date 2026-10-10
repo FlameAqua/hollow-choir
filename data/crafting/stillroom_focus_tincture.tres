@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="RecipeDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/crafting/recipe_definition.gd" id="1_recipe"]
+[ext_resource type="Script" path="res://src/data/crafting/material_cost.gd" id="2_cost"]
+[ext_resource type="Resource" path="res://data/materials/storm_salt.tres" id="3_salt"]
+[ext_resource type="Resource" path="res://data/potions/focus_tincture.tres" id="4_potion"]
+
+[sub_resource type="Resource" id="Cost_storm_salt"]
+script = ExtResource("2_cost")
+material = ExtResource("3_salt")
+count = 1
+
+[resource]
+script = ExtResource("1_recipe")
+id = &"stillroom.focus_tincture"
+display_name = "Focus Tincture"
+description = "Steep Storm Salt in the clear tincture stock. Each batch makes two doses of Focus Tincture."
+station = 1
+kind = 1
+costs = Array[ExtResource("2_cost")]([SubResource("Cost_storm_salt")])
+potion = ExtResource("4_potion")
+yield_count = 2
+base_name = "Clear tincture stock"
+base_description = "A jar of clear spirit kept at home. The Stillroom reuses it for every batch; it is never spent."

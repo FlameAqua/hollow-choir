@@ -1,5 +1,10 @@
 # V0.2 support cards, familiar art and condition announcements
 
+V0.5 follow-up: [journey/station UI](V05_UI_PROTOTYPE.md) reuses the shared inspection card for
+items, recipes, fittings, potions and Character facts. Compact icons, Alt details, pinning and
+scroll ownership stay shared; station background and socket diagrams do not create combat rules.
+Bottom-right save/pickup cards are a separate passive presentation queue, with reduced motion.
+
 8 October 2026. Director/UI integration follow-up, authorized by Adrian's action-card screenshots.
 This supplements [the interaction contract](V02_UI_INTERACTION.md) and
 [inspection follow-up](V02_UI_FOLLOWUP.md). Combat rules and content balance are unchanged.

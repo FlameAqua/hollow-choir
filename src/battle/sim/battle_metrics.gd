@@ -11,6 +11,8 @@ var healing_done: int = 0
 var focus_generated: int = 0
 var focus_spent: int = 0
 var stagger_breaks: int = 0
+## Playtest revision: times a party member was Broken (counted apart from enemy breaks).
+var party_breaks: int = 0
 var interrupts: int = 0
 var weakness_hits: int = 0
 var party_defeats: int = 0
@@ -56,7 +58,10 @@ func _consume_one(engine: BattleEngine, event: BattleEvent) -> void:
 				else:
 					focus_spent -= int(event.amount)
 		BattleEvent.Type.BROKEN:
-			stagger_breaks += 1
+			if subject != null and subject.side == Enums.Side.PLAYER:
+				party_breaks += 1
+			else:
+				stagger_breaks += 1
 		BattleEvent.Type.CHANNEL_INTERRUPTED:
 			interrupts += 1
 		BattleEvent.Type.ACTION_STARTED:

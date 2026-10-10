@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="RecipeDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/crafting/recipe_definition.gd" id="1_recipe"]
+[ext_resource type="Script" path="res://src/data/crafting/material_cost.gd" id="2_cost"]
+[ext_resource type="Resource" path="res://data/materials/bog_iron.tres" id="3_iron"]
+[ext_resource type="Resource" path="res://data/potions/fen_water_flask.tres" id="4_potion"]
+
+[sub_resource type="Resource" id="Cost_bog_iron"]
+script = ExtResource("2_cost")
+material = ExtResource("3_iron")
+count = 1
+
+[resource]
+script = ExtResource("1_recipe")
+id = &"stillroom.fen_water_flask"
+display_name = "Fen Water Flask"
+description = "Band two throwing flasks with Bog Iron and fill them with fen water. Each batch makes two doses."
+station = 1
+kind = 1
+costs = Array[ExtResource("2_cost")]([SubResource("Cost_bog_iron")])
+potion = ExtResource("4_potion")
+yield_count = 2
+base_name = "Fen water"
+base_description = "Water drawn from the square's well. The Stillroom reuses it for every batch; it is never spent."

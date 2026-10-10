@@ -1,6 +1,9 @@
 extends SceneTree
 ## Checks actual exported resource bounds, transparency, source hashes and presentation animation.
 const ROOT := "res://assets/art/world/first_footsteps_v01/"
+## The Hollow's accepted runtime export (tools/prepare_fifth_polish.gd). A polish pass that re-exports
+## its frames and re-points scenes/hollow.tscn bumps this with the scene.
+const HOLLOW_FRAMES := "hollow_motion_v05"
 var _failures := 0
 var _checks := 0
 
@@ -41,7 +44,7 @@ func _run() -> void:
 		var scene: Node2D = load(ROOT+"scenes/"+actor.id+".tscn").instantiate()
 		root.add_child(scene)
 		var sprite: AnimatedSprite2D = scene.get_node("Visual")
-		var runtime_frames := "hollow_motion_v03" if actor.id == "hollow" else String(actor.id)
+		var runtime_frames := HOLLOW_FRAMES if actor.id == "hollow" else String(actor.id)
 		_check(sprite.sprite_frames.resource_path == ROOT+"frames/"+runtime_frames+".tres","Scene embeds stale frames: "+actor.id)
 		sprite.play(StringName(actor.rows[0].name))
 		await create_timer(1.1/sprite.sprite_frames.get_animation_speed(StringName(actor.rows[0].name))).timeout
@@ -67,7 +70,11 @@ func _run() -> void:
 	quit(1 if _failures else 0)
 
 func _verify_motion() -> void:
-	var frames := load(ROOT+"frames/hollow_motion_v03.tres") as SpriteFrames
+	# The frames the scene actually shows; the stale-frames check above pins which export that is.
+	var scene: Node2D = load(ROOT+"scenes/hollow.tscn").instantiate()
+	var sprite: AnimatedSprite2D = scene.get_node("Visual")
+	var frames := sprite.sprite_frames
+	scene.free()
 	_check(frames.get_animation_names().size() == 16, "Eight walk and idle directions")
 	for direction in ["north", "south", "west", "east", "northwest", "northeast", "southwest", "southeast"]:
 		var walk := StringName("walk_"+direction)
@@ -75,16 +82,21 @@ func _verify_motion() -> void:
 		_check(frames.get_frame_count(walk) == 4, "Motion cycle: "+direction)
 		_check(frames.get_frame_count(idle) == 2, "Standing idle pair: "+direction)
 		_check(frames.get_animation_speed(walk) == 5, "Slower walk: "+direction)
-		for i in 4:
-			var image := frames.get_frame_texture(walk, i).get_image()
-			_check(image.get_size() == Vector2i(64,64), "Motion cell size")
-			_check(image.get_pixel(0,0).a < .01, "Motion transparency")
-			var lowest := -1
-			for y in 64:
-				for x in 64:
-					if image.get_pixel(x,y).a > .5:
-						lowest = maxi(lowest,y)
-			_check(abs(lowest-60) <= 2, "Motion foot pivot: "+direction)
+		for i in frames.get_frame_count(walk):
+			_verify_cell(frames.get_frame_texture(walk, i), "Motion", direction)
+		for i in frames.get_frame_count(idle):
+			_verify_cell(frames.get_frame_texture(idle, i), "Standing idle", direction)
+
+func _verify_cell(texture: Texture2D, kind: String, direction: String) -> void:
+	var image := texture.get_image()
+	_check(image.get_size() == Vector2i(64,64), kind+" cell size")
+	_check(image.get_pixel(0,0).a < .01, kind+" transparency")
+	var lowest := -1
+	for y in 64:
+		for x in 64:
+			if image.get_pixel(x,y).a > .5:
+				lowest = maxi(lowest,y)
+	_check(abs(lowest-60) <= 2, kind+" foot pivot: "+direction)
 
 func _verify_fixture() -> void:
 	var fixture: Node2D = load("res://scenes/prototypes/v04_art_workbench.tscn").instantiate()

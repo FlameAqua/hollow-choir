@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="RewardDefinition" format=3]
+
+[ext_resource type="Script" path="res://src/data/progression/reward_definition.gd" id="1_reward"]
+[ext_resource type="Script" path="res://src/data/progression/reward_item.gd" id="2_item"]
+[ext_resource type="Resource" path="res://data/armor/storm_salt_charm.tres" id="3_charm"]
+
+[sub_resource type="Resource" id="Item_charm"]
+script = ExtResource("2_item")
+kind = 1
+equipment = ExtResource("3_charm")
+
+[resource]
+script = ExtResource("1_reward")
+id = &"first_footsteps.restoration"
+display_name = "The bell's keepsake"
+source = 1
+source_id = &"wayside_bell_restored"
+equipment_slots = 5
+items = Array[ExtResource("2_item")]([SubResource("Item_charm")])

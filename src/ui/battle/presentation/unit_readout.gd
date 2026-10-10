@@ -11,6 +11,11 @@ var max_hp := 1
 var resource := 0
 var max_resource := 0
 var broken := false
+## Playtest revision: the unit's own Break meter as displayed (enemies and party members). resource /
+## max_resource keep their meaning: an enemy's Break, a party member's Focus.
+var has_break := false
+var break_current := 0
+var break_max := 0
 var weak_point := ""
 var exposed := false
 var affinities: Array[Dictionary] = []
@@ -31,6 +36,9 @@ static func build(engine: BattleEngine, unit: BattleUnit, display: PresentationL
 	r.resource = roundi(display.stagger) if r.enemy else display.focus
 	r.max_resource = roundi(display.max_stagger) if r.enemy else display.max_focus
 	r.broken = display.broken
+	r.has_break = display.has_break
+	r.break_current = roundi(display.stagger)
+	r.break_max = roundi(display.max_stagger)
 	r.exposed = display.weak_point
 	r.intent = declared
 	for status in display.statuses:
@@ -83,8 +91,12 @@ func plain_text() -> String:
 	if not knowledge.is_empty():
 		lines.append("Knowledge: " + knowledge)
 	lines.append("Health %d / %d" % [hp, max_hp])
-	var resource_value := "Broken" if broken else "%d / %d" % [resource, max_resource]
-	lines.append(("Break remaining " if enemy else "Focus ") + resource_value)
+	if enemy:
+		lines.append("Break remaining " + ("Broken" if broken else "%d / %d" % [resource, max_resource]))
+	else:
+		lines.append("Focus %d / %d" % [resource, max_resource])
+		if has_break:
+			lines.append("Break remaining " + ("Broken" if broken else "%d / %d" % [break_current, break_max]))
 	if not weak_point.is_empty():
 		lines.append("Weak point: %s · %s" % [weak_point, "Exposed" if exposed else "Covered"])
 	for affinity in affinities:

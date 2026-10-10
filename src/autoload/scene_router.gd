@@ -29,6 +29,7 @@ func goto(path: String, payload: RefCounted = null) -> void:
 	if _busy:
 		return
 	_busy = true
+	SessionLog.event("scene", path.get_file().get_basename())
 	_payload = payload
 	_fade.mouse_filter = Control.MOUSE_FILTER_STOP
 	var tween := create_tween()

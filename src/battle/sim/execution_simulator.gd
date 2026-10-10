@@ -5,6 +5,10 @@ extends RefCounted
 
 ## How much a successful parry's Stagger is worth when choosing a reaction (fraction of a hit).
 const PARRY_STAGGER_VALUE := 0.15
+## Playtest revision: how much leaving a party member Broken (a lost activation) weighs against
+## the damage a reaction avoids (fraction of a hit). A sensible player stops paying a Parry's Break
+## cost when the next one would break them.
+const BROKEN_TURN_VALUE := 0.6
 
 var profile: ExecutionSkillProfile
 var rng := RandomNumberGenerator.new()
@@ -36,7 +40,7 @@ func react(balance: BalanceConfig, request: ReactionRequest) -> ReactionResult:
 		return ReactionResult.none()
 	var spec := request.spec
 	var best_type := Enums.ReactionType.NONE
-	var best_value := 1.0
+	var best_value := 1.0 + (BROKEN_TURN_VALUE if spec.would_break(Enums.ReactionType.NONE, false) else 0.0)
 	var best_chance := 0.0
 	for reaction in spec.allowed:
 		var chance := success_chance(balance, spec, reaction)
@@ -45,6 +49,10 @@ func react(balance: BalanceConfig, request: ReactionRequest) -> ReactionResult:
 		var value := chance * success_mult + (1.0 - chance) * fail_mult
 		if reaction == Enums.ReactionType.PARRY:
 			value -= chance * PARRY_STAGGER_VALUE
+		if spec.would_break(reaction, true):
+			value += chance * BROKEN_TURN_VALUE
+		if spec.would_break(reaction, false):
+			value += (1.0 - chance) * BROKEN_TURN_VALUE
 		if value < best_value:
 			best_value = value
 			best_type = reaction

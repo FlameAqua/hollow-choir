@@ -1,7 +1,14 @@
 extends SceneTree
 ## Asset integrity, not human art acceptance. Run after the editor imports generated native PNGs.
+## Continuous slider/scrollbar strips (V0.5 playtest revision, tools/make_continuous_controls.py) are
+## SVG with native end caps; every other material bitmap stays a native PNG.
+const CONTINUOUS_STRIPS := ["slider_track", "slider_fill", "scroll_track", "scroll_thumb", "h_scroll_track", "h_scroll_thumb"]
 var checks := 0
 var failures := 0
+
+
+static func _authored_format(id: String, texture: Texture2D) -> bool:
+	return texture != null and texture.resource_path.ends_with(".svg" if id in CONTINUOUS_STRIPS else ".png")
 
 func _initialize() -> void:
 	_run.call_deferred()
@@ -16,14 +23,14 @@ func _run() -> void:
 	_check(UICraft.TEXTURES.size() == 32, "Material palette has 32 tracked bitmap assets")
 	for id in UICraft.TEXTURES:
 		var texture := UICraft.texture(id)
-		_check(texture != null and texture.resource_path.ends_with(".png"), "Bitmap asset: " + id)
+		_check(_authored_format(id, texture), "Bitmap asset: " + id)
 		var config := ConfigFile.new()
 		_check(config.load(texture.resource_path + ".import") == OK, "Import exists: " + id)
 		_check(config.get_value("params", "compress/mode") == 0 and not config.get_value("params", "mipmaps/generate"), "Lossless/no mipmaps: " + id)
 	_check(UICraft.CONTROLS.size() == 20, "Third-pass authored control assets")
 	for id in UICraft.CONTROLS:
 		var texture := UICraft.texture(id)
-		_check(texture != null and texture.resource_path.ends_with(".png"), "Control bitmap: " + id)
+		_check(_authored_format(id, texture), "Control bitmap: " + id)
 		var config := ConfigFile.new()
 		_check(config.load(texture.resource_path + ".import") == OK, "Control import: " + id)
 		_check(config.get_value("params", "compress/mode") == 0 and not config.get_value("params", "mipmaps/generate"), "Control lossless/no mipmaps: " + id)

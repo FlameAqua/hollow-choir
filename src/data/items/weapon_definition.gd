@@ -6,6 +6,8 @@ extends Resource
 
 @export var id: StringName = &""
 @export var display_name: String = ""
+## Optional inventory art; never participates in combat rules.
+@export var icon: Texture2D
 @export_multiline var description: String = ""
 @export_multiline var details: String = ""
 @export var family: Enums.WeaponFamily = Enums.WeaponFamily.SWORD

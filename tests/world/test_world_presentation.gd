@@ -72,14 +72,15 @@ func test_all_bench_weapons_keep_their_details_and_close_action_reachable() -> v
 		button.pressed.emit()
 		await _layout()
 		_assert_frame_and_actions()
-		var details := host.modal.find_child("WeaponDetails", true, false) as WorldWeaponDetails
-		var scroll := host.modal.find_child("WeaponScroll", true, false) as ScrollContainer
+		var details := host.modal.find_child("EquipmentDetails", true, false) as WorldEquipmentDetails
+		var scroll := host.modal.find_child("EquipmentScroll", true, false) as ScrollContainer
 		assert_lte(details.get_global_rect().size.x, scroll.get_global_rect().size.x, "structured weapon facts fit the content column")
 		assert_true(details.text.contains(weapon.description), "shared weapon description remains available")
 		for action in weapon.techniques:
 			assert_true(details.text.contains(action.description), "every owned weapon action remains available")
 		assert_eq(GameState.progress.loadout_weapon, weapon.id)
-		assert_true(button.button_pressed and button.icon != null, "equipped is an icon badge and selected state")
+		var saved := host.modal.find_child("Weapon_" + String(weapon.id), true, false) as Button
+		assert_true(saved.button_pressed and saved.icon != null, "equipped is an icon badge and selected state")
 
 
 func test_full_map_selection_updates_description_without_travel_or_saving() -> void:
@@ -96,15 +97,14 @@ func test_full_map_selection_updates_description_without_travel_or_saving() -> v
 	for index in readout.landmarks.size():
 		var button := host.modal.find_child("Place%d" % index, true, false) as Button
 		button.pressed.emit()
-		assert_eq((host.modal.find_child("PlaceDescription", true, false) as Label).text,
-			String(readout.landmarks[index].description), "mouse/confirm selection updates the description")
+		assert_true(button.tooltip_text.contains(String(readout.landmarks[index].description)), "node inspection contains public description")
 		assert_eq((host.modal.find_child("MapView", true, false) as WorldMapView).selected, index)
 	var last := host.modal.find_child("Place%d" % (readout.landmarks.size() - 1), true, false) as Button
 	last.grab_focus()
 	await _layout()
-	var scroll := host.modal.find_child("PlacesScroll", true, false) as ScrollContainer
-	assert_gt(scroll.scroll_vertical, 0, "focus scrolls the last discovered place into view")
-	assert_true(scroll.get_global_rect().encloses(last.get_global_rect()), "last place is fully reachable")
+	var chart := host.modal.find_child("MapView", true, false) as WorldMapView
+	assert_true(chart.get_global_rect().encloses(last.get_global_rect()), "last medallion remains fully reachable")
+	assert_null(host.modal.find_child("PlacesScroll", true, false), "there is no separate list of labels")
 	assert_eq(host.player.position, at)
 	assert_eq(kit.writer.writes.size(), writes)
 	assert_eq(GameState.progress.to_dict(), before)
@@ -118,7 +118,7 @@ func test_bench_opens_on_equipped_item_without_scrolling_the_weapon_list() -> vo
 	var equipped := host.modal.find_child("Weapon_reedbow", true, false) as Button
 	assert_eq(tree.root.gui_get_focus_owner(), equipped)
 	var frame := (host.modal.get_node("Frame") as Control).get_global_rect()
-	var scroll := host.modal.find_child("WeaponScroll", true, false) as ScrollContainer
+	var scroll := host.modal.find_child("EquipmentScroll", true, false) as ScrollContainer
 	assert_eq(scroll.scroll_vertical, 0, "weapon identity is visible when the bench opens")
 	for weapon in WorldRules.bench_weapons(GameState.progress):
 		var choice := host.modal.find_child("Weapon_" + String(weapon.id), true, false) as Button
@@ -201,15 +201,21 @@ func test_idle_breathing_respects_reduce_motion_and_diagonal_frames_exist() -> v
 
 func test_guard_leaves_the_outside_loop_and_far_side_route_uninterrupted() -> void:
 	await _start(&"briarfen_reedway", &"reedway_fork")
+	var started: Array[StringName] = []
+	host.encounter_countdown_changed.connect(func(readout: EncounterCountdownReadout) -> void:
+		if readout.active:
+			started.append(readout.threat_id))
 	# Walk the actual feet body along the authored outside loop and far-side path. No teleports
 	# between waypoints, no opened latch and no cleared encounters. This does not replace human play.
 	for tile in [Vector2(10.5, 54.5), Vector2(10.5, 22.5), Vector2(38.5, 13.5), Vector2(60.5, 25.5),
 			Vector2(68.5, 35.5), Vector2(65.5, 50.5), Vector2(65.5, 61.5)]:
 		var reached := _walk(tile * 32.0)
-		assert_true(reached, "outside route reaches %s without an encounter card (feet %s)" % [tile, host.player.position])
+		assert_true(reached, "outside route reaches %s without an encounter (feet %s)" % [tile, host.player.position])
 		if not reached:
 			return
 	assert_null(host.modal)
+	assert_null(host.battle)
+	assert_empty(started, "the outside route never enters a threat's reach, so no countdown starts")
 	assert_false(GameState.progress.world.is_cleared(&"bell_guard"))
 	assert_false(GameState.progress.world.wayside_bell_restored)
 	assert_eq(host.readout().interaction, WorldCopy.ACTION_OPEN_LATCH)
@@ -224,23 +230,38 @@ func _walk(to: Vector2) -> bool:
 		if host.mode != WorldHost.Mode.EXPLORE:
 			return false
 		host.player.step(host.player.position.direction_to(to), 1.0 / 60.0)
-		host._after_move()
+		host._after_move(1.0 / 60.0)
 	return false
 
 
-func test_guard_card_still_opens_on_the_bell_steps() -> void:
+## Playtest revision: the guard's move-away countdown (it replaced the Engage card).
+func test_guard_countdown_still_starts_on_the_bell_steps() -> void:
 	await _start(&"briarfen_reedway", &"bell_guard")
-	host.player.place(Vector2(1936, 816))
-	host._after_move()
-	assert_null(host.modal, "junction itself stays free")
-	_walk(host.area.point(&"bell_guard"))
-	assert_not_null(host.modal, "stepping toward the guard still presents a deliberate encounter")
-	if host.modal == null:
+	var junction := Vector2(1936, 816)
+	host.player.place(junction)
+	host._after_move(1.0 / 60.0)
+	assert_false(host.countdown.active(), "junction itself stays free")
+	assert_null(host.modal)
+	var guard := host.area.point(&"bell_guard")
+	for step in 400:
+		if host.countdown.active() or host.mode != WorldHost.Mode.EXPLORE:
+			break
+		host.player.step(host.player.position.direction_to(guard), 1.0 / 60.0)
+		host._after_move(1.0 / 60.0)
+	host.player.stop()
+	assert_true(host.countdown.active(), "stepping toward the guard still starts a deliberate encounter")
+	if not host.countdown.active():
 		return
-	assert_eq(host.modal.kind, &"encounter")
-	assert_not_null(host.modal.button(WorldRules.ACT_ENGAGE))
-	assert_null(host.battle, "approach never launches battle on its own")
-	assert_eq(kit.writer.writes.size(), 0, "the card alone records nothing")
+	assert_eq(host.encounter_countdown().threat_id, &"bell_guard")
+	assert_null(host.modal, "no card interrupts the approach")
+	assert_null(host.battle, "approach never launches battle at once")
+	assert_eq(kit.writer.writes.size(), 0, "the countdown alone records nothing")
+	# Stepping back to the junction cancels it, and still nothing is recorded.
+	assert_true(_walk(junction))
+	assert_false(host.countdown.active(), "moving away cancels the countdown")
+	assert_null(host.battle)
+	assert_null(GameState.progress.world.pending_entry)
+	assert_eq(kit.writer.writes.size(), 0)
 
 
 func test_pixel_alignment_preserves_continuous_physics_and_camera_framing() -> void:

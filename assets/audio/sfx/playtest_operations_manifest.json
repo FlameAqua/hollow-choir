@@ -1,0 +1,55 @@
+{
+  "palette": "playtest_operations_v05",
+  "date": "2026-10-10",
+  "creator": "Codex / original deterministic procedural synthesis",
+  "recipe": "tools/generate_playtest_ui_sfx.py",
+  "external_samples": false,
+  "sample_rate_hz": 44100,
+  "channels": 1,
+  "bits_per_sample": 16,
+  "loop": false,
+  "human_listening_approval": "pending",
+  "measurement_note": "PCM sample peak/RMS only; no audition, LUFS or true-peak claim",
+  "cues": [
+    {
+      "file": "ui_equip.wav",
+      "sha256": "f2770daa68cf12967821f2ef2a2f15d0283c9be28d7fc75f3a373377e76c5fe3",
+      "frames": 9041,
+      "duration_seconds": 0.205011,
+      "sample_peak_dbfs": -17.08,
+      "rms_dbfs": -32.4
+    },
+    {
+      "file": "ui_unequip.wav",
+      "sha256": "343fad48c81f4c023fe046ab92ad3163770dc5be75fc069490c31b99c225e876",
+      "frames": 8599,
+      "duration_seconds": 0.194989,
+      "sample_peak_dbfs": -17.08,
+      "rms_dbfs": -32.7
+    },
+    {
+      "file": "craft_smith.wav",
+      "sha256": "46900786c61b542b8df9b303a468be385d4d1145540557506c3b84774944f061",
+      "frames": 16714,
+      "duration_seconds": 0.379002,
+      "sample_peak_dbfs": -17.08,
+      "rms_dbfs": -35.75
+    },
+    {
+      "file": "craft_brew.wav",
+      "sha256": "99240ce86bf09db22ac27369dce5ce898c31d9ecf4163e281e253ca6eedc9aba",
+      "frames": 15832,
+      "duration_seconds": 0.359002,
+      "sample_peak_dbfs": -17.08,
+      "rms_dbfs": -33.39
+    },
+    {
+      "file": "purchase.wav",
+      "sha256": "1ff4a91064063a87b9c3ba4e76c20a77260370eddfc308e683d88b64a497d256",
+      "frames": 9702,
+      "duration_seconds": 0.22,
+      "sample_peak_dbfs": -17.08,
+      "rms_dbfs": -31.79
+    }
+  ]
+}

@@ -1,6 +1,19 @@
 # Hollow Choir — canonical art direction
 
+Current V0.5 journey UI uses the existing dark cloth, gold atlas, stepped item icons and Hollow
+render, with two generated station backdrops and two transparent station props. See
+[art provenance and prompt set](../../docs/art/JOURNEY_UI_V05.md) and
+[prototype layout](../../docs/design/V05_UI_PROTOTYPE.md). Extend native SVG icons directly;
+keep generated source copies unchanged. Future sockets show locks, not invented rules.
+Human pixel-art/readability acceptance remains open.
+
 Director specification · 8 October 2026 · v1.0
+
+> **V0.5 integration, 10 October:** reuse current terrain and cloth/leather atlases. The
+> [exploration asset record](../../docs/art/EXPLORATION_V05.md) covers original small stepped
+> stone/seam/niche SVGs and the Fenrunner Leathers inventory icon. State changes use static
+> saved incisions and visibility, without flashes or new effects. Native vector authoring is
+> not a claim of final pixel-artist cleanup. Human art acceptance remains open.
 
 This guide is incorporated by [the GDD](../../docs/DESIGN_DOCUMENT.md). It extends
 [M1.1 F5](../../docs/design/M1_1_COMBAT_CLARITY.md#f5--art-direction-and-production-limit).

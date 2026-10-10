@@ -1,6 +1,47 @@
 # Hollow Choir — Canonical Game Design Document
 
-## Current design authority — 9 October 2026
+## Current design authority — 10 October 2026
+
+**Latest human-review assignment (presentation implemented and rendered; integration gates open):** Adrian's feedback is captured in
+the [V0.5 revision plan](reports/V0_5_PLAYTEST_REVISION_PLAN.md), with separate
+[Claude backend](briefs/V0_5_PLAYTEST_BACKEND_PROMPT.md) and
+[Codex Director](briefs/V0_5_PLAYTEST_DIRECTOR_RESTART_PROMPT.md) start prompts. He confirmed six
+usable combat positions/two locked and repeatable brewing of finite supplies. The bounded revision
+also covers a combined Loadout, pet passive selection, direct-crafted fittings, individual party
+Break, a move-away encounter countdown, an existing-route quest journal, sound and UI fixes.
+These specific requirements supersede the older permanent-supply and quest/party-Break holds for
+this assignment; the broader V2/V0.6 roadmap remains separate. Full integration and acceptance are
+not claimed; application 0.5.0/save version 1 and all uncommitted work are preserved.
+The [Director implementation report](reports/V0_5_PLAYTEST_DIRECTOR_IMPLEMENTATION.md) tracks
+feedback coverage, fresh checks, reviewed captures and remaining owner/human gates. Title/tooltips,
+unified Loadout, bag, station, journal/countdown views, compact outcomes and feedback adapters now
+consume the published backend contracts; actual host captures confirm those routes.
+The [backend contract report](reports/V0_5_PLAYTEST_BACKEND_IMPLEMENTATION.md) publishes finite-stock,
+source-action, pet, quest, countdown and Break facts. Published APIs are not a completed backend
+handoff. Fresh engine checks and rendered review are recorded in the Director report; the broad
+suite still has protected backend failures, and human acceptance remains open. D-055–D-057
+record the confirmed UI scope and provisional playtest policies without claiming balance approval.
+
+**Latest UI iteration:** Adrian requested the [journey/station/character prototype](design/V05_UI_PROTOTYPE.md).
+Title has five public choices; dedicated Forge and Stillroom replace the preparation-bench flow;
+Character contains Equipment, Inventory, Combat and Field Guide; stacked save/pickup notices
+replace shifting status text. [Claude's backend return](reports/V0_5_UI_BACKEND_IMPLEMENTATION.md)
+implements journey creation, unified autosave events, field equipment selection, service validation
+and saved six-of-eight Combat arrangements. [Director acceptance](reports/V0_5_UI_DIRECTOR_ACCEPTANCE.md)
+and [presentation evidence](reports/V0_5_UI_PRESENTATION.md) return the working integration for
+Adrian's human test. D-049–D-054 settle the six decisions: difficulty per journey, deterministic
+Adventurer fallback, Kindle initially unplaced, grid-order refill, equipment no-ops and notice
+ownership of screen space. No balance or version change.
+
+**Integrated V0.5:** Adrian authorized completing V0.5A/B/C on the shared uncommitted tree.
+Application is 0.5.0, save version 1. Salvage, character inspection and bag expansion, field
+equipment, Forge fittings/refund, permanent Stillroom recipes and two distinct prepared potions
+are connected. Adopt the [bounded C placement and persistence specification](design/V05C_EXPLORATION.md):
+one once-per-save iron seam; low → high → middle reveals the drowned niche; searching grants
+the existing Fenrunner Leathers once. Main route, combat numbers and all-reset encounter resources
+are unchanged. [Integrated human test](playtests/V0_5_INTEGRATED_TEST.md) is next; gameplay,
+controller, art and listening acceptance remain open. Older milestone descriptions below record
+their original scope; V0.6 Pressure, quests, bosses and new regions remain later work.
 
 **Owner:** Game Director (ChatGPT). **Current milestone:** M1 combat foundation implemented;
 M1.1 combat clarity and icon-first UI/art integration implemented. V0.3 adds a Field Guide for

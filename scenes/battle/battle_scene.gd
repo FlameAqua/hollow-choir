@@ -112,6 +112,9 @@ func start(p_launch: BattleLaunch) -> void:
 	AudioManager.request_music(AudioManager.battle_music(launch.setup))
 	engine = BattleEngine.new(launch.setup)
 	var battle_seed := launch.setup.seed
+	# Encounter + seed (+ the recorded input log) replay the battle exactly (BattleReplay).
+	SessionLog.event("battle", "start %s, %d enemies, seed %d, %s" % [launch.setup.label, launch.setup.enemies.size(),
+		battle_seed, launch.setup.difficulty.display_name if launch.setup.difficulty != null else "default difficulty"])
 	_autopilot = PartyAutopilot.new(PartyAutopilot.Policy.SMART, battle_seed + 1)
 	_executor = null
 	if launch.simulated_execution >= 0:
@@ -138,7 +141,8 @@ func start(p_launch: BattleLaunch) -> void:
 	_timeline.use_art = use_art
 	_ribbon.engine = engine
 	_ribbon.ledger = _events.ledger
-	_familiar.setup(engine.get_state().familiar, _events.ledger, use_art)
+	# Playtest revision: the card reports the familiar passive this battle really applies.
+	_familiar.setup(engine.get_state().familiar, _events.ledger, use_art, engine.get_state().familiar_trait)
 	_picker.setup(engine, _menu, _battlefield, _info)
 	_header_title.text = launch.setup.label if not launch.setup.label.is_empty() else "Battle"
 	_apply_settings()
@@ -368,6 +372,8 @@ func _finish_battle() -> void:
 	_battlefield.set_active(-1)
 	_result = engine.build_result()
 	var outcome := engine.get_outcome()
+	SessionLog.event("battle", "%s after %d rounds, %d inputs" % [EnumText.outcome(outcome), _result.rounds,
+		_result.input_log.size()])
 	AudioManager.play(AudioManager.Cue.VICTORY if outcome == Enums.BattleOutcome.VICTORY else AudioManager.Cue.DEFEAT)
 	if host_result:
 		await _banner.announce(EnumText.outcome(outcome), "", 0.9 / _events.speed, _events.speed)

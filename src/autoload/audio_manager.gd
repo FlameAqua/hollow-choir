@@ -8,7 +8,19 @@ enum Cue {
 	UI_MOVE, UI_CONFIRM, UI_CANCEL, HIT, HIT_HEAVY, WEAKNESS, PERFECT, GOOD, MISS, PARRY, BRACE,
 	EVADE, BREAK, STATUS, HEAL, FOCUS, TELEGRAPH, CHANNEL, BEAT, CHARGE, VICTORY, DEFEAT,
 	STEP_PEAT, STEP_STONE, STEP_WOOD,
+	RUNE_LOW, RUNE_MID, RUNE_HIGH,
+	# Playtest revision, appended so every earlier value keeps its index. Director assets:
+	# ui_equip.wav, ui_unequip.wav, craft_smith.wav, craft_brew.wav, purchase.wav. A cue without
+	# its file stays a silent no-op (see _ready and play).
+	UI_EQUIP, UI_UNEQUIP, CRAFT_SMITH, CRAFT_BREW, PURCHASE,
 }
+
+## Playtest revision: the cue of each adopted, changed operation, by the result's operation() name.
+## The one owner of this choice; presentation plays operation_cue(result) and adds no other success
+## sound. Fitting and preparing reuse the equip cue; removing reuses the unequip cue.
+const OPERATION_CUES := {&"equip": Cue.UI_EQUIP, &"unequip": Cue.UI_UNEQUIP, &"prepare": Cue.UI_EQUIP,
+	&"fit": Cue.UI_EQUIP, &"remove": Cue.UI_UNEQUIP, &"brew": Cue.CRAFT_BREW, &"craft": Cue.CRAFT_SMITH,
+	&"refund": Cue.PURCHASE, &"purchase": Cue.PURCHASE}
 
 const BUS_MASTER := &"Master"
 const BUS_MUSIC := &"Music"
@@ -51,6 +63,15 @@ func play(cue: Cue, pitch_variation: float = 0.0, volume_db: float = 0.0) -> voi
 	if pitch_variation > 0.0:
 		player.pitch_scale += randf_range(-pitch_variation, pitch_variation)
 	player.play()
+
+
+## The cue for [param result] (a CraftingResult, PreparationResult or FamiliarResult published by
+## EventBus.crafting_completed, preparation_completed or familiar_changed), or -1 when it changed
+## nothing: a rejection, a no-op and a failed write are silent.
+func operation_cue(result: RefCounted) -> int:
+	if result == null or not result.has_method(&"operation"):
+		return -1
+	return OPERATION_CUES.get(result.call(&"operation"), -1)
 
 
 ## Stops every cue voice and cuts the music at once (test and capture teardown). The audio server

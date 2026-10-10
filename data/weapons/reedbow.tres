@@ -1,5 +1,6 @@
 [gd_resource type="Resource" script_class="WeaponDefinition" format=3]
 
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/items/reedbow_v01.svg" id="inventory_icon"]
 [ext_resource type="Resource" path="res://data/actions/bow/loosed_arrow.tres" id="1_smq1s"]
 [ext_resource type="Resource" path="res://data/actions/bow/steady_aim.tres" id="2_45rp2"]
 [ext_resource type="Script" path="res://src/data/items/weapon_definition.gd" id="3_8kl1g"]
@@ -36,6 +37,7 @@ triggers = Array[ExtResource("9_b1uw1")]([SubResource("Resource_12ji6")])
 
 [resource]
 script = ExtResource("3_8kl1g")
+icon = ExtResource("inventory_icon")
 id = &"reedbow"
 display_name = "Reedbow"
 description = "A fen-hunter's bow of bound reeds. Light, quiet, patient."

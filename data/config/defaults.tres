@@ -11,6 +11,10 @@
 [ext_resource type="Resource" path="res://data/encounters/rot_grove.tres" id="9_grove"]
 [ext_resource type="Resource" path="res://data/encounters/mirebell_cantor.tres" id="10_boss"]
 [ext_resource type="Texture2D" path="res://assets/art/environments/briarfen/briarfen_marsh_night_1.png" id="11_stage"]
+[ext_resource type="Script" path="res://src/data/items/weapon_definition.gd" id="12_weapon"]
+[ext_resource type="Resource" path="res://data/weapons/pilgrims_edge.tres" id="13_edge"]
+[ext_resource type="Resource" path="res://data/weapons/mire_maul.tres" id="14_maul"]
+[ext_resource type="Resource" path="res://data/weapons/reedbow.tres" id="15_bow"]
 
 [resource]
 script = ExtResource("1_defaults")
@@ -20,3 +24,4 @@ simulation_loadouts = Array[ExtResource("2_loadout")]([ExtResource("3_sword"), E
 practice_encounters = Array[ExtResource("7_encounter")]([ExtResource("6_toy"), ExtResource("8_fen"), ExtResource("9_grove"), ExtResource("10_boss")])
 practice_loadouts = Array[ExtResource("2_loadout")]([ExtResource("3_sword"), ExtResource("4_hammer"), ExtResource("5_bow")])
 battle_backdrop = ExtResource("11_stage")
+journey_presets = Array[ExtResource("12_weapon")]([ExtResource("13_edge"), ExtResource("14_maul"), ExtResource("15_bow")])

@@ -49,6 +49,7 @@ func _ready() -> void:
 		_choices.grab_focus.call_deferred()
 	else:
 		_back.grab_focus.call_deferred()
+	TooltipPolicy.install(self)
 
 func _build_bestiary() -> void:
 	var page := VBoxContainer.new()
@@ -73,7 +74,8 @@ func _build_bestiary() -> void:
 	_details = VBoxContainer.new()
 	_details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_details.add_theme_constant_override("separation", 12)
-	_scroll.add_child(_details)
+	var gutter := _content_gutter(_scroll)
+	gutter.add_child(_details)
 	if _readouts.is_empty():
 		_details.add_child(UITheme.label("No field notes yet", UITheme.ACCENT, -1, true))
 		_details.add_child(UITheme.label("Read an intent. Inspect a creature. Learn what changes your plan.", UITheme.TEXT, -1, true))
@@ -113,7 +115,7 @@ func _build_mastery() -> void:
 	var records := VBoxContainer.new()
 	records.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	records.add_theme_constant_override("separation", 16)
-	scroll.add_child(records)
+	_content_gutter(scroll).add_child(records)
 	records.add_child(UITheme.label("Recorded practice", UITheme.ACCENT, -1, true))
 	records.add_child(UITheme.label("One point per weapon action, plus one for a Perfect. These totals are a practice record; they grant no stat bonuses or unlocks in this build.", UITheme.TEXT_DIM, -1, true))
 	var progress := GameState.progress
@@ -139,6 +141,14 @@ func _make_scroll(page: Control) -> ScrollContainer:
 	page.add_child(scroll)
 	return scroll
 
+func _content_gutter(scroll: ScrollContainer) -> MarginContainer:
+	var gutter := MarginContainer.new()
+	gutter.name = "ScrollbarGutter"
+	gutter.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	gutter.add_theme_constant_override("margin_right", 16)
+	scroll.add_child(gutter)
+	return gutter
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed(InputBindings.CANCEL) or event.is_action_pressed(InputBindings.MENU):
 		get_viewport().set_input_as_handled()
@@ -147,6 +157,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		var scroll := _scroll if _tabs.current_tab == 0 else _tabs.get_current_tab_control().get_child(0) as ScrollContainer
 		scroll.scroll_vertical += roundi(scroll.size.y * 0.8) * (-1 if event.keycode == KEY_PAGEUP else 1)
 		get_viewport().set_input_as_handled()
+
+## Leaves the guide as Back does (a host's shortcut closes it this way).
+func close() -> void:
+	_leave()
 
 func _leave() -> void:
 	AudioManager.play(AudioManager.Cue.UI_CANCEL)

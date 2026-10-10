@@ -54,9 +54,43 @@ func _run() -> void:
 	match state:
 		"practice", "practice-dropdown", "lab":
 			await _capture_sandbox(state)
-		"title":
+		"title", "title-new", "title-saves", "title-credits", "title-slot", "title-replace", "title-slot-full", "title-slot-failed", "title-replace-damaged":
+			# Fixture saves in the isolated QA home (V0.5 UI: title-slot leaves slot 1 free and slot 3
+			# damaged; title-replace fills every slot to show the deliberate replacement card).
+			if state in ["title-saves", "title-slot", "title-replace", "title-slot-full", "title-slot-failed", "title-replace-damaged"]:
+				for index in 3:
+					var path := SaveManager.slot_path(index)
+					if state in ["title-slot", "title-slot-failed", "title-replace-damaged"] and index == 0:
+						SaveManager.delete_slot(index)
+						continue
+					var progress := ProgressState.new()
+					if state != "title-saves":
+						progress.difficulty = index
+						progress.battles_won = index * 2
+						progress.loadout_weapon = [&"pilgrims_edge", &"mire_maul", &"reedbow"][index]
+					SaveManager.write_progress(index, progress)
+					var envelope := SaveManager.read_json(path)
+					envelope.saved_at_unix = 1791633600 + [0, 7200, 3600][index]
+					SaveManager.write_json_atomic(path, envelope)
+				if state in ["title-slot", "title-slot-failed", "title-replace-damaged"]:
+					var damaged := FileAccess.open(SaveManager.slot_path(2), FileAccess.WRITE)
+					damaged.store_string("{ damaged")
+					damaged.close()
 			var menu := load(SceneRouter.MAIN_MENU).instantiate() as MainMenu
+			menu.enter_world = func() -> void: pass
 			get_tree().root.add_child(menu)
+			if state == "title-new": menu._open_new_journey()
+			elif state == "title-saves": menu._open_save_picker()
+			elif state == "title-credits": menu._open_credits()
+			elif state in ["title-slot", "title-replace", "title-slot-full", "title-slot-failed", "title-replace-damaged"]:
+				menu._open_new_journey()
+				menu._modal.chosen.emit(&"start")
+				if state == "title-slot-failed":
+					menu.journey_writer = func(_slot: int, _candidate: ProgressState) -> Error: return ERR_FILE_CANT_WRITE
+					(menu._modal.find_child("JourneySlot_0", true, false) as Button).pressed.emit()
+				elif state in ["title-replace", "title-replace-damaged"]:
+					await _frames(2)
+					(menu._modal.find_child("JourneySlot_2" if state == "title-replace-damaged" else "JourneySlot_1", true, false) as Button).pressed.emit()
 			await _frames(10)
 			print("TITLE panel=", menu._menu_panel.get_global_rect(), " minimum=", menu._menu_panel.get_combined_minimum_size(), " column=", menu._column.get_combined_minimum_size())
 			_save()
@@ -289,6 +323,30 @@ func _capture_battle(state: String) -> void:
 		scene._battlefield.view(uid).queue_redraw()
 		scene._timeline.queue_redraw()
 		await _frames(3)
+	if _args.has("broken-party"):
+		# Display-only fixture: one party member is Broken while the other's meter stays full.
+		# Combat consequences and recovery are verified by the backend's party Break suite.
+		var uid := scene.engine.get_state().party()[0].uid
+		var display := scene._events.ledger.unit(uid)
+		display.stagger = 0
+		display.broken = true
+		scene._battlefield.view(uid).displayed_stagger = 0
+		scene._battlefield.view(uid).queue_redraw()
+		scene._timeline.queue_redraw()
+		await _frames(3)
+	if _args.has("exposed"):
+		# Presentation fixture: the ledger announces exposure, without mutating combat rules.
+		var uid := scene.engine.get_state().enemies()[0].uid
+		scene._events.ledger.unit(uid).weak_point = true
+		var view := scene._battlefield.view(uid)
+		view.queue_redraw()
+		await _frames(3)
+		if _args.has("inspect-exposed"):
+			for region in view._regions:
+				if String(region.text).contains("Exposed weak point"):
+					_move(view.global_position + (region.rect as Rect2).get_center())
+					break
+			await _frames(6)
 	_save()
 
 

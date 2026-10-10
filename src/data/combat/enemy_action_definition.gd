@@ -42,6 +42,10 @@ extends ActionDefinition
 @export var windup_ms: float = 900.0
 ## Scales all reaction windows for this move (fast jabs < 1, slow slams > 1).
 @export var reaction_window_scale: float = 1.0
+## Playtest revision: Break this action removes from a party target that does not react
+## (-1 = BalanceConfig.party_break_hit). Only a damaging action deals it; reactions scale it
+## (StaggerRules.party_break_amount).
+@export var party_break: float = -1.0
 
 
 func allows_reaction(reaction: Enums.ReactionType) -> bool:

@@ -1,5 +1,6 @@
 [gd_resource type="Resource" script_class="ArmorDefinition" format=3]
 
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/items/storm_salt_charm_v01.svg" id="inventory_icon"]
 [ext_resource type="Script" path="res://src/data/combat/action_definition.gd" id="1_80r8l"]
 [ext_resource type="Script" path="res://src/data/items/armor_definition.gd" id="2_subj0"]
 [ext_resource type="Script" path="res://src/data/rules/trait_definition.gd" id="3_lv2ib"]
@@ -38,6 +39,7 @@ triggers = Array[ExtResource("5_iy810")]([SubResource("Resource_nuudx")])
 
 [resource]
 script = ExtResource("2_subj0")
+icon = ExtResource("inventory_icon")
 id = &"storm_salt_charm"
 display_name = "Storm Salt Charm"
 description = "A twist of cloth around salt harvested after a lightning storm."

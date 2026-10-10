@@ -1,5 +1,6 @@
 [gd_resource type="Resource" script_class="ArmorDefinition" format=3]
 
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/items/pilgrims_coat_v01.svg" id="inventory_icon"]
 [ext_resource type="Script" path="res://src/data/combat/action_definition.gd" id="1_xwyoq"]
 [ext_resource type="Script" path="res://src/data/items/armor_definition.gd" id="2_k6377"]
 [ext_resource type="Script" path="res://src/data/rules/trait_definition.gd" id="3_q4sln"]
@@ -35,6 +36,7 @@ triggers = Array[ExtResource("5_1jvye")]([SubResource("Resource_dxex1")])
 
 [resource]
 script = ExtResource("2_k6377")
+icon = ExtResource("inventory_icon")
 id = &"pilgrims_coat"
 display_name = "Pilgrim's Coat"
 description = "Layered wool stitched with Choir verses."

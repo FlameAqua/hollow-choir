@@ -29,6 +29,7 @@ var _pending_enemy_action: EnemyActionDefinition
 var _skipping: bool = false
 var _weapon_uses: Dictionary[StringName, int] = {}
 var _weapon_perfects: Dictionary[StringName, int] = {}
+var _item_uses: Dictionary[StringName, int] = {}
 
 
 func _init(setup: BattleSetup) -> void:
@@ -109,6 +110,7 @@ func build_result() -> BattleResult:
 		result.research[enemy_id] = sources
 	result.weapon_uses = _weapon_uses.duplicate()
 	result.weapon_perfects = _weapon_perfects.duplicate()
+	result.item_uses = _item_uses.duplicate()
 	for unit in ctx.state.units:
 		if unit.is_enemy() and not unit.is_alive():
 			result.defeated_enemies.append(unit.definition.id)
@@ -365,11 +367,9 @@ func _enemy_activation(unit: BattleUnit) -> void:
 	for target in targets:
 		_pending_target_uids.append(target.uid)
 	_pending_enemy_action = action
-	if IntentRules.needs_reaction(action, targets):
-		var party_targets: Array[BattleUnit] = []
-		for target in targets:
-			if target.side == Enums.Side.PLAYER:
-				party_targets.append(target)
+	# Only party targets that can react share the reaction; a Broken one is hit without one.
+	var party_targets := IntentRules.reacting_targets(action, targets)
+	if not party_targets.is_empty():
 		var request := ReactionRequest.new()
 		request.unit_uid = party_targets[0].uid
 		request.attacker_uid = unit.uid
@@ -409,8 +409,14 @@ func _action_resolve() -> void:
 	# (not Inspect or other non-damaging actions).
 	if _choice.action.deals_damage():
 		targets = InterceptRules.redirect(ctx, _choice.action, targets)
+	var used_potion: PotionDefinition = null
+	if _choice.item_slot >= 0 and _choice.item_slot < ctx.state.potion_slots.size():
+		used_potion = ctx.state.potion_slots[_choice.item_slot].potion
 	ActionResolver.resolve(ctx, actor, _choice.action, targets, _grade, {}, _choice.item_slot)
 	_tally_weapon_use(actor, _choice.action, _grade)
+	# The dose is spent when the action resolves (ActionResolver pays it), whatever happens next.
+	if used_potion != null:
+		_item_uses[used_potion.id] = _item_uses.get(used_potion.id, 0) + 1
 	_choice = null
 	ctx.state.phase = Enums.BattlePhase.UNIT_END
 	_check_end()

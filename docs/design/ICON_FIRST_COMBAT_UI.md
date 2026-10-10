@@ -1,5 +1,11 @@
 # Icon-first combat UI — 8 October 2026
 
+V0.5 follow-up: [Character Combat prototype](V05_UI_PROTOTYPE.md) combines Actions/Magic/Skills
+as filters with six preview positions and two locks. It reuses CombatIcons and HoverInspector.
+It does not change the actual battle menu or grant actions; persistent arrangement is explicitly
+assigned in [Claude's handoff](../briefs/V0_5_UI_BACKEND_HANDOFF.md). Equipment, Inventory and both
+stations now reuse this same docked inspection behavior instead of visible text dumps.
+
 Canonical presentation addendum, implemented in the working tree at the user's request.
 ChatGPT owns UI direction, art consistency, presentation integration and visual verification.
 This supersedes the older M1.1 layout table, four dock columns, enemy context panels, delayed native

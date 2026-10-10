@@ -21,6 +21,12 @@ extends Resource
 ## Painted stage backdrop for battles (null = the procedural fen). Single-biome pass (M1.1 F5).
 @export var battle_backdrop: Texture2D
 
+@export_group("Journey")
+## V0.5 UI: the starter presets New Journey offers, in order (preset id = weapon id). Each must be a
+## weapon a fresh campaign owns; the rest of the starting loadout is the fresh campaign's
+## (JourneyRules.validate_catalog checks both).
+@export var journey_presets: Array[WeaponDefinition] = []
+
 
 func validate() -> PackedStringArray:
 	var problems := PackedStringArray()
@@ -38,4 +44,7 @@ func validate() -> PackedStringArray:
 	for loadout in practice_loadouts:
 		if loadout == null:
 			problems.append("GameDefaults has a null practice loadout")
+	for weapon in journey_presets:
+		if weapon == null:
+			problems.append("GameDefaults has a null journey preset")
 	return problems

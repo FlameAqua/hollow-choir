@@ -43,15 +43,24 @@ func to_dict() -> Dictionary:
 	return {"points": point_data, "sources": source_data}
 
 
+## Wrong-typed entries are dropped (a damaged save loads with less knowledge, never crashes).
 static func from_dict(data: Dictionary) -> BestiaryState:
 	var state := BestiaryState.new()
-	var point_data: Dictionary = data.get("points", {})
-	for key: String in point_data:
-		state.points[StringName(key)] = int(point_data[key])
-	var source_data: Dictionary = data.get("sources", {})
-	for key: String in source_data:
-		var list := PackedInt32Array()
-		for value in source_data[key]:
-			list.append(int(value))
-		state.sources[StringName(key)] = list
+	var point_data: Variant = data.get("points", {})
+	if typeof(point_data) == TYPE_DICTIONARY:
+		for key: Variant in point_data:
+			var amount := ProgressState.number(point_data[key], -1)
+			if typeof(key) == TYPE_STRING and amount >= 0:
+				state.points[StringName(key)] = amount
+	var source_data: Variant = data.get("sources", {})
+	if typeof(source_data) == TYPE_DICTIONARY:
+		for key: Variant in source_data:
+			if typeof(key) != TYPE_STRING or typeof(source_data[key]) != TYPE_ARRAY:
+				continue
+			var list := PackedInt32Array()
+			for value in source_data[key]:
+				var source := ProgressState.number(value, -1)
+				if source >= 0:
+					list.append(source)
+			state.sources[StringName(key)] = list
 	return state

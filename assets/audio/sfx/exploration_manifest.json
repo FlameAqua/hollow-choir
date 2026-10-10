@@ -1,0 +1,40 @@
+{
+  "palette": "exploration_stone_v01",
+  "date": "2026-10-10",
+  "creator": "Codex / original deterministic procedural synthesis",
+  "authorization": "Adrian requested V0.5 art and SFX integration on 2026-10-10",
+  "recipe": "tools/generate_exploration_sfx.py",
+  "external_samples": false,
+  "sample_rate_hz": 44100,
+  "channels": 1,
+  "bits_per_sample": 16,
+  "loop": false,
+  "human_listening_approval": "pending",
+  "measurement_note": "PCM sample peak and RMS; no audition, LUFS or true peak claim",
+  "cues": [
+    {
+      "file": "rune_low.wav",
+      "sha256": "c920edb3ea7eb007e9083607bbeb738e01fe554b0fee2441878d05e30deaf78e",
+      "frames": 25093,
+      "duration_seconds": 0.569002,
+      "sample_peak_dbfs": -17.39,
+      "rms_dbfs": -33.08
+    },
+    {
+      "file": "rune_mid.wav",
+      "sha256": "94ebeef4a6e4668cff31c4e754af00a8224768aa466c23265919def463a9b890",
+      "frames": 25093,
+      "duration_seconds": 0.569002,
+      "sample_peak_dbfs": -17.39,
+      "rms_dbfs": -32.61
+    },
+    {
+      "file": "rune_high.wav",
+      "sha256": "25872466db67f13b761e9d5188fecbcf8e35c908f1dbf82cb532750480d94017",
+      "frames": 25093,
+      "duration_seconds": 0.569002,
+      "sample_peak_dbfs": -17.39,
+      "rms_dbfs": -32.79
+    }
+  ]
+}

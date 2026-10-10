@@ -4,7 +4,8 @@
 [ext_resource type="TileSet" path="res://assets/art/world/first_footsteps_v01/terrain.tres" id="2_ectwx"]
 [ext_resource type="Script" path="res://src/world/world_state_view.gd" id="3_dk853"]
 [ext_resource type="Texture2D" path="res://assets/art/world/first_footsteps_v01/atlases/props.png" id="4_0d0y5"]
-[ext_resource type="Texture2D" path="res://assets/art/world/first_footsteps_v01/atlases/preparation_bench.tres" id="5_qeqjk"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/journey_v05/forge_station_v01.png" id="5_qeqjk"]
+[ext_resource type="Texture2D" path="res://assets/art/global/ui/journey_v05/stillroom_station_v01.png" id="18_stillroom"]
 [ext_resource type="PackedScene" path="res://assets/art/world/first_footsteps_v01/scenes/bellkeeper.tscn" id="6_55fjc"]
 [ext_resource type="Texture2D" path="res://assets/art/world/first_footsteps_v01/atlases/stillroom_walls.tres" id="7_tdja5"]
 [ext_resource type="Texture2D" path="res://assets/art/world/first_footsteps_v01/atlases/home_walls.tres" id="8_sf2cb"]
@@ -345,24 +346,45 @@ shape = SubResource("RectangleShape2D_4eukd")
 
 [node name="Sprite" type="Sprite2D" parent="DepthSorted/PreparationBench" unique_id=766269465]
 texture_filter = 1
-position = Vector2(-64, -124)
+position = Vector2(-38, -63)
+scale = Vector2(0.06, 0.06)
 texture = ExtResource("5_qeqjk")
 centered = false
 
+[node name="StillroomTable" type="Node2D" parent="DepthSorted"]
+position = Vector2(592, 784)
+
+[node name="Footprint" type="StaticBody2D" parent="DepthSorted/StillroomTable"]
+collision_layer = 2
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="DepthSorted/StillroomTable/Footprint"]
+position = Vector2(0, -9)
+shape = SubResource("RectangleShape2D_4eukd")
+
+[node name="Sprite" type="Sprite2D" parent="DepthSorted/StillroomTable"]
+texture = ExtResource("18_stillroom")
+scale = Vector2(0.07, 0.07)
+offset = Vector2(0, -500)
+texture_filter = 1
+
 [node name="ReedGate" type="Node2D" parent="DepthSorted" unique_id=306148390]
+y_sort_enabled = true
 position = Vector2(2128, 868)
 
 [node name="NorthPost" type="Sprite2D" parent="DepthSorted/ReedGate" unique_id=413691597]
 texture_filter = 1
-position = Vector2(-11, -124)
+position = Vector2(-11, -72)
 texture = SubResource("AtlasTexture_ysmd7")
 centered = false
+offset = Vector2(0, -52)
 
 [node name="SouthPost" type="Sprite2D" parent="DepthSorted/ReedGate" unique_id=1246668092]
 texture_filter = 1
-position = Vector2(-11, -24)
+position = Vector2(-11, 28)
 texture = SubResource("AtlasTexture_b5mg5")
 centered = false
+offset = Vector2(0, -52)
 
 [node name="Bellkeeper" type="Node2D" parent="DepthSorted" unique_id=195967732]
 position = Vector2(848, 832)
@@ -741,6 +763,11 @@ radius = 56.0
 
 [node name="preparation_bench" type="Node2D" parent="Interactions" unique_id=1412414325]
 position = Vector2(496, 1008)
+script = ExtResource("16_4u5ti")
+radius = 56.0
+
+[node name="stillroom_table" type="Node2D" parent="Interactions"]
+position = Vector2(592, 784)
 script = ExtResource("16_4u5ti")
 radius = 56.0
 

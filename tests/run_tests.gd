@@ -25,6 +25,10 @@ func _run() -> void:
 	# Autoloads finish _ready() during the first frame; tests may rely on them.
 	await process_frame
 	_logger.take_errors()
+	# Session breadcrumbs (world areas, battles, saves) would only bury the test report.
+	var session_log := root.get_node_or_null("SessionLog")
+	if session_log != null:
+		session_log.set("quiet", true)
 	if not QA_USER_DATA.check():
 		OS.remove_logger(_logger)
 		quit(1)

@@ -50,11 +50,21 @@ var _header: Label
 var _instruction: Label
 var _footer: Label
 var _meter_space: Control
+var _battlefield: Battlefield
 
 
 func begin(p_spec: ReactionSpec, p_readout: ReactionReadout, p_targets: Array[Vector2], p_dock_rect: Rect2, preparing: bool = false) -> void:
 	spec = p_spec
 	readout = p_readout
+	# The timed dock changes the stage layout after begin(). Resolve the actual targets at paint
+	# time, including the very first frame, rather than keeping the pre-layout snapshot.
+	var scope := get_parent_control()
+	while scope != null and _battlefield == null:
+		for node in scope.find_children("*", "", true, false):
+			if node is Battlefield:
+				_battlefield = node
+				break
+		scope = scope.get_parent_control()
 	target_points = p_targets
 	dock_rect = p_dock_rect
 	var compact_height := minf(dock_rect.size.y, 170 * UITheme.text_scale())
@@ -231,11 +241,25 @@ func _finish() -> void:
 
 # --- Drawing: rings on the stage and the dock meter ---------------------------------------------
 
+func _refresh_target_points() -> void:
+	if is_instance_valid(_battlefield) and readout != null and not readout.target_uids.is_empty():
+		target_points.clear()
+		var inverse := get_global_transform().affine_inverse()
+		for uid in readout.target_uids:
+			target_points.append(inverse * _battlefield.body_point(uid))
+
 func _draw() -> void:
 	if spec == null:
 		return
+	_refresh_target_points()
 	var t := clampf(elapsed_ms() / maxf(1.0, impact_ms()), 0.0, 1.2)
 	for point in target_points:
+		# The timing rings are the background layer. Medallions always paint last.
+		draw_texture_rect(UICraft.texture("ring_open"), Rect2(point - Vector2.ONE * IMPACT_RADIUS, Vector2.ONE * IMPACT_RADIUS * 2), false)
+		if _running or _preparing or _waiting_for_start:
+			var ring_radius := lerpf(START_RADIUS, IMPACT_RADIUS, minf(t, 1.0))
+			var ring_color := UITheme.TEXT if t < 1.0 else UITheme.THREAT
+			draw_texture_rect(UICraft.texture("ring"), Rect2(point - Vector2.ONE * ring_radius, Vector2.ONE * ring_radius * 2), false, ring_color)
 		# Painted medallions brighten at the grader's actual boundaries.
 		for index in REACTIONS.size():
 			var reaction: Enums.ReactionType = REACTIONS[index]
@@ -248,11 +272,6 @@ func _draw() -> void:
 			CombatIcons.paint(self, CombatIcons.mapping("reactions", reaction), Rect2(center - Vector2(16, 16), Vector2(32, 32)), Color.WHITE if allowed else Color(0.35, 0.35, 0.35))
 			if open:
 				draw_texture_rect(UICraft.texture("reaction_selected"), Rect2(center - Vector2(19, 19), Vector2(38, 38)), false, color)
-		draw_texture_rect(UICraft.texture("ring_open"), Rect2(point - Vector2.ONE * IMPACT_RADIUS, Vector2.ONE * IMPACT_RADIUS * 2), false)
-		if _running or _preparing or _waiting_for_start:
-			var radius := lerpf(START_RADIUS, IMPACT_RADIUS, minf(t, 1.0))
-			var color := UITheme.TEXT if t < 1.0 else UITheme.THREAT
-			draw_texture_rect(UICraft.texture("ring"), Rect2(point - Vector2.ONE * radius, Vector2.ONE * radius * 2), false, color)
 
 
 ## The grader's own test (ReactionRules.is_success at this instant), so the cue cannot drift from

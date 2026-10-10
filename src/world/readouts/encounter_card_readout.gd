@@ -11,6 +11,9 @@ var conditions: Array[Dictionary] = []
 var creatures: PackedStringArray = PackedStringArray()
 var resource_rule: String = ""
 var optional: bool = false
+## V0.5A: this site's first-victory salvage for this save (AVAILABLE or CLAIMED). Item facts only;
+## not rendered by the current card and not part of plain_text().
+var rewards: Array[RewardReadout] = []
 
 
 func plain_text() -> String:
